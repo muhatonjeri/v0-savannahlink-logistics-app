@@ -31,6 +31,9 @@ import {
   FileWarning,
   Plus,
   X,
+  History,
+  MapPin,
+  Eye,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -66,8 +69,9 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { saveBooking, generateId, searchClients, saveClientFromBooking, getClients, saveClient } from "@/lib/store";
-import type { ClientAlert, ClientAlertType } from "@/types";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { saveBooking, generateId, searchClients, saveClientFromBooking, getClients, saveClient, getClientBookingHistory, initializeDemoBookingHistory } from "@/lib/store";
+import type { ClientAlert, ClientAlertType, Booking } from "@/types";
 import type { Client } from "@/types";
 import { toast } from "sonner";
 import type { CarRentalBooking } from "@/types";
@@ -171,6 +175,15 @@ export default function NewCarRentalAdminPage() {
   // Blacklist dialog state
   const [showBlacklistDialog, setShowBlacklistDialog] = useState(false);
   const [blacklistReason, setBlacklistReason] = useState("");
+  
+  // Client history state
+  const [clientBookingHistory, setClientBookingHistory] = useState<Booking[]>([]);
+  const [showClientHistory, setShowClientHistory] = useState(false);
+  
+  // Initialize demo data on mount
+  useEffect(() => {
+    initializeDemoBookingHistory();
+  }, []);
   
   // Fingerprint capture state for new clients
   const [leftThumbScanning, setLeftThumbScanning] = useState(false);
@@ -458,6 +471,11 @@ export default function NewCarRentalAdminPage() {
     form.setValue("fingerprintLeftUrl", client.fingerprintLeftUrl || "");
     form.setValue("fingerprintRightUrl", client.fingerprintRightUrl || "");
     form.setValue("passportPhotoUrl", client.passportPhotoUrl || "");
+    
+    // Load client booking history
+    const history = getClientBookingHistory(client.idNumber);
+    setClientBookingHistory(history);
+    setShowClientHistory(true);
     
     toast.success(`Client "${client.fullName}" loaded! Previous bookings: ${client.totalBookings}`);
   };
@@ -1288,6 +1306,210 @@ export default function NewCarRentalAdminPage() {
                           <p className="text-sm text-blue-700 dark:text-blue-400">{selectedClient.notes}</p>
                         </div>
                       </div>
+                    </div>
+                  )}
+
+                  {/* Client Booking History Timeline */}
+                  {showClientHistory && (
+                    <div className="rounded-lg border-2 border-indigo-300 dark:border-indigo-700 bg-indigo-50 dark:bg-indigo-950/30 p-4">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2">
+                          <History className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                          <h4 className="font-bold text-indigo-800 dark:text-indigo-300">
+                            Booking History
+                            <span className="ml-2 text-sm font-normal text-indigo-600 dark:text-indigo-400">
+                              ({clientBookingHistory.length} records)
+                            </span>
+                          </h4>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setShowClientHistory(false)}
+                          className="text-indigo-600 hover:text-indigo-800"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+
+                      {clientBookingHistory.length > 0 ? (
+                        <Tabs defaultValue="timeline" className="w-full">
+                          <TabsList className="grid w-full grid-cols-2 mb-4">
+                            <TabsTrigger value="timeline" className="gap-2">
+                              <History className="h-4 w-4" />
+                              Timeline View
+                            </TabsTrigger>
+                            <TabsTrigger value="summary" className="gap-2">
+                              <Eye className="h-4 w-4" />
+                              Summary
+                            </TabsTrigger>
+                          </TabsList>
+                          
+                          <TabsContent value="timeline" className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
+                            {clientBookingHistory.map((booking, index) => (
+                              <div 
+                                key={booking.id}
+                                className="relative pl-6 pb-4 border-l-2 border-indigo-300 dark:border-indigo-600 last:border-l-0 last:pb-0"
+                              >
+                                {/* Timeline dot */}
+                                <div className={`absolute -left-2 top-0 h-4 w-4 rounded-full border-2 ${
+                                  booking.status === "completed" 
+                                    ? "bg-green-500 border-green-300"
+                                    : booking.status === "cancelled"
+                                    ? "bg-red-500 border-red-300"
+                                    : "bg-amber-500 border-amber-300"
+                                }`} />
+                                
+                                <div className={`rounded-lg p-4 ${
+                                  booking.paymentStatus === "paid"
+                                    ? "bg-white dark:bg-gray-800 border border-green-200 dark:border-green-800"
+                                    : booking.paymentStatus === "partial"
+                                    ? "bg-white dark:bg-gray-800 border border-amber-200 dark:border-amber-800"
+                                    : "bg-white dark:bg-gray-800 border border-red-200 dark:border-red-800"
+                                }`}>
+                                  {/* Header */}
+                                  <div className="flex items-start justify-between mb-2">
+                                    <div>
+                                      <p className="font-bold text-gray-900 dark:text-white">
+                                        {booking.vehicleDetails?.make} {booking.vehicleDetails?.model}
+                                      </p>
+                                      <p className="text-xs text-gray-500">
+                                        Booking #{booking.id.slice(-8).toUpperCase()}
+                                      </p>
+                                    </div>
+                                    <div className="text-right">
+                                      <span className={`text-xs font-semibold px-2 py-1 rounded-full ${
+                                        booking.status === "completed"
+                                          ? "bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-400"
+                                          : booking.status === "cancelled"
+                                          ? "bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-400"
+                                          : "bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-400"
+                                      }`}>
+                                        {booking.status?.toUpperCase()}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  
+                                  {/* Trip Details */}
+                                  <div className="grid grid-cols-2 gap-2 text-sm mb-3">
+                                    <div className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
+                                      <MapPin className="h-3 w-3" />
+                                      <span className="truncate">{booking.tripDetails?.pickupLocation}</span>
+                                    </div>
+                                    <div className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
+                                      <MapPin className="h-3 w-3 text-red-500" />
+                                      <span className="truncate">{booking.tripDetails?.dropoffLocation}</span>
+                                    </div>
+                                  </div>
+                                  
+                                  {/* Date & Payment */}
+                                  <div className="flex items-center justify-between text-sm">
+                                    <div className="flex items-center gap-1 text-gray-500">
+                                      <Calendar className="h-3 w-3" />
+                                      <span>
+                                        {new Date(booking.tripDetails?.pickupDate || "").toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                                        {" - "}
+                                        {new Date(booking.tripDetails?.returnDate || "").toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                                      </span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <span className={`font-bold ${
+                                        booking.paymentStatus === "paid"
+                                          ? "text-green-600"
+                                          : booking.paymentStatus === "partial"
+                                          ? "text-amber-600"
+                                          : "text-red-600"
+                                      }`}>
+                                        KES {booking.totalAmount?.toLocaleString() || 0}
+                                      </span>
+                                      <span className={`text-xs px-1.5 py-0.5 rounded ${
+                                        booking.paymentStatus === "paid"
+                                          ? "bg-green-100 text-green-700"
+                                          : booking.paymentStatus === "partial"
+                                          ? "bg-amber-100 text-amber-700"
+                                          : "bg-red-100 text-red-700"
+                                      }`}>
+                                        {booking.paymentStatus?.toUpperCase()}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </TabsContent>
+                          
+                          <TabsContent value="summary">
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                              {/* Total Bookings */}
+                              <div className="rounded-lg bg-white dark:bg-gray-800 p-3 border border-indigo-200 dark:border-indigo-700">
+                                <p className="text-xs text-gray-500 dark:text-gray-400">Total Bookings</p>
+                                <p className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
+                                  {clientBookingHistory.length}
+                                </p>
+                              </div>
+                              
+                              {/* Total Spent */}
+                              <div className="rounded-lg bg-white dark:bg-gray-800 p-3 border border-green-200 dark:border-green-700">
+                                <p className="text-xs text-gray-500 dark:text-gray-400">Total Spent</p>
+                                <p className="text-lg font-bold text-green-600 dark:text-green-400">
+                                  KES {clientBookingHistory.reduce((sum, b) => sum + (b.totalAmount || 0), 0).toLocaleString()}
+                                </p>
+                              </div>
+                              
+                              {/* Completed */}
+                              <div className="rounded-lg bg-white dark:bg-gray-800 p-3 border border-emerald-200 dark:border-emerald-700">
+                                <p className="text-xs text-gray-500 dark:text-gray-400">Completed</p>
+                                <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+                                  {clientBookingHistory.filter(b => b.status === "completed").length}
+                                </p>
+                              </div>
+                              
+                              {/* Unpaid Amount */}
+                              <div className="rounded-lg bg-white dark:bg-gray-800 p-3 border border-red-200 dark:border-red-700">
+                                <p className="text-xs text-gray-500 dark:text-gray-400">Unpaid Balance</p>
+                                <p className="text-lg font-bold text-red-600 dark:text-red-400">
+                                  KES {clientBookingHistory
+                                    .filter(b => b.paymentStatus !== "paid")
+                                    .reduce((sum, b) => sum + (b.totalAmount || 0), 0)
+                                    .toLocaleString()}
+                                </p>
+                              </div>
+                            </div>
+                            
+                            {/* Favorite Vehicles */}
+                            <div className="mt-4 rounded-lg bg-white dark:bg-gray-800 p-3 border border-gray-200 dark:border-gray-700">
+                              <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Frequently Rented Vehicles</p>
+                              <div className="flex flex-wrap gap-2">
+                                {Array.from(new Set(clientBookingHistory.map(b => `${b.vehicleDetails?.make} ${b.vehicleDetails?.model}`))).slice(0, 5).map((vehicle, i) => (
+                                  <span key={i} className="text-xs bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 px-2 py-1 rounded-full">
+                                    {vehicle}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                            
+                            {/* Frequent Destinations */}
+                            <div className="mt-3 rounded-lg bg-white dark:bg-gray-800 p-3 border border-gray-200 dark:border-gray-700">
+                              <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Frequent Destinations</p>
+                              <div className="flex flex-wrap gap-2">
+                                {Array.from(new Set(clientBookingHistory.map(b => b.tripDetails?.dropoffLocation))).filter(Boolean).slice(0, 5).map((dest, i) => (
+                                  <span key={i} className="text-xs bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 px-2 py-1 rounded-full flex items-center gap-1">
+                                    <MapPin className="h-3 w-3" />
+                                    {dest}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          </TabsContent>
+                        </Tabs>
+                      ) : (
+                        <div className="text-center py-6 text-gray-500">
+                          <History className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                          <p>No booking history found for this client.</p>
+                          <p className="text-sm">This appears to be their first booking.</p>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

@@ -255,6 +255,308 @@ export function getBookingsByService(serviceType: string): Booking[] {
   return bookings.filter((b) => b.serviceType === serviceType);
 }
 
+// Get booking history for a specific client by ID number or phone
+export function getClientBookingHistory(clientIdNumber: string): Booking[] {
+  const bookings = getBookings();
+  return bookings.filter((b) => 
+    b.customerDetails?.idNumber === clientIdNumber ||
+    b.customerDetails?.phone?.includes(clientIdNumber.slice(-9))
+  ).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+}
+
+// Demo booking history for testing
+const demoBookingHistory: Booking[] = [
+  {
+    id: "booking-hist-1",
+    serviceType: "car-rental",
+    customerDetails: {
+      fullName: "James Mwangi Kariuki",
+      email: "james.mwangi@gmail.com",
+      phone: "+254712345678",
+      idNumber: "12345678",
+    },
+    vehicleDetails: {
+      make: "Toyota",
+      model: "Land Cruiser V8",
+      rentalType: "self-drive",
+    },
+    tripDetails: {
+      pickupLocation: "JKIA Airport",
+      dropoffLocation: "Nairobi CBD",
+      pickupDate: "2024-01-20",
+      pickupTime: "10:00",
+      returnDate: "2024-01-25",
+      returnTime: "18:00",
+    },
+    status: "completed",
+    paymentStatus: "paid",
+    totalAmount: 75000,
+    createdAt: "2024-01-18T08:00:00.000Z",
+    updatedAt: "2024-01-25T18:30:00.000Z",
+  },
+  {
+    id: "booking-hist-2",
+    serviceType: "car-rental",
+    customerDetails: {
+      fullName: "James Mwangi Kariuki",
+      email: "james.mwangi@gmail.com",
+      phone: "+254712345678",
+      idNumber: "12345678",
+    },
+    vehicleDetails: {
+      make: "Toyota",
+      model: "Prado TX",
+      rentalType: "chauffeur-driven",
+    },
+    tripDetails: {
+      pickupLocation: "Westlands",
+      dropoffLocation: "Maasai Mara",
+      pickupDate: "2024-03-10",
+      pickupTime: "06:00",
+      returnDate: "2024-03-14",
+      returnTime: "20:00",
+    },
+    status: "completed",
+    paymentStatus: "paid",
+    totalAmount: 120000,
+    createdAt: "2024-03-05T14:00:00.000Z",
+    updatedAt: "2024-03-14T21:00:00.000Z",
+  },
+  {
+    id: "booking-hist-3",
+    serviceType: "car-rental",
+    customerDetails: {
+      fullName: "James Mwangi Kariuki",
+      email: "james.mwangi@gmail.com",
+      phone: "+254712345678",
+      idNumber: "12345678",
+    },
+    vehicleDetails: {
+      make: "Mercedes-Benz",
+      model: "E-Class",
+      rentalType: "self-drive",
+    },
+    tripDetails: {
+      pickupLocation: "Nairobi CBD",
+      dropoffLocation: "Nairobi CBD",
+      pickupDate: "2024-06-15",
+      pickupTime: "09:00",
+      returnDate: "2024-06-17",
+      returnTime: "18:00",
+    },
+    status: "completed",
+    paymentStatus: "paid",
+    totalAmount: 45000,
+    createdAt: "2024-06-12T10:00:00.000Z",
+    updatedAt: "2024-06-17T19:00:00.000Z",
+  },
+  {
+    id: "booking-hist-4",
+    serviceType: "car-rental",
+    customerDetails: {
+      fullName: "James Mwangi Kariuki",
+      email: "james.mwangi@gmail.com",
+      phone: "+254712345678",
+      idNumber: "12345678",
+    },
+    vehicleDetails: {
+      make: "Nissan",
+      model: "Patrol",
+      rentalType: "self-drive",
+    },
+    tripDetails: {
+      pickupLocation: "JKIA Airport",
+      dropoffLocation: "Mombasa",
+      pickupDate: "2024-09-01",
+      pickupTime: "07:00",
+      returnDate: "2024-09-07",
+      returnTime: "19:00",
+    },
+    status: "completed",
+    paymentStatus: "paid",
+    totalAmount: 98000,
+    createdAt: "2024-08-28T11:00:00.000Z",
+    updatedAt: "2024-09-07T20:00:00.000Z",
+  },
+  {
+    id: "booking-hist-5",
+    serviceType: "car-rental",
+    customerDetails: {
+      fullName: "James Mwangi Kariuki",
+      email: "james.mwangi@gmail.com",
+      phone: "+254712345678",
+      idNumber: "12345678",
+    },
+    vehicleDetails: {
+      make: "Toyota",
+      model: "Hilux Double Cab",
+      rentalType: "self-drive",
+    },
+    tripDetails: {
+      pickupLocation: "Westlands",
+      dropoffLocation: "Nakuru",
+      pickupDate: "2024-11-20",
+      pickupTime: "08:00",
+      returnDate: "2024-11-22",
+      returnTime: "17:00",
+    },
+    status: "completed",
+    paymentStatus: "paid",
+    totalAmount: 35000,
+    createdAt: "2024-11-18T09:00:00.000Z",
+    updatedAt: "2024-11-22T18:00:00.000Z",
+  },
+  {
+    id: "booking-hist-6",
+    serviceType: "car-rental",
+    customerDetails: {
+      fullName: "Grace Akinyi Odhiambo",
+      email: "grace.akinyi@yahoo.com",
+      phone: "+254723456789",
+      idNumber: "23456789",
+    },
+    vehicleDetails: {
+      make: "Toyota",
+      model: "Fortuner",
+      rentalType: "self-drive",
+    },
+    tripDetails: {
+      pickupLocation: "Kilimani",
+      dropoffLocation: "Lake Naivasha",
+      pickupDate: "2024-05-10",
+      pickupTime: "06:00",
+      returnDate: "2024-05-12",
+      returnTime: "20:00",
+    },
+    status: "completed",
+    paymentStatus: "paid",
+    totalAmount: 28000,
+    createdAt: "2024-05-08T10:00:00.000Z",
+    updatedAt: "2024-05-12T21:00:00.000Z",
+  },
+  {
+    id: "booking-hist-7",
+    serviceType: "car-rental",
+    customerDetails: {
+      fullName: "Grace Akinyi Odhiambo",
+      email: "grace.akinyi@yahoo.com",
+      phone: "+254723456789",
+      idNumber: "23456789",
+    },
+    vehicleDetails: {
+      make: "Mazda",
+      model: "CX-5",
+      rentalType: "self-drive",
+    },
+    tripDetails: {
+      pickupLocation: "JKIA Airport",
+      dropoffLocation: "Kilimani",
+      pickupDate: "2024-09-15",
+      pickupTime: "14:00",
+      returnDate: "2024-09-20",
+      returnTime: "10:00",
+    },
+    status: "completed",
+    paymentStatus: "partial",
+    totalAmount: 42000,
+    createdAt: "2024-09-12T08:00:00.000Z",
+    updatedAt: "2024-09-22T11:00:00.000Z",
+  },
+  {
+    id: "booking-hist-8",
+    serviceType: "car-rental",
+    customerDetails: {
+      fullName: "Grace Akinyi Odhiambo",
+      email: "grace.akinyi@yahoo.com",
+      phone: "+254723456789",
+      idNumber: "23456789",
+    },
+    vehicleDetails: {
+      make: "Toyota",
+      model: "RAV4",
+      rentalType: "chauffeur-driven",
+    },
+    tripDetails: {
+      pickupLocation: "Kilimani",
+      dropoffLocation: "Amboseli",
+      pickupDate: "2024-11-01",
+      pickupTime: "05:00",
+      returnDate: "2024-11-04",
+      returnTime: "22:00",
+    },
+    status: "completed",
+    paymentStatus: "unpaid",
+    totalAmount: 65000,
+    createdAt: "2024-10-28T12:00:00.000Z",
+    updatedAt: "2024-11-04T23:00:00.000Z",
+  },
+  {
+    id: "booking-hist-9",
+    serviceType: "car-rental",
+    customerDetails: {
+      fullName: "David Kipchoge Korir",
+      email: "david.kipchoge@outlook.com",
+      phone: "+254734567890",
+      idNumber: "34567890",
+    },
+    vehicleDetails: {
+      make: "Toyota",
+      model: "Prado TX",
+      rentalType: "self-drive",
+    },
+    tripDetails: {
+      pickupLocation: "Karen",
+      dropoffLocation: "Maasai Mara",
+      pickupDate: "2024-04-20",
+      pickupTime: "05:00",
+      returnDate: "2024-04-25",
+      returnTime: "20:00",
+    },
+    status: "completed",
+    paymentStatus: "paid",
+    totalAmount: 85000,
+    createdAt: "2024-04-15T14:00:00.000Z",
+    updatedAt: "2024-04-25T21:00:00.000Z",
+  },
+  {
+    id: "booking-hist-10",
+    serviceType: "car-rental",
+    customerDetails: {
+      fullName: "David Kipchoge Korir",
+      email: "david.kipchoge@outlook.com",
+      phone: "+254734567890",
+      idNumber: "34567890",
+    },
+    vehicleDetails: {
+      make: "Toyota",
+      model: "Land Cruiser V8",
+      rentalType: "self-drive",
+    },
+    tripDetails: {
+      pickupLocation: "Karen",
+      dropoffLocation: "Samburu",
+      pickupDate: "2024-08-10",
+      pickupTime: "06:00",
+      returnDate: "2024-08-17",
+      returnTime: "18:00",
+    },
+    status: "completed",
+    paymentStatus: "partial",
+    totalAmount: 140000,
+    createdAt: "2024-08-05T09:00:00.000Z",
+    updatedAt: "2024-08-17T19:00:00.000Z",
+  },
+];
+
+// Initialize demo booking history on first load
+export function initializeDemoBookingHistory(): void {
+  if (typeof window === "undefined") return;
+  const existing = getBookings();
+  if (existing.length === 0) {
+    setStorage(BOOKINGS_KEY, demoBookingHistory);
+  }
+}
+
 export function saveBooking(booking: Booking): Booking {
   const bookings = getBookings();
   const existingIndex = bookings.findIndex((b) => b.id === booking.id);
