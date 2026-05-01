@@ -220,6 +220,21 @@ export type Booking =
   | ShipmentBooking
   | ConstructionEquipmentBooking;
 
+// Client Alert Types
+export type ClientAlertType = "debt" | "damage" | "late-return" | "fraud" | "blacklisted" | "warning";
+
+export interface ClientAlert {
+  id: string;
+  type: ClientAlertType;
+  title: string;
+  description: string;
+  amount?: number; // For debt alerts
+  date: string;
+  resolved: boolean;
+  resolvedDate?: string;
+  resolvedBy?: string;
+}
+
 // Client Types (for returning customers)
 export interface Client {
   id: string;
@@ -243,6 +258,11 @@ export interface Client {
   fingerprintRightUrl?: string;
   passportPhotoUrl?: string;
   totalBookings: number;
+  // Alert & Risk fields
+  alerts?: ClientAlert[];
+  riskLevel?: "low" | "medium" | "high" | "blocked";
+  totalDebt?: number;
+  notes?: string;
   createdAt: string;
   updatedAt: string;
 }

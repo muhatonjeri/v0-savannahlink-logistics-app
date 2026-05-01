@@ -21,6 +21,14 @@ import {
   UserPlus,
   ScanLine,
   Loader2,
+  AlertTriangle,
+  Ban,
+  AlertCircle,
+  ShieldAlert,
+  XCircle,
+  DollarSign,
+  Clock,
+  FileWarning,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -719,40 +727,188 @@ export default function NewCarRentalAdminPage() {
 
               {/* Selected Client Banner */}
               {selectedClient && (
-                <div className="flex flex-col gap-3 rounded-lg border-2 border-green-500 bg-green-100 dark:bg-green-900/40 p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-500 text-white">
-                      <UserCheck className="h-6 w-6" />
+                <div className="space-y-3">
+                  {/* Client Info Banner - Color based on risk level */}
+                  <div className={`flex flex-col gap-3 rounded-lg border-2 p-4 ${
+                    selectedClient.riskLevel === "blocked" 
+                      ? "border-red-600 bg-red-100 dark:bg-red-900/40" 
+                      : selectedClient.riskLevel === "high"
+                      ? "border-orange-500 bg-orange-100 dark:bg-orange-900/40"
+                      : selectedClient.riskLevel === "medium"
+                      ? "border-yellow-500 bg-yellow-100 dark:bg-yellow-900/40"
+                      : "border-green-500 bg-green-100 dark:bg-green-900/40"
+                  }`}>
+                    <div className="flex items-center gap-3">
+                      <div className={`flex h-12 w-12 items-center justify-center rounded-full text-white ${
+                        selectedClient.riskLevel === "blocked" 
+                          ? "bg-red-600" 
+                          : selectedClient.riskLevel === "high"
+                          ? "bg-orange-500"
+                          : selectedClient.riskLevel === "medium"
+                          ? "bg-yellow-500"
+                          : "bg-green-500"
+                      }`}>
+                        {selectedClient.riskLevel === "blocked" ? (
+                          <Ban className="h-6 w-6" />
+                        ) : selectedClient.riskLevel === "high" ? (
+                          <ShieldAlert className="h-6 w-6" />
+                        ) : selectedClient.riskLevel === "medium" ? (
+                          <AlertTriangle className="h-6 w-6" />
+                        ) : (
+                          <UserCheck className="h-6 w-6" />
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <p className={`font-bold text-lg ${
+                            selectedClient.riskLevel === "blocked" 
+                              ? "text-red-800 dark:text-red-300" 
+                              : selectedClient.riskLevel === "high"
+                              ? "text-orange-800 dark:text-orange-300"
+                              : selectedClient.riskLevel === "medium"
+                              ? "text-yellow-800 dark:text-yellow-300"
+                              : "text-green-800 dark:text-green-300"
+                          }`}>
+                            {selectedClient.fullName}
+                          </p>
+                          {selectedClient.riskLevel && selectedClient.riskLevel !== "low" && (
+                            <span className={`text-xs font-bold px-2 py-0.5 rounded-full uppercase ${
+                              selectedClient.riskLevel === "blocked" 
+                                ? "bg-red-600 text-white" 
+                                : selectedClient.riskLevel === "high"
+                                ? "bg-orange-500 text-white"
+                                : "bg-yellow-500 text-black"
+                            }`}>
+                              {selectedClient.riskLevel} risk
+                            </span>
+                          )}
+                        </div>
+                        <p className={`text-sm ${
+                          selectedClient.riskLevel === "blocked" 
+                            ? "text-red-700 dark:text-red-400" 
+                            : selectedClient.riskLevel === "high"
+                            ? "text-orange-700 dark:text-orange-400"
+                            : selectedClient.riskLevel === "medium"
+                            ? "text-yellow-700 dark:text-yellow-400"
+                            : "text-green-700 dark:text-green-400"
+                        }`}>
+                          ID: {selectedClient.idNumber} | {selectedClient.totalBookings} previous booking(s)
+                          {selectedClient.totalDebt && selectedClient.totalDebt > 0 && (
+                            <span className="ml-2 font-bold text-red-600">
+                              | Debt: KES {selectedClient.totalDebt.toLocaleString()}
+                            </span>
+                          )}
+                        </p>
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <p className="font-bold text-green-800 dark:text-green-300 text-lg">
-                        Returning Client: {selectedClient.fullName}
-                      </p>
-                      <p className="text-sm text-green-700 dark:text-green-400">
-                        ID: {selectedClient.idNumber} | {selectedClient.totalBookings} previous booking(s)
-                      </p>
+                    <div className="flex gap-2 ml-auto">
+                      <Button
+                        type="button"
+                        size="sm"
+                        onClick={handleNewBookingForClient}
+                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                        disabled={selectedClient.riskLevel === "blocked"}
+                      >
+                        <Car className="h-4 w-4 mr-1" />
+                        New Vehicle/Trip
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={handleNewClient}
+                      >
+                        Different Client
+                      </Button>
                     </div>
                   </div>
-                  <div className="flex gap-2 ml-auto">
-                    <Button
-                      type="button"
-                      size="sm"
-                      onClick={handleNewBookingForClient}
-                      className="bg-blue-600 hover:bg-blue-700 text-white"
-                    >
-                      <Car className="h-4 w-4 mr-1" />
-                      New Vehicle/Trip
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={handleNewClient}
-                      className="border-green-500 text-green-700 hover:bg-green-200 dark:text-green-300 dark:hover:bg-green-800"
-                    >
-                      Different Client
-                    </Button>
-                  </div>
+
+                  {/* BLOCKED CLIENT WARNING */}
+                  {selectedClient.riskLevel === "blocked" && (
+                    <div className="rounded-lg border-4 border-red-600 bg-red-600 p-4 text-white animate-pulse">
+                      <div className="flex items-center gap-3">
+                        <Ban className="h-10 w-10 flex-shrink-0" />
+                        <div>
+                          <p className="text-xl font-bold uppercase">DO NOT RENT TO THIS CLIENT</p>
+                          <p className="text-sm opacity-90">This client has been blacklisted. Contact management immediately.</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Client Alerts Section */}
+                  {selectedClient.alerts && selectedClient.alerts.filter(a => !a.resolved).length > 0 && (
+                    <div className="rounded-lg border-2 border-red-400 bg-red-50 dark:bg-red-950/30 p-4">
+                      <div className="flex items-center gap-2 mb-3">
+                        <AlertTriangle className="h-5 w-5 text-red-600" />
+                        <h4 className="font-bold text-red-800 dark:text-red-300">
+                          Active Alerts ({selectedClient.alerts.filter(a => !a.resolved).length})
+                        </h4>
+                      </div>
+                      <div className="space-y-2">
+                        {selectedClient.alerts.filter(a => !a.resolved).map((alert) => (
+                          <div 
+                            key={alert.id} 
+                            className={`flex items-start gap-3 rounded-lg p-3 ${
+                              alert.type === "blacklisted" || alert.type === "fraud"
+                                ? "bg-red-200 dark:bg-red-900/50 border border-red-400"
+                                : alert.type === "debt"
+                                ? "bg-orange-100 dark:bg-orange-900/30 border border-orange-300"
+                                : alert.type === "damage"
+                                ? "bg-yellow-100 dark:bg-yellow-900/30 border border-yellow-300"
+                                : "bg-gray-100 dark:bg-gray-800 border border-gray-300"
+                            }`}
+                          >
+                            <div className={`flex h-8 w-8 items-center justify-center rounded-full flex-shrink-0 ${
+                              alert.type === "blacklisted" || alert.type === "fraud"
+                                ? "bg-red-600 text-white"
+                                : alert.type === "debt"
+                                ? "bg-orange-500 text-white"
+                                : alert.type === "damage"
+                                ? "bg-yellow-500 text-black"
+                                : alert.type === "late-return"
+                                ? "bg-blue-500 text-white"
+                                : "bg-gray-500 text-white"
+                            }`}>
+                              {alert.type === "debt" && <DollarSign className="h-4 w-4" />}
+                              {alert.type === "damage" && <XCircle className="h-4 w-4" />}
+                              {alert.type === "late-return" && <Clock className="h-4 w-4" />}
+                              {alert.type === "fraud" && <ShieldAlert className="h-4 w-4" />}
+                              {alert.type === "blacklisted" && <Ban className="h-4 w-4" />}
+                              {alert.type === "warning" && <AlertCircle className="h-4 w-4" />}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2">
+                                <p className="font-bold text-gray-900 dark:text-white">{alert.title}</p>
+                                {alert.amount && (
+                                  <span className="text-sm font-bold text-red-600 bg-red-100 dark:bg-red-900 px-2 py-0.5 rounded">
+                                    KES {alert.amount.toLocaleString()}
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-sm text-gray-700 dark:text-gray-300">{alert.description}</p>
+                              <p className="text-xs text-gray-500 mt-1">
+                                Reported: {new Date(alert.date).toLocaleDateString()}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Client Notes */}
+                  {selectedClient.notes && (
+                    <div className="rounded-lg border border-blue-300 bg-blue-50 dark:bg-blue-950/30 p-3">
+                      <div className="flex items-start gap-2">
+                        <FileWarning className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <p className="font-semibold text-blue-800 dark:text-blue-300 text-sm">Staff Notes:</p>
+                          <p className="text-sm text-blue-700 dark:text-blue-400">{selectedClient.notes}</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </CardContent>
