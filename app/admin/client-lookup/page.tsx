@@ -935,13 +935,13 @@ export default function ClientLookupPage() {
 
       {/* Edit Blacklist Entry Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700">
-          <DialogHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/50 dark:to-indigo-950/50 -mx-6 -mt-6 px-6 pt-6 pb-4 rounded-t-lg border-b border-gray-200 dark:border-gray-700">
-            <DialogTitle className="flex items-center gap-2 text-blue-700 dark:text-blue-400">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-blue-600">
               <Edit className="h-5 w-5" />
               Edit Blacklist Record
             </DialogTitle>
-            <DialogDescription className="text-gray-600 dark:text-gray-400">
+            <DialogDescription>
               Update blacklist record details. You can add new phone numbers, update crime types, or modify any other information.
             </DialogDescription>
           </DialogHeader>
@@ -949,9 +949,9 @@ export default function ClientLookupPage() {
             <Form {...editForm}>
               <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-6">
                 {/* Personal Information */}
-                <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 p-4">
-                  <h4 className="font-semibold text-gray-800 dark:text-gray-200 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
-                    <User className="h-4 w-4 text-blue-600" />
+                <div className="rounded-lg border border-red-200 dark:border-red-800 bg-red-50/50 dark:bg-red-950/20 p-4">
+                  <h4 className="font-semibold text-red-700 dark:text-red-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
+                    <User className="h-4 w-4" />
                     Personal Information
                   </h4>
                   <div className="grid gap-4 sm:grid-cols-2">
@@ -973,7 +973,7 @@ export default function ClientLookupPage() {
                       <FormItem className="sm:col-span-2">
                         <FormLabel>Phone Number(s) *</FormLabel>
                         <FormControl><Input placeholder="e.g., 0712345678 / 0723456789 (separate multiple with /)" {...field} /></FormControl>
-                        <FormDescription className="text-xs text-gray-500 dark:text-gray-400">
+                        <FormDescription className="text-xs text-blue-600">
                           Add multiple phone numbers separated by / if the person uses different numbers
                         </FormDescription>
                         <FormMessage />
@@ -1004,7 +1004,7 @@ export default function ClientLookupPage() {
                       <FormItem>
                         <FormLabel>Known Locations/Residence</FormLabel>
                         <FormControl><Input placeholder="e.g., Westlands / Kilimani / Karen" {...field} /></FormControl>
-                        <FormDescription className="text-xs text-gray-500 dark:text-gray-400">
+                        <FormDescription className="text-xs text-blue-600">
                           Add multiple locations separated by / if known
                         </FormDescription>
                         <FormMessage />
@@ -1014,9 +1014,9 @@ export default function ClientLookupPage() {
                 </div>
 
                 {/* Incident Details */}
-                <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 p-4">
-                  <h4 className="font-semibold text-gray-800 dark:text-gray-200 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
-                    <AlertTriangle className="h-4 w-4 text-orange-500" />
+                <div className="rounded-lg border border-orange-200 dark:border-orange-800 bg-orange-50/50 dark:bg-orange-950/20 p-4">
+                  <h4 className="font-semibold text-orange-700 dark:text-orange-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
+                    <AlertTriangle className="h-4 w-4" />
                     Incident Details
                   </h4>
                   <div className="grid gap-4 sm:grid-cols-2">
@@ -1101,7 +1101,7 @@ export default function ClientLookupPage() {
                             {...field} 
                           />
                         </FormControl>
-                        <FormDescription className="text-xs text-gray-500 dark:text-gray-400">
+                        <FormDescription className="text-xs text-orange-600">
                           Include any new crimes, additional details, or updates to the original incident
                         </FormDescription>
                         <FormMessage />
