@@ -19,6 +19,8 @@ import {
   Search,
   UserCheck,
   UserPlus,
+  ScanLine,
+  Loader2,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -126,6 +128,11 @@ export default function NewCarRentalAdminPage() {
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [isNewClient, setIsNewClient] = useState(true);
   const [showSearchResults, setShowSearchResults] = useState(false);
+  
+  // Fingerprint scanning state
+  const [isScanning, setIsScanning] = useState(false);
+  const [scanProgress, setScanProgress] = useState(0);
+  const [scanStatus, setScanStatus] = useState<"idle" | "scanning" | "matching" | "found" | "not-found">("idle");
 
   const form = useForm<AdminCarRentalFormData>({
     resolver: zodResolver(adminCarRentalSchema),
@@ -304,6 +311,65 @@ export default function NewCarRentalAdminPage() {
     setTimeout(() => {
       router.push("/admin/car-rental");
     }, 2000);
+  };
+
+  // Fingerprint scanning function
+  const handleFingerprintScan = async () => {
+    setIsScanning(true);
+    setScanStatus("scanning");
+    setScanProgress(0);
+    
+    // Simulate fingerprint scanning progress
+    const scanInterval = setInterval(() => {
+      setScanProgress((prev) => {
+        if (prev >= 100) {
+          clearInterval(scanInterval);
+          return 100;
+        }
+        return prev + 10;
+      });
+    }, 200);
+    
+    // Wait for scan to complete
+    await new Promise((resolve) => setTimeout(resolve, 2500));
+    clearInterval(scanInterval);
+    setScanProgress(100);
+    setScanStatus("matching");
+    
+    // Simulate matching against database
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    
+    // Get all clients with fingerprints and randomly select one for demo
+    const allClients = getClients();
+    const clientsWithFingerprints = allClients.filter(
+      (c) => c.fingerprintLeftUrl || c.fingerprintRightUrl
+    );
+    
+    // For demo: randomly match a client (in real app, this would use actual fingerprint matching)
+    // Simulate 70% match success rate
+    const matchSuccess = Math.random() > 0.3;
+    
+    if (matchSuccess && allClients.length > 0) {
+      // Select a random client for demo purposes
+      const matchedClient = allClients[Math.floor(Math.random() * allClients.length)];
+      setScanStatus("found");
+      
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      
+      // Auto-fill client details
+      handleSelectClient(matchedClient);
+      toast.success(`Fingerprint matched! Welcome back, ${matchedClient.fullName}`);
+    } else {
+      setScanStatus("not-found");
+      toast.error("Fingerprint not found in database. Please register as new client.");
+    }
+    
+    // Reset after 3 seconds
+    setTimeout(() => {
+      setIsScanning(false);
+      setScanStatus("idle");
+      setScanProgress(0);
+    }, 3000);
   };
 
   // Client search function
@@ -574,6 +640,83 @@ export default function NewCarRentalAdminPage() {
                 </Button>
               </div>
               
+              {/* Fingerprint Scanner Section */}
+              <div className="flex items-center gap-4 pt-2">
+                <div className="flex-1 h-px bg-amber-300" />
+                <span className="text-sm font-medium text-amber-700 dark:text-amber-400">OR</span>
+                <div className="flex-1 h-px bg-amber-300" />
+              </div>
+              
+              <div className="flex flex-col sm:flex-row gap-4 items-center">
+                {/* Fingerprint Scanner Button */}
+                <Button
+                  type="button"
+                  onClick={handleFingerprintScan}
+                  disabled={isScanning}
+                  className={`gap-3 h-16 px-6 text-lg font-semibold transition-all ${
+                    scanStatus === "found" 
+                      ? "bg-green-600 hover:bg-green-700" 
+                      : scanStatus === "not-found"
+                      ? "bg-red-600 hover:bg-red-700"
+                      : "bg-purple-600 hover:bg-purple-700"
+                  } text-white`}
+                >
+                  {isScanning ? (
+                    <>
+                      <Loader2 className="h-6 w-6 animate-spin" />
+                      {scanStatus === "scanning" && "Scanning..."}
+                      {scanStatus === "matching" && "Matching..."}
+                      {scanStatus === "found" && "Found!"}
+                      {scanStatus === "not-found" && "Not Found"}
+                    </>
+                  ) : (
+                    <>
+                      <Fingerprint className="h-6 w-6" />
+                      Scan Fingerprint
+                    </>
+                  )}
+                </Button>
+                
+                {/* Scan Progress */}
+                {isScanning && (
+                  <div className="flex-1 space-y-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="font-medium text-purple-700 dark:text-purple-300">
+                        {scanStatus === "scanning" && "Scanning fingerprint..."}
+                        {scanStatus === "matching" && "Matching against database..."}
+                        {scanStatus === "found" && "Client identified!"}
+                        {scanStatus === "not-found" && "No match found"}
+                      </span>
+                      <span className="text-purple-600 dark:text-purple-400">{scanProgress}%</span>
+                    </div>
+                    <div className="h-3 w-full rounded-full bg-purple-100 dark:bg-purple-900 overflow-hidden">
+                      <div 
+                        className={`h-full transition-all duration-300 rounded-full ${
+                          scanStatus === "found" 
+                            ? "bg-green-500" 
+                            : scanStatus === "not-found"
+                            ? "bg-red-500"
+                            : "bg-purple-500"
+                        }`}
+                        style={{ width: `${scanProgress}%` }}
+                      />
+                    </div>
+                    {scanStatus === "scanning" && (
+                      <p className="text-xs text-purple-600 dark:text-purple-400 flex items-center gap-2">
+                        <ScanLine className="h-4 w-4 animate-pulse" />
+                        Place finger on scanner...
+                      </p>
+                    )}
+                  </div>
+                )}
+                
+                {!isScanning && (
+                  <p className="text-sm text-amber-700 dark:text-amber-400">
+                    Returning clients can scan their fingerprint for instant identification
+                  </p>
+                )}
+              </div>
+
               {/* Selected Client Banner */}
               {selectedClient && (
                 <div className="flex flex-col gap-3 rounded-lg border-2 border-green-500 bg-green-100 dark:bg-green-900/40 p-4">
