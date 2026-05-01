@@ -267,6 +267,29 @@ export interface Client {
   updatedAt: string;
 }
 
+// Rogue Client Types (Industry-wide blacklist)
+export interface RogueClient {
+  id: string;
+  fullName: string;
+  idNumber: string;
+  phone: string;
+  alternativePhone?: string;
+  email?: string;
+  reason: string;
+  severity: "warning" | "high-risk" | "blacklisted";
+  reportedBy: string;
+  reportedCompany?: string;
+  incidentDate: string;
+  amountOwed?: number;
+  vehicleStolen?: boolean;
+  fraudType?: string;
+  policeReportNumber?: string;
+  additionalNotes?: string;
+  photoUrl?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // Admin User Types
 export type UserRole = "admin" | "staff";
 

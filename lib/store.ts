@@ -1,11 +1,12 @@
 "use client";
 
-import type { Booking, AdminUser, MpesaPayment, Client } from "@/types";
+import type { Booking, AdminUser, MpesaPayment, Client, RogueClient } from "@/types";
 
 const BOOKINGS_KEY = "savannah_link_bookings";
 const USERS_KEY = "savannah_link_users";
 const PAYMENTS_KEY = "savannah_link_payments";
 const CLIENTS_KEY = "savannah_link_clients";
+const ROGUE_CLIENTS_KEY = "savannah_link_rogue_clients";
 
 // Demo clients for testing
 const demoClients: Client[] = [
@@ -555,6 +556,195 @@ export function initializeDemoBookingHistory(): void {
   if (existing.length === 0) {
     setStorage(BOOKINGS_KEY, demoBookingHistory);
   }
+}
+
+// ============================================
+// ROGUE CLIENTS DATABASE (Industry Blacklist)
+// ============================================
+
+const demoRogueClients: RogueClient[] = [
+  {
+    id: "rogue-1",
+    fullName: "John Kamau Njoroge",
+    idNumber: "45678901",
+    phone: "+254756789012",
+    alternativePhone: "+254767890123",
+    email: "johnkamau@gmail.com",
+    reason: "Stole a Toyota Land Cruiser V8 and never returned. Vehicle was found abandoned in Mombasa after 3 months.",
+    severity: "blacklisted",
+    reportedBy: "Safari Link Rentals",
+    reportedCompany: "Safari Link Rentals Ltd",
+    incidentDate: "2023-08-15T00:00:00.000Z",
+    amountOwed: 2500000,
+    vehicleStolen: true,
+    fraudType: "Vehicle Theft",
+    policeReportNumber: "OB/45/2023/KILIMANI",
+    additionalNotes: "Used fake employment documents from a non-existent company. ID may be fraudulent.",
+    createdAt: "2023-08-20T10:00:00.000Z",
+    updatedAt: "2023-08-20T10:00:00.000Z",
+  },
+  {
+    id: "rogue-2",
+    fullName: "Peter Otieno Ochieng",
+    idNumber: "56789012",
+    phone: "+254778901234",
+    email: "peterotieno@yahoo.com",
+    reason: "Rented vehicle for 3 days, kept for 3 weeks. Accumulated KES 180,000 in rental fees and damages. Phone switched off.",
+    severity: "blacklisted",
+    reportedBy: "Nairobi Car Hire",
+    reportedCompany: "Nairobi Car Hire Services",
+    incidentDate: "2024-02-10T00:00:00.000Z",
+    amountOwed: 180000,
+    vehicleStolen: false,
+    fraudType: "Rental Fraud",
+    policeReportNumber: "OB/12/2024/CENTRAL",
+    additionalNotes: "Works at multiple companies using different identities. Known con artist.",
+    createdAt: "2024-02-25T14:00:00.000Z",
+    updatedAt: "2024-02-25T14:00:00.000Z",
+  },
+  {
+    id: "rogue-3",
+    fullName: "Mary Wambui Muthoni",
+    idNumber: "67890123",
+    phone: "+254789012345",
+    alternativePhone: "+254790123456",
+    email: "marywambui@hotmail.com",
+    reason: "Presented fake driving license and forged ID documents. Attempted to rent a Mercedes E-Class.",
+    severity: "blacklisted",
+    reportedBy: "Executive Car Rentals",
+    reportedCompany: "Executive Car Rentals Kenya",
+    incidentDate: "2024-05-20T00:00:00.000Z",
+    vehicleStolen: false,
+    fraudType: "Document Fraud",
+    policeReportNumber: "OB/78/2024/PARKLANDS",
+    additionalNotes: "Part of a fraud syndicate. Real identity unknown. Photo may not match actual person.",
+    createdAt: "2024-05-22T09:00:00.000Z",
+    updatedAt: "2024-05-22T09:00:00.000Z",
+  },
+  {
+    id: "rogue-4",
+    fullName: "Samuel Kiprop Cheruiyot",
+    idNumber: "78901234",
+    phone: "+254701234567",
+    email: "samuelkiprop@gmail.com",
+    reason: "Returned vehicle with severe undisclosed accident damage. Refused to pay for repairs totaling KES 450,000.",
+    severity: "high-risk",
+    reportedBy: "Savannah Motors",
+    reportedCompany: "Savannah Motors Ltd",
+    incidentDate: "2024-07-05T00:00:00.000Z",
+    amountOwed: 450000,
+    vehicleStolen: false,
+    fraudType: "Damage Fraud",
+    additionalNotes: "Claims accident was not his fault. Insurance denied claim due to DUI. Court case pending.",
+    createdAt: "2024-07-10T11:00:00.000Z",
+    updatedAt: "2024-07-10T11:00:00.000Z",
+  },
+  {
+    id: "rogue-5",
+    fullName: "Elizabeth Njeri Gitau",
+    idNumber: "89012345",
+    phone: "+254712345098",
+    reason: "Chronic late payer. Has outstanding debts with 4 different rental companies totaling over KES 120,000.",
+    severity: "warning",
+    reportedBy: "Multiple Companies",
+    incidentDate: "2024-09-01T00:00:00.000Z",
+    amountOwed: 120000,
+    vehicleStolen: false,
+    additionalNotes: "Not malicious but financially unreliable. Require full payment upfront and extra deposit.",
+    createdAt: "2024-09-15T08:00:00.000Z",
+    updatedAt: "2024-09-15T08:00:00.000Z",
+  },
+  {
+    id: "rogue-6",
+    fullName: "Michael Omondi Onyango",
+    idNumber: "90123456",
+    phone: "+254723456098",
+    alternativePhone: "+254734567109",
+    email: "michaelomondi@outlook.com",
+    reason: "Used rental vehicle for illegal activities. Vehicle was impounded by police during drug trafficking operation.",
+    severity: "blacklisted",
+    reportedBy: "City Car Rentals",
+    reportedCompany: "City Car Rentals Nairobi",
+    incidentDate: "2024-03-18T00:00:00.000Z",
+    vehicleStolen: false,
+    fraudType: "Criminal Activity",
+    policeReportNumber: "CR/234/2024/DCI",
+    additionalNotes: "Vehicle was held by police for 6 months as evidence. Total losses exceed KES 800,000.",
+    createdAt: "2024-03-25T16:00:00.000Z",
+    updatedAt: "2024-03-25T16:00:00.000Z",
+  },
+];
+
+// Get all rogue clients
+export function getRogueClients(): RogueClient[] {
+  const stored = getStorage<RogueClient[]>(ROGUE_CLIENTS_KEY);
+  if (!stored || stored.length === 0) {
+    // Initialize with demo data
+    setStorage(ROGUE_CLIENTS_KEY, demoRogueClients);
+    return demoRogueClients;
+  }
+  return stored;
+}
+
+// Save a rogue client
+export function saveRogueClient(rogueClient: RogueClient): RogueClient {
+  const rogueClients = getRogueClients();
+  const existingIndex = rogueClients.findIndex((r) => r.id === rogueClient.id);
+  
+  if (existingIndex >= 0) {
+    rogueClients[existingIndex] = { ...rogueClient, updatedAt: new Date().toISOString() };
+  } else {
+    rogueClients.push(rogueClient);
+  }
+  
+  setStorage(ROGUE_CLIENTS_KEY, rogueClients);
+  return rogueClient;
+}
+
+// Search rogue clients by name, ID, or phone - returns matches for real-time alerts
+export function searchRogueClients(query: string): RogueClient[] {
+  if (!query || query.length < 3) return [];
+  
+  const rogueClients = getRogueClients();
+  const normalizedQuery = query.toLowerCase().replace(/\s+/g, "").replace(/[^a-z0-9]/g, "");
+  
+  return rogueClients.filter((client) => {
+    const normalizedName = client.fullName.toLowerCase().replace(/\s+/g, "");
+    const normalizedId = client.idNumber.replace(/\s+/g, "");
+    const normalizedPhone = client.phone.replace(/[^0-9]/g, "");
+    const normalizedAltPhone = client.alternativePhone?.replace(/[^0-9]/g, "") || "";
+    
+    return (
+      normalizedName.includes(normalizedQuery) ||
+      normalizedId.includes(normalizedQuery) ||
+      normalizedPhone.includes(normalizedQuery) ||
+      normalizedAltPhone.includes(normalizedQuery) ||
+      (client.email && client.email.toLowerCase().includes(query.toLowerCase()))
+    );
+  });
+}
+
+// Check if a specific ID number is in the rogue database
+export function checkRogueClientById(idNumber: string): RogueClient | null {
+  if (!idNumber || idNumber.length < 6) return null;
+  
+  const rogueClients = getRogueClients();
+  return rogueClients.find((client) => client.idNumber === idNumber) || null;
+}
+
+// Check if a phone number is in the rogue database
+export function checkRogueClientByPhone(phone: string): RogueClient | null {
+  if (!phone || phone.length < 9) return null;
+  
+  const normalizedPhone = phone.replace(/[^0-9]/g, "");
+  const rogueClients = getRogueClients();
+  
+  return rogueClients.find((client) => {
+    const clientPhone = client.phone.replace(/[^0-9]/g, "");
+    const clientAltPhone = client.alternativePhone?.replace(/[^0-9]/g, "") || "";
+    return clientPhone.includes(normalizedPhone) || normalizedPhone.includes(clientPhone) ||
+           clientAltPhone.includes(normalizedPhone) || normalizedPhone.includes(clientAltPhone);
+  }) || null;
 }
 
 export function saveBooking(booking: Booking): Booking {
