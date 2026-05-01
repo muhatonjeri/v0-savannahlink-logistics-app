@@ -1710,43 +1710,44 @@ export default function NewCarRentalAdminPage() {
                       </FormItem>
                     )}
                   />
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <FormField
-                    control={form.control}
-                    name="drivingLicenseFrontUrl"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FileUpload
-                          id="driving-license-front"
-                          label="Driving License - Front Side"
-                          accept="image/*"
-                          maxSize={5}
-                          value={field.value}
-                          onChange={field.onChange}
-                          showCamera
-                        />
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="drivingLicenseBackUrl"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FileUpload
-                          id="driving-license-back"
-                          label="Driving License - Back Side"
-                          accept="image/*"
-                          maxSize={5}
-                          value={field.value}
-                          onChange={field.onChange}
-                          showCamera
-                        />
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <FormField
+                      control={form.control}
+                      name="drivingLicenseFrontUrl"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FileUpload
+                            id="driving-license-front"
+                            label="Driving License - Front Side"
+                            accept="image/*"
+                            maxSize={5}
+                            value={field.value}
+                            onChange={field.onChange}
+                            showCamera
+                          />
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="drivingLicenseBackUrl"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FileUpload
+                            id="driving-license-back"
+                            label="Driving License - Back Side"
+                            accept="image/*"
+                            maxSize={5}
+                            value={field.value}
+                            onChange={field.onChange}
+                            showCamera
+                          />
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -1869,21 +1870,27 @@ export default function NewCarRentalAdminPage() {
           </Card>
 
           {/* Section 2: Biometric & Photo */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Fingerprint className="h-5 w-5 text-primary" />
-                Biometric & Photo
-              </CardTitle>
-              <CardDescription>
-                Scan fingerprints and capture passport photo for verification
-              </CardDescription>
+          <Card className="border-l-4 border-l-purple-500 shadow-md">
+            <CardHeader className="bg-gradient-to-r from-purple-50 to-transparent dark:from-purple-950/30">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-500 text-white">
+                  <Fingerprint className="h-5 w-5" />
+                </div>
+                <div>
+                  <CardTitle className="text-purple-800 dark:text-purple-300">
+                    2. Biometric Verification
+                  </CardTitle>
+                  <CardDescription>
+                    Scan fingerprints and capture passport photo for identity verification
+                  </CardDescription>
+                </div>
+              </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-6">
               <div className="grid gap-6 sm:grid-cols-3">
                 {/* Left Thumb Fingerprint Scanner */}
                 <div className="space-y-3">
-                  <label className="text-sm font-medium">Left Thumb Print *</label>
+                  <label className="text-sm font-semibold text-purple-700 dark:text-purple-400">Left Thumb Print *</label>
                   <div className={`relative flex flex-col items-center justify-center rounded-xl border-2 p-6 transition-all ${
                     leftThumbCaptured 
                       ? "border-green-500 bg-green-50 dark:bg-green-950/30" 
@@ -2021,14 +2028,24 @@ export default function NewCarRentalAdminPage() {
           </Card>
 
           {/* Section 3: Rental Type */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Car className="h-5 w-5 text-primary" />
-                Rental Type
-              </CardTitle>
+          {/* Section 3: Rental Type */}
+          <Card className="border-l-4 border-l-teal-500 shadow-md">
+            <CardHeader className="bg-gradient-to-r from-teal-50 to-transparent dark:from-teal-950/30">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-teal-500 text-white">
+                  <Car className="h-5 w-5" />
+                </div>
+                <div>
+                  <CardTitle className="text-teal-800 dark:text-teal-300">
+                    3. Rental Type
+                  </CardTitle>
+                  <CardDescription>
+                    Choose how the vehicle will be operated
+                  </CardDescription>
+                </div>
+              </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-6">
               <FormField
                 control={form.control}
                 name="rentalType"
@@ -2040,24 +2057,24 @@ export default function NewCarRentalAdminPage() {
                         defaultValue={field.value}
                         className="grid gap-4 sm:grid-cols-2"
                       >
-                        <div className="relative flex cursor-pointer items-start gap-4 rounded-lg border border-border bg-card p-4 hover:border-primary/50 has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/5">
-                          <RadioGroupItem value="self-drive" id="admin-self-drive" className="mt-1" />
+                        <div className="relative flex cursor-pointer items-start gap-4 rounded-xl border-2 border-teal-200 dark:border-teal-800 bg-teal-50/50 dark:bg-teal-950/20 p-5 hover:border-teal-400 has-[[data-state=checked]]:border-teal-500 has-[[data-state=checked]]:bg-teal-100 dark:has-[[data-state=checked]]:bg-teal-900/40 transition-all">
+                          <RadioGroupItem value="self-drive" id="admin-self-drive" className="mt-1 border-teal-500 text-teal-600" />
                           <div className="flex-1">
-                            <label htmlFor="admin-self-drive" className="block cursor-pointer font-medium">
+                            <label htmlFor="admin-self-drive" className="block cursor-pointer font-bold text-teal-800 dark:text-teal-300">
                               Self-Drive
                             </label>
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-sm text-teal-600 dark:text-teal-400">
                               Customer drives the vehicle themselves
                             </p>
                           </div>
                         </div>
-                        <div className="relative flex cursor-pointer items-start gap-4 rounded-lg border border-border bg-card p-4 hover:border-primary/50 has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/5">
-                          <RadioGroupItem value="chauffeured" id="admin-chauffeured" className="mt-1" />
+                        <div className="relative flex cursor-pointer items-start gap-4 rounded-xl border-2 border-teal-200 dark:border-teal-800 bg-teal-50/50 dark:bg-teal-950/20 p-5 hover:border-teal-400 has-[[data-state=checked]]:border-teal-500 has-[[data-state=checked]]:bg-teal-100 dark:has-[[data-state=checked]]:bg-teal-900/40 transition-all">
+                          <RadioGroupItem value="chauffeured" id="admin-chauffeured" className="mt-1 border-teal-500 text-teal-600" />
                           <div className="flex-1">
-                            <label htmlFor="admin-chauffeured" className="block cursor-pointer font-medium">
+                            <label htmlFor="admin-chauffeured" className="block cursor-pointer font-bold text-teal-800 dark:text-teal-300">
                               Chauffeured
                             </label>
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-sm text-teal-600 dark:text-teal-400">
                               Professional driver (+KES 2,000/day)
                             </p>
                           </div>
@@ -2072,118 +2089,141 @@ export default function NewCarRentalAdminPage() {
           </Card>
 
           {/* Section 4: Car Details */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FileText className="h-5 w-5 text-primary" />
-                Car Details
-              </CardTitle>
-              <CardDescription>
-                Vehicle information and current status
-              </CardDescription>
+          <Card className="border-l-4 border-l-orange-500 shadow-md">
+            <CardHeader className="bg-gradient-to-r from-orange-50 to-transparent dark:from-orange-950/30">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-orange-500 text-white">
+                  <Car className="h-5 w-5" />
+                </div>
+                <div>
+                  <CardTitle className="text-orange-800 dark:text-orange-300">
+                    4. Vehicle Assignment
+                  </CardTitle>
+                  <CardDescription>
+                    Vehicle information and current status
+                  </CardDescription>
+                </div>
+              </div>
             </CardHeader>
-            <CardContent className="grid gap-6">
-              <div className="grid gap-4 sm:grid-cols-3">
-                <FormField
-                  control={form.control}
-                  name="carMake"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Make *</FormLabel>
-                      <Select 
-                        onValueChange={(value) => {
-                          field.onChange(value);
-                          setSelectedMake(value);
-                          form.setValue("carModel", "");
-                        }} 
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select make" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {carOptions.map((car) => (
-                            <SelectItem key={car.make} value={car.make}>
-                              {car.make}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="carModel"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Model *</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select model" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {carOptions
-                            .find((c) => c.make === selectedMake)
-                            ?.models.map((model) => (
-                              <SelectItem key={model} value={model}>
-                                {model}
+            </CardHeader>
+            <CardContent className="pt-6 space-y-6">
+              {/* Vehicle Selection Block */}
+              <div className="rounded-lg border border-orange-200 dark:border-orange-800 bg-orange-50/50 dark:bg-orange-950/20 p-4">
+                <h4 className="font-semibold text-orange-700 dark:text-orange-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
+                  <Car className="h-4 w-4" />
+                  Vehicle Selection
+                </h4>
+                <div className="grid gap-4 sm:grid-cols-3">
+                  <FormField
+                    control={form.control}
+                    name="carMake"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-gray-700 dark:text-gray-300">Make *</FormLabel>
+                        <Select 
+                          onValueChange={(value) => {
+                            field.onChange(value);
+                            setSelectedMake(value);
+                            form.setValue("carModel", "");
+                          }} 
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="bg-white dark:bg-gray-800 border-orange-200 focus:border-orange-500">
+                              <SelectValue placeholder="Select make" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {carOptions.map((car) => (
+                              <SelectItem key={car.make} value={car.make}>
+                                {car.make}
                               </SelectItem>
                             ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="numberPlate"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Number Plate *</FormLabel>
-                      <FormControl>
-                        <Input placeholder="KBX 123A" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="carModel"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-gray-700 dark:text-gray-300">Model *</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger className="bg-white dark:bg-gray-800 border-orange-200 focus:border-orange-500">
+                              <SelectValue placeholder="Select model" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {carOptions
+                              .find((c) => c.make === selectedMake)
+                              ?.models.map((model) => (
+                                <SelectItem key={model} value={model}>
+                                  {model}
+                                </SelectItem>
+                              ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="numberPlate"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-gray-700 dark:text-gray-300">Number Plate *</FormLabel>
+                        <FormControl>
+                          <Input placeholder="KBX 123A" className="bg-white dark:bg-gray-800 border-orange-200 focus:border-orange-500 font-mono text-lg uppercase" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
               </div>
 
-              <div className="grid gap-4 sm:grid-cols-4">
-                <FormField
-                  control={form.control}
-                  name="currentMileage"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Current Mileage (km) *</FormLabel>
-                      <FormControl>
-                        <Input type="number" placeholder="45000" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="fuelLevel"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Fuel Level *</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+              {/* Vehicle Status Block */}
+              <div className="rounded-lg border border-cyan-200 dark:border-cyan-800 bg-cyan-50/50 dark:bg-cyan-950/20 p-4">
+                <h4 className="font-semibold text-cyan-700 dark:text-cyan-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
+                  <Gauge className="h-4 w-4" />
+                  Vehicle Status
+                </h4>
+                <div className="grid gap-4 sm:grid-cols-4">
+                  <FormField
+                    control={form.control}
+                    name="currentMileage"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-gray-700 dark:text-gray-300">Current Mileage (km) *</FormLabel>
                         <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select" />
-                          </SelectTrigger>
+                          <Input type="number" placeholder="45000" className="bg-white dark:bg-gray-800 border-cyan-200 focus:border-cyan-500 font-mono" {...field} />
                         </FormControl>
-                        <SelectContent>
-                          {fuelLevels.map((level) => (
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="fuelLevel"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-gray-700 dark:text-gray-300 flex items-center gap-1">
+                          <Fuel className="h-3 w-3" />
+                          Fuel Level *
+                        </FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger className="bg-white dark:bg-gray-800 border-cyan-200 focus:border-cyan-500">
+                              <SelectValue placeholder="Select" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {fuelLevels.map((level) => (
                             <SelectItem key={level} value={level}>
                               {level}
                             </SelectItem>
