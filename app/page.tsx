@@ -56,10 +56,15 @@ export default function HomePage() {
                 <MapPin className="h-4 w-4" />
                 <span>Serving Kenya & East Africa</span>
               </div>
-              <h1 className="mb-6 text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl text-balance">
-                Your Journey,{" "}
-                <span className="text-primary">Our Expertise</span>
+              <h1 className="mb-4 text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl text-balance">
+                <span className="text-primary">SavannaTrail</span>
               </h1>
+              <p className="mb-2 text-xl font-semibold text-foreground/80 sm:text-2xl">
+                Logistics & Tours
+              </p>
+              <p className="mb-6 text-lg italic text-muted-foreground">
+                Journeys That Connect.
+              </p>
               <p className="mb-8 text-lg text-muted-foreground sm:text-xl text-pretty">
                 From car rentals to safari adventures, airport transfers to cargo handling — 
                 SavannaTrail is your trusted partner for all logistics and transportation needs across Kenya. Journeys that connect.
