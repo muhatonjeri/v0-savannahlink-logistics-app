@@ -73,21 +73,25 @@ const navItems = [
     title: "Dashboard",
     href: "/admin",
     icon: LayoutDashboard,
+    color: "text-blue-500",
   },
   {
     title: "Users",
     href: "/admin/users",
     icon: Users,
+    color: "text-green-500",
   },
   {
     title: "Blacklist",
     href: "/admin/blacklist",
     icon: ShieldAlert,
+    color: "text-red-500",
   },
   {
     title: "Fleet Management",
     href: "/admin/fleet",
     icon: FleetIcon,
+    color: "text-purple-500",
   },
 ];
 
