@@ -246,7 +246,7 @@ export default function AdminLayout({
                       tooltip={item.title}
                     >
                       <Link href={item.href}>
-                        <item.icon className="h-4 w-4" />
+                        <item.icon className={`h-4 w-4 ${item.color}`} />
                         <span>{item.title}</span>
                       </Link>
                     </SidebarMenuButton>
