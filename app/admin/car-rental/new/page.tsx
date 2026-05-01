@@ -1710,43 +1710,44 @@ export default function NewCarRentalAdminPage() {
                       </FormItem>
                     )}
                   />
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <FormField
-                    control={form.control}
-                    name="drivingLicenseFrontUrl"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FileUpload
-                          id="driving-license-front"
-                          label="Driving License - Front Side"
-                          accept="image/*"
-                          maxSize={5}
-                          value={field.value}
-                          onChange={field.onChange}
-                          showCamera
-                        />
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="drivingLicenseBackUrl"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FileUpload
-                          id="driving-license-back"
-                          label="Driving License - Back Side"
-                          accept="image/*"
-                          maxSize={5}
-                          value={field.value}
-                          onChange={field.onChange}
-                          showCamera
-                        />
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <FormField
+                      control={form.control}
+                      name="drivingLicenseFrontUrl"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FileUpload
+                            id="driving-license-front"
+                            label="Driving License - Front Side"
+                            accept="image/*"
+                            maxSize={5}
+                            value={field.value}
+                            onChange={field.onChange}
+                            showCamera
+                          />
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="drivingLicenseBackUrl"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FileUpload
+                            id="driving-license-back"
+                            label="Driving License - Back Side"
+                            accept="image/*"
+                            maxSize={5}
+                            value={field.value}
+                            onChange={field.onChange}
+                            showCamera
+                          />
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -2120,10 +2121,10 @@ export default function NewCarRentalAdminPage() {
                   name="carModel"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Model *</FormLabel>
+                      <FormLabel className="text-gray-700 dark:text-gray-300">Model *</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
-                          <SelectTrigger>
+                          <SelectTrigger className="bg-white dark:bg-gray-800 border-orange-200 focus:border-orange-500">
                             <SelectValue placeholder="Select model" />
                           </SelectTrigger>
                         </FormControl>
@@ -2146,64 +2147,74 @@ export default function NewCarRentalAdminPage() {
                   name="numberPlate"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Number Plate *</FormLabel>
+                      <FormLabel className="text-gray-700 dark:text-gray-300">Number Plate *</FormLabel>
                       <FormControl>
-                        <Input placeholder="KBX 123A" {...field} />
+                        <Input placeholder="KBX 123A" className="bg-white dark:bg-gray-800 border-orange-200 focus:border-orange-500 font-mono text-lg uppercase" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+                </div>
               </div>
 
-              <div className="grid gap-4 sm:grid-cols-4">
-                <FormField
-                  control={form.control}
-                  name="currentMileage"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Current Mileage (km) *</FormLabel>
-                      <FormControl>
-                        <Input type="number" placeholder="45000" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="fuelLevel"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Fuel Level *</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+              {/* Vehicle Status Block */}
+              <div className="rounded-lg border border-cyan-200 dark:border-cyan-800 bg-cyan-50/50 dark:bg-cyan-950/20 p-4">
+                <h4 className="font-semibold text-cyan-700 dark:text-cyan-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
+                  <Gauge className="h-4 w-4" />
+                  Vehicle Status
+                </h4>
+                <div className="grid gap-4 sm:grid-cols-4">
+                  <FormField
+                    control={form.control}
+                    name="currentMileage"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-gray-700 dark:text-gray-300">Current Mileage (km) *</FormLabel>
                         <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select" />
-                          </SelectTrigger>
+                          <Input type="number" placeholder="45000" className="bg-white dark:bg-gray-800 border-cyan-200 focus:border-cyan-500 font-mono" {...field} />
                         </FormControl>
-                        <SelectContent>
-                          {fuelLevels.map((level) => (
-                            <SelectItem key={level} value={level}>
-                              {level}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="fuelLevel"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-gray-700 dark:text-gray-300 flex items-center gap-1">
+                          <Fuel className="h-3 w-3" />
+                          Fuel Level *
+                        </FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger className="bg-white dark:bg-gray-800 border-cyan-200 focus:border-cyan-500">
+                              <SelectValue placeholder="Select" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {fuelLevels.map((level) => (
+                              <SelectItem key={level} value={level}>
+                                {level}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 <FormField
                   control={form.control}
                   name="etcAmount"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>ETC Amount (KES)</FormLabel>
+                      <FormLabel className="text-gray-700 dark:text-gray-300">ETC Amount (KES)</FormLabel>
                       <FormControl>
-                        <Input type="number" placeholder="500" {...field} />
+                        <Input type="number" placeholder="500" className="bg-white dark:bg-gray-800 border-cyan-200 focus:border-cyan-500 font-mono" {...field} />
                       </FormControl>
-                      <FormDescription>Electronic toll amount</FormDescription>
+                      <FormDescription className="text-cyan-600 text-xs">Electronic toll amount</FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -2213,35 +2224,53 @@ export default function NewCarRentalAdminPage() {
                   name="destination"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Destination *</FormLabel>
+                      <FormLabel className="text-gray-700 dark:text-gray-300 flex items-center gap-1">
+                        <MapPin className="h-3 w-3" />
+                        Destination *
+                      </FormLabel>
                       <FormControl>
-                        <Input placeholder="Mombasa / Local" {...field} />
+                        <Input placeholder="Mombasa / Local" className="bg-white dark:bg-gray-800 border-cyan-200 focus:border-cyan-500" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+                </div>
               </div>
             </CardContent>
           </Card>
 
           {/* Section 5: Rental Period & Rate */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5 text-primary" />
-                Rental Period & Rate
-              </CardTitle>
+          <Card className="border-l-4 border-l-indigo-500 shadow-md">
+            <CardHeader className="bg-gradient-to-r from-indigo-50 to-transparent dark:from-indigo-950/30">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-500 text-white">
+                  <Calendar className="h-5 w-5" />
+                </div>
+                <div>
+                  <CardTitle className="text-indigo-800 dark:text-indigo-300">
+                    5. Rental Period & Pricing
+                  </CardTitle>
+                  <CardDescription>
+                    Set duration and daily rate for this booking
+                  </CardDescription>
+                </div>
+              </div>
             </CardHeader>
-            <CardContent className="grid gap-6">
-              <div className="grid gap-4 sm:grid-cols-2">
-                <FormField
-                  control={form.control}
-                  name="numberOfDays"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Number of Days *</FormLabel>
-                      <FormControl>
+            <CardContent className="pt-6">
+              <div className="rounded-lg border border-indigo-200 dark:border-indigo-800 bg-indigo-50/50 dark:bg-indigo-950/20 p-4">
+                <h4 className="font-semibold text-indigo-700 dark:text-indigo-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
+                  <CreditCard className="h-4 w-4" />
+                  Pricing Details
+                </h4>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <FormField
+                    control={form.control}
+                    name="numberOfDays"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-gray-700 dark:text-gray-300">Number of Days *</FormLabel>
+                        <FormControl>
                         <Input type="number" min="1" placeholder="3" {...field} />
                       </FormControl>
                       <FormMessage />
