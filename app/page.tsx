@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import {
   ArrowRight,
   CheckCircle2,
@@ -23,31 +24,56 @@ export default function HomePage() {
       <main className="flex-1">
         {/* Hero Section */}
         <section className="relative overflow-hidden py-20 sm:py-28 lg:py-32">
-          {/* Background Pattern */}
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute -right-40 -top-40 h-80 w-80 rounded-full bg-primary/10 blur-3xl" />
-            <div className="absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-primary/5 blur-3xl" />
-            {/* Route Lines */}
-            <svg
-              className="absolute inset-0 h-full w-full opacity-10"
-              viewBox="0 0 1000 1000"
-              preserveAspectRatio="none"
-            >
-              <path
-                d="M0,500 Q250,100 500,500 T1000,500"
-                stroke="currentColor"
-                strokeWidth="2"
-                fill="none"
-                className="text-primary"
+          {/* Background Images Slideshow */}
+          <div className="absolute inset-0">
+            {/* Safari Background */}
+            <div className="absolute inset-0 animate-[fadeInOut_20s_ease-in-out_infinite]">
+              <Image
+                src="/images/hero-safari.jpg"
+                alt="Safari adventure"
+                fill
+                className="object-cover"
+                priority
               />
-              <path
-                d="M0,600 Q250,200 500,600 T1000,600"
-                stroke="currentColor"
-                strokeWidth="1"
-                fill="none"
-                className="text-primary"
+            </div>
+            {/* SUV Background */}
+            <div className="absolute inset-0 animate-[fadeInOut_20s_ease-in-out_infinite_4s]">
+              <Image
+                src="/images/hero-suv.jpg"
+                alt="Luxury SUV rental"
+                fill
+                className="object-cover"
               />
-            </svg>
+            </div>
+            {/* Cargo Background */}
+            <div className="absolute inset-0 animate-[fadeInOut_20s_ease-in-out_infinite_8s]">
+              <Image
+                src="/images/hero-cargo.jpg"
+                alt="Cargo transport"
+                fill
+                className="object-cover"
+              />
+            </div>
+            {/* Shipment Background */}
+            <div className="absolute inset-0 animate-[fadeInOut_20s_ease-in-out_infinite_12s]">
+              <Image
+                src="/images/hero-shipment.jpg"
+                alt="Shipment imports"
+                fill
+                className="object-cover"
+              />
+            </div>
+            {/* Recovery Background */}
+            <div className="absolute inset-0 animate-[fadeInOut_20s_ease-in-out_infinite_16s]">
+              <Image
+                src="/images/hero-recovery.jpg"
+                alt="Road recovery"
+                fill
+                className="object-cover"
+              />
+            </div>
+            {/* Dark Overlay */}
+            <div className="absolute inset-0 bg-background/80 backdrop-blur-[2px]" />
           </div>
 
           <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
