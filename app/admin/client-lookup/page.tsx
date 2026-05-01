@@ -768,130 +768,75 @@ export default function ClientLookupPage() {
         </CardContent>
       </Card>
 
-      {/* Fingerprint Scan Section */}
+      {/* Fingerprint Scan Section - Compact */}
       <Card className="border-emerald-300 dark:border-emerald-700 bg-white dark:bg-gray-900 shadow-sm">
-        <CardHeader className="pb-4 border-b border-emerald-100 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/50 rounded-t-lg">
-          <CardTitle className="flex items-center gap-2 text-emerald-700 dark:text-emerald-300">
-            <Fingerprint className="h-5 w-5" />
-            Biometric Verification
-          </CardTitle>
-          <CardDescription className="text-emerald-600 dark:text-emerald-400">
-            Use fingerprint scanner for instant client identification and blacklist verification.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col items-center gap-6">
-            {/* Fingerprint Scanner Visual */}
+        <CardContent className="py-4">
+          <div className="flex items-center gap-4">
+            {/* Fingerprint Scanner Visual - Smaller */}
             <div 
-              className={`relative w-40 h-40 rounded-2xl border-4 flex items-center justify-center cursor-pointer transition-all duration-300 ${
+              className={`relative w-16 h-16 rounded-xl border-2 flex items-center justify-center cursor-pointer transition-all duration-300 shrink-0 ${
                 fingerprintStatus === "idle" 
-                  ? "border-emerald-300 dark:border-emerald-700 bg-emerald-100 dark:bg-emerald-900/50 hover:border-emerald-400 hover:bg-emerald-200 dark:hover:bg-emerald-900"
+                  ? "border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/50 hover:border-emerald-400 hover:bg-emerald-100"
                   : fingerprintStatus === "scanning"
-                  ? "border-blue-400 bg-blue-100 dark:bg-blue-900/50 animate-pulse"
+                  ? "border-blue-400 bg-blue-50 dark:bg-blue-900/50 animate-pulse"
                   : fingerprintStatus === "success"
-                  ? "border-green-500 bg-green-100 dark:bg-green-900/50"
+                  ? "border-green-500 bg-green-50 dark:bg-green-900/50"
                   : fingerprintStatus === "failed"
-                  ? "border-red-500 bg-red-100 dark:bg-red-900/50"
-                  : "border-yellow-500 bg-yellow-100 dark:bg-yellow-900/50"
+                  ? "border-red-500 bg-red-50 dark:bg-red-900/50"
+                  : "border-yellow-500 bg-yellow-50 dark:bg-yellow-900/50"
               }`}
               onClick={!isFingerprintScanning ? handleFingerprintScan : undefined}
             >
-              {/* Scanning Animation Rings */}
               {fingerprintStatus === "scanning" && (
-                <>
-                  <div className="absolute inset-4 rounded-xl border-2 border-blue-400 animate-ping opacity-75" />
-                  <div className="absolute inset-8 rounded-lg border-2 border-blue-300 animate-ping opacity-50" style={{ animationDelay: "0.2s" }} />
-                </>
+                <div className="absolute inset-2 rounded-lg border border-blue-400 animate-ping opacity-75" />
               )}
-              
-              {/* Fingerprint Icon */}
               <Fingerprint 
-                className={`h-20 w-20 transition-colors duration-300 ${
-                  fingerprintStatus === "idle" 
-                    ? "text-emerald-500"
-                    : fingerprintStatus === "scanning"
-                    ? "text-blue-500 animate-pulse"
-                    : fingerprintStatus === "success"
-                    ? "text-green-500"
-                    : fingerprintStatus === "failed"
-                    ? "text-red-500"
+                className={`h-8 w-8 transition-colors duration-300 ${
+                  fingerprintStatus === "idle" ? "text-emerald-500"
+                    : fingerprintStatus === "scanning" ? "text-blue-500 animate-pulse"
+                    : fingerprintStatus === "success" ? "text-green-500"
+                    : fingerprintStatus === "failed" ? "text-red-500"
                     : "text-yellow-500"
                 }`} 
               />
-
-              {/* Status Overlay Icons */}
               {fingerprintStatus === "success" && (
-                <div className="absolute bottom-2 right-2 bg-green-500 rounded-full p-1">
-                  <CheckCircle2 className="h-5 w-5 text-white" />
+                <div className="absolute -bottom-1 -right-1 bg-green-500 rounded-full p-0.5">
+                  <CheckCircle2 className="h-3 w-3 text-white" />
                 </div>
               )}
               {fingerprintStatus === "failed" && (
-                <div className="absolute bottom-2 right-2 bg-red-500 rounded-full p-1">
-                  <X className="h-5 w-5 text-white" />
-                </div>
-              )}
-              {fingerprintStatus === "not-found" && (
-                <div className="absolute bottom-2 right-2 bg-yellow-500 rounded-full p-1">
-                  <HelpCircle className="h-5 w-5 text-white" />
+                <div className="absolute -bottom-1 -right-1 bg-red-500 rounded-full p-0.5">
+                  <X className="h-3 w-3 text-white" />
                 </div>
               )}
             </div>
 
-            {/* Status Text */}
-            <div className="text-center">
-              {fingerprintStatus === "idle" && (
-                <p className="text-muted-foreground">
-                  Click the scanner or place finger on device to scan
-                </p>
-              )}
-              {fingerprintStatus === "scanning" && (
-                <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  <span className="font-medium">Scanning fingerprint...</span>
-                </div>
-              )}
-              {fingerprintStatus === "success" && (
-                <p className="text-green-600 dark:text-green-400 font-medium">
-                  Fingerprint matched successfully!
-                </p>
-              )}
-              {fingerprintStatus === "failed" && (
-                <p className="text-red-600 dark:text-red-400 font-medium">
-                  Scan failed. Please try again.
-                </p>
-              )}
-              {fingerprintStatus === "not-found" && (
-                <p className="text-yellow-600 dark:text-yellow-400 font-medium">
-                  No matching fingerprint found in system.
-                </p>
-              )}
+            {/* Info and Status */}
+            <div className="flex-1 min-w-0">
+              <h4 className="font-semibold text-emerald-700 dark:text-emerald-300 text-sm">Biometric Verification</h4>
+              <p className="text-xs text-muted-foreground">
+                {fingerprintStatus === "idle" && "Click scanner or place finger on device"}
+                {fingerprintStatus === "scanning" && "Scanning fingerprint..."}
+                {fingerprintStatus === "success" && "Fingerprint matched successfully!"}
+                {fingerprintStatus === "failed" && "Scan failed. Please try again."}
+                {fingerprintStatus === "not-found" && "No matching fingerprint found."}
+              </p>
             </div>
 
             {/* Scan Button */}
             <Button
               onClick={handleFingerprintScan}
               disabled={isFingerprintScanning}
-              className="gap-2 bg-emerald-600 hover:bg-emerald-700"
-              size="lg"
+              className="gap-2 bg-emerald-600 hover:bg-emerald-700 shrink-0"
+              size="sm"
             >
               {isFingerprintScanning ? (
-                <>
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                  Scanning...
-                </>
+                <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                <>
-                  <Fingerprint className="h-5 w-5" />
-                  Start Fingerprint Scan
-                </>
+                <Fingerprint className="h-4 w-4" />
               )}
+              {isFingerprintScanning ? "Scanning..." : "Scan"}
             </Button>
-
-            {/* Info */}
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <ShieldAlert className="h-4 w-4 text-emerald-500" />
-              <span>Fingerprints are securely stored and encrypted</span>
-            </div>
           </div>
         </CardContent>
       </Card>
