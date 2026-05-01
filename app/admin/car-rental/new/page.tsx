@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -158,6 +158,51 @@ export default function NewCarRentalAdminPage() {
   const watchNumberOfDays = form.watch("numberOfDays");
   const watchRentalType = form.watch("rentalType");
   const watchPaymentMethod = form.watch("paymentMethod");
+  const watchStartDate = form.watch("startDate");
+  const watchStartTime = form.watch("startTime");
+
+  // Auto-populate start date/time to current date/time on mount
+  useEffect(() => {
+    const now = new Date();
+    const currentDate = now.toISOString().split("T")[0];
+    const currentTime = now.toTimeString().slice(0, 5);
+    
+    // Only set if not already set
+    if (!form.getValues("startDate")) {
+      form.setValue("startDate", currentDate);
+    }
+    if (!form.getValues("startTime")) {
+      form.setValue("startTime", currentTime);
+    }
+  }, [form]);
+
+  // Auto-calculate end date when start date or number of days changes
+  useEffect(() => {
+    const startDate = form.getValues("startDate");
+    const numberOfDays = parseInt(form.getValues("numberOfDays") || "0");
+    const startTime = form.getValues("startTime");
+    
+    if (startDate && numberOfDays > 0) {
+      const start = new Date(startDate);
+      start.setDate(start.getDate() + numberOfDays);
+      const endDate = start.toISOString().split("T")[0];
+      form.setValue("endDate", endDate);
+      
+      // Keep the same time for return
+      if (startTime) {
+        form.setValue("endTime", startTime);
+      }
+    }
+  }, [watchStartDate, watchNumberOfDays, watchStartTime, form]);
+
+  // Helper function to calculate days between dates
+  const calculateDaysBetween = (start: string, end: string): number => {
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    const diffTime = endDate.getTime() - startDate.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays > 0 ? diffDays : 0;
+  };
 
   const calculateTotal = () => {
     const rate = parseFloat(watchDailyRate) || 0;
@@ -960,7 +1005,11 @@ export default function NewCarRentalAdminPage() {
                       <FormItem>
                         <FormLabel>Start Date *</FormLabel>
                         <FormControl>
-                          <Input type="date" {...field} />
+                          <Input 
+                            type="date" 
+                            {...field} 
+                            min={new Date().toISOString().split("T")[0]}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -988,7 +1037,22 @@ export default function NewCarRentalAdminPage() {
                       <FormItem>
                         <FormLabel>End Date *</FormLabel>
                         <FormControl>
-                          <Input type="date" {...field} />
+                          <Input 
+                            type="date" 
+                            {...field} 
+                            onChange={(e) => {
+                              field.onChange(e);
+                              // Auto-calculate number of days when end date is manually changed
+                              const startDate = form.getValues("startDate");
+                              if (startDate && e.target.value) {
+                                const days = calculateDaysBetween(startDate, e.target.value);
+                                if (days > 0) {
+                                  form.setValue("numberOfDays", days.toString());
+                                }
+                              }
+                            }}
+                            min={form.getValues("startDate") || undefined}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
