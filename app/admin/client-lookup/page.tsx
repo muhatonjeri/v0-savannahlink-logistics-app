@@ -96,6 +96,8 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { DatePicker } from "@/components/ui/date-picker";
 import { toast } from "sonner";
+import { getClients } from "@/lib/store";
+import type { Client as StoreClient } from "@/types";
 
 // Service configuration - hrefs match actual page paths
 const serviceConfig: Record<string, { title: string; icon: LucideIcon; href: string; color: string; bgColor: string; hoverColor: string }> = {
@@ -379,7 +381,7 @@ function ClientLookupContent() {
   const [searchType, setSearchType] = useState<"name" | "id" | "phone">("name");
   const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState<{
-    client: Client | null;
+    client: (Client | StoreClient) | null;
     blacklistEntries: BlacklistEntry[];
     isBlacklisted: boolean;
   } | null>(null);
@@ -571,8 +573,9 @@ function ClientLookupContent() {
       return nameMatch || idMatch || phoneMatch;
     });
 
-    // Search clients
-    const matchedClient = sampleClients.find((client) => {
+    // Search clients from store (includes both demo and registered clients)
+    const allClients = getClients();
+    const matchedClient = allClients.find((client) => {
       const nameMatch = client.fullName.toLowerCase().includes(query);
       const idMatch = client.idNumber.toLowerCase().includes(query);
       const phoneMatch = client.phone.toLowerCase().includes(query);
@@ -945,7 +948,7 @@ function ClientLookupContent() {
                   {/* Selected Service - Prominent CTA */}
                   {currentService && (
                     <div className={`border-t border-green-200 dark:border-green-800 pt-4`}>
-                      <Link href={currentService.href}>
+                      <Link href={`${currentService.href}?clientId=${searchResults.client?.id || ""}`}>
                         <Button 
                           size="lg" 
                           className={`w-full gap-3 ${currentService.bgColor} ${currentService.color} ${currentService.hoverColor} border-2 border-current h-16 text-lg font-semibold`}
@@ -963,7 +966,7 @@ function ClientLookupContent() {
                     <div className="border-t border-green-200 dark:border-green-800 pt-4">
                       <h4 className="text-sm font-medium text-muted-foreground mb-3">Quick Service Access - Select a service to proceed:</h4>
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                        <Link href="/admin/car-rental/new">
+                        <Link href={`/admin/car-rental/new?clientId=${searchResults.client?.id || ""}`}>
                           <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-indigo-200 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950 group">
                             <Car className="h-6 w-6 text-indigo-500 group-hover:scale-110 transition-transform" />
                             <span className="text-xs font-medium">Car Rental</span>
@@ -1039,7 +1042,7 @@ function ClientLookupContent() {
                   {/* Selected Service - Prominent CTA */}
                   {currentService && (
                     <div className={`border-t border-green-200 dark:border-green-800 pt-4`}>
-                      <Link href={currentService.href}>
+                      <Link href={`${currentService.href}?clientId=${searchResults.client?.id || ""}`}>
                         <Button 
                           size="lg" 
                           className={`w-full gap-3 ${currentService.bgColor} ${currentService.color} ${currentService.hoverColor} border-2 border-current h-16 text-lg font-semibold`}
@@ -1057,7 +1060,7 @@ function ClientLookupContent() {
                     <div className="border-t border-green-200 dark:border-green-800 pt-4">
                       <h4 className="text-sm font-medium text-muted-foreground mb-3">Proceed with Service:</h4>
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                        <Link href="/admin/car-rental/new">
+                        <Link href={`/admin/car-rental/new?clientId=${searchResults.client?.id || ""}`}>
                           <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-indigo-200 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950 group">
                             <Car className="h-6 w-6 text-indigo-500 group-hover:scale-110 transition-transform" />
                             <span className="text-xs font-medium">Car Rental</span>
@@ -1125,12 +1128,47 @@ function ClientLookupContent() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-center gap-4">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-indigo-500/20">
-                      <User className="h-8 w-8 text-indigo-500" />
+                    <div className={`flex h-16 w-16 items-center justify-center rounded-full ${
+                      searchResults.client.riskLevel === "blocked" 
+                        ? "bg-red-500/20" 
+                        : searchResults.client.riskLevel === "high"
+                        ? "bg-orange-500/20"
+                        : searchResults.client.riskLevel === "medium"
+                        ? "bg-yellow-500/20"
+                        : "bg-green-500/20"
+                    }`}>
+                      {searchResults.client.riskLevel === "blocked" ? (
+                        <Ban className={`h-8 w-8 text-red-500`} />
+                      ) : (
+                        <UserCheck className={`h-8 w-8 ${
+                          searchResults.client.riskLevel === "high"
+                            ? "text-orange-500"
+                            : searchResults.client.riskLevel === "medium"
+                            ? "text-yellow-500"
+                            : "text-green-500"
+                        }`} />
+                      )}
                     </div>
                     <div>
-                      <h3 className="text-lg font-semibold">{searchResults.client.fullName}</h3>
-                      <p className="text-sm text-muted-foreground">Client since {searchResults.client.createdAt}</p>
+                      <h3 className="text-lg font-semibold flex items-center gap-2">
+                        {searchResults.client.fullName}
+                        {searchResults.client.riskLevel && (
+                          <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                            searchResults.client.riskLevel === "blocked" 
+                              ? "bg-red-600 text-white" 
+                              : searchResults.client.riskLevel === "high"
+                              ? "bg-orange-500 text-white"
+                              : searchResults.client.riskLevel === "medium"
+                              ? "bg-yellow-500 text-black"
+                              : "bg-green-500 text-white"
+                          }`}>
+                            {searchResults.client.riskLevel === "blocked" ? "BLOCKED" : `${searchResults.client.riskLevel.toUpperCase()} RISK`}
+                          </span>
+                        )}
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        Client since {searchResults.client.createdAt} | {searchResults.client.totalBookings || 0} bookings
+                      </p>
                     </div>
                   </div>
 
@@ -1186,7 +1224,7 @@ function ClientLookupContent() {
                       <p className="text-xs text-muted-foreground">Total Bookings</p>
                     </div>
                     <div className="rounded-lg bg-green-500/10 p-3">
-                      <p className="text-lg font-bold text-green-500">{formatCurrency(searchResults.client.totalSpent)}</p>
+                      <p className="text-lg font-bold text-green-500">{formatCurrency((searchResults.client as typeof searchResults.client & { totalSpent?: number }).totalSpent || 0)}</p>
                       <p className="text-xs text-muted-foreground">Total Spent</p>
                     </div>
                     <div className="rounded-lg bg-amber-500/10 p-3">

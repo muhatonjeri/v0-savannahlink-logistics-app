@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -176,6 +176,8 @@ const vehicleData = [
 
 export default function NewCarRentalAdminPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const clientIdFromUrl = searchParams.get("clientId");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [bookingComplete, setBookingComplete] = useState(false);
   const [currentBooking, setCurrentBooking] = useState<CarRentalBooking | null>(null);
@@ -220,6 +222,22 @@ export default function NewCarRentalAdminPage() {
   useEffect(() => {
     initializeDemoBookingHistory();
   }, []);
+
+  // Load existing client from URL parameter
+  useEffect(() => {
+    if (clientIdFromUrl) {
+      const clients = getClients();
+      const existingClient = clients.find(c => c.id === clientIdFromUrl);
+      if (existingClient) {
+        setSelectedClient(existingClient);
+        setIsNewClient(false);
+        // Load booking history for this client
+        const history = getClientBookingHistory(existingClient.idNumber);
+        setClientBookingHistory(history);
+        toast.success(`Existing client loaded: ${existingClient.fullName} (${existingClient.totalBookings} previous bookings)`);
+      }
+    }
+  }, [clientIdFromUrl]);
   
   // Fingerprint capture state for new clients
   const [leftThumbScanning, setLeftThumbScanning] = useState(false);
@@ -273,6 +291,33 @@ export default function NewCarRentalAdminPage() {
   const watchPaymentMethod = form.watch("paymentMethod");
   const watchStartDate = form.watch("startDate");
   const watchStartTime = form.watch("startTime");
+
+  // Pre-fill form when existing client is selected
+  useEffect(() => {
+    if (selectedClient && !isNewClient) {
+      form.setValue("fullName", selectedClient.fullName);
+      form.setValue("idNumber", selectedClient.idNumber);
+      form.setValue("phone", selectedClient.phone);
+      form.setValue("alternativePhone", selectedClient.alternativePhone || "");
+      form.setValue("email", selectedClient.email || "");
+      form.setValue("residence", selectedClient.residence || "");
+      form.setValue("placeOfWork", selectedClient.placeOfWork || "");
+      form.setValue("kraPin", selectedClient.kraPin || "");
+      form.setValue("drivingLicenseNumber", selectedClient.drivingLicenseNumber || "");
+      if (selectedClient.nextOfKin) {
+        form.setValue("nextOfKinName", selectedClient.nextOfKin.name);
+        form.setValue("nextOfKinPhone", selectedClient.nextOfKin.phone);
+        form.setValue("nextOfKinRelationship", selectedClient.nextOfKin.relationship);
+      }
+      // Set fingerprint captured status if they exist
+      if (selectedClient.leftFingerprint || selectedClient.fingerprintLeftUrl) {
+        setLeftThumbCaptured(true);
+      }
+      if (selectedClient.rightFingerprint || selectedClient.fingerprintRightUrl) {
+        setRightThumbCaptured(true);
+      }
+    }
+  }, [selectedClient, isNewClient, form]);
 
   // Auto-populate start date/time to current date/time on mount
   useEffect(() => {
@@ -832,6 +877,110 @@ export default function NewCarRentalAdminPage() {
               </div>
             </CardHeader>
             <CardContent className="pt-6 space-y-6">
+              {/* Existing Client Banner - Shows when returning client is loaded */}
+              {selectedClient && !isNewClient && (
+                <div className={`rounded-lg border-2 p-4 ${
+                  selectedClient.riskLevel === "blocked" 
+                    ? "border-red-500 bg-red-50 dark:bg-red-950/50" 
+                    : selectedClient.riskLevel === "high"
+                    ? "border-orange-500 bg-orange-50 dark:bg-orange-950/50"
+                    : selectedClient.riskLevel === "medium"
+                    ? "border-yellow-500 bg-yellow-50 dark:bg-yellow-950/50"
+                    : "border-green-500 bg-green-50 dark:bg-green-950/50"
+                }`}>
+                  <div className="flex items-center justify-between flex-wrap gap-4">
+                    <div className="flex items-center gap-3">
+                      <div className={`flex h-12 w-12 items-center justify-center rounded-full text-white ${
+                        selectedClient.riskLevel === "blocked" 
+                          ? "bg-red-600" 
+                          : selectedClient.riskLevel === "high"
+                          ? "bg-orange-500"
+                          : selectedClient.riskLevel === "medium"
+                          ? "bg-yellow-500"
+                          : "bg-green-500"
+                      }`}>
+                        {selectedClient.riskLevel === "blocked" ? (
+                          <Ban className="h-6 w-6" />
+                        ) : (
+                          <UserCheck className="h-6 w-6" />
+                        )}
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-lg text-gray-900 dark:text-white flex items-center gap-2">
+                          {selectedClient.fullName}
+                          <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                            selectedClient.riskLevel === "blocked" 
+                              ? "bg-red-600 text-white" 
+                              : selectedClient.riskLevel === "high"
+                              ? "bg-orange-500 text-white"
+                              : selectedClient.riskLevel === "medium"
+                              ? "bg-yellow-500 text-black"
+                              : "bg-green-500 text-white"
+                          }`}>
+                            {selectedClient.riskLevel === "blocked" ? "BLOCKED" : `${selectedClient.riskLevel?.toUpperCase()} RISK`}
+                          </span>
+                        </h3>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          ID: {selectedClient.idNumber} | Phone: {selectedClient.phone}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <div className="text-center px-4 py-2 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+                        <p className="text-2xl font-bold text-blue-600">{selectedClient.totalBookings || 0}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Previous Bookings</p>
+                      </div>
+                      {clientBookingHistory.length > 0 && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setShowClientHistory(!showClientHistory)}
+                          className="gap-2"
+                        >
+                          <History className="h-4 w-4" />
+                          View History
+                        </Button>
+                      )}
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setSelectedClient(null);
+                          setIsNewClient(true);
+                          setClientBookingHistory([]);
+                          form.reset();
+                          router.push("/admin/car-rental/new");
+                        }}
+                        className="gap-2 text-gray-600"
+                      >
+                        <User className="h-4 w-4" />
+                        Different Client
+                      </Button>
+                    </div>
+                  </div>
+                  {selectedClient.riskLevel === "blocked" && (
+                    <div className="mt-4 p-3 bg-red-600 text-white rounded-lg flex items-center gap-3 animate-pulse">
+                      <Ban className="h-6 w-6 flex-shrink-0" />
+                      <div>
+                        <p className="font-bold uppercase">DO NOT RENT TO THIS CLIENT</p>
+                        <p className="text-sm opacity-90">This client has been blacklisted. Contact management immediately.</p>
+                      </div>
+                    </div>
+                  )}
+                  {selectedClient.totalDebt && selectedClient.totalDebt > 0 && (
+                    <div className="mt-4 p-3 bg-orange-100 dark:bg-orange-900/50 border border-orange-300 dark:border-orange-700 rounded-lg flex items-center gap-3">
+                      <DollarSign className="h-5 w-5 text-orange-600 flex-shrink-0" />
+                      <div>
+                        <p className="font-semibold text-orange-800 dark:text-orange-300">Outstanding Debt: KES {selectedClient.totalDebt.toLocaleString()}</p>
+                        <p className="text-sm text-orange-700 dark:text-orange-400">Client must clear balance before new rental</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* Contact Information Block */}
               <div className="rounded-lg border-2 border-blue-300 dark:border-blue-700 bg-white dark:bg-gray-900 p-4 shadow-sm">
                 <h4 className="font-semibold text-blue-800 dark:text-blue-300 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
