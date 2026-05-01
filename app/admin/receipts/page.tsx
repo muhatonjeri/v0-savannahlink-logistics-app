@@ -30,6 +30,9 @@ import {
   AlertTriangle,
   BadgeCheck,
   QrCode,
+  Send,
+  MessageSquare,
+  Loader2,
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -393,6 +396,11 @@ export default function ReceiptsPage() {
     toast.success("Receipt issued successfully", {
       description: `Receipt ${newReceipt.receiptNumber} has been created and is eTIMS compliant.`,
     });
+
+    // Automatically send receipt to customer via email and SMS
+    setTimeout(() => {
+      sendReceiptBoth(newReceipt);
+    }, 500);
   };
 
   // Handle void receipt
@@ -408,6 +416,105 @@ export default function ReceiptsPage() {
   // Handle print
   const handlePrint = () => {
     window.print();
+  };
+
+  // State for sending receipts
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
+  const [isSendingSms, setIsSendingSms] = useState(false);
+
+  // Send receipt via Email
+  const sendReceiptEmail = async (receipt: ReceiptData) => {
+    if (!receipt.customerEmail) {
+      toast.error("No email address", {
+        description: "Customer email address is not available for this receipt.",
+      });
+      return;
+    }
+
+    setIsSendingEmail(true);
+    try {
+      // Simulate API call to send email
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      
+      // In production, this would call an API endpoint like:
+      // await fetch('/api/send-receipt-email', {
+      //   method: 'POST',
+      //   body: JSON.stringify({
+      //     to: receipt.customerEmail,
+      //     receiptNumber: receipt.receiptNumber,
+      //     customerName: receipt.customerName,
+      //     amount: receipt.totalAmount,
+      //     transactionCode: receipt.transactionCode,
+      //     etimsReceiptNumber: receipt.etimsReceiptNumber,
+      //   })
+      // });
+
+      toast.success("Email sent successfully", {
+        description: `Receipt ${receipt.receiptNumber} sent to ${receipt.customerEmail}`,
+      });
+    } catch {
+      toast.error("Failed to send email", {
+        description: "Please try again or contact support.",
+      });
+    } finally {
+      setIsSendingEmail(false);
+    }
+  };
+
+  // Send receipt via SMS
+  const sendReceiptSms = async (receipt: ReceiptData) => {
+    if (!receipt.customerPhone) {
+      toast.error("No phone number", {
+        description: "Customer phone number is not available for this receipt.",
+      });
+      return;
+    }
+
+    setIsSendingSms(true);
+    try {
+      // Simulate API call to send SMS
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      
+      // In production, this would call an SMS API like Africa's Talking:
+      // await fetch('/api/send-receipt-sms', {
+      //   method: 'POST',
+      //   body: JSON.stringify({
+      //     to: receipt.customerPhone,
+      //     message: `SavannahLink Receipt ${receipt.receiptNumber}. Amount: KES ${receipt.totalAmount.toLocaleString()}. Ref: ${receipt.transactionCode}. Thank you for your business!`
+      //   })
+      // });
+
+      toast.success("SMS sent successfully", {
+        description: `Receipt ${receipt.receiptNumber} sent to ${receipt.customerPhone}`,
+      });
+    } catch {
+      toast.error("Failed to send SMS", {
+        description: "Please try again or contact support.",
+      });
+    } finally {
+      setIsSendingSms(false);
+    }
+  };
+
+  // Send receipt via both Email and SMS
+  const sendReceiptBoth = async (receipt: ReceiptData) => {
+    const promises: Promise<void>[] = [];
+    
+    if (receipt.customerEmail) {
+      promises.push(sendReceiptEmail(receipt));
+    }
+    if (receipt.customerPhone) {
+      promises.push(sendReceiptSms(receipt));
+    }
+    
+    if (promises.length === 0) {
+      toast.error("No contact details", {
+        description: "Customer email and phone number are not available.",
+      });
+      return;
+    }
+    
+    await Promise.all(promises);
   };
 
   return (
@@ -978,6 +1085,26 @@ export default function ReceiptsPage() {
                             >
                               <Eye className="h-4 w-4" />
                             </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="icon"
+                              className="text-blue-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950"
+                              onClick={() => sendReceiptEmail(receipt)}
+                              disabled={!receipt.customerEmail || isSendingEmail}
+                              title={receipt.customerEmail ? `Send to ${receipt.customerEmail}` : "No email address"}
+                            >
+                              {isSendingEmail ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="icon"
+                              className="text-green-500 hover:text-green-600 hover:bg-green-50 dark:hover:bg-green-950"
+                              onClick={() => sendReceiptSms(receipt)}
+                              disabled={!receipt.customerPhone || isSendingSms}
+                              title={receipt.customerPhone ? `Send to ${receipt.customerPhone}` : "No phone number"}
+                            >
+                              {isSendingSms ? <Loader2 className="h-4 w-4 animate-spin" /> : <MessageSquare className="h-4 w-4" />}
+                            </Button>
                             <Button variant="ghost" size="icon" onClick={handlePrint}>
                               <Printer className="h-4 w-4" />
                             </Button>
@@ -1196,7 +1323,53 @@ export default function ReceiptsPage() {
                 </p>
               </div>
 
-              <DialogFooter>
+              {/* Send Options */}
+              <div className="bg-blue-50 dark:bg-blue-950/30 rounded-lg p-4">
+                <h4 className="font-semibold text-blue-700 dark:text-blue-400 mb-3 flex items-center gap-2">
+                  <Send className="h-4 w-4" />
+                  Send Receipt to Customer
+                </h4>
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-2 border-blue-300 text-blue-700 hover:bg-blue-100 dark:border-blue-700 dark:text-blue-400 dark:hover:bg-blue-900"
+                    onClick={() => selectedReceipt && sendReceiptEmail(selectedReceipt)}
+                    disabled={!selectedReceipt?.customerEmail || isSendingEmail}
+                  >
+                    {isSendingEmail ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
+                    Send Email
+                    {selectedReceipt?.customerEmail && (
+                      <span className="text-xs opacity-70">({selectedReceipt.customerEmail})</span>
+                    )}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-2 border-green-300 text-green-700 hover:bg-green-100 dark:border-green-700 dark:text-green-400 dark:hover:bg-green-900"
+                    onClick={() => selectedReceipt && sendReceiptSms(selectedReceipt)}
+                    disabled={!selectedReceipt?.customerPhone || isSendingSms}
+                  >
+                    {isSendingSms ? <Loader2 className="h-4 w-4 animate-spin" /> : <MessageSquare className="h-4 w-4" />}
+                    Send SMS
+                    {selectedReceipt?.customerPhone && (
+                      <span className="text-xs opacity-70">({selectedReceipt.customerPhone})</span>
+                    )}
+                  </Button>
+                  <Button
+                    variant="default"
+                    size="sm"
+                    className="gap-2 bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700"
+                    onClick={() => selectedReceipt && sendReceiptBoth(selectedReceipt)}
+                    disabled={(!selectedReceipt?.customerEmail && !selectedReceipt?.customerPhone) || isSendingEmail || isSendingSms}
+                  >
+                    <Send className="h-4 w-4" />
+                    Send Both
+                  </Button>
+                </div>
+              </div>
+
+              <DialogFooter className="gap-2">
                 <Button variant="outline" onClick={() => setViewDialogOpen(false)}>
                   Close
                 </Button>
