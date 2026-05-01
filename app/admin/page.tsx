@@ -7,6 +7,7 @@ import {
   Compass,
   Plane,
   Truck,
+  Bus,
   Wrench,
   Package,
   Ship,
@@ -28,6 +29,7 @@ const serviceIcons: Record<string, React.ElementType> = {
   "safari-tours": Compass,
   "hotel-airport-transfers": Plane,
   "movers": Truck,
+  "corporate-rental": Bus,
   "road-recovery": Wrench,
   "cargo-handling": Package,
   "shipment-imports": Ship,
@@ -39,6 +41,7 @@ const serviceNames: Record<string, string> = {
   "safari-tours": "Safari Tours",
   "hotel-airport-transfers": "Transfers",
   "movers": "Movers",
+  "corporate-rental": "Corporate Rental",
   "road-recovery": "Road Recovery",
   "cargo-handling": "Cargo Handling",
   "shipment-imports": "Shipment Imports",
@@ -50,6 +53,7 @@ const serviceLinks: Record<string, string> = {
   "safari-tours": "/admin/safari-tours",
   "hotel-airport-transfers": "/admin/transfers",
   "movers": "/admin/movers",
+  "corporate-rental": "/admin/corporate-rental",
   "road-recovery": "/admin/road-recovery",
   "cargo-handling": "/admin/cargo-handling",
   "shipment-imports": "/admin/shipment-imports",
@@ -242,36 +246,72 @@ export default function AdminDashboard() {
         </Card>
       </div>
 
-      {/* Quick Actions */}
+      {/* Quick Actions - All Services */}
       <Card>
         <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
-          <CardDescription>Frequently used actions</CardDescription>
+          <CardTitle>Quick Actions - New Bookings</CardTitle>
+          <CardDescription>Create new bookings for all services</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <Button variant="outline" className="h-auto flex-col gap-2 p-4" asChild>
+          <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
+            <Button variant="outline" className="h-auto flex-col gap-2 p-4 border-emerald-200 hover:bg-emerald-50 hover:border-emerald-400 dark:border-emerald-800 dark:hover:bg-emerald-950" asChild>
               <Link href="/admin/car-rental/new">
-                <Car className="h-6 w-6 text-primary" />
-                <span>New Car Rental</span>
+                <Car className="h-6 w-6 text-emerald-600" />
+                <span className="text-xs text-center">New Car Rental</span>
               </Link>
             </Button>
-            <Button variant="outline" className="h-auto flex-col gap-2 p-4" asChild>
+            <Button variant="outline" className="h-auto flex-col gap-2 p-4 border-amber-200 hover:bg-amber-50 hover:border-amber-400 dark:border-amber-800 dark:hover:bg-amber-950" asChild>
+              <Link href="/admin/safari-tours/new">
+                <Compass className="h-6 w-6 text-amber-600" />
+                <span className="text-xs text-center">New Safari Tour</span>
+              </Link>
+            </Button>
+            <Button variant="outline" className="h-auto flex-col gap-2 p-4 border-sky-200 hover:bg-sky-50 hover:border-sky-400 dark:border-sky-800 dark:hover:bg-sky-950" asChild>
+              <Link href="/admin/transfers/new">
+                <Plane className="h-6 w-6 text-sky-600" />
+                <span className="text-xs text-center">New Transfer</span>
+              </Link>
+            </Button>
+            <Button variant="outline" className="h-auto flex-col gap-2 p-4 border-violet-200 hover:bg-violet-50 hover:border-violet-400 dark:border-violet-800 dark:hover:bg-violet-950" asChild>
+              <Link href="/admin/movers/new">
+                <Truck className="h-6 w-6 text-violet-600" />
+                <span className="text-xs text-center">New Movers</span>
+              </Link>
+            </Button>
+            <Button variant="outline" className="h-auto flex-col gap-2 p-4 border-indigo-200 hover:bg-indigo-50 hover:border-indigo-400 dark:border-indigo-800 dark:hover:bg-indigo-950" asChild>
+              <Link href="/admin/corporate-rental/new">
+                <Bus className="h-6 w-6 text-indigo-600" />
+                <span className="text-xs text-center">New Corporate</span>
+              </Link>
+            </Button>
+            <Button variant="outline" className="h-auto flex-col gap-2 p-4 border-rose-200 hover:bg-rose-50 hover:border-rose-400 dark:border-rose-800 dark:hover:bg-rose-950" asChild>
+              <Link href="/admin/road-recovery/new">
+                <Wrench className="h-6 w-6 text-rose-600" />
+                <span className="text-xs text-center">New Recovery</span>
+              </Link>
+            </Button>
+            <Button variant="outline" className="h-auto flex-col gap-2 p-4 border-orange-200 hover:bg-orange-50 hover:border-orange-400 dark:border-orange-800 dark:hover:bg-orange-950" asChild>
+              <Link href="/admin/cargo-handling/new">
+                <Package className="h-6 w-6 text-orange-600" />
+                <span className="text-xs text-center">New Cargo</span>
+              </Link>
+            </Button>
+            <Button variant="outline" className="h-auto flex-col gap-2 p-4 border-cyan-200 hover:bg-cyan-50 hover:border-cyan-400 dark:border-cyan-800 dark:hover:bg-cyan-950" asChild>
+              <Link href="/admin/shipment-imports/new">
+                <Ship className="h-6 w-6 text-cyan-600" />
+                <span className="text-xs text-center">New Shipment</span>
+              </Link>
+            </Button>
+            <Button variant="outline" className="h-auto flex-col gap-2 p-4 border-yellow-200 hover:bg-yellow-50 hover:border-yellow-400 dark:border-yellow-800 dark:hover:bg-yellow-950" asChild>
+              <Link href="/admin/construction-equipment/new">
+                <HardHat className="h-6 w-6 text-yellow-600" />
+                <span className="text-xs text-center">New Construction</span>
+              </Link>
+            </Button>
+            <Button variant="outline" className="h-auto flex-col gap-2 p-4 border-gray-200 hover:bg-gray-50 hover:border-gray-400 dark:border-gray-700 dark:hover:bg-gray-900" asChild>
               <Link href="/admin/users">
-                <Users className="h-6 w-6 text-primary" />
-                <span>Manage Users</span>
-              </Link>
-            </Button>
-            <Button variant="outline" className="h-auto flex-col gap-2 p-4" asChild>
-              <Link href="/services">
-                <TrendingUp className="h-6 w-6 text-primary" />
-                <span>View Services</span>
-              </Link>
-            </Button>
-            <Button variant="outline" className="h-auto flex-col gap-2 p-4" asChild>
-              <Link href="/">
-                <Package className="h-6 w-6 text-primary" />
-                <span>Go to Website</span>
+                <Users className="h-6 w-6 text-gray-600" />
+                <span className="text-xs text-center">Manage Users</span>
               </Link>
             </Button>
           </div>
