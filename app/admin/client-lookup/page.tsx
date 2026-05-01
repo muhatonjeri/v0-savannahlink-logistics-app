@@ -405,6 +405,75 @@ export default function ClientLookupPage() {
     }
   };
 
+  // New client registration form
+  const registerForm = useForm<NewClientFormValues>({
+    resolver: zodResolver(newClientSchema),
+    defaultValues: {
+      fullName: "",
+      idNumber: "",
+      phone: "",
+      email: "",
+      kraPin: "",
+      residence: "",
+      placeOfWork: "",
+      drivingLicenseNumber: "",
+    },
+  });
+
+  // Pre-populate registration form with search query
+  const openRegisterDialog = () => {
+    // Pre-fill based on search type
+    if (searchType === "name") {
+      registerForm.setValue("fullName", searchQuery);
+    } else if (searchType === "id") {
+      registerForm.setValue("idNumber", searchQuery);
+    } else if (searchType === "phone") {
+      registerForm.setValue("phone", searchQuery);
+    }
+    setIsRegisterDialogOpen(true);
+  };
+
+  const onRegisterSubmit = async (data: NewClientFormValues) => {
+    setIsRegistering(true);
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      // Create new client
+      const newClient = {
+        id: `CLT-${Date.now()}`,
+        fullName: data.fullName,
+        idNumber: data.idNumber,
+        phone: data.phone,
+        email: data.email || undefined,
+        kraPin: data.kraPin || undefined,
+        residence: data.residence || undefined,
+        placeOfWork: data.placeOfWork || undefined,
+        drivingLicenseNumber: data.drivingLicenseNumber || undefined,
+        totalBookings: 0,
+        totalSpent: 0,
+        createdAt: new Date().toISOString().split("T")[0],
+        riskLevel: "low" as const,
+      };
+
+      // Update search results to show the new client
+      setSearchResults({
+        client: newClient,
+        blacklistEntries: [],
+        isBlacklisted: false,
+      });
+
+      setIsRegisterDialogOpen(false);
+      registerForm.reset();
+      toast.success("Client registered successfully", {
+        description: `${data.fullName} has been added to the system.`,
+      });
+    } catch {
+      toast.error("Failed to register client");
+    } finally {
+      setIsRegistering(false);
+    }
+  };
+
   // Search function
   const handleSearch = async () => {
     if (!searchQuery.trim()) return;
@@ -580,17 +649,37 @@ export default function ClientLookupPage() {
             </Card>
           )}
 
-          {/* No Results */}
+          {/* No Results - New Client Option */}
           {!searchResults.client && searchResults.blacklistEntries.length === 0 && (
-            <Card className="border-yellow-500/50 bg-yellow-500/10">
+            <Card className="border-green-500/50 bg-green-500/10">
               <CardContent className="pt-6">
-                <div className="flex items-center gap-4">
-                  <AlertTriangle className="h-8 w-8 text-yellow-500" />
-                  <div>
-                    <h3 className="font-semibold text-yellow-500">No Records Found</h3>
-                    <p className="text-muted-foreground">
-                      No client or blacklist records found matching your search. This could be a new client.
-                    </p>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                  <div className="flex items-center gap-4 flex-1">
+                    <div className="rounded-full bg-green-500/20 p-3">
+                      <CheckCircle2 className="h-8 w-8 text-green-500" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-green-600 dark:text-green-400">No Negative Records Found</h3>
+                      <p className="text-muted-foreground">
+                        This person has no blacklist records. Safe to register as a new client or proceed with services.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                    <Button 
+                      onClick={openRegisterDialog}
+                      className="bg-green-600 hover:bg-green-700 gap-2"
+                    >
+                      <UserPlus className="h-4 w-4" />
+                      Register New Client
+                    </Button>
+                    <Link href="/admin/car-rental/new">
+                      <Button variant="outline" className="gap-2 w-full border-indigo-500 text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950">
+                        <Car className="h-4 w-4" />
+                        Start Car Rental
+                        <ArrowRight className="h-4 w-4" />
+                      </Button>
+                    </Link>
                   </div>
                 </div>
               </CardContent>
@@ -601,14 +690,23 @@ export default function ClientLookupPage() {
           {!searchResults.isBlacklisted && (searchResults.client || searchResults.blacklistEntries.length > 0) && (
             <Card className="border-green-500/50 bg-green-500/10">
               <CardContent className="pt-6">
-                <div className="flex items-center gap-4">
-                  <CheckCircle2 className="h-8 w-8 text-green-500" />
-                  <div>
-                    <h3 className="font-semibold text-green-500">Client Status: CLEAR</h3>
-                    <p className="text-muted-foreground">
-                      No active blacklist records found for this client. Safe to proceed with services.
-                    </p>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                  <div className="flex items-center gap-4 flex-1">
+                    <CheckCircle2 className="h-8 w-8 text-green-500" />
+                    <div>
+                      <h3 className="font-semibold text-green-500">Client Status: CLEAR</h3>
+                      <p className="text-muted-foreground">
+                        No active blacklist records found for this client. Safe to proceed with services.
+                      </p>
+                    </div>
                   </div>
+                  <Link href="/admin/car-rental/new">
+                    <Button className="bg-indigo-600 hover:bg-indigo-700 gap-2">
+                      <Car className="h-4 w-4" />
+                      Start Car Rental
+                      <ArrowRight className="h-4 w-4" />
+                    </Button>
+                  </Link>
                 </div>
               </CardContent>
             </Card>
@@ -1147,6 +1245,107 @@ export default function ClientLookupPage() {
               </form>
             </Form>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Register New Client Dialog */}
+      <Dialog open={isRegisterDialogOpen} onOpenChange={setIsRegisterDialogOpen}>
+        <DialogContent className="max-w-2xl bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700">
+          <DialogHeader className="border-b border-gray-200 dark:border-gray-700 pb-4">
+            <DialogTitle className="flex items-center gap-2 text-green-600 dark:text-green-400">
+              <UserPlus className="h-5 w-5" />
+              Register New Client
+            </DialogTitle>
+            <DialogDescription className="text-gray-600 dark:text-gray-400">
+              Add a new client to the system. This client has no negative records on the blacklist.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <Form {...registerForm}>
+            <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-6">
+              <div className="rounded-lg border border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-950/50 p-4 shadow-sm">
+                <h4 className="font-semibold text-green-800 dark:text-green-300 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
+                  <User className="h-4 w-4" />
+                  Personal Information
+                </h4>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <FormField control={registerForm.control} name="fullName" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Full Name *</FormLabel>
+                      <FormControl><Input placeholder="Full legal name" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={registerForm.control} name="idNumber" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>ID Number *</FormLabel>
+                      <FormControl><Input placeholder="National ID / Passport" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={registerForm.control} name="phone" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Phone Number *</FormLabel>
+                      <FormControl><Input placeholder="0712345678" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={registerForm.control} name="email" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl><Input type="email" placeholder="email@example.com" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={registerForm.control} name="kraPin" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>KRA PIN</FormLabel>
+                      <FormControl><Input placeholder="A012345678B" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={registerForm.control} name="drivingLicenseNumber" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Driving License</FormLabel>
+                      <FormControl><Input placeholder="License number" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={registerForm.control} name="residence" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Residence</FormLabel>
+                      <FormControl><Input placeholder="City / Area" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={registerForm.control} name="placeOfWork" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Place of Work</FormLabel>
+                      <FormControl><Input placeholder="Employer / Company" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                </div>
+              </div>
+
+              <DialogFooter className="gap-2">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => {
+                    setIsRegisterDialogOpen(false);
+                    registerForm.reset();
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" className="bg-green-600 hover:bg-green-700 gap-2" disabled={isRegistering}>
+                  <UserPlus className="h-4 w-4" />
+                  {isRegistering ? "Registering..." : "Register Client"}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
         </DialogContent>
       </Dialog>
     </div>

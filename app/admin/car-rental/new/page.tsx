@@ -787,13 +787,23 @@ export default function NewCarRentalAdminPage() {
           {/* Client Search Section */}
           <Card className="border-2 border-amber-500 bg-amber-50 dark:bg-amber-950/30">
             <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-amber-800 dark:text-amber-300">
-                <Search className="h-5 w-5" />
-                Client Lookup
-              </CardTitle>
-              <CardDescription className="text-amber-700 dark:text-amber-400">
-                Search for returning clients by name, ID number, or phone number to auto-fill their details
-              </CardDescription>
+              <div className="flex items-start justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2 text-amber-800 dark:text-amber-300">
+                    <Search className="h-5 w-5" />
+                    Client Lookup
+                  </CardTitle>
+                  <CardDescription className="text-amber-700 dark:text-amber-400">
+                    Search for returning clients by name, ID number, or phone number to auto-fill their details
+                  </CardDescription>
+                </div>
+                <Link href="/admin/client-lookup">
+                  <Button variant="outline" size="sm" className="gap-2 border-red-500 text-red-600 hover:bg-red-50 dark:hover:bg-red-950">
+                    <ShieldAlert className="h-4 w-4" />
+                    Full Blacklist Check
+                  </Button>
+                </Link>
+              </div>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex gap-3">
