@@ -1,0 +1,73 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { Compass } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { BookingsTable } from "@/components/admin/bookings-table";
+import { getBookingsByService } from "@/lib/store";
+import type { Booking } from "@/types";
+
+export default function SafariToursAdminPage() {
+  const [bookings, setBookings] = useState<Booking[]>([]);
+
+  const loadBookings = () => {
+    setBookings(getBookingsByService("safari-tours"));
+  };
+
+  useEffect(() => {
+    loadBookings();
+  }, []);
+
+  const stats = {
+    total: bookings.length,
+    pending: bookings.filter((b) => b.status === "pending").length,
+    revenue: bookings
+      .filter((b) => b.paymentStatus === "completed")
+      .reduce((sum, b) => sum + b.totalAmount, 0),
+  };
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold text-foreground">Safari Tours</h1>
+        <p className="text-muted-foreground">Manage safari tour bookings</p>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-3">
+        <Card>
+          <CardHeader className="flex flex-row items-center gap-4 pb-2">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+              <Compass className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <CardDescription>Total Bookings</CardDescription>
+              <CardTitle className="text-2xl">{stats.total}</CardTitle>
+            </div>
+          </CardHeader>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardDescription>Pending</CardDescription>
+            <CardTitle className="text-2xl">{stats.pending}</CardTitle>
+          </CardHeader>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardDescription>Revenue</CardDescription>
+            <CardTitle className="text-2xl">KES {stats.revenue.toLocaleString()}</CardTitle>
+          </CardHeader>
+        </Card>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>All Safari Tour Bookings</CardTitle>
+          <CardDescription>View and manage safari tour bookings</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <BookingsTable bookings={bookings} onRefresh={loadBookings} />
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
