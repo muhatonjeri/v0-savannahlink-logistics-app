@@ -1599,8 +1599,8 @@ export default function NewCarRentalAdminPage() {
             </CardHeader>
             <CardContent className="pt-6 space-y-6">
               {/* Contact Information Block */}
-              <div className="rounded-lg border border-blue-200 dark:border-blue-800 bg-blue-50/50 dark:bg-blue-950/20 p-4">
-                <h4 className="font-semibold text-blue-700 dark:text-blue-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
+              <div className="rounded-lg border-2 border-blue-300 dark:border-blue-700 bg-white dark:bg-gray-900 p-4 shadow-sm">
+                <h4 className="font-semibold text-blue-800 dark:text-blue-300 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
                   <Phone className="h-4 w-4" />
                   Contact Information
                 </h4>
@@ -1662,8 +1662,8 @@ export default function NewCarRentalAdminPage() {
               </div>
 
               {/* ID Documents Block */}
-              <div className="rounded-lg border border-emerald-200 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-950/20 p-4">
-                <h4 className="font-semibold text-emerald-700 dark:text-emerald-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
+              <div className="rounded-lg border-2 border-emerald-300 dark:border-emerald-700 bg-white dark:bg-gray-900 p-4 shadow-sm">
+                <h4 className="font-semibold text-emerald-800 dark:text-emerald-300 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
                   <FileText className="h-4 w-4" />
                   ID / Passport Documents
                 </h4>
@@ -1723,8 +1723,8 @@ export default function NewCarRentalAdminPage() {
               </div>
 
               {/* Driving License Block */}
-              <div className="rounded-lg border border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/20 p-4">
-                <h4 className="font-semibold text-amber-700 dark:text-amber-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
+              <div className="rounded-lg border-2 border-amber-300 dark:border-amber-700 bg-white dark:bg-gray-900 p-4 shadow-sm">
+                <h4 className="font-semibold text-amber-800 dark:text-amber-300 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
                   <Car className="h-4 w-4" />
                   Driving License
                 </h4>
@@ -1784,8 +1784,8 @@ export default function NewCarRentalAdminPage() {
               </div>
 
               {/* Work & Residence Block */}
-              <div className="rounded-lg border border-violet-200 dark:border-violet-800 bg-violet-50/50 dark:bg-violet-950/20 p-4">
-                <h4 className="font-semibold text-violet-700 dark:text-violet-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
+              <div className="rounded-lg border-2 border-violet-300 dark:border-violet-700 bg-white dark:bg-gray-900 p-4 shadow-sm">
+                <h4 className="font-semibold text-violet-800 dark:text-violet-300 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
                   <Building className="h-4 w-4" />
                   Work & Residence
                 </h4>
@@ -1919,7 +1919,7 @@ export default function NewCarRentalAdminPage() {
               </div>
             </CardHeader>
             <CardContent className="pt-6">
-              <div className="rounded-lg border border-purple-200 dark:border-purple-800 bg-purple-50/50 dark:bg-purple-950/20 p-4">
+              <div className="rounded-lg border-2 border-purple-300 dark:border-purple-700 bg-white dark:bg-gray-900 p-4 shadow-sm">
                 <div className="grid gap-6 sm:grid-cols-3">
                   {/* Left Thumb Fingerprint Scanner */}
                   <div className="space-y-3">
@@ -2142,8 +2142,8 @@ export default function NewCarRentalAdminPage() {
             </CardHeader>
             <CardContent className="pt-6 space-y-6">
               {/* Vehicle Selection Block */}
-              <div className="rounded-lg border border-orange-200 dark:border-orange-800 bg-orange-50/50 dark:bg-orange-950/20 p-4">
-                <h4 className="font-semibold text-orange-700 dark:text-orange-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
+              <div className="rounded-lg border-2 border-orange-300 dark:border-orange-700 bg-white dark:bg-gray-900 p-4 shadow-sm">
+                <h4 className="font-semibold text-orange-800 dark:text-orange-300 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
                   <Car className="h-4 w-4" />
                   Vehicle Selection
                 </h4>
@@ -2222,8 +2222,8 @@ export default function NewCarRentalAdminPage() {
               </div>
 
               {/* Vehicle Status Block */}
-              <div className="rounded-lg border border-cyan-200 dark:border-cyan-800 bg-cyan-50/50 dark:bg-cyan-950/20 p-4">
-                <h4 className="font-semibold text-cyan-700 dark:text-cyan-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
+              <div className="rounded-lg border-2 border-cyan-300 dark:border-cyan-700 bg-white dark:bg-gray-900 p-4 shadow-sm">
+                <h4 className="font-semibold text-cyan-800 dark:text-cyan-300 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
                   <Gauge className="h-4 w-4" />
                   Vehicle Status
                 </h4>
@@ -2320,13 +2320,58 @@ export default function NewCarRentalAdminPage() {
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="pt-6">
-              <div className="rounded-lg border border-indigo-200 dark:border-indigo-800 bg-indigo-50/50 dark:bg-indigo-950/20 p-4">
-                <h4 className="font-semibold text-indigo-700 dark:text-indigo-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
-                  <CreditCard className="h-4 w-4" />
-                  Pricing Details
+            <CardContent className="pt-6 space-y-4">
+              {/* Rental Dates Block */}
+              <div className="rounded-lg border-2 border-indigo-300 dark:border-indigo-700 bg-white dark:bg-gray-900 p-4 shadow-sm">
+                <h4 className="font-semibold text-indigo-800 dark:text-indigo-300 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
+                  <Calendar className="h-4 w-4" />
+                  Rental Period
                 </h4>
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div className="grid gap-4 sm:grid-cols-4">
+                  <FormField
+                    control={form.control}
+                    name="pickupDate"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-gray-700 dark:text-gray-300">Pickup Date *</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="date" 
+                            className="bg-white dark:bg-gray-800 border-indigo-200 focus:border-indigo-500"
+                            {...field}
+                            onChange={(e) => {
+                              field.onChange(e);
+                              // Auto-calculate return date based on number of days
+                              const days = form.getValues("numberOfDays");
+                              if (days && e.target.value) {
+                                const pickupDate = new Date(e.target.value);
+                                pickupDate.setDate(pickupDate.getDate() + parseInt(days));
+                                form.setValue("returnDate", pickupDate.toISOString().split("T")[0]);
+                              }
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="pickupTime"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-gray-700 dark:text-gray-300">Pickup Time *</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="time" 
+                            className="bg-white dark:bg-gray-800 border-indigo-200 focus:border-indigo-500"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                   <FormField
                     control={form.control}
                     name="numberOfDays"
@@ -2334,12 +2379,57 @@ export default function NewCarRentalAdminPage() {
                       <FormItem>
                         <FormLabel className="text-gray-700 dark:text-gray-300">Number of Days *</FormLabel>
                         <FormControl>
-                          <Input type="number" min="1" placeholder="3" {...field} />
+                          <Input 
+                            type="number" 
+                            min="1" 
+                            placeholder="3"
+                            className="bg-white dark:bg-gray-800 border-indigo-200 focus:border-indigo-500 font-bold text-lg text-center"
+                            {...field}
+                            onChange={(e) => {
+                              field.onChange(e);
+                              // Auto-calculate return date based on pickup date
+                              const pickupDate = form.getValues("pickupDate");
+                              if (pickupDate && e.target.value) {
+                                const date = new Date(pickupDate);
+                                date.setDate(date.getDate() + parseInt(e.target.value));
+                                form.setValue("returnDate", date.toISOString().split("T")[0]);
+                              }
+                            }}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
+                  <FormField
+                    control={form.control}
+                    name="returnDate"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-gray-700 dark:text-gray-300">Return Date (Auto)</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="date" 
+                            className="bg-green-50 dark:bg-green-900/30 border-green-300 dark:border-green-700 text-green-700 dark:text-green-300 font-semibold"
+                            readOnly
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription className="text-green-600 dark:text-green-400 text-xs">Calculated automatically</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+
+              {/* Pricing Details Block */}
+              <div className="rounded-lg border-2 border-indigo-300 dark:border-indigo-700 bg-white dark:bg-gray-900 p-4 shadow-sm">
+                <h4 className="font-semibold text-indigo-800 dark:text-indigo-300 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
+                  <CreditCard className="h-4 w-4" />
+                  Pricing Details
+                </h4>
+                <div className="grid gap-4 sm:grid-cols-2">
                   <FormField
                     control={form.control}
                     name="dailyRate"
