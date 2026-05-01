@@ -1869,149 +1869,219 @@ export default function NewCarRentalAdminPage() {
           </Card>
 
           {/* Section 2: Biometric & Photo */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Fingerprint className="h-5 w-5 text-primary" />
-                Biometric & Photo
-              </CardTitle>
-              <CardDescription>
-                Scan fingerprints and capture passport photo for verification
-              </CardDescription>
+          <Card className="border-l-4 border-l-purple-500 shadow-md">
+            <CardHeader className="bg-gradient-to-r from-purple-50 to-transparent dark:from-purple-950/30">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-500 text-white">
+                  <Fingerprint className="h-5 w-5" />
+                </div>
+                <div>
+                  <CardTitle className="text-purple-800 dark:text-purple-300">
+                    2. Biometric & Photo Verification
+                  </CardTitle>
+                  <CardDescription>
+                    Scan fingerprints and capture passport photo for verification
+                  </CardDescription>
+                </div>
+              </div>
             </CardHeader>
-            <CardContent>
-              <div className="grid gap-6 sm:grid-cols-3">
-                {/* Left Thumb Fingerprint Scanner */}
-                <div className="space-y-3">
-                  <label className="text-sm font-medium">Left Thumb Print *</label>
-                  <div className={`relative flex flex-col items-center justify-center rounded-xl border-2 p-6 transition-all ${
-                    leftThumbCaptured 
-                      ? "border-green-500 bg-green-50 dark:bg-green-950/30" 
-                      : leftThumbScanning
-                      ? "border-purple-500 bg-purple-50 dark:bg-purple-950/30 animate-pulse"
-                      : "border-dashed border-gray-300 bg-gray-50 dark:bg-gray-900 hover:border-purple-400 hover:bg-purple-50/50"
-                  }`}>
-                    {leftThumbCaptured ? (
-                      <>
-                        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-500 text-white mb-3">
-                          <CheckCircle2 className="h-8 w-8" />
-                        </div>
-                        <p className="text-sm font-medium text-green-700 dark:text-green-400">Captured Successfully</p>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => {
-                            setLeftThumbCaptured(false);
-                            form.setValue("fingerprintLeftUrl", "");
-                          }}
-                          className="mt-2 text-green-600 hover:text-green-800"
-                        >
-                          Re-scan
-                        </Button>
-                      </>
-                    ) : leftThumbScanning ? (
-                      <>
-                        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-purple-500 text-white mb-3">
-                          <Fingerprint className="h-8 w-8 animate-pulse" />
-                        </div>
-                        <p className="text-sm font-medium text-purple-700 dark:text-purple-400">Scanning...</p>
-                        <p className="text-xs text-purple-600 dark:text-purple-500">Place left thumb on scanner</p>
-                        <div className="mt-2 h-2 w-full max-w-[120px] rounded-full bg-purple-200 overflow-hidden">
-                          <div className="h-full bg-purple-500 animate-[scan_2s_ease-in-out_infinite]" style={{width: '100%'}} />
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700 text-gray-500 mb-3">
-                          <Fingerprint className="h-8 w-8" />
-                        </div>
-                        <Button
-                          type="button"
-                          onClick={() => handleCaptureFingerprint("left")}
-                          className="bg-purple-600 hover:bg-purple-700 text-white"
-                        >
-                          <ScanLine className="h-4 w-4 mr-2" />
-                          Scan Left Thumb
-                        </Button>
-                      </>
-                    )}
+            <CardContent className="pt-6">
+              <div className="rounded-lg border border-purple-200 dark:border-purple-800 bg-purple-50/50 dark:bg-purple-950/20 p-4">
+                <div className="grid gap-6 sm:grid-cols-3">
+                  {/* Left Thumb Fingerprint Scanner */}
+                  <div className="space-y-3">
+                    <label className="text-sm font-medium text-purple-700 dark:text-purple-300">Left Thumb Print *</label>
+                    <div className={`relative flex flex-col items-center justify-center rounded-xl border-2 p-6 transition-all ${
+                      leftThumbCaptured 
+                        ? "border-green-500 bg-green-50 dark:bg-green-950/30" 
+                        : leftThumbScanning
+                        ? "border-purple-500 bg-purple-50 dark:bg-purple-950/30 animate-pulse"
+                        : "border-dashed border-gray-300 bg-gray-50 dark:bg-gray-900 hover:border-purple-400 hover:bg-purple-50/50"
+                    }`}>
+                      {leftThumbCaptured ? (
+                        <>
+                          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-500 text-white mb-3">
+                            <CheckCircle2 className="h-8 w-8" />
+                          </div>
+                          <p className="text-sm font-medium text-green-700 dark:text-green-400">Captured Successfully</p>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setLeftThumbCaptured(false);
+                              form.setValue("fingerprintLeftUrl", "");
+                            }}
+                            className="mt-2 text-green-600 hover:text-green-800"
+                          >
+                            Re-scan
+                          </Button>
+                        </>
+                      ) : leftThumbScanning ? (
+                        <>
+                          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-purple-500 text-white mb-3">
+                            <Fingerprint className="h-8 w-8 animate-pulse" />
+                          </div>
+                          <p className="text-sm font-medium text-purple-700 dark:text-purple-400">Scanning...</p>
+                          <p className="text-xs text-purple-600 dark:text-purple-500">Place left thumb on scanner</p>
+                          <div className="mt-2 h-2 w-full max-w-[120px] rounded-full bg-purple-200 overflow-hidden">
+                            <div className="h-full bg-purple-500 animate-[scan_2s_ease-in-out_infinite]" style={{width: '100%'}} />
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700 text-gray-500 mb-3">
+                            <Fingerprint className="h-8 w-8" />
+                          </div>
+                          <Button
+                            type="button"
+                            onClick={() => handleCaptureFingerprint("left")}
+                            className="bg-purple-600 hover:bg-purple-700 text-white"
+                          >
+                            <ScanLine className="h-4 w-4 mr-2" />
+                            Scan Left Thumb
+                          </Button>
+                        </>
+                      )}
+                    </div>
                   </div>
-                </div>
 
-                {/* Right Thumb Fingerprint Scanner */}
-                <div className="space-y-3">
-                  <label className="text-sm font-medium">Right Thumb Print *</label>
-                  <div className={`relative flex flex-col items-center justify-center rounded-xl border-2 p-6 transition-all ${
-                    rightThumbCaptured 
-                      ? "border-green-500 bg-green-50 dark:bg-green-950/30" 
-                      : rightThumbScanning
-                      ? "border-purple-500 bg-purple-50 dark:bg-purple-950/30 animate-pulse"
-                      : "border-dashed border-gray-300 bg-gray-50 dark:bg-gray-900 hover:border-purple-400 hover:bg-purple-50/50"
-                  }`}>
-                    {rightThumbCaptured ? (
-                      <>
-                        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-500 text-white mb-3">
-                          <CheckCircle2 className="h-8 w-8" />
-                        </div>
-                        <p className="text-sm font-medium text-green-700 dark:text-green-400">Captured Successfully</p>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => {
-                            setRightThumbCaptured(false);
-                            form.setValue("fingerprintRightUrl", "");
-                          }}
-                          className="mt-2 text-green-600 hover:text-green-800"
-                        >
-                          Re-scan
-                        </Button>
-                      </>
-                    ) : rightThumbScanning ? (
-                      <>
-                        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-purple-500 text-white mb-3">
-                          <Fingerprint className="h-8 w-8 animate-pulse" />
-                        </div>
-                        <p className="text-sm font-medium text-purple-700 dark:text-purple-400">Scanning...</p>
-                        <p className="text-xs text-purple-600 dark:text-purple-500">Place right thumb on scanner</p>
-                        <div className="mt-2 h-2 w-full max-w-[120px] rounded-full bg-purple-200 overflow-hidden">
-                          <div className="h-full bg-purple-500 animate-[scan_2s_ease-in-out_infinite]" style={{width: '100%'}} />
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700 text-gray-500 mb-3">
-                          <Fingerprint className="h-8 w-8" />
-                        </div>
-                        <Button
-                          type="button"
-                          onClick={() => handleCaptureFingerprint("right")}
-                          className="bg-purple-600 hover:bg-purple-700 text-white"
-                        >
-                          <ScanLine className="h-4 w-4 mr-2" />
-                          Scan Right Thumb
-                        </Button>
-                      </>
-                    )}
+                  {/* Right Thumb Fingerprint Scanner */}
+                  <div className="space-y-3">
+                    <label className="text-sm font-medium text-purple-700 dark:text-purple-300">Right Thumb Print *</label>
+                    <div className={`relative flex flex-col items-center justify-center rounded-xl border-2 p-6 transition-all ${
+                      rightThumbCaptured 
+                        ? "border-green-500 bg-green-50 dark:bg-green-950/30" 
+                        : rightThumbScanning
+                        ? "border-purple-500 bg-purple-50 dark:bg-purple-950/30 animate-pulse"
+                        : "border-dashed border-gray-300 bg-gray-50 dark:bg-gray-900 hover:border-purple-400 hover:bg-purple-50/50"
+                    }`}>
+                      {rightThumbCaptured ? (
+                        <>
+                          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-500 text-white mb-3">
+                            <CheckCircle2 className="h-8 w-8" />
+                          </div>
+                          <p className="text-sm font-medium text-green-700 dark:text-green-400">Captured Successfully</p>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setRightThumbCaptured(false);
+                              form.setValue("fingerprintRightUrl", "");
+                            }}
+                            className="mt-2 text-green-600 hover:text-green-800"
+                          >
+                            Re-scan
+                          </Button>
+                        </>
+                      ) : rightThumbScanning ? (
+                        <>
+                          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-purple-500 text-white mb-3">
+                            <Fingerprint className="h-8 w-8 animate-pulse" />
+                          </div>
+                          <p className="text-sm font-medium text-purple-700 dark:text-purple-400">Scanning...</p>
+                          <p className="text-xs text-purple-600 dark:text-purple-500">Place right thumb on scanner</p>
+                          <div className="mt-2 h-2 w-full max-w-[120px] rounded-full bg-purple-200 overflow-hidden">
+                            <div className="h-full bg-purple-500 animate-[scan_2s_ease-in-out_infinite]" style={{width: '100%'}} />
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700 text-gray-500 mb-3">
+                            <Fingerprint className="h-8 w-8" />
+                          </div>
+                          <Button
+                            type="button"
+                            onClick={() => handleCaptureFingerprint("right")}
+                            className="bg-purple-600 hover:bg-purple-700 text-white"
+                          >
+                            <ScanLine className="h-4 w-4 mr-2" />
+                            Scan Right Thumb
+                          </Button>
+                        </>
+                      )}
+                    </div>
                   </div>
-                </div>
 
-                {/* Passport Photo - Keep as upload/camera */}
+                  {/* Passport Photo - Keep as upload/camera */}
+                  <FormField
+                    control={form.control}
+                    name="passportPhotoUrl"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FileUpload
+                          id="passport-photo"
+                          label="Passport Photo"
+                          accept="image/*"
+                          maxSize={2}
+                          value={field.value}
+                          onChange={field.onChange}
+                          showCamera
+                        />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Section 3: Rental Type */}
+          <Card className="border-l-4 border-l-teal-500 shadow-md">
+            <CardHeader className="bg-gradient-to-r from-teal-50 to-transparent dark:from-teal-950/30">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-teal-500 text-white">
+                  <Car className="h-5 w-5" />
+                </div>
+                <div>
+                  <CardTitle className="text-teal-800 dark:text-teal-300">
+                    3. Rental Type
+                  </CardTitle>
+                  <CardDescription>
+                    Choose between self-drive or chauffeured service
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <div className="rounded-lg border border-teal-200 dark:border-teal-800 bg-teal-50/50 dark:bg-teal-950/20 p-4">
                 <FormField
                   control={form.control}
-                  name="passportPhotoUrl"
+                  name="rentalType"
                   render={({ field }) => (
                     <FormItem>
-                      <FileUpload
-                        id="passport-photo"
-                        label="Passport Photo"
-                        accept="image/*"
-                        maxSize={2}
-                        value={field.value}
-                        onChange={field.onChange}
-                        showCamera
-                      />
+                      <FormControl>
+                        <RadioGroup
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                          className="grid gap-4 sm:grid-cols-2"
+                        >
+                          <div className="relative flex cursor-pointer items-start gap-4 rounded-lg border-2 border-teal-200 bg-white dark:bg-gray-800 p-4 hover:border-teal-400 has-[[data-state=checked]]:border-teal-500 has-[[data-state=checked]]:bg-teal-50 dark:has-[[data-state=checked]]:bg-teal-950/50">
+                            <RadioGroupItem value="self-drive" id="admin-self-drive" className="mt-1" />
+                            <div className="flex-1">
+                              <label htmlFor="admin-self-drive" className="block cursor-pointer font-medium text-teal-800 dark:text-teal-200">
+                                Self-Drive
+                              </label>
+                              <p className="text-sm text-teal-600 dark:text-teal-400">
+                                Customer drives the vehicle themselves
+                              </p>
+                            </div>
+                          </div>
+                          <div className="relative flex cursor-pointer items-start gap-4 rounded-lg border-2 border-teal-200 bg-white dark:bg-gray-800 p-4 hover:border-teal-400 has-[[data-state=checked]]:border-teal-500 has-[[data-state=checked]]:bg-teal-50 dark:has-[[data-state=checked]]:bg-teal-950/50">
+                            <RadioGroupItem value="chauffeured" id="admin-chauffeured" className="mt-1" />
+                            <div className="flex-1">
+                              <label htmlFor="admin-chauffeured" className="block cursor-pointer font-medium text-teal-800 dark:text-teal-200">
+                                Chauffeured
+                              </label>
+                              <p className="text-sm text-teal-600 dark:text-teal-400">
+                                Professional driver (+KES 2,000/day)
+                              </p>
+                            </div>
+                          </div>
+                        </RadioGroup>
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -2020,67 +2090,22 @@ export default function NewCarRentalAdminPage() {
             </CardContent>
           </Card>
 
-          {/* Section 3: Rental Type */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Car className="h-5 w-5 text-primary" />
-                Rental Type
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <FormField
-                control={form.control}
-                name="rentalType"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <RadioGroup
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                        className="grid gap-4 sm:grid-cols-2"
-                      >
-                        <div className="relative flex cursor-pointer items-start gap-4 rounded-lg border border-border bg-card p-4 hover:border-primary/50 has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/5">
-                          <RadioGroupItem value="self-drive" id="admin-self-drive" className="mt-1" />
-                          <div className="flex-1">
-                            <label htmlFor="admin-self-drive" className="block cursor-pointer font-medium">
-                              Self-Drive
-                            </label>
-                            <p className="text-sm text-muted-foreground">
-                              Customer drives the vehicle themselves
-                            </p>
-                          </div>
-                        </div>
-                        <div className="relative flex cursor-pointer items-start gap-4 rounded-lg border border-border bg-card p-4 hover:border-primary/50 has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/5">
-                          <RadioGroupItem value="chauffeured" id="admin-chauffeured" className="mt-1" />
-                          <div className="flex-1">
-                            <label htmlFor="admin-chauffeured" className="block cursor-pointer font-medium">
-                              Chauffeured
-                            </label>
-                            <p className="text-sm text-muted-foreground">
-                              Professional driver (+KES 2,000/day)
-                            </p>
-                          </div>
-                        </div>
-                      </RadioGroup>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-          </Card>
-
           {/* Section 4: Car Details */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FileText className="h-5 w-5 text-primary" />
-                Car Details
-              </CardTitle>
-              <CardDescription>
-                Vehicle information and current status
-              </CardDescription>
+          <Card className="border-l-4 border-l-orange-500 shadow-md">
+            <CardHeader className="bg-gradient-to-r from-orange-50 to-transparent dark:from-orange-950/30">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-orange-500 text-white">
+                  <FileText className="h-5 w-5" />
+                </div>
+                <div>
+                  <CardTitle className="text-orange-800 dark:text-orange-300">
+                    4. Car Details
+                  </CardTitle>
+                  <CardDescription>
+                    Vehicle information and current status
+                  </CardDescription>
+                </div>
+              </div>
             </CardHeader>
             <CardContent className="grid gap-6">
               <div className="grid gap-4 sm:grid-cols-3">
@@ -2400,51 +2425,61 @@ export default function NewCarRentalAdminPage() {
           </Card>
 
           {/* Section 6: Payment Method */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <CreditCard className="h-5 w-5 text-primary" />
-                Payment Method
-              </CardTitle>
+          <Card className="border-l-4 border-l-green-500 shadow-md">
+            <CardHeader className="bg-gradient-to-r from-green-50 to-transparent dark:from-green-950/30">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-500 text-white">
+                  <CreditCard className="h-5 w-5" />
+                </div>
+                <div>
+                  <CardTitle className="text-green-800 dark:text-green-300">
+                    6. Payment Method
+                  </CardTitle>
+                  <CardDescription>
+                    Select how the customer will pay
+                  </CardDescription>
+                </div>
+              </div>
             </CardHeader>
-            <CardContent>
-              <FormField
-                control={form.control}
-                name="paymentMethod"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <RadioGroup
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                        className="grid gap-4 sm:grid-cols-2"
-                      >
-                        <div className="relative flex cursor-pointer items-start gap-4 rounded-lg border border-border bg-card p-4 hover:border-primary/50 has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/5">
-                          <RadioGroupItem value="mpesa" id="payment-mpesa" className="mt-1" />
-                          <div className="flex-1">
-                            <label htmlFor="payment-mpesa" className="block cursor-pointer font-medium">
-                              M-Pesa
-                            </label>
-                            <p className="text-sm text-muted-foreground">
-                              Pay via Lipa Na M-Pesa
-                            </p>
+            <CardContent className="pt-6">
+              <div className="rounded-lg border border-green-200 dark:border-green-800 bg-green-50/50 dark:bg-green-950/20 p-4">
+                <FormField
+                  control={form.control}
+                  name="paymentMethod"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <RadioGroup
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                          className="grid gap-4 sm:grid-cols-2"
+                        >
+                          <div className="relative flex cursor-pointer items-start gap-4 rounded-lg border-2 border-green-200 bg-white dark:bg-gray-800 p-4 hover:border-green-400 has-[[data-state=checked]]:border-green-500 has-[[data-state=checked]]:bg-green-50 dark:has-[[data-state=checked]]:bg-green-950/50">
+                            <RadioGroupItem value="mpesa" id="payment-mpesa" className="mt-1" />
+                            <div className="flex-1">
+                              <label htmlFor="payment-mpesa" className="block cursor-pointer font-medium text-green-800 dark:text-green-200">
+                                M-Pesa
+                              </label>
+                              <p className="text-sm text-green-600 dark:text-green-400">
+                                Pay via Lipa Na M-Pesa
+                              </p>
+                            </div>
                           </div>
-                        </div>
-                        <div className="relative flex cursor-pointer items-start gap-4 rounded-lg border border-border bg-card p-4 hover:border-primary/50 has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/5">
-                          <RadioGroupItem value="bank" id="payment-bank" className="mt-1" />
-                          <div className="flex-1">
-                            <label htmlFor="payment-bank" className="block cursor-pointer font-medium">
-                              Bank Transfer
-                            </label>
-                            <p className="text-sm text-muted-foreground">
-                              Direct bank deposit/transfer
-                            </p>
+                          <div className="relative flex cursor-pointer items-start gap-4 rounded-lg border-2 border-green-200 bg-white dark:bg-gray-800 p-4 hover:border-green-400 has-[[data-state=checked]]:border-green-500 has-[[data-state=checked]]:bg-green-50 dark:has-[[data-state=checked]]:bg-green-950/50">
+                            <RadioGroupItem value="bank" id="payment-bank" className="mt-1" />
+                            <div className="flex-1">
+                              <label htmlFor="payment-bank" className="block cursor-pointer font-medium text-green-800 dark:text-green-200">
+                                Bank Transfer
+                              </label>
+                              <p className="text-sm text-green-600 dark:text-green-400">
+                                Direct bank deposit/transfer
+                              </p>
+                            </div>
                           </div>
-                        </div>
-                      </RadioGroup>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+                        </RadioGroup>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
                 )}
               />
             </CardContent>
