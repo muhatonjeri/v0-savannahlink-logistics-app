@@ -575,6 +575,8 @@ function ClientLookupContent() {
 
     // Search clients from store (includes both demo and registered clients)
     const allClients = getClients();
+    console.log("[v0] All clients from store:", allClients.length, "clients");
+    console.log("[v0] Search query:", query, "Search type:", searchType);
     const matchedClient = allClients.find((client) => {
       const nameMatch = client.fullName.toLowerCase().includes(query);
       const idMatch = client.idNumber.toLowerCase().includes(query);
@@ -588,6 +590,8 @@ function ClientLookupContent() {
 
     const isBlacklisted = matchedBlacklist.length > 0 && matchedBlacklist.some(e => e.status === "active");
 
+    console.log("[v0] Matched client:", matchedClient ? matchedClient.fullName : "None found");
+    
     setSearchResults({
       client: matchedClient || null,
       blacklistEntries: matchedBlacklist,
