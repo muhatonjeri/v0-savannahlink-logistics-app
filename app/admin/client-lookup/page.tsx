@@ -287,19 +287,6 @@ const blacklistData: BlacklistEntry[] = [
   { id: "INC-042", fullName: "Daniel Nyabuti", idNumber: "", phoneNumber: "+254100411895 / 0759298442", recordType: "fraud", severity: "critical", description: "Conman - Professional fraudster", incidentDate: "2024-08-15", reportedBy: "Admin", status: "active", createdAt: "2024-08-15", updatedAt: "2024-08-15" },
 ];
 
-// Record type configuration
-const recordTypeConfig: Record<string, { label: string; color: string; icon: React.ElementType }> = {
-  theft: { label: "Theft", color: "bg-red-500/20 text-red-400 border-red-500/30", icon: AlertOctagon },
-  fraud: { label: "Fraud", color: "bg-orange-500/20 text-orange-400 border-orange-500/30", icon: Ban },
-  damage: { label: "Vehicle Damage", color: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30", icon: Car },
-  "non-payment": { label: "Non-Payment", color: "bg-purple-500/20 text-purple-400 border-purple-500/30", icon: CreditCard },
-  accident: { label: "Accident", color: "bg-blue-500/20 text-blue-400 border-blue-500/30", icon: AlertTriangle },
-  "drug-related": { label: "Drug Related", color: "bg-pink-500/20 text-pink-400 border-pink-500/30", icon: AlertOctagon },
-  "violent-dangerous": { label: "Violent/Dangerous", color: "bg-red-600/20 text-red-500 border-red-600/30", icon: Skull },
-  suspicious: { label: "Suspicious Activity", color: "bg-amber-500/20 text-amber-400 border-amber-500/30", icon: Eye },
-  other: { label: "Other", color: "bg-gray-500/20 text-gray-400 border-gray-500/30", icon: FileText },
-};
-
 // Severity configuration
 const severityConfig: Record<string, { label: string; color: string }> = {
   low: { label: "Low", color: "bg-green-500/20 text-green-400 border-green-500/30" },
