@@ -80,15 +80,15 @@ const navItems = [
 ];
 
 const serviceItems = [
-  { title: "Car Rental", href: "/admin/car-rental", icon: Car },
-  { title: "Safari Tours", href: "/admin/safari-tours", icon: Compass },
-  { title: "Transfers", href: "/admin/transfers", icon: Plane },
-  { title: "Movers", href: "/admin/movers", icon: Truck },
-  { title: "Corporate Rental", href: "/admin/corporate-rental", icon: Bus },
-  { title: "Road Recovery", href: "/admin/road-recovery", icon: Wrench },
-  { title: "Cargo Handling", href: "/admin/cargo-handling", icon: Package },
-  { title: "Shipment Imports", href: "/admin/shipment-imports", icon: Ship },
-  { title: "Construction Equipment", href: "/admin/construction-equipment", icon: HardHat },
+  { title: "Car Rental", href: "/admin/car-rental", icon: Car, color: "text-emerald-500" },
+  { title: "Safari Tours", href: "/admin/safari-tours", icon: Compass, color: "text-amber-500" },
+  { title: "Transfers", href: "/admin/transfers", icon: Plane, color: "text-sky-500" },
+  { title: "Movers", href: "/admin/movers", icon: Truck, color: "text-violet-500" },
+  { title: "Corporate Rental", href: "/admin/corporate-rental", icon: Bus, color: "text-indigo-500" },
+  { title: "Road Recovery", href: "/admin/road-recovery", icon: Wrench, color: "text-rose-500" },
+  { title: "Cargo Handling", href: "/admin/cargo-handling", icon: Package, color: "text-orange-500" },
+  { title: "Shipment Imports", href: "/admin/shipment-imports", icon: Ship, color: "text-cyan-500" },
+  { title: "Construction Equipment", href: "/admin/construction-equipment", icon: HardHat, color: "text-yellow-500" },
 ];
 
 function getBreadcrumbTitle(pathname: string): string {
@@ -250,7 +250,7 @@ export default function AdminLayout({
                       tooltip={item.title}
                     >
                       <Link href={item.href}>
-                        <item.icon className="h-4 w-4" />
+                        <item.icon className={`h-4 w-4 ${item.color}`} />
                         <span>{item.title}</span>
                       </Link>
                     </SidebarMenuButton>
