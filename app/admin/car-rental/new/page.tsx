@@ -34,6 +34,10 @@ import {
   History,
   MapPin,
   Eye,
+  Skull,
+  Phone,
+  Mail,
+  Building,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -70,8 +74,8 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { saveBooking, generateId, searchClients, saveClientFromBooking, getClients, saveClient, getClientBookingHistory, initializeDemoBookingHistory } from "@/lib/store";
-import type { ClientAlert, ClientAlertType, Booking } from "@/types";
+import { saveBooking, generateId, searchClients, saveClientFromBooking, getClients, saveClient, getClientBookingHistory, initializeDemoBookingHistory, checkRogueClient, searchRogueClients } from "@/lib/store";
+import type { ClientAlert, ClientAlertType, Booking, RogueClient } from "@/types";
 import type { Client } from "@/types";
 import { toast } from "sonner";
 import type { CarRentalBooking } from "@/types";
@@ -179,6 +183,10 @@ export default function NewCarRentalAdminPage() {
   // Client history state
   const [clientBookingHistory, setClientBookingHistory] = useState<Booking[]>([]);
   const [showClientHistory, setShowClientHistory] = useState(false);
+  
+  // Rogue client alert state
+  const [rogueClientAlert, setRogueClientAlert] = useState<RogueClient | null>(null);
+  const [showRogueAlert, setShowRogueAlert] = useState(false);
   
   // Initialize demo data on mount
   useEffect(() => {
@@ -431,16 +439,30 @@ export default function NewCarRentalAdminPage() {
     }, 3000);
   };
 
-  // Client search function
+  // Client search function with rogue client check
   const handleClientSearch = (query: string) => {
     setClientSearchQuery(query);
     if (query.length >= 2) {
+      // First, check if this matches any rogue clients
+      const rogueMatches = searchRogueClients(query);
+      if (rogueMatches.length > 0) {
+        // Show alert for the most severe match
+        const sortedByRisk = rogueMatches.sort((a, b) => {
+          const severityOrder = { blacklisted: 0, fraud: 1, "high-risk": 2, warning: 3 };
+          return severityOrder[a.severity] - severityOrder[b.severity];
+        });
+        setRogueClientAlert(sortedByRisk[0]);
+        setShowRogueAlert(true);
+      }
+      
+      // Also search regular clients
       const results = searchClients(query);
       setSearchResults(results);
       setShowSearchResults(true);
     } else {
       setSearchResults([]);
       setShowSearchResults(false);
+      setRogueClientAlert(null);
     }
   };
 
@@ -2651,6 +2673,166 @@ export default function NewCarRentalAdminPage() {
             >
               <Ban className="h-4 w-4 mr-2" />
               Confirm Blacklist
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ROGUE CLIENT ALERT DIALOG */}
+      <Dialog open={showRogueAlert} onOpenChange={setShowRogueAlert}>
+        <DialogContent className="sm:max-w-[550px] border-4 border-red-600">
+          <DialogHeader className="bg-red-600 -m-6 mb-0 p-6 rounded-t-lg">
+            <DialogTitle className="flex items-center gap-3 text-white text-xl">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/20 animate-pulse">
+                <Skull className="h-7 w-7 text-white" />
+              </div>
+              ROGUE CLIENT ALERT
+            </DialogTitle>
+            <DialogDescription className="text-red-100 text-base">
+              This person is flagged in the industry-wide rogue client database!
+            </DialogDescription>
+          </DialogHeader>
+          
+          {rogueClientAlert && (
+            <div className="space-y-4 pt-4">
+              {/* Severity Badge */}
+              <div className="flex justify-center">
+                <span className={`text-lg font-bold px-6 py-2 rounded-full ${
+                  rogueClientAlert.severity === "blacklisted"
+                    ? "bg-black text-white"
+                    : rogueClientAlert.severity === "fraud"
+                    ? "bg-red-600 text-white"
+                    : rogueClientAlert.severity === "high-risk"
+                    ? "bg-orange-500 text-white"
+                    : "bg-yellow-500 text-black"
+                }`}>
+                  {rogueClientAlert.severity === "blacklisted" && "BLACKLISTED - DO NOT RENT"}
+                  {rogueClientAlert.severity === "fraud" && "FRAUD ALERT"}
+                  {rogueClientAlert.severity === "high-risk" && "HIGH RISK CLIENT"}
+                  {rogueClientAlert.severity === "warning" && "PROCEED WITH CAUTION"}
+                </span>
+              </div>
+
+              {/* Client Details */}
+              <div className="rounded-lg bg-red-50 dark:bg-red-950/50 border-2 border-red-300 dark:border-red-700 p-4">
+                <h4 className="font-bold text-red-800 dark:text-red-300 text-lg mb-3">
+                  {rogueClientAlert.fullName}
+                </h4>
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div className="flex items-center gap-2 text-red-700 dark:text-red-400">
+                    <FileText className="h-4 w-4" />
+                    <span>ID: {rogueClientAlert.idNumber}</span>
+                  </div>
+                  {rogueClientAlert.phone && (
+                    <div className="flex items-center gap-2 text-red-700 dark:text-red-400">
+                      <Phone className="h-4 w-4" />
+                      <span>{rogueClientAlert.phone}</span>
+                    </div>
+                  )}
+                  {rogueClientAlert.email && (
+                    <div className="flex items-center gap-2 text-red-700 dark:text-red-400 col-span-2">
+                      <Mail className="h-4 w-4" />
+                      <span>{rogueClientAlert.email}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Reason */}
+              <div className="rounded-lg bg-gray-100 dark:bg-gray-800 p-4">
+                <h5 className="font-semibold text-gray-800 dark:text-gray-200 mb-2 flex items-center gap-2">
+                  <AlertTriangle className="h-4 w-4 text-red-500" />
+                  Reason for Flag:
+                </h5>
+                <p className="text-gray-700 dark:text-gray-300 text-sm">
+                  {rogueClientAlert.reason}
+                </p>
+              </div>
+
+              {/* Incidents */}
+              {rogueClientAlert.incidents && rogueClientAlert.incidents.length > 0 && (
+                <div className="rounded-lg border border-gray-300 dark:border-gray-600 p-4">
+                  <h5 className="font-semibold text-gray-800 dark:text-gray-200 mb-3">
+                    Reported Incidents ({rogueClientAlert.incidents.length}):
+                  </h5>
+                  <div className="space-y-3 max-h-[200px] overflow-y-auto">
+                    {rogueClientAlert.incidents.map((incident, index) => (
+                      <div key={incident.id} className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className={`text-xs font-bold px-2 py-1 rounded ${
+                            incident.type === "theft" ? "bg-black text-white" :
+                            incident.type === "fraud" ? "bg-red-600 text-white" :
+                            incident.type === "damage" ? "bg-orange-500 text-white" :
+                            incident.type === "non-payment" ? "bg-yellow-500 text-black" :
+                            incident.type === "accident" ? "bg-purple-500 text-white" :
+                            "bg-gray-500 text-white"
+                          }`}>
+                            {incident.type.toUpperCase().replace("-", " ")}
+                          </span>
+                          <span className="text-xs text-gray-500">
+                            {new Date(incident.date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-700 dark:text-gray-300">{incident.description}</p>
+                        {incident.amountOwed && incident.amountOwed > 0 && (
+                          <p className="text-sm font-bold text-red-600 mt-1">
+                            Amount Owed: KES {incident.amountOwed.toLocaleString()}
+                          </p>
+                        )}
+                        {incident.vehicleInvolved && (
+                          <p className="text-xs text-gray-500 mt-1">
+                            Vehicle: {incident.vehicleInvolved}
+                          </p>
+                        )}
+                        <p className="text-xs text-gray-400 mt-1 flex items-center gap-1">
+                          <Building className="h-3 w-3" />
+                          Reported by: {incident.reportedBy}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Total Amount Owed */}
+              {rogueClientAlert.incidents && rogueClientAlert.incidents.some(i => i.amountOwed && i.amountOwed > 0) && (
+                <div className="rounded-lg bg-red-100 dark:bg-red-900/50 p-3 text-center">
+                  <p className="text-sm text-red-700 dark:text-red-400">Total Amount Owed (Industry-wide)</p>
+                  <p className="text-2xl font-bold text-red-600">
+                    KES {rogueClientAlert.incidents.reduce((sum, i) => sum + (i.amountOwed || 0), 0).toLocaleString()}
+                  </p>
+                </div>
+              )}
+
+              {/* Reporter Info */}
+              <div className="text-xs text-gray-500 text-center">
+                Originally reported by <span className="font-semibold">{rogueClientAlert.reportedBy}</span> on{" "}
+                {new Date(rogueClientAlert.reportedAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}
+              </div>
+            </div>
+          )}
+
+          <DialogFooter className="gap-2 mt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setShowRogueAlert(false)}
+              className="flex-1"
+            >
+              Close & Continue Checking
+            </Button>
+            <Button
+              type="button"
+              onClick={() => {
+                setShowRogueAlert(false);
+                setClientSearchQuery("");
+                setSearchResults([]);
+                toast.error("Search cleared - DO NOT proceed with this client!");
+              }}
+              className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+            >
+              <Ban className="h-4 w-4 mr-2" />
+              Refuse Service
             </Button>
           </DialogFooter>
         </DialogContent>

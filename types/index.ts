@@ -305,3 +305,33 @@ export interface FileUpload {
   size: number;
   createdAt: string;
 }
+
+// Rogue Client Types (Industry-wide blacklist)
+export type RogueClientSeverity = "warning" | "high-risk" | "blacklisted" | "fraud";
+
+export interface RogueClient {
+  id: string;
+  fullName: string;
+  idNumber: string;
+  phone?: string;
+  alternativePhone?: string;
+  email?: string;
+  photoUrl?: string;
+  severity: RogueClientSeverity;
+  reason: string;
+  incidents: RogueIncident[];
+  reportedBy: string; // Company that reported
+  reportedAt: string;
+  lastUpdated: string;
+  isActive: boolean; // Can be deactivated if resolved
+}
+
+export interface RogueIncident {
+  id: string;
+  date: string;
+  type: "theft" | "damage" | "fraud" | "non-payment" | "accident" | "assault" | "other";
+  description: string;
+  amountOwed?: number;
+  reportedBy: string;
+  vehicleInvolved?: string;
+}
