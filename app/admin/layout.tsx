@@ -21,7 +21,6 @@ import {
   LogOut,
   User as UserIcon,
   ShieldAlert,
-  CarFront,
 } from "lucide-react";
 import {
   SidebarProvider,
@@ -84,11 +83,6 @@ const navItems = [
     href: "/admin/blacklist",
     icon: ShieldAlert,
   },
-  {
-    title: "Fleet Management",
-    href: "/admin/fleet",
-    icon: CarFront,
-  },
 ];
 
 const serviceItems = [
@@ -107,7 +101,6 @@ function getBreadcrumbTitle(pathname: string): string {
   if (pathname === "/admin") return "Dashboard";
   if (pathname === "/admin/users") return "Users";
   if (pathname.includes("blacklist")) return "Blacklist";
-  if (pathname.includes("fleet")) return "Fleet Management";
   if (pathname.includes("car-rental")) return "Car Rental";
   if (pathname.includes("safari-tours")) return "Safari Tours";
   if (pathname.includes("transfers")) return "Transfers";
