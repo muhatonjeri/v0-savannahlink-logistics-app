@@ -2270,28 +2270,27 @@ export default function NewCarRentalAdminPage() {
                       <FormItem>
                         <FormLabel className="text-gray-700 dark:text-gray-300">Number of Days *</FormLabel>
                         <FormControl>
-                        <Input type="number" min="1" placeholder="3" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="dailyRate"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Daily Rate (KES) *</FormLabel>
-                      <FormControl>
-                        <Input type="number" min="1000" placeholder="5000" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+                          <Input type="number" min="1" placeholder="3" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="dailyRate"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Daily Rate (KES) *</FormLabel>
+                        <FormControl>
+                          <Input type="number" min="1000" placeholder="5000" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
-              <div className="grid gap-4 sm:grid-cols-2">
                 <div className="grid gap-4 sm:grid-cols-2">
                   <FormField
                     control={form.control}
