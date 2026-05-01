@@ -4,6 +4,7 @@ export type ServiceType =
   | "safari-tours"
   | "hotel-airport-transfers"
   | "movers"
+  | "corporate-rental"
   | "road-recovery"
   | "cargo-handling"
   | "shipment-imports"
@@ -121,6 +122,24 @@ export interface MoversBooking extends BaseBooking {
   };
 }
 
+// Corporate Rental Types
+export interface CorporateRentalBooking extends BaseBooking {
+  serviceType: "corporate-rental";
+  vehicleType: "10-seater-van" | "14-seater-van" | "22-seater-bus" | "33-seater-bus" | "45-seater-bus" | "52-seater-bus";
+  rentalType: "with-driver" | "self-drive";
+  companyName?: string;
+  pickupLocation: string;
+  dropoffLocation: string;
+  tripType: "one-way" | "round-trip" | "multi-day";
+  startDate: string;
+  startTime: string;
+  endDate?: string;
+  endTime?: string;
+  numberOfPassengers: number;
+  purpose: string;
+  specialRequests?: string;
+}
+
 // Road Recovery Types
 export interface RoadRecoveryBooking extends BaseBooking {
   serviceType: "road-recovery";
@@ -185,6 +204,7 @@ export type Booking =
   | SafariTourBooking
   | TransferBooking
   | MoversBooking
+  | CorporateRentalBooking
   | RoadRecoveryBooking
   | CargoBooking
   | ShipmentBooking

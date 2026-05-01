@@ -38,6 +38,15 @@ export const services: Service[] = [
     image: "/images/services/movers.jpg",
   },
   {
+    id: "corporate-rental",
+    name: "Corporate Rental",
+    description: "Luxury vans and buses for corporate events, group travel, and tours. 10-seaters, 14-seaters, and buses from 22-seater onwards.",
+    icon: "Bus",
+    href: "/services/corporate-rental",
+    color: "indigo",
+    image: "/images/services/corporate-rental.jpg",
+  },
+  {
     id: "road-recovery",
     name: "Road Recovery",
     description: "24/7 emergency road recovery and towing services. We get you back on the road quickly and safely.",

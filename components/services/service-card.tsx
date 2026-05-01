@@ -5,6 +5,7 @@ import {
   Compass,
   Plane,
   Truck,
+  Bus,
   Wrench,
   Package,
   Ship,
@@ -20,6 +21,7 @@ const iconMap: Record<string, LucideIcon> = {
   Compass,
   Plane,
   Truck,
+  Bus,
   Wrench,
   Package,
   Ship,
@@ -94,6 +96,14 @@ const colorClasses: Record<string, { bg: string; text: string; hoverBg: string; 
     border: "hover:border-yellow-500/50",
     shadow: "hover:shadow-yellow-500/10",
     gradient: "from-yellow-500/10",
+  },
+  indigo: {
+    bg: "bg-indigo-500/10",
+    text: "text-indigo-600 dark:text-indigo-400",
+    hoverBg: "group-hover:bg-indigo-500",
+    border: "hover:border-indigo-500/50",
+    shadow: "hover:shadow-indigo-500/10",
+    gradient: "from-indigo-500/10",
   },
 };
 
