@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Plane, Calendar, User, CreditCard, ArrowLeft, Building2, MapPin } from "lucide-react";
+import { Plane, Calendar, User, CreditCard, ArrowLeft, Building2, MapPin, List, PenLine } from "lucide-react";
 import Link from "next/link";
 
 import { Header } from "@/components/layout/header";
@@ -228,6 +228,8 @@ export default function TransfersPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [bookingComplete, setBookingComplete] = useState(false);
   const [currentBooking, setCurrentBooking] = useState<TransferBooking | null>(null);
+  const [useCustomPickup, setUseCustomPickup] = useState(false);
+  const [useCustomDropoff, setUseCustomDropoff] = useState(false);
 
   const form = useForm<TransferFormData>({
     resolver: zodResolver(transferSchema),
@@ -471,101 +473,147 @@ export default function TransfersPage() {
                 <CardContent className="grid gap-6">
                   {/* Pickup Location */}
                   <div className="rounded-lg border border-blue-200 dark:border-blue-800 bg-blue-50/50 dark:bg-blue-950/20 p-4">
-                    <h4 className="font-semibold text-blue-700 dark:text-blue-400 mb-4 flex items-center gap-2 text-sm">
-                      <MapPin className="h-4 w-4" />
-                      Pickup Location
-                    </h4>
+                    <div className="flex items-center justify-between mb-4">
+                      <h4 className="font-semibold text-blue-700 dark:text-blue-400 flex items-center gap-2 text-sm">
+                        <MapPin className="h-4 w-4" />
+                        Pickup Location
+                      </h4>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          type="button"
+                          variant={!useCustomPickup ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => {
+                            setUseCustomPickup(false);
+                            form.setValue("pickupLocation", "");
+                          }}
+                          className="h-8 text-xs"
+                        >
+                          <List className="h-3 w-3 mr-1" />
+                          Select from List
+                        </Button>
+                        <Button
+                          type="button"
+                          variant={useCustomPickup ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => {
+                            setUseCustomPickup(true);
+                            form.setValue("pickupLocation", "");
+                          }}
+                          className="h-8 text-xs"
+                        >
+                          <PenLine className="h-3 w-3 mr-1" />
+                          Custom Location
+                        </Button>
+                      </div>
+                    </div>
+                    
                     <FormField control={form.control} name="pickupLocation" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Select Pickup Point</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormLabel>{useCustomPickup ? "Enter Pickup Address" : "Select Pickup Point"}</FormLabel>
+                        {useCustomPickup ? (
                           <FormControl>
-                            <SelectTrigger className="bg-white dark:bg-gray-800">
-                              <SelectValue placeholder="Select airport or hotel..." />
-                            </SelectTrigger>
+                            <Input 
+                              placeholder="Enter full address, e.g., 123 Moi Avenue, Nairobi" 
+                              className="bg-white dark:bg-gray-800"
+                              {...field} 
+                            />
                           </FormControl>
-                          <SelectContent className="max-h-[400px]">
-                            {/* Airports */}
-                            <SelectGroup>
-                              <SelectLabel className="flex items-center gap-2 text-blue-600">
-                                <Plane className="h-4 w-4" />
-                                International Airports
-                              </SelectLabel>
-                              {kenyaAirports.filter(a => a.type === "International").map((airport) => (
-                                <SelectItem key={airport.code} value={`${airport.name} (${airport.code})`}>
-                                  {airport.name} ({airport.code}) - {airport.city}
-                                </SelectItem>
-                              ))}
-                            </SelectGroup>
-                            <SelectGroup>
-                              <SelectLabel className="flex items-center gap-2 text-blue-600">
-                                <Plane className="h-4 w-4" />
-                                Regional Airports
-                              </SelectLabel>
-                              {kenyaAirports.filter(a => a.type === "Regional").map((airport) => (
-                                <SelectItem key={airport.code} value={`${airport.name} (${airport.code})`}>
-                                  {airport.name} ({airport.code}) - {airport.city}
-                                </SelectItem>
-                              ))}
-                            </SelectGroup>
-                            <SelectGroup>
-                              <SelectLabel className="flex items-center gap-2 text-blue-600">
-                                <Plane className="h-4 w-4" />
-                                Domestic Airports
-                              </SelectLabel>
-                              {kenyaAirports.filter(a => a.type === "Domestic").map((airport) => (
-                                <SelectItem key={airport.code} value={`${airport.name} (${airport.code})`}>
-                                  {airport.name} ({airport.code}) - {airport.city}
-                                </SelectItem>
-                              ))}
-                            </SelectGroup>
-                            <SelectGroup>
-                              <SelectLabel className="flex items-center gap-2 text-blue-600">
-                                <Plane className="h-4 w-4" />
-                                Safari Airstrips
-                              </SelectLabel>
-                              {kenyaAirports.filter(a => a.type === "Airstrip").map((airport) => (
-                                <SelectItem key={airport.code} value={`${airport.name} (${airport.code})`}>
-                                  {airport.name} ({airport.code}) - {airport.city}
-                                </SelectItem>
-                              ))}
-                            </SelectGroup>
-                            {/* Hotels */}
-                            <SelectGroup>
-                              <SelectLabel className="flex items-center gap-2 text-amber-600">
-                                <Building2 className="h-4 w-4" />
-                                5-Star Hotels & Lodges
-                              </SelectLabel>
-                              {kenyaHotels.fiveStar.map((hotel, idx) => (
-                                <SelectItem key={`5star-${idx}`} value={`${hotel.name}, ${hotel.area}`}>
-                                  {hotel.name} - {hotel.location}
-                                </SelectItem>
-                              ))}
-                            </SelectGroup>
-                            <SelectGroup>
-                              <SelectLabel className="flex items-center gap-2 text-purple-600">
-                                <Building2 className="h-4 w-4" />
-                                4-Star Hotels & Lodges
-                              </SelectLabel>
-                              {kenyaHotels.fourStar.map((hotel, idx) => (
-                                <SelectItem key={`4star-${idx}`} value={`${hotel.name}, ${hotel.area}`}>
-                                  {hotel.name} - {hotel.location}
-                                </SelectItem>
-                              ))}
-                            </SelectGroup>
-                            <SelectGroup>
-                              <SelectLabel className="flex items-center gap-2 text-teal-600">
-                                <Building2 className="h-4 w-4" />
-                                3-Star Hotels & Lodges
-                              </SelectLabel>
-                              {kenyaHotels.threeStar.map((hotel, idx) => (
-                                <SelectItem key={`3star-${idx}`} value={`${hotel.name}, ${hotel.area}`}>
-                                  {hotel.name} - {hotel.location}
-                                </SelectItem>
-                              ))}
-                            </SelectGroup>
-                          </SelectContent>
-                        </Select>
+                        ) : (
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger className="bg-white dark:bg-gray-800">
+                                <SelectValue placeholder="Select airport or hotel..." />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent className="max-h-[400px]">
+                              {/* Airports */}
+                              <SelectGroup>
+                                <SelectLabel className="flex items-center gap-2 text-blue-600">
+                                  <Plane className="h-4 w-4" />
+                                  International Airports
+                                </SelectLabel>
+                                {kenyaAirports.filter(a => a.type === "International").map((airport) => (
+                                  <SelectItem key={airport.code} value={`${airport.name} (${airport.code})`}>
+                                    {airport.name} ({airport.code}) - {airport.city}
+                                  </SelectItem>
+                                ))}
+                              </SelectGroup>
+                              <SelectGroup>
+                                <SelectLabel className="flex items-center gap-2 text-blue-600">
+                                  <Plane className="h-4 w-4" />
+                                  Regional Airports
+                                </SelectLabel>
+                                {kenyaAirports.filter(a => a.type === "Regional").map((airport) => (
+                                  <SelectItem key={airport.code} value={`${airport.name} (${airport.code})`}>
+                                    {airport.name} ({airport.code}) - {airport.city}
+                                  </SelectItem>
+                                ))}
+                              </SelectGroup>
+                              <SelectGroup>
+                                <SelectLabel className="flex items-center gap-2 text-blue-600">
+                                  <Plane className="h-4 w-4" />
+                                  Domestic Airports
+                                </SelectLabel>
+                                {kenyaAirports.filter(a => a.type === "Domestic").map((airport) => (
+                                  <SelectItem key={airport.code} value={`${airport.name} (${airport.code})`}>
+                                    {airport.name} ({airport.code}) - {airport.city}
+                                  </SelectItem>
+                                ))}
+                              </SelectGroup>
+                              <SelectGroup>
+                                <SelectLabel className="flex items-center gap-2 text-blue-600">
+                                  <Plane className="h-4 w-4" />
+                                  Safari Airstrips
+                                </SelectLabel>
+                                {kenyaAirports.filter(a => a.type === "Airstrip").map((airport) => (
+                                  <SelectItem key={airport.code} value={`${airport.name} (${airport.code})`}>
+                                    {airport.name} ({airport.code}) - {airport.city}
+                                  </SelectItem>
+                                ))}
+                              </SelectGroup>
+                              {/* Hotels */}
+                              <SelectGroup>
+                                <SelectLabel className="flex items-center gap-2 text-amber-600">
+                                  <Building2 className="h-4 w-4" />
+                                  5-Star Hotels & Lodges
+                                </SelectLabel>
+                                {kenyaHotels.fiveStar.map((hotel, idx) => (
+                                  <SelectItem key={`5star-${idx}`} value={`${hotel.name}, ${hotel.area}`}>
+                                    {hotel.name} - {hotel.location}
+                                  </SelectItem>
+                                ))}
+                              </SelectGroup>
+                              <SelectGroup>
+                                <SelectLabel className="flex items-center gap-2 text-purple-600">
+                                  <Building2 className="h-4 w-4" />
+                                  4-Star Hotels & Lodges
+                                </SelectLabel>
+                                {kenyaHotels.fourStar.map((hotel, idx) => (
+                                  <SelectItem key={`4star-${idx}`} value={`${hotel.name}, ${hotel.area}`}>
+                                    {hotel.name} - {hotel.location}
+                                  </SelectItem>
+                                ))}
+                              </SelectGroup>
+                              <SelectGroup>
+                                <SelectLabel className="flex items-center gap-2 text-teal-600">
+                                  <Building2 className="h-4 w-4" />
+                                  3-Star Hotels & Lodges
+                                </SelectLabel>
+                                {kenyaHotels.threeStar.map((hotel, idx) => (
+                                  <SelectItem key={`3star-${idx}`} value={`${hotel.name}, ${hotel.area}`}>
+                                    {hotel.name} - {hotel.location}
+                                  </SelectItem>
+                                ))}
+                              </SelectGroup>
+                            </SelectContent>
+                          </Select>
+                        )}
+                        <FormDescription className="text-xs text-blue-600">
+                          {useCustomPickup 
+                            ? "Enter your exact pickup address including street, building name, and city" 
+                            : "Select from our list of airports and hotels, or switch to custom location"}
+                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )} />
@@ -573,101 +621,147 @@ export default function TransfersPage() {
 
                   {/* Dropoff Location */}
                   <div className="rounded-lg border border-green-200 dark:border-green-800 bg-green-50/50 dark:bg-green-950/20 p-4">
-                    <h4 className="font-semibold text-green-700 dark:text-green-400 mb-4 flex items-center gap-2 text-sm">
-                      <MapPin className="h-4 w-4" />
-                      Drop-off Location
-                    </h4>
+                    <div className="flex items-center justify-between mb-4">
+                      <h4 className="font-semibold text-green-700 dark:text-green-400 flex items-center gap-2 text-sm">
+                        <MapPin className="h-4 w-4" />
+                        Drop-off Location
+                      </h4>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          type="button"
+                          variant={!useCustomDropoff ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => {
+                            setUseCustomDropoff(false);
+                            form.setValue("dropoffLocation", "");
+                          }}
+                          className="h-8 text-xs"
+                        >
+                          <List className="h-3 w-3 mr-1" />
+                          Select from List
+                        </Button>
+                        <Button
+                          type="button"
+                          variant={useCustomDropoff ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => {
+                            setUseCustomDropoff(true);
+                            form.setValue("dropoffLocation", "");
+                          }}
+                          className="h-8 text-xs"
+                        >
+                          <PenLine className="h-3 w-3 mr-1" />
+                          Custom Location
+                        </Button>
+                      </div>
+                    </div>
+
                     <FormField control={form.control} name="dropoffLocation" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Select Drop-off Point</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormLabel>{useCustomDropoff ? "Enter Drop-off Address" : "Select Drop-off Point"}</FormLabel>
+                        {useCustomDropoff ? (
                           <FormControl>
-                            <SelectTrigger className="bg-white dark:bg-gray-800">
-                              <SelectValue placeholder="Select airport or hotel..." />
-                            </SelectTrigger>
+                            <Input 
+                              placeholder="Enter full address, e.g., 456 Kenyatta Avenue, Nairobi" 
+                              className="bg-white dark:bg-gray-800"
+                              {...field} 
+                            />
                           </FormControl>
-                          <SelectContent className="max-h-[400px]">
-                            {/* Airports */}
-                            <SelectGroup>
-                              <SelectLabel className="flex items-center gap-2 text-blue-600">
-                                <Plane className="h-4 w-4" />
-                                International Airports
-                              </SelectLabel>
-                              {kenyaAirports.filter(a => a.type === "International").map((airport) => (
-                                <SelectItem key={airport.code} value={`${airport.name} (${airport.code})`}>
-                                  {airport.name} ({airport.code}) - {airport.city}
-                                </SelectItem>
-                              ))}
-                            </SelectGroup>
-                            <SelectGroup>
-                              <SelectLabel className="flex items-center gap-2 text-blue-600">
-                                <Plane className="h-4 w-4" />
-                                Regional Airports
-                              </SelectLabel>
-                              {kenyaAirports.filter(a => a.type === "Regional").map((airport) => (
-                                <SelectItem key={airport.code} value={`${airport.name} (${airport.code})`}>
-                                  {airport.name} ({airport.code}) - {airport.city}
-                                </SelectItem>
-                              ))}
-                            </SelectGroup>
-                            <SelectGroup>
-                              <SelectLabel className="flex items-center gap-2 text-blue-600">
-                                <Plane className="h-4 w-4" />
-                                Domestic Airports
-                              </SelectLabel>
-                              {kenyaAirports.filter(a => a.type === "Domestic").map((airport) => (
-                                <SelectItem key={airport.code} value={`${airport.name} (${airport.code})`}>
-                                  {airport.name} ({airport.code}) - {airport.city}
-                                </SelectItem>
-                              ))}
-                            </SelectGroup>
-                            <SelectGroup>
-                              <SelectLabel className="flex items-center gap-2 text-blue-600">
-                                <Plane className="h-4 w-4" />
-                                Safari Airstrips
-                              </SelectLabel>
-                              {kenyaAirports.filter(a => a.type === "Airstrip").map((airport) => (
-                                <SelectItem key={airport.code} value={`${airport.name} (${airport.code})`}>
-                                  {airport.name} ({airport.code}) - {airport.city}
-                                </SelectItem>
-                              ))}
-                            </SelectGroup>
-                            {/* Hotels */}
-                            <SelectGroup>
-                              <SelectLabel className="flex items-center gap-2 text-amber-600">
-                                <Building2 className="h-4 w-4" />
-                                5-Star Hotels & Lodges
-                              </SelectLabel>
-                              {kenyaHotels.fiveStar.map((hotel, idx) => (
-                                <SelectItem key={`5star-drop-${idx}`} value={`${hotel.name}, ${hotel.area}`}>
-                                  {hotel.name} - {hotel.location}
-                                </SelectItem>
-                              ))}
-                            </SelectGroup>
-                            <SelectGroup>
-                              <SelectLabel className="flex items-center gap-2 text-purple-600">
-                                <Building2 className="h-4 w-4" />
-                                4-Star Hotels & Lodges
-                              </SelectLabel>
-                              {kenyaHotels.fourStar.map((hotel, idx) => (
-                                <SelectItem key={`4star-drop-${idx}`} value={`${hotel.name}, ${hotel.area}`}>
-                                  {hotel.name} - {hotel.location}
-                                </SelectItem>
-                              ))}
-                            </SelectGroup>
-                            <SelectGroup>
-                              <SelectLabel className="flex items-center gap-2 text-teal-600">
-                                <Building2 className="h-4 w-4" />
-                                3-Star Hotels & Lodges
-                              </SelectLabel>
-                              {kenyaHotels.threeStar.map((hotel, idx) => (
-                                <SelectItem key={`3star-drop-${idx}`} value={`${hotel.name}, ${hotel.area}`}>
-                                  {hotel.name} - {hotel.location}
-                                </SelectItem>
-                              ))}
-                            </SelectGroup>
-                          </SelectContent>
-                        </Select>
+                        ) : (
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger className="bg-white dark:bg-gray-800">
+                                <SelectValue placeholder="Select airport or hotel..." />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent className="max-h-[400px]">
+                              {/* Airports */}
+                              <SelectGroup>
+                                <SelectLabel className="flex items-center gap-2 text-blue-600">
+                                  <Plane className="h-4 w-4" />
+                                  International Airports
+                                </SelectLabel>
+                                {kenyaAirports.filter(a => a.type === "International").map((airport) => (
+                                  <SelectItem key={airport.code} value={`${airport.name} (${airport.code})`}>
+                                    {airport.name} ({airport.code}) - {airport.city}
+                                  </SelectItem>
+                                ))}
+                              </SelectGroup>
+                              <SelectGroup>
+                                <SelectLabel className="flex items-center gap-2 text-blue-600">
+                                  <Plane className="h-4 w-4" />
+                                  Regional Airports
+                                </SelectLabel>
+                                {kenyaAirports.filter(a => a.type === "Regional").map((airport) => (
+                                  <SelectItem key={airport.code} value={`${airport.name} (${airport.code})`}>
+                                    {airport.name} ({airport.code}) - {airport.city}
+                                  </SelectItem>
+                                ))}
+                              </SelectGroup>
+                              <SelectGroup>
+                                <SelectLabel className="flex items-center gap-2 text-blue-600">
+                                  <Plane className="h-4 w-4" />
+                                  Domestic Airports
+                                </SelectLabel>
+                                {kenyaAirports.filter(a => a.type === "Domestic").map((airport) => (
+                                  <SelectItem key={airport.code} value={`${airport.name} (${airport.code})`}>
+                                    {airport.name} ({airport.code}) - {airport.city}
+                                  </SelectItem>
+                                ))}
+                              </SelectGroup>
+                              <SelectGroup>
+                                <SelectLabel className="flex items-center gap-2 text-blue-600">
+                                  <Plane className="h-4 w-4" />
+                                  Safari Airstrips
+                                </SelectLabel>
+                                {kenyaAirports.filter(a => a.type === "Airstrip").map((airport) => (
+                                  <SelectItem key={airport.code} value={`${airport.name} (${airport.code})`}>
+                                    {airport.name} ({airport.code}) - {airport.city}
+                                  </SelectItem>
+                                ))}
+                              </SelectGroup>
+                              {/* Hotels */}
+                              <SelectGroup>
+                                <SelectLabel className="flex items-center gap-2 text-amber-600">
+                                  <Building2 className="h-4 w-4" />
+                                  5-Star Hotels & Lodges
+                                </SelectLabel>
+                                {kenyaHotels.fiveStar.map((hotel, idx) => (
+                                  <SelectItem key={`5star-drop-${idx}`} value={`${hotel.name}, ${hotel.area}`}>
+                                    {hotel.name} - {hotel.location}
+                                  </SelectItem>
+                                ))}
+                              </SelectGroup>
+                              <SelectGroup>
+                                <SelectLabel className="flex items-center gap-2 text-purple-600">
+                                  <Building2 className="h-4 w-4" />
+                                  4-Star Hotels & Lodges
+                                </SelectLabel>
+                                {kenyaHotels.fourStar.map((hotel, idx) => (
+                                  <SelectItem key={`4star-drop-${idx}`} value={`${hotel.name}, ${hotel.area}`}>
+                                    {hotel.name} - {hotel.location}
+                                  </SelectItem>
+                                ))}
+                              </SelectGroup>
+                              <SelectGroup>
+                                <SelectLabel className="flex items-center gap-2 text-teal-600">
+                                  <Building2 className="h-4 w-4" />
+                                  3-Star Hotels & Lodges
+                                </SelectLabel>
+                                {kenyaHotels.threeStar.map((hotel, idx) => (
+                                  <SelectItem key={`3star-drop-${idx}`} value={`${hotel.name}, ${hotel.area}`}>
+                                    {hotel.name} - {hotel.location}
+                                  </SelectItem>
+                                ))}
+                              </SelectGroup>
+                            </SelectContent>
+                          </Select>
+                        )}
+                        <FormDescription className="text-xs text-green-600">
+                          {useCustomDropoff 
+                            ? "Enter your exact drop-off address including street, building name, and city" 
+                            : "Select from our list of airports and hotels, or switch to custom location"}
+                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )} />
