@@ -34,9 +34,6 @@ import {
   History,
   MapPin,
   Eye,
-  Skull,
-  Phone,
-  CreditCard as IdCard,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -73,8 +70,8 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { saveBooking, generateId, searchClients, saveClientFromBooking, getClients, saveClient, getClientBookingHistory, initializeDemoBookingHistory, searchRogueClients, checkRogueClientById, checkRogueClientByPhone } from "@/lib/store";
-import type { ClientAlert, ClientAlertType, Booking, RogueClient } from "@/types";
+import { saveBooking, generateId, searchClients, saveClientFromBooking, getClients, saveClient, getClientBookingHistory, initializeDemoBookingHistory } from "@/lib/store";
+import type { ClientAlert, ClientAlertType, Booking } from "@/types";
 import type { Client } from "@/types";
 import { toast } from "sonner";
 import type { CarRentalBooking } from "@/types";
@@ -183,65 +180,10 @@ export default function NewCarRentalAdminPage() {
   const [clientBookingHistory, setClientBookingHistory] = useState<Booking[]>([]);
   const [showClientHistory, setShowClientHistory] = useState(false);
   
-  // Rogue client alert state
-  const [rogueClientAlert, setRogueClientAlert] = useState<RogueClient | null>(null);
-  const [showRogueAlert, setShowRogueAlert] = useState(false);
-  
   // Initialize demo data on mount
   useEffect(() => {
     initializeDemoBookingHistory();
   }, []);
-  
-  // Watch form fields for rogue client detection
-  const watchFullName = form.watch("fullName");
-  const watchIdNumber = form.watch("idNumber");
-  const watchPhone = form.watch("phone");
-  
-  // Check for rogue clients as user types
-  useEffect(() => {
-    // Check by ID number first (most accurate)
-    if (watchIdNumber && watchIdNumber.length >= 6) {
-      const rogueById = checkRogueClientById(watchIdNumber);
-      if (rogueById) {
-        setRogueClientAlert(rogueById);
-        setShowRogueAlert(true);
-        return;
-      }
-    }
-    
-    // Check by phone number
-    if (watchPhone && watchPhone.length >= 9) {
-      const rogueByPhone = checkRogueClientByPhone(watchPhone);
-      if (rogueByPhone) {
-        setRogueClientAlert(rogueByPhone);
-        setShowRogueAlert(true);
-        return;
-      }
-    }
-    
-    // Check by name (partial match)
-    if (watchFullName && watchFullName.length >= 4) {
-      const rogueMatches = searchRogueClients(watchFullName);
-      if (rogueMatches.length > 0) {
-        setRogueClientAlert(rogueMatches[0]);
-        setShowRogueAlert(true);
-        return;
-      }
-    }
-    
-    // No rogue client found - clear alert
-    if (rogueClientAlert) {
-      // Only clear if none of the checks matched
-      const noIdMatch = !watchIdNumber || watchIdNumber.length < 6 || !checkRogueClientById(watchIdNumber);
-      const noPhoneMatch = !watchPhone || watchPhone.length < 9 || !checkRogueClientByPhone(watchPhone);
-      const noNameMatch = !watchFullName || watchFullName.length < 4 || searchRogueClients(watchFullName).length === 0;
-      
-      if (noIdMatch && noPhoneMatch && noNameMatch) {
-        setRogueClientAlert(null);
-        setShowRogueAlert(false);
-      }
-    }
-  }, [watchFullName, watchIdNumber, watchPhone, rogueClientAlert]);
   
   // Fingerprint capture state for new clients
   const [leftThumbScanning, setLeftThumbScanning] = useState(false);
