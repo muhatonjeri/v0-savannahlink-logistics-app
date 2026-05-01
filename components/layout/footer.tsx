@@ -16,7 +16,6 @@ export function Footer() {
               width={200}
               height={120}
               className="h-auto w-[180px] object-contain"
-              quality={100}
               unoptimized
             />
             <p className="text-sm text-muted-foreground">
