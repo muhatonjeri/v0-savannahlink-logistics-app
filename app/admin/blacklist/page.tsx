@@ -25,6 +25,14 @@ import {
   Fingerprint,
   Upload,
   IdCard,
+  Banknote,
+  Skull,
+  Syringe,
+  Sword,
+  CircleAlert,
+  HelpCircle,
+  Hammer,
+  type LucideIcon,
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -77,6 +85,64 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { FileUpload } from "@/components/forms/file-upload";
+
+// Record type configuration with icons
+const recordTypeConfig: Record<string, { label: string; icon: LucideIcon; color: string; bgColor: string }> = {
+  theft: { 
+    label: "Theft", 
+    icon: Skull, 
+    color: "text-red-700 dark:text-red-400",
+    bgColor: "bg-red-100 dark:bg-red-950/50 border-red-300 dark:border-red-800"
+  },
+  fraud: { 
+    label: "Fraud", 
+    icon: Banknote, 
+    color: "text-orange-700 dark:text-orange-400",
+    bgColor: "bg-orange-100 dark:bg-orange-950/50 border-orange-300 dark:border-orange-800"
+  },
+  damage: { 
+    label: "Vehicle Damage", 
+    icon: Hammer, 
+    color: "text-yellow-700 dark:text-yellow-400",
+    bgColor: "bg-yellow-100 dark:bg-yellow-950/50 border-yellow-300 dark:border-yellow-800"
+  },
+  "non-payment": { 
+    label: "Non-Payment", 
+    icon: CreditCard, 
+    color: "text-purple-700 dark:text-purple-400",
+    bgColor: "bg-purple-100 dark:bg-purple-950/50 border-purple-300 dark:border-purple-800"
+  },
+  accident: { 
+    label: "Accident", 
+    icon: Car, 
+    color: "text-blue-700 dark:text-blue-400",
+    bgColor: "bg-blue-100 dark:bg-blue-950/50 border-blue-300 dark:border-blue-800"
+  },
+  "drug-related": { 
+    label: "Drug Related", 
+    icon: Syringe, 
+    color: "text-emerald-700 dark:text-emerald-400",
+    bgColor: "bg-emerald-100 dark:bg-emerald-950/50 border-emerald-300 dark:border-emerald-800"
+  },
+  "violent-dangerous": { 
+    label: "Violent / Dangerous", 
+    icon: Sword, 
+    color: "text-rose-700 dark:text-rose-400",
+    bgColor: "bg-rose-100 dark:bg-rose-950/50 border-rose-300 dark:border-rose-800"
+  },
+  suspicious: { 
+    label: "Suspicious Activity", 
+    icon: CircleAlert, 
+    color: "text-amber-700 dark:text-amber-400",
+    bgColor: "bg-amber-100 dark:bg-amber-950/50 border-amber-300 dark:border-amber-800"
+  },
+  other: { 
+    label: "Other", 
+    icon: HelpCircle, 
+    color: "text-gray-700 dark:text-gray-400",
+    bgColor: "bg-gray-100 dark:bg-gray-800/50 border-gray-300 dark:border-gray-700"
+  },
+};
 
 // Types
 interface BlacklistEntry {
@@ -957,8 +1023,11 @@ export default function BlacklistPage() {
                         </TableCell>
                         <TableCell className="font-mono text-sm">{entry.idNumber}</TableCell>
                         <TableCell>
-                          <Badge className={`${recordTypeConfig[entry.recordType].color} gap-1`}>
-                            <TypeIcon className="h-3 w-3" />
+                          <Badge 
+                            variant="outline" 
+                            className={`${recordTypeConfig[entry.recordType].color} ${recordTypeConfig[entry.recordType].bgColor} gap-1.5 font-medium`}
+                          >
+                            <TypeIcon className="h-3.5 w-3.5" />
                             {recordTypeConfig[entry.recordType].label}
                           </Badge>
                         </TableCell>

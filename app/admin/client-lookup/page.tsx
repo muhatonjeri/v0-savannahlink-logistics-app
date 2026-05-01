@@ -42,6 +42,13 @@ import {
   Save,
   UserPlus,
   ArrowRight,
+  Banknote,
+  Syringe,
+  Sword,
+  CircleAlert,
+  HelpCircle,
+  Hammer,
+  type LucideIcon,
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -87,6 +94,64 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+
+// Record type configuration with icons
+const recordTypeConfig: Record<string, { label: string; icon: LucideIcon; color: string; bgColor: string }> = {
+  theft: { 
+    label: "Theft", 
+    icon: Skull, 
+    color: "text-red-700 dark:text-red-400",
+    bgColor: "bg-red-100 dark:bg-red-950/50 border-red-300 dark:border-red-800"
+  },
+  fraud: { 
+    label: "Fraud", 
+    icon: Banknote, 
+    color: "text-orange-700 dark:text-orange-400",
+    bgColor: "bg-orange-100 dark:bg-orange-950/50 border-orange-300 dark:border-orange-800"
+  },
+  damage: { 
+    label: "Vehicle Damage", 
+    icon: Hammer, 
+    color: "text-yellow-700 dark:text-yellow-400",
+    bgColor: "bg-yellow-100 dark:bg-yellow-950/50 border-yellow-300 dark:border-yellow-800"
+  },
+  "non-payment": { 
+    label: "Non-Payment", 
+    icon: CreditCard, 
+    color: "text-purple-700 dark:text-purple-400",
+    bgColor: "bg-purple-100 dark:bg-purple-950/50 border-purple-300 dark:border-purple-800"
+  },
+  accident: { 
+    label: "Accident", 
+    icon: Car, 
+    color: "text-blue-700 dark:text-blue-400",
+    bgColor: "bg-blue-100 dark:bg-blue-950/50 border-blue-300 dark:border-blue-800"
+  },
+  "drug-related": { 
+    label: "Drug Related", 
+    icon: Syringe, 
+    color: "text-emerald-700 dark:text-emerald-400",
+    bgColor: "bg-emerald-100 dark:bg-emerald-950/50 border-emerald-300 dark:border-emerald-800"
+  },
+  "violent-dangerous": { 
+    label: "Violent / Dangerous", 
+    icon: Sword, 
+    color: "text-rose-700 dark:text-rose-400",
+    bgColor: "bg-rose-100 dark:bg-rose-950/50 border-rose-300 dark:border-rose-800"
+  },
+  suspicious: { 
+    label: "Suspicious Activity", 
+    icon: CircleAlert, 
+    color: "text-amber-700 dark:text-amber-400",
+    bgColor: "bg-amber-100 dark:bg-amber-950/50 border-amber-300 dark:border-amber-800"
+  },
+  other: { 
+    label: "Other", 
+    icon: HelpCircle, 
+    color: "text-gray-700 dark:text-gray-400",
+    bgColor: "bg-gray-100 dark:bg-gray-800/50 border-gray-300 dark:border-gray-700"
+  },
+};
 
 // Edit form schema
 const blacklistEditSchema = z.object({
@@ -676,9 +741,14 @@ export default function ClientLookupPage() {
                     <div className="mt-4 flex flex-wrap gap-2">
                       {searchResults.blacklistEntries.filter(e => e.status === "active").map((entry) => {
                         const config = recordTypeConfig[entry.recordType];
+                        const TypeIcon = config.icon;
                         return (
-                          <Badge key={entry.id} variant="outline" className={`${config.color} gap-1`}>
-                            <config.icon className="h-3 w-3" />
+                          <Badge 
+                            key={entry.id} 
+                            variant="outline" 
+                            className={`${config.color} ${config.bgColor} gap-1.5 font-medium px-3 py-1`}
+                          >
+                            <TypeIcon className="h-3.5 w-3.5" />
                             {config.label}
                           </Badge>
                         );
@@ -852,6 +922,7 @@ export default function ClientLookupPage() {
                     {searchResults.blacklistEntries.map((entry) => {
                       const recordConfig = recordTypeConfig[entry.recordType];
                       const sevConfig = severityConfig[entry.severity];
+                      const RecordTypeIcon = recordConfig.icon;
                       return (
                         <div
                           key={entry.id}
@@ -867,7 +938,11 @@ export default function ClientLookupPage() {
                             <div className="flex-1">
                               <div className="flex items-center gap-2 flex-wrap">
                                 <span className="font-medium">{entry.fullName}</span>
-                                <Badge variant="outline" className={`${recordConfig.color} text-xs`}>
+                                <Badge 
+                                  variant="outline" 
+                                  className={`${recordConfig.color} ${recordConfig.bgColor} text-xs gap-1 font-medium`}
+                                >
+                                  <RecordTypeIcon className="h-3 w-3" />
                                   {recordConfig.label}
                                 </Badge>
                                 <Badge variant="outline" className={`${sevConfig.color} text-xs`}>
