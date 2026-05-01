@@ -598,8 +598,8 @@ export default function FleetManagementPage() {
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmitVehicle)} className="space-y-6">
                 {/* Vehicle Details */}
-                <div className="rounded-lg border border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-950/50 p-4 shadow-sm">
-                  <h4 className="font-semibold text-emerald-800 dark:text-emerald-300 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
+                <div className="rounded-lg border-2 border-emerald-400 dark:border-emerald-600 bg-white dark:bg-gray-900 p-4 shadow-sm">
+                  <h4 className="font-semibold text-emerald-700 dark:text-emerald-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
                     <CarFront className="h-4 w-4" />
                     Vehicle Information
                   </h4>
@@ -725,8 +725,8 @@ export default function FleetManagementPage() {
                 </div>
 
                 {/* Service & Mileage */}
-                <div className="rounded-lg border border-blue-300 dark:border-blue-700 bg-blue-50 dark:bg-blue-950/50 p-4 shadow-sm">
-                  <h4 className="font-semibold text-blue-800 dark:text-blue-300 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
+                <div className="rounded-lg border-2 border-blue-400 dark:border-blue-600 bg-white dark:bg-gray-900 p-4 shadow-sm">
+                  <h4 className="font-semibold text-blue-700 dark:text-blue-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
                     <Wrench className="h-4 w-4" />
                     Service & Mileage
                   </h4>
@@ -1079,55 +1079,75 @@ export default function FleetManagementPage() {
 
       {/* Assign Vehicle Dialog */}
       <Dialog open={isAssignDialogOpen} onOpenChange={setIsAssignDialogOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <User className="h-5 w-5 text-blue-600" />
+        <DialogContent className="max-w-md bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700">
+          <DialogHeader className="border-b border-gray-200 dark:border-gray-700 pb-4">
+            <DialogTitle className="flex items-center gap-2 text-blue-700 dark:text-blue-400">
+              <User className="h-5 w-5" />
               Assign Vehicle
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-gray-600 dark:text-gray-400">
               Assign {selectedVehicle?.vehicleName} ({selectedVehicle?.registrationNo}) to a staff member
             </DialogDescription>
           </DialogHeader>
           <Form {...assignmentForm}>
             <form onSubmit={assignmentForm.handleSubmit(onSubmitAssignment)} className="space-y-4">
-              <FormField control={assignmentForm.control} name="assignedStaffName" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Staff Name *</FormLabel>
-                  <FormControl><Input placeholder="Enter staff full name" {...field} /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )} />
-              <FormField control={assignmentForm.control} name="assignedStaffPhone" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Staff Phone *</FormLabel>
-                  <FormControl><Input placeholder="e.g., 0722123456" {...field} /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )} />
-              <FormField control={assignmentForm.control} name="assignmentPurpose" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Assignment Purpose *</FormLabel>
-                  <FormControl><Textarea placeholder="e.g., Masai Mara Safari Tour" {...field} /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )} />
-              <div className="grid gap-4 sm:grid-cols-2">
-                <FormField control={assignmentForm.control} name="dateOut" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Date Out *</FormLabel>
-                    <FormControl><Input type="date" {...field} /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
-                <FormField control={assignmentForm.control} name="expectedDateIn" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Expected Return *</FormLabel>
-                    <FormControl><Input type="date" {...field} /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
+              {/* Staff Details Section */}
+              <div className="rounded-lg border-2 border-blue-400 dark:border-blue-600 bg-white dark:bg-gray-900 p-4 shadow-sm">
+                <h4 className="font-semibold text-blue-700 dark:text-blue-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
+                  <User className="h-4 w-4" />
+                  Staff Details
+                </h4>
+                <div className="space-y-4">
+                  <FormField control={assignmentForm.control} name="assignedStaffName" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-700 dark:text-gray-300">Staff Name *</FormLabel>
+                      <FormControl><Input placeholder="Enter staff full name" className="bg-white dark:bg-gray-800" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={assignmentForm.control} name="assignedStaffPhone" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-700 dark:text-gray-300">Staff Phone *</FormLabel>
+                      <FormControl><Input placeholder="e.g., 0722123456" className="bg-white dark:bg-gray-800" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                </div>
               </div>
+
+              {/* Assignment Details Section */}
+              <div className="rounded-lg border-2 border-amber-400 dark:border-amber-600 bg-white dark:bg-gray-900 p-4 shadow-sm">
+                <h4 className="font-semibold text-amber-700 dark:text-amber-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
+                  <Calendar className="h-4 w-4" />
+                  Assignment Details
+                </h4>
+                <div className="space-y-4">
+                  <FormField control={assignmentForm.control} name="assignmentPurpose" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-700 dark:text-gray-300">Assignment Purpose *</FormLabel>
+                      <FormControl><Textarea placeholder="e.g., Masai Mara Safari Tour" className="bg-white dark:bg-gray-800" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <FormField control={assignmentForm.control} name="dateOut" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-gray-700 dark:text-gray-300">Date Out *</FormLabel>
+                        <FormControl><Input type="date" className="bg-white dark:bg-gray-800" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={assignmentForm.control} name="expectedDateIn" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-gray-700 dark:text-gray-300">Expected Return *</FormLabel>
+                        <FormControl><Input type="date" className="bg-white dark:bg-gray-800" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                  </div>
+                </div>
+              </div>
+
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setIsAssignDialogOpen(false)}>Cancel</Button>
                 <Button type="submit" className="bg-blue-600 hover:bg-blue-700">Assign Vehicle</Button>
