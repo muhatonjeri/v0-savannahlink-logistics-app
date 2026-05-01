@@ -2270,41 +2270,7 @@ export default function NewCarRentalAdminPage() {
                       <FormItem>
                         <FormLabel className="text-gray-700 dark:text-gray-300">Number of Days *</FormLabel>
                         <FormControl>
-                        <Input type="number" min="1" placeholder="3" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="dailyRate"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Daily Rate (KES) *</FormLabel>
-                      <FormControl>
-                        <Input type="number" min="1000" placeholder="5000" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <FormField
-                    control={form.control}
-                    name="startDate"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Start Date *</FormLabel>
-                        <FormControl>
-                          <Input 
-                            type="date" 
-                            {...field} 
-                            min={new Date().toISOString().split("T")[0]}
-                          />
+                          <Input type="number" min="1" placeholder="3" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -2312,60 +2278,95 @@ export default function NewCarRentalAdminPage() {
                   />
                   <FormField
                     control={form.control}
-                    name="startTime"
+                    name="dailyRate"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Start Time *</FormLabel>
+                        <FormLabel>Daily Rate (KES) *</FormLabel>
                         <FormControl>
-                          <Input type="time" {...field} />
+                          <Input type="number" min="1000" placeholder="5000" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
                 </div>
+
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <FormField
-                    control={form.control}
-                    name="endDate"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>End Date *</FormLabel>
-                        <FormControl>
-                          <Input 
-                            type="date" 
-                            {...field} 
-                            onChange={(e) => {
-                              field.onChange(e);
-                              // Auto-calculate number of days when end date is manually changed
-                              const startDate = form.getValues("startDate");
-                              if (startDate && e.target.value) {
-                                const days = calculateDaysBetween(startDate, e.target.value);
-                                if (days > 0) {
-                                  form.setValue("numberOfDays", days.toString());
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <FormField
+                      control={form.control}
+                      name="startDate"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Start Date *</FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="date" 
+                              {...field} 
+                              min={new Date().toISOString().split("T")[0]}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="startTime"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Start Time *</FormLabel>
+                          <FormControl>
+                            <Input type="time" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <FormField
+                      control={form.control}
+                      name="endDate"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>End Date *</FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="date" 
+                              {...field} 
+                              onChange={(e) => {
+                                field.onChange(e);
+                                // Auto-calculate number of days when end date is manually changed
+                                const startDate = form.getValues("startDate");
+                                if (startDate && e.target.value) {
+                                  const days = calculateDaysBetween(startDate, e.target.value);
+                                  if (days > 0) {
+                                    form.setValue("numberOfDays", days.toString());
+                                  }
                                 }
-                              }
-                            }}
-                            min={form.getValues("startDate") || undefined}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="endTime"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>End Time *</FormLabel>
-                        <FormControl>
-                          <Input type="time" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                              }}
+                              min={form.getValues("startDate") || undefined}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="endTime"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>End Time *</FormLabel>
+                          <FormControl>
+                            <Input type="time" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                 </div>
               </div>
 
