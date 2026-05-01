@@ -132,11 +132,6 @@ export function Header() {
               </Link>
 
               <div className="flex flex-col gap-3 pt-4 border-t border-border">
-                <Button variant="outline" asChild>
-                  <Link href="/admin" onClick={() => setIsOpen(false)}>
-                    Admin Login
-                  </Link>
-                </Button>
                 <Button asChild>
                   <Link href="/services" onClick={() => setIsOpen(false)}>
                     Get a Quote
