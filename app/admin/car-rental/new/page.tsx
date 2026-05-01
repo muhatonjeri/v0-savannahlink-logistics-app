@@ -524,29 +524,32 @@ export default function NewCarRentalAdminPage() {
                     placeholder="Search by name, ID number, or phone..."
                     value={clientSearchQuery}
                     onChange={(e) => handleClientSearch(e.target.value)}
-                    className="pl-10 border-amber-300 bg-white dark:bg-amber-950 focus:border-amber-500 focus:ring-amber-500"
+                    className="pl-10 border-2 border-amber-400 bg-white text-gray-900 placeholder:text-gray-500 focus:border-amber-600 focus:ring-amber-500 dark:bg-gray-800 dark:text-white dark:placeholder:text-gray-400"
                   />
                   {/* Search Results Dropdown */}
                   {showSearchResults && searchResults.length > 0 && (
-                    <div className="absolute top-full left-0 right-0 z-50 mt-1 max-h-60 overflow-auto rounded-md border-2 border-amber-400 bg-white dark:bg-gray-900 shadow-xl">
+                    <div className="absolute top-full left-0 right-0 z-[100] mt-2 max-h-80 overflow-auto rounded-lg border-4 border-amber-500 bg-white shadow-2xl dark:bg-gray-800">
+                      <div className="bg-amber-500 text-white px-4 py-2 font-semibold text-sm">
+                        Found {searchResults.length} client(s) - Click to select
+                      </div>
                       {searchResults.map((client) => (
                         <button
                           key={client.id}
                           type="button"
                           onClick={() => handleSelectClient(client)}
-                          className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-amber-100 dark:hover:bg-amber-900/50 transition-colors border-b border-amber-200 dark:border-amber-800 last:border-b-0"
+                          className="flex w-full items-center gap-4 px-4 py-4 text-left bg-white hover:bg-amber-50 transition-colors border-b-2 border-amber-200 last:border-b-0 dark:bg-gray-800 dark:hover:bg-amber-900/30 dark:border-amber-700"
                         >
-                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-500 text-white">
-                            <UserCheck className="h-5 w-5" />
+                          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-amber-500 text-white flex-shrink-0">
+                            <UserCheck className="h-6 w-6" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="font-semibold text-gray-900 dark:text-white truncate">{client.fullName}</p>
-                            <p className="text-sm text-gray-600 dark:text-gray-300">
-                              ID: {client.idNumber} | Tel: {client.phone}
+                            <p className="font-bold text-lg text-gray-900 dark:text-white truncate">{client.fullName}</p>
+                            <p className="text-base text-gray-700 dark:text-gray-200">
+                              ID: <span className="font-semibold">{client.idNumber}</span> | Tel: <span className="font-semibold">{client.phone}</span>
                             </p>
                           </div>
-                          <div className="text-right">
-                            <span className="text-xs font-medium bg-amber-500 text-white px-2 py-1 rounded-full">
+                          <div className="text-right flex-shrink-0">
+                            <span className="text-sm font-bold bg-amber-500 text-white px-3 py-1.5 rounded-full">
                               {client.totalBookings} booking{client.totalBookings !== 1 ? 's' : ''}
                             </span>
                           </div>
@@ -555,8 +558,9 @@ export default function NewCarRentalAdminPage() {
                     </div>
                   )}
                   {showSearchResults && searchResults.length === 0 && clientSearchQuery.length >= 2 && (
-                    <div className="absolute top-full left-0 right-0 z-50 mt-1 rounded-md border-2 border-amber-400 bg-white dark:bg-gray-900 p-4 text-center text-sm text-gray-700 dark:text-gray-300 shadow-xl">
-                      No clients found matching "{clientSearchQuery}"
+                    <div className="absolute top-full left-0 right-0 z-[100] mt-2 rounded-lg border-4 border-red-400 bg-red-50 p-4 text-center shadow-2xl dark:bg-red-900/30 dark:border-red-600">
+                      <p className="text-lg font-semibold text-red-700 dark:text-red-300">No clients found matching "{clientSearchQuery}"</p>
+                      <p className="text-sm text-red-600 dark:text-red-400 mt-1">Register as new client below</p>
                     </div>
                   )}
                 </div>
