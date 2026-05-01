@@ -302,7 +302,7 @@ export default function AdminDashboard() {
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
-            <Link href="/admin/car-rental/new" className="group">
+            <Link href="/admin/client-lookup?service=car-rental" className="group">
               <div className="flex flex-col items-center gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-6 transition-all hover:scale-105 hover:border-emerald-500/50 hover:bg-emerald-500/20">
                 <div className="rounded-full bg-emerald-500/20 p-3 group-hover:bg-emerald-500/30">
                   <Car className="h-8 w-8 text-emerald-500" />
@@ -311,7 +311,7 @@ export default function AdminDashboard() {
               </div>
             </Link>
             
-            <Link href="/admin/safari-tours/new" className="group">
+            <Link href="/admin/client-lookup?service=safari-tours" className="group">
               <div className="flex flex-col items-center gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-6 transition-all hover:scale-105 hover:border-amber-500/50 hover:bg-amber-500/20">
                 <div className="rounded-full bg-amber-500/20 p-3 group-hover:bg-amber-500/30">
                   <Compass className="h-8 w-8 text-amber-500" />
@@ -320,7 +320,7 @@ export default function AdminDashboard() {
               </div>
             </Link>
             
-            <Link href="/admin/transfers/new" className="group">
+            <Link href="/admin/client-lookup?service=transfers" className="group">
               <div className="flex flex-col items-center gap-3 rounded-xl border border-sky-500/30 bg-sky-500/10 p-6 transition-all hover:scale-105 hover:border-sky-500/50 hover:bg-sky-500/20">
                 <div className="rounded-full bg-sky-500/20 p-3 group-hover:bg-sky-500/30">
                   <Plane className="h-8 w-8 text-sky-500" />
@@ -329,7 +329,7 @@ export default function AdminDashboard() {
               </div>
             </Link>
             
-            <Link href="/admin/movers/new" className="group">
+            <Link href="/admin/client-lookup?service=movers" className="group">
               <div className="flex flex-col items-center gap-3 rounded-xl border border-violet-500/30 bg-violet-500/10 p-6 transition-all hover:scale-105 hover:border-violet-500/50 hover:bg-violet-500/20">
                 <div className="rounded-full bg-violet-500/20 p-3 group-hover:bg-violet-500/30">
                   <Truck className="h-8 w-8 text-violet-500" />
@@ -338,7 +338,7 @@ export default function AdminDashboard() {
               </div>
             </Link>
             
-            <Link href="/admin/corporate-rental/new" className="group">
+            <Link href="/admin/client-lookup?service=corporate-rental" className="group">
               <div className="flex flex-col items-center gap-3 rounded-xl border border-indigo-500/30 bg-indigo-500/10 p-6 transition-all hover:scale-105 hover:border-indigo-500/50 hover:bg-indigo-500/20">
                 <div className="rounded-full bg-indigo-500/20 p-3 group-hover:bg-indigo-500/30">
                   <Bus className="h-8 w-8 text-indigo-500" />
@@ -347,7 +347,7 @@ export default function AdminDashboard() {
               </div>
             </Link>
             
-            <Link href="/admin/road-recovery/new" className="group">
+            <Link href="/admin/client-lookup?service=road-recovery" className="group">
               <div className="flex flex-col items-center gap-3 rounded-xl border border-rose-500/30 bg-rose-500/10 p-6 transition-all hover:scale-105 hover:border-rose-500/50 hover:bg-rose-500/20">
                 <div className="rounded-full bg-rose-500/20 p-3 group-hover:bg-rose-500/30">
                   <Wrench className="h-8 w-8 text-rose-500" />
@@ -356,7 +356,7 @@ export default function AdminDashboard() {
               </div>
             </Link>
             
-            <Link href="/admin/cargo-handling/new" className="group">
+            <Link href="/admin/client-lookup?service=cargo-handling" className="group">
               <div className="flex flex-col items-center gap-3 rounded-xl border border-orange-500/30 bg-orange-500/10 p-6 transition-all hover:scale-105 hover:border-orange-500/50 hover:bg-orange-500/20">
                 <div className="rounded-full bg-orange-500/20 p-3 group-hover:bg-orange-500/30">
                   <Package className="h-8 w-8 text-orange-500" />
@@ -365,7 +365,7 @@ export default function AdminDashboard() {
               </div>
             </Link>
             
-            <Link href="/admin/shipment-imports/new" className="group">
+            <Link href="/admin/client-lookup?service=shipment-imports" className="group">
               <div className="flex flex-col items-center gap-3 rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-6 transition-all hover:scale-105 hover:border-cyan-500/50 hover:bg-cyan-500/20">
                 <div className="rounded-full bg-cyan-500/20 p-3 group-hover:bg-cyan-500/30">
                   <Ship className="h-8 w-8 text-cyan-500" />
@@ -374,7 +374,7 @@ export default function AdminDashboard() {
               </div>
             </Link>
             
-            <Link href="/admin/construction-equipment/new" className="group">
+            <Link href="/admin/client-lookup?service=construction-equipment" className="group">
               <div className="flex flex-col items-center gap-3 rounded-xl border border-yellow-500/30 bg-yellow-500/10 p-6 transition-all hover:scale-105 hover:border-yellow-500/50 hover:bg-yellow-500/20">
                 <div className="rounded-full bg-yellow-500/20 p-3 group-hover:bg-yellow-500/30">
                   <HardHat className="h-8 w-8 text-yellow-500" />
