@@ -38,6 +38,10 @@ import {
   Phone,
   Mail,
   Building,
+  Users,
+  Gauge,
+  Fuel,
+  CreditCard,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -1540,140 +1544,84 @@ export default function NewCarRentalAdminPage() {
           </Card>
 
           {/* Section 1: Personal Details */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <User className="h-5 w-5 text-primary" />
-                Personal Details
-                {selectedClient && (
-                  <span className="ml-2 text-xs font-normal text-green-600 bg-green-500/10 px-2 py-1 rounded-full">
-                    Auto-filled from saved client
-                  </span>
-                )}
-              </CardTitle>
-              <CardDescription>
-                Customer identification and contact information
-              </CardDescription>
+          <Card className="border-l-4 border-l-blue-500 shadow-md">
+            <CardHeader className="bg-gradient-to-r from-blue-50 to-transparent dark:from-blue-950/30">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500 text-white">
+                  <User className="h-5 w-5" />
+                </div>
+                <div>
+                  <CardTitle className="text-blue-800 dark:text-blue-300 flex items-center gap-2">
+                    1. Customer Registration
+                    {selectedClient && (
+                      <span className="ml-2 text-xs font-normal text-green-600 bg-green-500/10 px-2 py-1 rounded-full">
+                        Auto-filled from saved client
+                      </span>
+                    )}
+                  </CardTitle>
+                  <CardDescription>
+                    Customer identification and contact information
+                  </CardDescription>
+                </div>
+              </div>
             </CardHeader>
-            <CardContent className="grid gap-6">
-              {/* Basic Info */}
-              <div className="grid gap-4 sm:grid-cols-2">
-                <FormField
-                  control={form.control}
-                  name="fullName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Full Name *</FormLabel>
-                      <FormControl>
-                        <Input placeholder="John Kamau Mwangi" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="phone"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Phone Number (M-Pesa) *</FormLabel>
-                      <FormControl>
-                        <Input type="tel" placeholder="0712345678" {...field} />
-                      </FormControl>
-                      <FormDescription>Primary M-Pesa registered number</FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <div className="grid gap-4 sm:grid-cols-2">
-                <FormField
-                  control={form.control}
-                  name="alternativePhone"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Alternative Phone</FormLabel>
-                      <FormControl>
-                        <Input type="tel" placeholder="0722333444" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email Address *</FormLabel>
-                      <FormControl>
-                        <Input type="email" placeholder="john@email.com" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <Separator />
-
-              {/* ID & License */}
-              <div className="grid gap-4 sm:grid-cols-2">
-                <FormField
-                  control={form.control}
-                  name="idNumber"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>ID/Passport Number *</FormLabel>
-                      <FormControl>
-                        <Input placeholder="12345678" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              
-              {/* ID/Passport Photos - Front & Back */}
-              <div className="space-y-3">
-                <h4 className="font-medium text-sm flex items-center gap-2">
-                  <FileText className="h-4 w-4 text-primary" />
-                  ID/Passport Photos
+            <CardContent className="pt-6 space-y-6">
+              {/* Contact Information Block */}
+              <div className="rounded-lg border border-blue-200 dark:border-blue-800 bg-blue-50/50 dark:bg-blue-950/20 p-4">
+                <h4 className="font-semibold text-blue-700 dark:text-blue-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
+                  <Phone className="h-4 w-4" />
+                  Contact Information
                 </h4>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <FormField
                     control={form.control}
-                    name="idPhotoFrontUrl"
+                    name="fullName"
                     render={({ field }) => (
                       <FormItem>
-                        <FileUpload
-                          id="id-photo-front"
-                          label="ID/Passport - Front Side"
-                          accept="image/*"
-                          maxSize={5}
-                          value={field.value}
-                          onChange={field.onChange}
-                          showCamera
-                        />
+                        <FormLabel className="text-gray-700 dark:text-gray-300">Full Name *</FormLabel>
+                        <FormControl>
+                          <Input placeholder="John Kamau Mwangi" className="bg-white dark:bg-gray-800 border-blue-200 focus:border-blue-500" {...field} />
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
                   <FormField
                     control={form.control}
-                    name="idPhotoBackUrl"
+                    name="phone"
                     render={({ field }) => (
                       <FormItem>
-                        <FileUpload
-                          id="id-photo-back"
-                          label="ID/Passport - Back Side"
-                          accept="image/*"
-                          maxSize={5}
-                          value={field.value}
-                          onChange={field.onChange}
-                          showCamera
-                        />
+                        <FormLabel className="text-gray-700 dark:text-gray-300">Phone Number (M-Pesa) *</FormLabel>
+                        <FormControl>
+                          <Input type="tel" placeholder="0712345678" className="bg-white dark:bg-gray-800 border-blue-200 focus:border-blue-500" {...field} />
+                        </FormControl>
+                        <FormDescription className="text-blue-600 dark:text-blue-400 text-xs">Primary M-Pesa registered number</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="alternativePhone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-gray-700 dark:text-gray-300">Alternative Phone</FormLabel>
+                        <FormControl>
+                          <Input type="tel" placeholder="0722333444" className="bg-white dark:bg-gray-800 border-blue-200 focus:border-blue-500" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-gray-700 dark:text-gray-300">Email Address *</FormLabel>
+                        <FormControl>
+                          <Input type="email" placeholder="john@email.com" className="bg-white dark:bg-gray-800 border-blue-200 focus:border-blue-500" {...field} />
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -1681,25 +1629,87 @@ export default function NewCarRentalAdminPage() {
                 </div>
               </div>
 
-              {/* Driving License - Number & Photos */}
-              <div className="space-y-3">
-                <h4 className="font-medium text-sm flex items-center gap-2">
-                  <Car className="h-4 w-4 text-primary" />
+              {/* ID Documents Block */}
+              <div className="rounded-lg border border-emerald-200 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-950/20 p-4">
+                <h4 className="font-semibold text-emerald-700 dark:text-emerald-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
+                  <FileText className="h-4 w-4" />
+                  ID / Passport Documents
+                </h4>
+                <div className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="idNumber"
+                    render={({ field }) => (
+                      <FormItem className="max-w-sm">
+                        <FormLabel className="text-gray-700 dark:text-gray-300">ID/Passport Number *</FormLabel>
+                        <FormControl>
+                          <Input placeholder="12345678" className="bg-white dark:bg-gray-800 border-emerald-200 focus:border-emerald-500 font-mono text-lg" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <FormField
+                      control={form.control}
+                      name="idPhotoFrontUrl"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FileUpload
+                            id="id-photo-front"
+                            label="ID/Passport - Front Side"
+                            accept="image/*"
+                            maxSize={5}
+                            value={field.value}
+                            onChange={field.onChange}
+                            showCamera
+                          />
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="idPhotoBackUrl"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FileUpload
+                            id="id-photo-back"
+                            label="ID/Passport - Back Side"
+                            accept="image/*"
+                            maxSize={5}
+                            value={field.value}
+                            onChange={field.onChange}
+                            showCamera
+                          />
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Driving License Block */}
+              <div className="rounded-lg border border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/20 p-4">
+                <h4 className="font-semibold text-amber-700 dark:text-amber-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
+                  <Car className="h-4 w-4" />
                   Driving License
                 </h4>
-                <FormField
-                  control={form.control}
-                  name="drivingLicenseNumber"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Driving License Number *</FormLabel>
-                      <FormControl>
-                        <Input placeholder="DL123456" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="drivingLicenseNumber"
+                    render={({ field }) => (
+                      <FormItem className="max-w-sm">
+                        <FormLabel className="text-gray-700 dark:text-gray-300">Driving License Number *</FormLabel>
+                        <FormControl>
+                          <Input placeholder="DL123456" className="bg-white dark:bg-gray-800 border-amber-200 focus:border-amber-500 font-mono text-lg" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 <div className="grid gap-4 sm:grid-cols-2">
                   <FormField
                     control={form.control}
@@ -1740,66 +1750,67 @@ export default function NewCarRentalAdminPage() {
                 </div>
               </div>
 
-              <Separator />
-
-              {/* Work & Residence */}
-              <div className="grid gap-4 sm:grid-cols-2">
-                <FormField
-                  control={form.control}
-                  name="placeOfWork"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Place of Work *</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Company Name, Location" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="residence"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Residence/Address *</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Estate, Building, Area" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              {/* KRA PIN with verification */}
-              <div className="grid gap-4 sm:grid-cols-2">
-                <FormField
-                  control={form.control}
-                  name="kraPin"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>KRA PIN *</FormLabel>
-                      <div className="flex gap-2">
+              {/* Work & Residence Block */}
+              <div className="rounded-lg border border-violet-200 dark:border-violet-800 bg-violet-50/50 dark:bg-violet-950/20 p-4">
+                <h4 className="font-semibold text-violet-700 dark:text-violet-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
+                  <Building className="h-4 w-4" />
+                  Work & Residence
+                </h4>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <FormField
+                    control={form.control}
+                    name="placeOfWork"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-gray-700 dark:text-gray-300">Place of Work *</FormLabel>
                         <FormControl>
-                          <Input placeholder="A012345678A" {...field} />
+                          <Input placeholder="Company Name, Location" {...field} />
                         </FormControl>
-                        <Button type="button" variant="outline" onClick={verifyKraPin}>
-                          Verify
-                        </Button>
-                      </div>
-                      <FormDescription>Format: A012345678A</FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="residence"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-gray-700 dark:text-gray-300">Residence/Address *</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Estate, Building, Area" className="bg-white dark:bg-gray-800 border-violet-200 focus:border-violet-500" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="kraPin"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-gray-700 dark:text-gray-300">KRA PIN *</FormLabel>
+                        <div className="flex gap-2">
+                          <FormControl>
+                            <Input placeholder="A012345678A" className="bg-white dark:bg-gray-800 border-violet-200 focus:border-violet-500 font-mono" {...field} />
+                          </FormControl>
+                          <Button type="button" variant="outline" onClick={verifyKraPin} className="border-violet-300 text-violet-600 hover:bg-violet-50">
+                            Verify
+                          </Button>
+                        </div>
+                        <FormDescription className="text-violet-600 dark:text-violet-400 text-xs">Format: A012345678A</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
               </div>
 
-              <Separator />
-
-              {/* Next of Kin */}
-              <div>
-                <h4 className="mb-4 font-medium">Next of Kin</h4>
+              {/* Next of Kin Block */}
+              <div className="rounded-lg border border-rose-200 dark:border-rose-800 bg-rose-50/50 dark:bg-rose-950/20 p-4">
+                <h4 className="font-semibold text-rose-700 dark:text-rose-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
+                  <Users className="h-4 w-4" />
+                  Emergency Contact / Next of Kin
+                </h4>
                 <div className="grid gap-4 sm:grid-cols-3">
                   <FormField
                     control={form.control}
