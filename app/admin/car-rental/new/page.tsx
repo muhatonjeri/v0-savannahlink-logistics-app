@@ -162,6 +162,9 @@ export default function NewCarRentalAdminPage() {
   const [alertDescription, setAlertDescription] = useState("");
   const [alertAmount, setAlertAmount] = useState("");
   const [newRiskLevel, setNewRiskLevel] = useState<"low" | "medium" | "high" | "blocked">("medium");
+  
+  // Quick booking form state
+  const [showQuickBookingForm, setShowQuickBookingForm] = useState(false);
 
   const form = useForm<AdminCarRentalFormData>({
     resolver: zodResolver(adminCarRentalSchema),
@@ -890,7 +893,10 @@ export default function NewCarRentalAdminPage() {
                       <Button
                         type="button"
                         size="sm"
-                        onClick={handleNewBookingForClient}
+                        onClick={() => {
+                          handleNewBookingForClient();
+                          setShowQuickBookingForm(true);
+                        }}
                         className="bg-blue-600 hover:bg-blue-700 text-white"
                         disabled={selectedClient.riskLevel === "blocked"}
                       >
@@ -907,6 +913,182 @@ export default function NewCarRentalAdminPage() {
                       </Button>
                     </div>
                   </div>
+                  
+                  {/* Quick Booking Form */}
+                  {showQuickBookingForm && (
+                    <div className="rounded-lg border-2 border-blue-500 bg-blue-50 dark:bg-blue-950/30 p-4 space-y-4">
+                      <div className="flex items-center justify-between">
+                        <h4 className="font-bold text-blue-800 dark:text-blue-300 flex items-center gap-2">
+                          <Car className="h-5 w-5" />
+                          Quick Booking - New Vehicle/Trip
+                        </h4>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setShowQuickBookingForm(false)}
+                          className="text-blue-600 hover:text-blue-800"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      
+                      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                        {/* Vehicle Make */}
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Vehicle Make *</label>
+                          <Select 
+                            value={selectedMake} 
+                            onValueChange={(value) => {
+                              setSelectedMake(value);
+                              form.setValue("vehicleMake", value);
+                              form.setValue("vehicleModel", "");
+                            }}
+                          >
+                            <SelectTrigger className="bg-white dark:bg-gray-800">
+                              <SelectValue placeholder="Select make" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {vehicleData.map((vehicle) => (
+                                <SelectItem key={vehicle.make} value={vehicle.make}>
+                                  {vehicle.make}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        
+                        {/* Vehicle Model */}
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Vehicle Model *</label>
+                          <Select 
+                            value={form.watch("vehicleModel")} 
+                            onValueChange={(value) => form.setValue("vehicleModel", value)}
+                            disabled={!selectedMake}
+                          >
+                            <SelectTrigger className="bg-white dark:bg-gray-800">
+                              <SelectValue placeholder="Select model" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {selectedMake && vehicleData
+                                .find((v) => v.make === selectedMake)
+                                ?.models.map((model) => (
+                                  <SelectItem key={model} value={model}>
+                                    {model}
+                                  </SelectItem>
+                                ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        
+                        {/* Rental Type */}
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Rental Type *</label>
+                          <Select 
+                            value={form.watch("rentalType")} 
+                            onValueChange={(value) => form.setValue("rentalType", value as "self-drive" | "chauffeur-driven")}
+                          >
+                            <SelectTrigger className="bg-white dark:bg-gray-800">
+                              <SelectValue placeholder="Select type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="self-drive">Self Drive</SelectItem>
+                              <SelectItem value="chauffeur-driven">Chauffeur Driven</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        
+                        {/* Pickup Location */}
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Pickup Location *</label>
+                          <Input 
+                            placeholder="e.g., JKIA Airport"
+                            value={form.watch("pickupLocation") || ""}
+                            onChange={(e) => form.setValue("pickupLocation", e.target.value)}
+                            className="bg-white dark:bg-gray-800"
+                          />
+                        </div>
+                        
+                        {/* Dropoff Location */}
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Dropoff Location *</label>
+                          <Input 
+                            placeholder="e.g., Nairobi CBD"
+                            value={form.watch("dropoffLocation") || ""}
+                            onChange={(e) => form.setValue("dropoffLocation", e.target.value)}
+                            className="bg-white dark:bg-gray-800"
+                          />
+                        </div>
+                        
+                        {/* Pickup Date */}
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Pickup Date *</label>
+                          <Input 
+                            type="date"
+                            value={form.watch("pickupDate") || ""}
+                            onChange={(e) => form.setValue("pickupDate", e.target.value)}
+                            className="bg-white dark:bg-gray-800"
+                          />
+                        </div>
+                        
+                        {/* Pickup Time */}
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Pickup Time *</label>
+                          <Input 
+                            type="time"
+                            value={form.watch("pickupTime") || ""}
+                            onChange={(e) => form.setValue("pickupTime", e.target.value)}
+                            className="bg-white dark:bg-gray-800"
+                          />
+                        </div>
+                        
+                        {/* Return Date */}
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Return Date *</label>
+                          <Input 
+                            type="date"
+                            value={form.watch("returnDate") || ""}
+                            onChange={(e) => form.setValue("returnDate", e.target.value)}
+                            className="bg-white dark:bg-gray-800"
+                          />
+                        </div>
+                        
+                        {/* Return Time */}
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Return Time *</label>
+                          <Input 
+                            type="time"
+                            value={form.watch("returnTime") || ""}
+                            onChange={(e) => form.setValue("returnTime", e.target.value)}
+                            className="bg-white dark:bg-gray-800"
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className="flex justify-end gap-2 pt-2 border-t border-blue-200 dark:border-blue-800">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setShowQuickBookingForm(false)}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          type="button"
+                          size="sm"
+                          className="bg-blue-600 hover:bg-blue-700 text-white"
+                          onClick={() => {
+                            setShowQuickBookingForm(false);
+                            toast.success("Vehicle and trip details saved! Continue filling the form below.");
+                          }}
+                        >
+                          <CheckCircle2 className="h-4 w-4 mr-1" />
+                          Apply & Continue
+                        </Button>
+                      </div>
+                    </div>
+                  )}
 
                   {/* BLOCKED CLIENT WARNING */}
                   {selectedClient.riskLevel === "blocked" && (
