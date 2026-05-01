@@ -7,6 +7,109 @@ const USERS_KEY = "savannah_link_users";
 const PAYMENTS_KEY = "savannah_link_payments";
 const CLIENTS_KEY = "savannah_link_clients";
 
+// Demo clients for testing
+const demoClients: Client[] = [
+  {
+    id: "client-demo-1",
+    fullName: "James Mwangi Kariuki",
+    idNumber: "12345678",
+    phone: "+254712345678",
+    alternativePhone: "+254722345678",
+    email: "james.mwangi@gmail.com",
+    residence: "Westlands, Nairobi",
+    placeOfWork: "Safaricom PLC",
+    kraPin: "A012345678B",
+    drivingLicenseNumber: "DL-2020-123456",
+    nextOfKin: {
+      name: "Mary Wanjiku Kariuki",
+      phone: "+254733456789",
+      relationship: "Spouse",
+    },
+    totalBookings: 5,
+    createdAt: "2024-01-15T10:00:00.000Z",
+    updatedAt: "2024-12-01T14:30:00.000Z",
+  },
+  {
+    id: "client-demo-2",
+    fullName: "Grace Akinyi Odhiambo",
+    idNumber: "23456789",
+    phone: "+254723456789",
+    alternativePhone: "+254734567890",
+    email: "grace.akinyi@yahoo.com",
+    residence: "Kilimani, Nairobi",
+    placeOfWork: "KCB Bank",
+    kraPin: "B023456789C",
+    drivingLicenseNumber: "DL-2019-234567",
+    nextOfKin: {
+      name: "Peter Odhiambo",
+      phone: "+254745678901",
+      relationship: "Brother",
+    },
+    totalBookings: 3,
+    createdAt: "2024-03-20T09:00:00.000Z",
+    updatedAt: "2024-11-15T16:45:00.000Z",
+  },
+  {
+    id: "client-demo-3",
+    fullName: "David Kipchoge Korir",
+    idNumber: "34567890",
+    phone: "+254734567890",
+    alternativePhone: "+254745678901",
+    email: "david.kipchoge@outlook.com",
+    residence: "Karen, Nairobi",
+    placeOfWork: "Equity Bank",
+    kraPin: "C034567890D",
+    drivingLicenseNumber: "DL-2021-345678",
+    nextOfKin: {
+      name: "Faith Chebet Korir",
+      phone: "+254756789012",
+      relationship: "Wife",
+    },
+    totalBookings: 8,
+    createdAt: "2023-06-10T11:00:00.000Z",
+    updatedAt: "2024-12-10T10:20:00.000Z",
+  },
+  {
+    id: "client-demo-4",
+    fullName: "Susan Njeri Kamau",
+    idNumber: "45678901",
+    phone: "+254745678901",
+    email: "susan.njeri@gmail.com",
+    residence: "Lavington, Nairobi",
+    placeOfWork: "Nation Media Group",
+    kraPin: "D045678901E",
+    drivingLicenseNumber: "DL-2022-456789",
+    nextOfKin: {
+      name: "John Kamau",
+      phone: "+254767890123",
+      relationship: "Father",
+    },
+    totalBookings: 2,
+    createdAt: "2024-08-05T13:00:00.000Z",
+    updatedAt: "2024-10-20T09:15:00.000Z",
+  },
+  {
+    id: "client-demo-5",
+    fullName: "Michael Otieno Wafula",
+    idNumber: "56789012",
+    phone: "+254756789012",
+    alternativePhone: "+254778901234",
+    email: "michael.otieno@company.co.ke",
+    residence: "Runda, Nairobi",
+    placeOfWork: "KPMG Kenya",
+    kraPin: "E056789012F",
+    drivingLicenseNumber: "DL-2018-567890",
+    nextOfKin: {
+      name: "Joyce Atieno Wafula",
+      phone: "+254789012345",
+      relationship: "Mother",
+    },
+    totalBookings: 12,
+    createdAt: "2022-11-25T08:00:00.000Z",
+    updatedAt: "2024-12-05T17:00:00.000Z",
+  },
+];
+
 // Initialize default admin users
 const defaultUsers: AdminUser[] = [
   {
@@ -196,7 +299,13 @@ export function savePayment(payment: MpesaPayment): MpesaPayment {
 
 // Clients Store (for returning customers)
 export function getClients(): Client[] {
-  return getStorage<Client[]>(CLIENTS_KEY, []);
+  const clients = getStorage<Client[]>(CLIENTS_KEY, []);
+  // Initialize with demo clients if empty
+  if (clients.length === 0) {
+    setStorage(CLIENTS_KEY, demoClients);
+    return demoClients;
+  }
+  return clients;
 }
 
 export function getClientById(id: string): Client | undefined {
