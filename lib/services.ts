@@ -8,6 +8,7 @@ export const services: Service[] = [
     icon: "Car",
     href: "/services/car-rental",
     color: "emerald",
+    image: "/images/services/car-rental.jpg",
   },
   {
     id: "safari-tours",
@@ -16,6 +17,7 @@ export const services: Service[] = [
     icon: "Compass",
     href: "/services/safari-tours",
     color: "amber",
+    image: "/images/services/safari-tours.jpg",
   },
   {
     id: "hotel-airport-transfers",
@@ -24,6 +26,7 @@ export const services: Service[] = [
     icon: "Plane",
     href: "/services/hotel-airport-transfers",
     color: "sky",
+    image: "/images/services/hotel-transfers.jpg",
   },
   {
     id: "movers",
@@ -32,6 +35,7 @@ export const services: Service[] = [
     icon: "Truck",
     href: "/services/movers",
     color: "violet",
+    image: "/images/services/movers.jpg",
   },
   {
     id: "road-recovery",
@@ -40,6 +44,7 @@ export const services: Service[] = [
     icon: "Wrench",
     href: "/services/road-recovery",
     color: "rose",
+    image: "/images/services/road-recovery.jpg",
   },
   {
     id: "cargo-handling",
@@ -48,6 +53,7 @@ export const services: Service[] = [
     icon: "Package",
     href: "/services/cargo-handling",
     color: "orange",
+    image: "/images/services/cargo-handling.jpg",
   },
   {
     id: "shipment-imports",
@@ -56,6 +62,7 @@ export const services: Service[] = [
     icon: "Ship",
     href: "/services/shipment-imports",
     color: "cyan",
+    image: "/images/services/shipment-imports.jpg",
   },
   {
     id: "construction-equipment",
@@ -64,6 +71,7 @@ export const services: Service[] = [
     icon: "Tractor",
     href: "/services/construction-equipment",
     color: "yellow",
+    image: "/images/services/construction-equipment.jpg",
   },
 ];
 

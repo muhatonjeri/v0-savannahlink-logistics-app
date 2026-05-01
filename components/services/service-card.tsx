@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import {
   Car,
   Compass,
@@ -102,21 +103,34 @@ export function ServiceCard({ service }: ServiceCardProps) {
 
   return (
     <Link href={service.href} className="block">
-      <Card className={`group relative h-full cursor-pointer overflow-hidden transition-all duration-300 ${colors.border} hover:shadow-lg ${colors.shadow}`}>
-        <div className={`absolute inset-0 bg-gradient-to-br ${colors.gradient} to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100`} />
-        <CardHeader>
-          <div className={`mb-2 flex h-12 w-12 items-center justify-center rounded-lg ${colors.bg} ${colors.text} transition-colors ${colors.hoverBg} group-hover:text-white`}>
-            <Icon className="h-6 w-6" />
-          </div>
-          <CardTitle className="text-lg">{service.name}</CardTitle>
-          <CardDescription className="line-clamp-2">{service.description}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <span className={`inline-flex items-center gap-2 ${colors.text}`}>
-            Book Now
-            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-          </span>
-        </CardContent>
+      <Card className={`group relative h-full cursor-pointer overflow-hidden transition-all duration-300 ${colors.border} hover:shadow-xl ${colors.shadow}`}>
+        {/* Background Image */}
+        <div className="absolute inset-0">
+          <Image
+            src={service.image}
+            alt={service.name}
+            fill
+            className="object-cover transition-transform duration-500 group-hover:scale-110"
+          />
+          {/* Dark overlay for readability */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/70 to-black/40" />
+        </div>
+        {/* Content */}
+        <div className="relative z-10">
+          <CardHeader>
+            <div className={`mb-2 flex h-12 w-12 items-center justify-center rounded-lg bg-white/20 backdrop-blur-sm text-white transition-colors ${colors.hoverBg} group-hover:text-white`}>
+              <Icon className="h-6 w-6" />
+            </div>
+            <CardTitle className="text-lg text-white">{service.name}</CardTitle>
+            <CardDescription className="line-clamp-2 text-white/80">{service.description}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <span className="inline-flex items-center gap-2 text-white font-medium">
+              Book Now
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+            </span>
+          </CardContent>
+        </div>
       </Card>
     </Link>
   );

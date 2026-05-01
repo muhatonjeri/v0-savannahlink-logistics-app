@@ -16,6 +16,7 @@ export interface Service {
   icon: string;
   href: string;
   color: string;
+  image: string;
 }
 
 // Booking Types
