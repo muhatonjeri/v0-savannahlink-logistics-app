@@ -15,18 +15,61 @@ import { Label } from '@/components/ui/label'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useState, Suspense } from 'react'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, TestTube } from 'lucide-react'
+
+// Mock credentials for testing
+const MOCK_ADMIN = {
+  email: 'admin@savannatrail.co.ke',
+  password: 'admin123',
+  role: 'admin',
+  name: 'Admin User'
+}
+
+const MOCK_STAFF = {
+  email: 'staff@savannatrail.co.ke', 
+  password: 'staff123',
+  role: 'staff',
+  name: 'Staff User'
+}
 
 function LoginForm() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [useMockLogin, setUseMockLogin] = useState(true) // Default to mock for testing
   const router = useRouter()
   const searchParams = useSearchParams()
   const redirectTo = searchParams.get('redirect') || '/admin'
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleMockLogin = (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsLoading(true)
+    setError(null)
+
+    // Check mock credentials
+    if (email === MOCK_ADMIN.email && password === MOCK_ADMIN.password) {
+      // Store mock session in localStorage
+      localStorage.setItem('mockAuth', JSON.stringify({
+        user: { email: MOCK_ADMIN.email, role: MOCK_ADMIN.role, name: MOCK_ADMIN.name },
+        isAuthenticated: true
+      }))
+      router.push(redirectTo)
+      router.refresh()
+    } else if (email === MOCK_STAFF.email && password === MOCK_STAFF.password) {
+      localStorage.setItem('mockAuth', JSON.stringify({
+        user: { email: MOCK_STAFF.email, role: MOCK_STAFF.role, name: MOCK_STAFF.name },
+        isAuthenticated: true
+      }))
+      router.push(redirectTo)
+      router.refresh()
+    } else {
+      setError('Invalid email or password')
+      setIsLoading(false)
+    }
+  }
+
+  const handleSupabaseLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     const supabase = createClient()
     setIsLoading(true)
@@ -44,6 +87,18 @@ function LoginForm() {
       setError(error instanceof Error ? error.message : 'An error occurred')
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const handleLogin = useMockLogin ? handleMockLogin : handleSupabaseLogin
+
+  const fillMockCredentials = (type: 'admin' | 'staff') => {
+    if (type === 'admin') {
+      setEmail(MOCK_ADMIN.email)
+      setPassword(MOCK_ADMIN.password)
+    } else {
+      setEmail(MOCK_STAFF.email)
+      setPassword(MOCK_STAFF.password)
     }
   }
 
@@ -112,6 +167,51 @@ function LoginForm() {
                   </Button>
                 </div>
               </form>
+
+              {/* Mock Login Helper - For Testing */}
+              {useMockLogin && (
+                <div className="mt-6 pt-4 border-t border-border">
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
+                    <TestTube className="h-3 w-3" />
+                    <span>Quick Login (Testing Mode)</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => fillMockCredentials('admin')}
+                      className="text-xs"
+                    >
+                      Fill Admin
+                    </Button>
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => fillMockCredentials('staff')}
+                      className="text-xs"
+                    >
+                      Fill Staff
+                    </Button>
+                  </div>
+                  <p className="text-[10px] text-muted-foreground mt-2 text-center">
+                    Admin: admin@savannatrail.co.ke / admin123<br/>
+                    Staff: staff@savannatrail.co.ke / staff123
+                  </p>
+                </div>
+              )}
+
+              {/* Toggle between mock and real auth */}
+              <div className="mt-4 text-center">
+                <button
+                  type="button"
+                  onClick={() => setUseMockLogin(!useMockLogin)}
+                  className="text-xs text-muted-foreground hover:text-primary transition-colors"
+                >
+                  {useMockLogin ? 'Switch to Supabase Auth' : 'Switch to Test Mode'}
+                </button>
+              </div>
             </CardContent>
           </Card>
 

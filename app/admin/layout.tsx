@@ -11,6 +11,7 @@ import {
   Compass,
   Plane,
   Truck,
+  Bus,
   Wrench,
   Package,
   Ship,
@@ -55,6 +56,16 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
+// Mock auth type
+interface MockAuth {
+  user: {
+    email: string;
+    role: string;
+    name: string;
+  };
+  isAuthenticated: boolean;
+}
+
 const navItems = [
   {
     title: "Dashboard",
@@ -73,6 +84,7 @@ const serviceItems = [
   { title: "Safari Tours", href: "/admin/safari-tours", icon: Compass },
   { title: "Transfers", href: "/admin/transfers", icon: Plane },
   { title: "Movers", href: "/admin/movers", icon: Truck },
+  { title: "Corporate Rental", href: "/admin/corporate-rental", icon: Bus },
   { title: "Road Recovery", href: "/admin/road-recovery", icon: Wrench },
   { title: "Cargo Handling", href: "/admin/cargo-handling", icon: Package },
   { title: "Shipment Imports", href: "/admin/shipment-imports", icon: Ship },
@@ -86,6 +98,7 @@ function getBreadcrumbTitle(pathname: string): string {
   if (pathname.includes("safari-tours")) return "Safari Tours";
   if (pathname.includes("transfers")) return "Transfers";
   if (pathname.includes("movers")) return "Movers";
+  if (pathname.includes("corporate-rental")) return "Corporate Rental";
   if (pathname.includes("road-recovery")) return "Road Recovery";
   if (pathname.includes("cargo-handling")) return "Cargo Handling";
   if (pathname.includes("shipment-imports")) return "Shipment Imports";
@@ -101,43 +114,82 @@ export default function AdminLayout({
   const pathname = usePathname();
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
+  const [mockAuth, setMockAuth] = useState<MockAuth | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // Check for mock auth first
+    const mockAuthData = localStorage.getItem('mockAuth');
+    if (mockAuthData) {
+      try {
+        const parsed = JSON.parse(mockAuthData) as MockAuth;
+        if (parsed.isAuthenticated) {
+          setMockAuth(parsed);
+          setIsLoading(false);
+          return;
+        }
+      } catch {
+        localStorage.removeItem('mockAuth');
+      }
+    }
+
+    // Fall back to Supabase auth
     const supabase = createClient();
     
-    // Get initial user
     supabase.auth.getUser().then(({ data: { user } }) => {
       setUser(user);
       setIsLoading(false);
+      
+      // If no user and no mock auth, redirect to login
+      if (!user && !mockAuthData) {
+        router.push('/auth/login?redirect=' + encodeURIComponent(pathname));
+      }
     });
 
-    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [pathname, router]);
 
   const handleSignOut = async () => {
+    // Clear mock auth
+    localStorage.removeItem('mockAuth');
+    setMockAuth(null);
+    
+    // Also sign out from Supabase
     const supabase = createClient();
     await supabase.auth.signOut();
+    
     router.push("/");
     router.refresh();
   };
 
-  const getUserInitials = (email: string | undefined) => {
-    if (!email) return "U";
+  const getCurrentEmail = () => {
+    if (mockAuth) return mockAuth.user.email;
+    return user?.email || "User";
+  };
+
+  const getUserInitials = () => {
+    const email = getCurrentEmail();
     return email.substring(0, 2).toUpperCase();
   };
 
   const getUserRole = () => {
-    // Check user metadata for role, default to "Staff"
+    if (mockAuth) {
+      return mockAuth.user.role === "admin" ? "Admin" : "Staff";
+    }
     const role = user?.user_metadata?.role;
     if (role === "admin") return "Admin";
     return "Staff";
   };
+
+  // Redirect if not authenticated
+  if (!isLoading && !user && !mockAuth) {
+    router.push('/auth/login?redirect=' + encodeURIComponent(pathname));
+    return null;
+  }
 
   if (isLoading) {
     return (
@@ -214,12 +266,12 @@ export default function AdminLayout({
               <Button variant="ghost" className="w-full justify-start gap-2 px-2">
                 <Avatar className="h-8 w-8">
                   <AvatarFallback className="bg-primary/10 text-primary text-xs">
-                    {getUserInitials(user?.email)}
+                    {getUserInitials()}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col items-start text-left">
                   <span className="text-sm font-medium truncate max-w-[140px]">
-                    {user?.email || "User"}
+                    {getCurrentEmail()}
                   </span>
                   <span className="text-xs text-muted-foreground">{getUserRole()}</span>
                 </div>
