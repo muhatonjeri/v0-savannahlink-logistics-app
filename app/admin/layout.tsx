@@ -25,6 +25,7 @@ import {
   Receipt,
   Wallet,
   FileText,
+  UserSearch,
 } from "lucide-react";
 import {
   SidebarProvider,
@@ -85,6 +86,12 @@ const navItems = [
     color: "text-green-500",
   },
   {
+    title: "Client Lookup",
+    href: "/admin/client-lookup",
+    icon: UserSearch,
+    color: "text-indigo-500",
+  },
+  {
     title: "Blacklist",
     href: "/admin/blacklist",
     icon: ShieldAlert,
@@ -131,6 +138,7 @@ const serviceItems = [
 function getBreadcrumbTitle(pathname: string): string {
   if (pathname === "/admin") return "Dashboard";
   if (pathname === "/admin/users") return "Users";
+  if (pathname.includes("client-lookup")) return "Client Lookup";
   if (pathname.includes("blacklist")) return "Blacklist";
   if (pathname.includes("fleet")) return "Fleet Management";
   if (pathname.includes("receipts")) return "Receipts";
