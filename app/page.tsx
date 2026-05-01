@@ -284,41 +284,128 @@ export default function HomePage() {
         {/* Contact Info Section */}
         <section className="py-16 sm:py-20">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="grid gap-8 md:grid-cols-3">
+            <div className="mb-12 text-center">
+              <h2 className="mb-4 text-3xl font-bold text-foreground sm:text-4xl">
+                Get In Touch
+              </h2>
+              <p className="mx-auto max-w-2xl text-muted-foreground">
+                Have questions or ready to book? Reach out to us through any of these channels.
+              </p>
+            </div>
+            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+              {/* Office Location */}
               <div className="flex flex-col items-center rounded-xl border border-border bg-card p-6 text-center">
                 <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
                   <MapPin className="h-6 w-6 text-primary" />
                 </div>
-                <h3 className="mb-2 font-semibold text-foreground">Visit Us</h3>
+                <h3 className="mb-2 font-semibold text-foreground">Office Location</h3>
                 <p className="text-sm text-muted-foreground">
                   Muthaiga Square, off Thika Rd
                   <br />
                   Nairobi, Kenya
                 </p>
               </div>
+              
+              {/* Phone Numbers */}
               <div className="flex flex-col items-center rounded-xl border border-border bg-card p-6 text-center">
                 <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
                   <Phone className="h-6 w-6 text-primary" />
                 </div>
-                <h3 className="mb-2 font-semibold text-foreground">Call Us</h3>
-                <a
-                  href="tel:+254700000000"
-                  className="text-sm text-muted-foreground hover:text-primary"
-                >
-                  +254 700 000 000
-                </a>
+                <h3 className="mb-2 font-semibold text-foreground">Phone Numbers</h3>
+                <div className="space-y-1">
+                  <a
+                    href="tel:+254700000000"
+                    className="block text-sm text-muted-foreground hover:text-primary"
+                  >
+                    +254 700 000 000 (Main)
+                  </a>
+                  <a
+                    href="tel:+254711000000"
+                    className="block text-sm text-muted-foreground hover:text-primary"
+                  >
+                    +254 711 000 000 (Bookings)
+                  </a>
+                  <a
+                    href="https://wa.me/254700000000"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block text-sm text-muted-foreground hover:text-primary"
+                  >
+                    +254 700 000 000 (WhatsApp)
+                  </a>
+                </div>
               </div>
+              
+              {/* Email Addresses */}
               <div className="flex flex-col items-center rounded-xl border border-border bg-card p-6 text-center">
                 <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
                   <Mail className="h-6 w-6 text-primary" />
                 </div>
                 <h3 className="mb-2 font-semibold text-foreground">Email Us</h3>
-                <a
-                  href="mailto:info@savannatrail.co.ke"
-                  className="text-sm text-muted-foreground hover:text-primary"
-                >
-                  info@savannatrail.co.ke
-                </a>
+                <div className="space-y-1">
+                  <a
+                    href="mailto:info@savannatrail.co.ke"
+                    className="block text-sm text-muted-foreground hover:text-primary"
+                  >
+                    info@savannatrail.co.ke
+                  </a>
+                  <a
+                    href="mailto:bookings@savannatrail.co.ke"
+                    className="block text-sm text-muted-foreground hover:text-primary"
+                  >
+                    bookings@savannatrail.co.ke
+                  </a>
+                  <a
+                    href="mailto:support@savannatrail.co.ke"
+                    className="block text-sm text-muted-foreground hover:text-primary"
+                  >
+                    support@savannatrail.co.ke
+                  </a>
+                </div>
+              </div>
+              
+              {/* Social Media */}
+              <div className="flex flex-col items-center rounded-xl border border-border bg-card p-6 text-center">
+                <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
+                  <svg className="h-6 w-6 text-primary" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                  </svg>
+                </div>
+                <h3 className="mb-2 font-semibold text-foreground">Follow Us</h3>
+                <div className="space-y-1 text-sm">
+                  <a
+                    href="https://facebook.com/savannatrail"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block text-muted-foreground hover:text-primary"
+                  >
+                    Facebook: @savannatrail
+                  </a>
+                  <a
+                    href="https://instagram.com/savannatrail"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block text-muted-foreground hover:text-primary"
+                  >
+                    Instagram: @savannatrail
+                  </a>
+                  <a
+                    href="https://twitter.com/savannatrail"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block text-muted-foreground hover:text-primary"
+                  >
+                    X (Twitter): @savannatrail
+                  </a>
+                  <a
+                    href="https://tiktok.com/@savannatrail"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block text-muted-foreground hover:text-primary"
+                  >
+                    TikTok: @savannatrail
+                  </a>
+                </div>
               </div>
             </div>
           </div>
