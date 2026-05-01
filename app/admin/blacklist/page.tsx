@@ -213,10 +213,37 @@ export default function BlacklistPage() {
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedEntry, setSelectedEntry] = useState<BlacklistEntry | null>(null);
+  const [editingEntry, setEditingEntry] = useState<BlacklistEntry | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<BlacklistFormValues>({
+    resolver: zodResolver(blacklistFormSchema),
+    defaultValues: {
+      fullName: "",
+      idNumber: "",
+      phoneNumber: "",
+      email: "",
+      drivingLicenseNumber: "",
+      kraPin: "",
+      residence: "",
+      recordType: "other",
+      severity: "medium",
+      description: "",
+      incidentDate: "",
+      vehicleInvolved: "",
+      amountOwed: "",
+      policeReportNumber: "",
+      idFrontUrl: "",
+      idBackUrl: "",
+      drivingLicenseFrontUrl: "",
+      drivingLicenseBackUrl: "",
+      policeReportUrl: "",
+    },
+  });
+
+  const editForm = useForm<BlacklistFormValues>({
     resolver: zodResolver(blacklistFormSchema),
     defaultValues: {
       fullName: "",
@@ -306,6 +333,62 @@ export default function BlacklistPage() {
       )
     );
     toast.success(`Status updated to ${statusConfig[newStatus].label}`);
+  };
+
+  const handleEdit = (entry: BlacklistEntry) => {
+    setEditingEntry(entry);
+    editForm.reset({
+      fullName: entry.fullName,
+      idNumber: entry.idNumber,
+      phoneNumber: entry.phoneNumber,
+      email: entry.email || "",
+      drivingLicenseNumber: entry.drivingLicenseNumber || "",
+      kraPin: entry.kraPin || "",
+      residence: entry.residence || "",
+      recordType: entry.recordType,
+      severity: entry.severity,
+      description: entry.description,
+      incidentDate: entry.incidentDate,
+      vehicleInvolved: entry.vehicleInvolved || "",
+      amountOwed: entry.amountOwed?.toString() || "",
+      policeReportNumber: entry.policeReportNumber || "",
+      idFrontUrl: entry.idFrontUrl || "",
+      idBackUrl: entry.idBackUrl || "",
+      drivingLicenseFrontUrl: entry.drivingLicenseFrontUrl || "",
+      drivingLicenseBackUrl: entry.drivingLicenseBackUrl || "",
+      policeReportUrl: entry.policeReportUrl || "",
+    });
+    setIsEditDialogOpen(true);
+  };
+
+  const onEditSubmit = async (data: BlacklistFormValues) => {
+    if (!editingEntry) return;
+    setIsSubmitting(true);
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      const updatedEntry: BlacklistEntry = {
+        ...editingEntry,
+        ...data,
+        email: data.email || undefined,
+        amountOwed: data.amountOwed ? parseFloat(data.amountOwed) : undefined,
+        updatedAt: new Date().toISOString().split("T")[0],
+      };
+
+      setBlacklist(
+        blacklist.map((entry) =>
+          entry.id === editingEntry.id ? updatedEntry : entry
+        )
+      );
+      setIsEditDialogOpen(false);
+      setEditingEntry(null);
+      editForm.reset();
+      toast.success("Blacklist entry updated successfully");
+    } catch {
+      toast.error("Failed to update blacklist entry");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -925,6 +1008,14 @@ export default function BlacklistPage() {
                             >
                               <Eye className="h-4 w-4" />
                             </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-blue-400 hover:text-blue-300 hover:bg-blue-500/10"
+                              onClick={() => handleEdit(entry)}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
                                 <Button
@@ -1100,6 +1191,284 @@ export default function BlacklistPage() {
               Close
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-blue-600">
+              <Edit className="h-5 w-5" />
+              Edit Blacklist Entry
+            </DialogTitle>
+            <DialogDescription>
+              Update information for this blacklist record. You can add new phone numbers, update crime types, or modify any other details.
+            </DialogDescription>
+          </DialogHeader>
+          {editingEntry && (
+            <Form {...editForm}>
+              <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-6">
+                {/* Personal Information */}
+                <div className="rounded-lg border border-red-200 dark:border-red-800 bg-red-50/50 dark:bg-red-950/20 p-4">
+                  <h4 className="font-semibold text-red-700 dark:text-red-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
+                    <User className="h-4 w-4" />
+                    Personal Information
+                  </h4>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <FormField control={editForm.control} name="fullName" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Full Name *</FormLabel>
+                        <FormControl><Input placeholder="Full legal name" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={editForm.control} name="idNumber" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>ID Number *</FormLabel>
+                        <FormControl><Input placeholder="National ID number" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={editForm.control} name="phoneNumber" render={({ field }) => (
+                      <FormItem className="sm:col-span-2">
+                        <FormLabel>Phone Number(s) *</FormLabel>
+                        <FormControl><Input placeholder="e.g., 0712345678 / 0723456789 (separate multiple with /)" {...field} /></FormControl>
+                        <FormDescription className="text-xs text-blue-600">
+                          Add multiple phone numbers separated by / if the person uses different numbers
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={editForm.control} name="email" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl><Input type="email" placeholder="email@example.com" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={editForm.control} name="drivingLicenseNumber" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Driving License</FormLabel>
+                        <FormControl><Input placeholder="License number" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={editForm.control} name="kraPin" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>KRA PIN</FormLabel>
+                        <FormControl><Input placeholder="KRA PIN" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={editForm.control} name="residence" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Known Locations/Residence</FormLabel>
+                        <FormControl><Input placeholder="e.g., Westlands / Kilimani / Karen" {...field} /></FormControl>
+                        <FormDescription className="text-xs text-blue-600">
+                          Add multiple locations separated by / if known
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                  </div>
+                </div>
+
+                {/* Incident Details */}
+                <div className="rounded-lg border border-orange-200 dark:border-orange-800 bg-orange-50/50 dark:bg-orange-950/20 p-4">
+                  <h4 className="font-semibold text-orange-700 dark:text-orange-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
+                    <AlertTriangle className="h-4 w-4" />
+                    Incident Details
+                  </h4>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <FormField control={editForm.control} name="recordType" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Record Type *</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select type" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="theft">Theft</SelectItem>
+                            <SelectItem value="fraud">Fraud / Broker Obtaining</SelectItem>
+                            <SelectItem value="damage">Vehicle Damage</SelectItem>
+                            <SelectItem value="non-payment">Non-Payment</SelectItem>
+                            <SelectItem value="accident">Accident</SelectItem>
+                            <SelectItem value="drug-related">Drug Related</SelectItem>
+                            <SelectItem value="violent-dangerous">Violent / Dangerous</SelectItem>
+                            <SelectItem value="suspicious">Suspicious Activity</SelectItem>
+                            <SelectItem value="other">Other</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={editForm.control} name="severity" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Severity *</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select severity" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="low">Low</SelectItem>
+                            <SelectItem value="medium">Medium</SelectItem>
+                            <SelectItem value="high">High</SelectItem>
+                            <SelectItem value="critical">Critical</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={editForm.control} name="incidentDate" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Incident Date *</FormLabel>
+                        <FormControl><Input type="date" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={editForm.control} name="vehicleInvolved" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Vehicle Involved</FormLabel>
+                        <FormControl><Input placeholder="e.g., Toyota Prado KCX 123A" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={editForm.control} name="amountOwed" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Amount Owed (KES)</FormLabel>
+                        <FormControl><Input type="number" placeholder="0" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={editForm.control} name="policeReportNumber" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Police Report / OB Number</FormLabel>
+                        <FormControl><Input placeholder="e.g., OB/123/2024" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={editForm.control} name="description" render={({ field }) => (
+                      <FormItem className="sm:col-span-2">
+                        <FormLabel>Description *</FormLabel>
+                        <FormControl>
+                          <Textarea 
+                            placeholder="Detailed description of the incident, additional crimes, aliases used, etc." 
+                            className="min-h-[100px]"
+                            {...field} 
+                          />
+                        </FormControl>
+                        <FormDescription className="text-xs text-orange-600">
+                          Include any new crimes, additional details, or updates to the original incident
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                  </div>
+                </div>
+
+                {/* Document Uploads */}
+                <div className="rounded-lg border border-blue-200 dark:border-blue-800 bg-blue-50/50 dark:bg-blue-950/20 p-4">
+                  <h4 className="font-semibold text-blue-700 dark:text-blue-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
+                    <Upload className="h-4 w-4" />
+                    Supporting Documents
+                  </h4>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <FormField control={editForm.control} name="idFrontUrl" render={({ field }) => (
+                      <FormItem>
+                        <FileUpload
+                          id="edit-id-front"
+                          label="ID Front Side"
+                          accept="image/*,.pdf"
+                          maxSize={5}
+                          value={field.value || null}
+                          onChange={(url) => field.onChange(url || "")}
+                          showCamera
+                        />
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={editForm.control} name="idBackUrl" render={({ field }) => (
+                      <FormItem>
+                        <FileUpload
+                          id="edit-id-back"
+                          label="ID Back Side"
+                          accept="image/*,.pdf"
+                          maxSize={5}
+                          value={field.value || null}
+                          onChange={(url) => field.onChange(url || "")}
+                          showCamera
+                        />
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={editForm.control} name="drivingLicenseFrontUrl" render={({ field }) => (
+                      <FormItem>
+                        <FileUpload
+                          id="edit-dl-front"
+                          label="License Front Side"
+                          accept="image/*,.pdf"
+                          maxSize={5}
+                          value={field.value || null}
+                          onChange={(url) => field.onChange(url || "")}
+                          showCamera
+                        />
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={editForm.control} name="drivingLicenseBackUrl" render={({ field }) => (
+                      <FormItem>
+                        <FileUpload
+                          id="edit-dl-back"
+                          label="License Back Side"
+                          accept="image/*,.pdf"
+                          maxSize={5}
+                          value={field.value || null}
+                          onChange={(url) => field.onChange(url || "")}
+                          showCamera
+                        />
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={editForm.control} name="policeReportUrl" render={({ field }) => (
+                      <FormItem className="sm:col-span-2">
+                        <FileUpload
+                          id="edit-police-report"
+                          label="Police Report / OB Document"
+                          accept="image/*,.pdf"
+                          maxSize={10}
+                          value={field.value || null}
+                          onChange={(url) => field.onChange(url || "")}
+                          showCamera
+                        />
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                  </div>
+                </div>
+
+                <DialogFooter className="gap-2">
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={() => {
+                      setIsEditDialogOpen(false);
+                      setEditingEntry(null);
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button type="submit" className="bg-blue-600 hover:bg-blue-700" disabled={isSubmitting}>
+                    {isSubmitting ? "Saving..." : "Save Changes"}
+                  </Button>
+                </DialogFooter>
+              </form>
+            </Form>
+          )}
         </DialogContent>
       </Dialog>
     </div>
