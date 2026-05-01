@@ -1,10 +1,11 @@
 "use client";
 
-import type { Booking, AdminUser, MpesaPayment } from "@/types";
+import type { Booking, AdminUser, MpesaPayment, Client } from "@/types";
 
 const BOOKINGS_KEY = "savannah_link_bookings";
 const USERS_KEY = "savannah_link_users";
 const PAYMENTS_KEY = "savannah_link_payments";
+const CLIENTS_KEY = "savannah_link_clients";
 
 // Initialize default admin users
 const defaultUsers: AdminUser[] = [
@@ -191,6 +192,94 @@ export function savePayment(payment: MpesaPayment): MpesaPayment {
   
   setStorage(PAYMENTS_KEY, payments);
   return payment;
+}
+
+// Clients Store (for returning customers)
+export function getClients(): Client[] {
+  return getStorage<Client[]>(CLIENTS_KEY, []);
+}
+
+export function getClientById(id: string): Client | undefined {
+  const clients = getClients();
+  return clients.find((c) => c.id === id);
+}
+
+export function getClientByIdNumber(idNumber: string): Client | undefined {
+  const clients = getClients();
+  return clients.find((c) => c.idNumber.toLowerCase() === idNumber.toLowerCase());
+}
+
+export function getClientByPhone(phone: string): Client | undefined {
+  const clients = getClients();
+  const cleanPhone = phone.replace(/\D/g, '');
+  return clients.find((c) => c.phone.replace(/\D/g, '') === cleanPhone || c.alternativePhone?.replace(/\D/g, '') === cleanPhone);
+}
+
+export function searchClients(query: string): Client[] {
+  const clients = getClients();
+  const lowerQuery = query.toLowerCase();
+  return clients.filter((c) => 
+    c.fullName.toLowerCase().includes(lowerQuery) ||
+    c.idNumber.toLowerCase().includes(lowerQuery) ||
+    c.phone.includes(query) ||
+    c.email?.toLowerCase().includes(lowerQuery)
+  );
+}
+
+export function saveClient(client: Client): Client {
+  const clients = getClients();
+  const existingIndex = clients.findIndex((c) => c.id === client.id);
+  
+  if (existingIndex >= 0) {
+    clients[existingIndex] = { ...client, updatedAt: new Date().toISOString() };
+  } else {
+    clients.push(client);
+  }
+  
+  setStorage(CLIENTS_KEY, clients);
+  return client;
+}
+
+export function saveClientFromBooking(booking: Booking): Client | undefined {
+  if (booking.serviceType !== "car-rental") return undefined;
+  
+  const carBooking = booking as import("@/types").CarRentalBooking;
+  const existingClient = getClientByIdNumber(carBooking.personalDetails.idNumber);
+  
+  const client: Client = {
+    id: existingClient?.id || generateId(),
+    fullName: carBooking.personalDetails.fullName,
+    idNumber: carBooking.personalDetails.idNumber,
+    idPhotoUrl: carBooking.personalDetails.idPhotoUrl,
+    drivingLicenseNumber: carBooking.personalDetails.drivingLicenseNumber,
+    drivingLicenseUrl: carBooking.personalDetails.drivingLicenseUrl,
+    placeOfWork: carBooking.personalDetails.placeOfWork,
+    kraPin: carBooking.personalDetails.kraPin,
+    residence: carBooking.personalDetails.residence,
+    phone: carBooking.personalDetails.phone,
+    alternativePhone: carBooking.personalDetails.alternativePhone,
+    email: carBooking.customerEmail,
+    nextOfKin: carBooking.personalDetails.nextOfKin,
+    fingerprintLeftUrl: carBooking.personalDetails.fingerprintLeftUrl,
+    fingerprintRightUrl: carBooking.personalDetails.fingerprintRightUrl,
+    passportPhotoUrl: carBooking.personalDetails.passportPhotoUrl,
+    totalBookings: (existingClient?.totalBookings || 0) + 1,
+    createdAt: existingClient?.createdAt || new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+  
+  return saveClient(client);
+}
+
+export function deleteClient(id: string): boolean {
+  const clients = getClients();
+  const filtered = clients.filter((c) => c.id !== id);
+  
+  if (filtered.length < clients.length) {
+    setStorage(CLIENTS_KEY, filtered);
+    return true;
+  }
+  return false;
 }
 
 // Generate unique ID

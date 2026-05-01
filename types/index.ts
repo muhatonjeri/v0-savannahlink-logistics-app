@@ -220,6 +220,33 @@ export type Booking =
   | ShipmentBooking
   | ConstructionEquipmentBooking;
 
+// Client Types (for returning customers)
+export interface Client {
+  id: string;
+  fullName: string;
+  idNumber: string;
+  idPhotoUrl?: string;
+  drivingLicenseNumber?: string;
+  drivingLicenseUrl?: string;
+  placeOfWork?: string;
+  kraPin?: string;
+  residence?: string;
+  phone: string;
+  alternativePhone?: string;
+  email?: string;
+  nextOfKin?: {
+    name: string;
+    phone: string;
+    relationship: string;
+  };
+  fingerprintLeftUrl?: string;
+  fingerprintRightUrl?: string;
+  passportPhotoUrl?: string;
+  totalBookings: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // Admin User Types
 export type UserRole = "admin" | "staff";
 

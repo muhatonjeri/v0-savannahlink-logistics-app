@@ -16,6 +16,9 @@ import {
   FileText,
   Camera,
   CheckCircle2,
+  Search,
+  UserCheck,
+  UserPlus,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -41,7 +44,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
 import { FileUpload } from "@/components/forms/file-upload";
 import { MpesaPayment } from "@/components/payment/mpesa-payment";
-import { saveBooking, generateId } from "@/lib/store";
+import { saveBooking, generateId, searchClients, saveClientFromBooking, getClients } from "@/lib/store";
+import type { Client } from "@/types";
 import { toast } from "sonner";
 import type { CarRentalBooking } from "@/types";
 
@@ -115,6 +119,13 @@ export default function NewCarRentalAdminPage() {
   const [bookingComplete, setBookingComplete] = useState(false);
   const [currentBooking, setCurrentBooking] = useState<CarRentalBooking | null>(null);
   const [selectedMake, setSelectedMake] = useState<string>("");
+  
+  // Client search state
+  const [clientSearchQuery, setClientSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<Client[]>([]);
+  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const [isNewClient, setIsNewClient] = useState(true);
+  const [showSearchResults, setShowSearchResults] = useState(false);
 
   const form = useForm<AdminCarRentalFormData>({
     resolver: zodResolver(adminCarRentalSchema),
@@ -274,6 +285,10 @@ export default function NewCarRentalAdminPage() {
       };
 
       saveBooking(booking);
+      
+      // Save or update client record for future bookings
+      saveClientFromBooking(booking);
+      
       setCurrentBooking(booking);
       setBookingComplete(true);
       toast.success("Car rental booking created successfully!");
@@ -289,6 +304,56 @@ export default function NewCarRentalAdminPage() {
     setTimeout(() => {
       router.push("/admin/car-rental");
     }, 2000);
+  };
+
+  // Client search function
+  const handleClientSearch = (query: string) => {
+    setClientSearchQuery(query);
+    if (query.length >= 2) {
+      const results = searchClients(query);
+      setSearchResults(results);
+      setShowSearchResults(true);
+    } else {
+      setSearchResults([]);
+      setShowSearchResults(false);
+    }
+  };
+
+  // Select existing client and auto-fill form
+  const handleSelectClient = (client: Client) => {
+    setSelectedClient(client);
+    setIsNewClient(false);
+    setShowSearchResults(false);
+    setClientSearchQuery("");
+    
+    // Auto-fill form with client data
+    form.setValue("fullName", client.fullName);
+    form.setValue("idNumber", client.idNumber);
+    form.setValue("idPhotoUrl", client.idPhotoUrl || "");
+    form.setValue("drivingLicenseNumber", client.drivingLicenseNumber || "");
+    form.setValue("drivingLicenseUrl", client.drivingLicenseUrl || "");
+    form.setValue("placeOfWork", client.placeOfWork || "");
+    form.setValue("kraPin", client.kraPin || "");
+    form.setValue("residence", client.residence || "");
+    form.setValue("phone", client.phone);
+    form.setValue("alternativePhone", client.alternativePhone || "");
+    form.setValue("email", client.email || "");
+    form.setValue("nextOfKinName", client.nextOfKin?.name || "");
+    form.setValue("nextOfKinPhone", client.nextOfKin?.phone || "");
+    form.setValue("nextOfKinRelationship", client.nextOfKin?.relationship || "");
+    form.setValue("fingerprintLeftUrl", client.fingerprintLeftUrl || "");
+    form.setValue("fingerprintRightUrl", client.fingerprintRightUrl || "");
+    form.setValue("passportPhotoUrl", client.passportPhotoUrl || "");
+    
+    toast.success(`Client "${client.fullName}" loaded! Previous bookings: ${client.totalBookings}`);
+  };
+
+  // Clear selected client and reset form for new client
+  const handleNewClient = () => {
+    setSelectedClient(null);
+    setIsNewClient(true);
+    form.reset();
+    toast.info("Form cleared for new client registration");
   };
 
   // KRA PIN verification mock
@@ -422,12 +487,109 @@ export default function NewCarRentalAdminPage() {
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          {/* Client Search Section */}
+          <Card className="border-primary/20 bg-primary/5">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Search className="h-5 w-5 text-primary" />
+                Client Lookup
+              </CardTitle>
+              <CardDescription>
+                Search for returning clients by name, ID number, or phone number to auto-fill their details
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex gap-3">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    placeholder="Search by name, ID number, or phone..."
+                    value={clientSearchQuery}
+                    onChange={(e) => handleClientSearch(e.target.value)}
+                    className="pl-10"
+                  />
+                  {/* Search Results Dropdown */}
+                  {showSearchResults && searchResults.length > 0 && (
+                    <div className="absolute top-full left-0 right-0 z-50 mt-1 max-h-60 overflow-auto rounded-md border border-border bg-card shadow-lg">
+                      {searchResults.map((client) => (
+                        <button
+                          key={client.id}
+                          type="button"
+                          onClick={() => handleSelectClient(client)}
+                          className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-muted/50 transition-colors"
+                        >
+                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                            <UserCheck className="h-5 w-5 text-primary" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium truncate">{client.fullName}</p>
+                            <p className="text-sm text-muted-foreground">
+                              ID: {client.idNumber} | Tel: {client.phone}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
+                              {client.totalBookings} booking{client.totalBookings !== 1 ? 's' : ''}
+                            </span>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  {showSearchResults && searchResults.length === 0 && clientSearchQuery.length >= 2 && (
+                    <div className="absolute top-full left-0 right-0 z-50 mt-1 rounded-md border border-border bg-card p-4 text-center text-sm text-muted-foreground shadow-lg">
+                      No clients found matching "{clientSearchQuery}"
+                    </div>
+                  )}
+                </div>
+                <Button
+                  type="button"
+                  variant={isNewClient ? "default" : "outline"}
+                  onClick={handleNewClient}
+                  className="gap-2"
+                >
+                  <UserPlus className="h-4 w-4" />
+                  New Client
+                </Button>
+              </div>
+              
+              {/* Selected Client Banner */}
+              {selectedClient && (
+                <div className="flex items-center gap-3 rounded-lg border border-green-500/30 bg-green-500/10 p-3">
+                  <UserCheck className="h-5 w-5 text-green-600" />
+                  <div className="flex-1">
+                    <p className="font-medium text-green-700 dark:text-green-400">
+                      Returning Client: {selectedClient.fullName}
+                    </p>
+                    <p className="text-sm text-green-600/80 dark:text-green-500/80">
+                      ID: {selectedClient.idNumber} | {selectedClient.totalBookings} previous booking(s)
+                    </p>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleNewClient}
+                    className="text-green-600 hover:text-green-700"
+                  >
+                    Clear
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
           {/* Section 1: Personal Details */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <User className="h-5 w-5 text-primary" />
                 Personal Details
+                {selectedClient && (
+                  <span className="ml-2 text-xs font-normal text-green-600 bg-green-500/10 px-2 py-1 rounded-full">
+                    Auto-filled from saved client
+                  </span>
+                )}
               </CardTitle>
               <CardDescription>
                 Customer identification and contact information
