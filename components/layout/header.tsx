@@ -20,7 +20,7 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        {/* Logo */}
+        {/* Logo - Double click for staff login */}
         <Link href="/" className="flex items-center gap-2">
           <Image
             src="/images/logo.png"
@@ -30,6 +30,14 @@ export function Header() {
             className="h-14 w-auto"
             priority
           />
+        </Link>
+        {/* Hidden Staff Login - Only visible on hover */}
+        <Link 
+          href="/auth/login" 
+          className="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 text-[10px] text-transparent hover:text-muted-foreground/50 transition-colors"
+          title="Staff Portal"
+        >
+          Staff
         </Link>
 
         {/* Desktop Navigation */}
