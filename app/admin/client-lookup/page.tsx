@@ -951,19 +951,17 @@ export default function ClientLookupPage() {
           {!searchResults.client && searchResults.blacklistEntries.length === 0 && (
             <Card className="border-green-500/50 bg-green-500/10">
               <CardContent className="pt-6">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                  <div className="flex items-center gap-4 flex-1">
+                <div className="space-y-6">
+                  <div className="flex items-center gap-4">
                     <div className="rounded-full bg-green-500/20 p-3">
                       <CheckCircle2 className="h-8 w-8 text-green-500" />
                     </div>
-                    <div>
-                      <h3 className="font-semibold text-green-600 dark:text-green-400">No Negative Records Found</h3>
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-green-600 dark:text-green-400 text-lg">No Negative Records Found</h3>
                       <p className="text-muted-foreground">
                         This person has no blacklist records. Safe to register as a new client or proceed with services.
                       </p>
                     </div>
-                  </div>
-                  <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                     <Button 
                       onClick={openRegisterDialog}
                       className="bg-green-600 hover:bg-green-700 gap-2"
@@ -971,13 +969,61 @@ export default function ClientLookupPage() {
                       <UserPlus className="h-4 w-4" />
                       Register New Client
                     </Button>
-                    <Link href="/admin/car-rental/new">
-                      <Button variant="outline" className="gap-2 w-full border-indigo-500 text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950">
-                        <Car className="h-4 w-4" />
-                        Start Car Rental
-                        <ArrowRight className="h-4 w-4" />
-                      </Button>
-                    </Link>
+                  </div>
+                  
+                  {/* All 8 Services */}
+                  <div className="border-t border-green-200 dark:border-green-800 pt-4">
+                    <h4 className="text-sm font-medium text-muted-foreground mb-3">Quick Service Access - Select a service to proceed:</h4>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                      <Link href="/admin/car-rental/new">
+                        <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-indigo-200 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950 group">
+                          <Car className="h-6 w-6 text-indigo-500 group-hover:scale-110 transition-transform" />
+                          <span className="text-xs font-medium">Car Rental</span>
+                        </Button>
+                      </Link>
+                      <Link href="/admin/safari">
+                        <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-amber-200 hover:border-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950 group">
+                          <Compass className="h-6 w-6 text-amber-500 group-hover:scale-110 transition-transform" />
+                          <span className="text-xs font-medium">Safari Tours</span>
+                        </Button>
+                      </Link>
+                      <Link href="/admin/transfers">
+                        <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-sky-200 hover:border-sky-400 hover:bg-sky-50 dark:hover:bg-sky-950 group">
+                          <Plane className="h-6 w-6 text-sky-500 group-hover:scale-110 transition-transform" />
+                          <span className="text-xs font-medium">Airport Transfers</span>
+                        </Button>
+                      </Link>
+                      <Link href="/admin/cargo">
+                        <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-orange-200 hover:border-orange-400 hover:bg-orange-50 dark:hover:bg-orange-950 group">
+                          <Package className="h-6 w-6 text-orange-500 group-hover:scale-110 transition-transform" />
+                          <span className="text-xs font-medium">Cargo Transport</span>
+                        </Button>
+                      </Link>
+                      <Link href="/admin/tour-bus">
+                        <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-purple-200 hover:border-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950 group">
+                          <Bus className="h-6 w-6 text-purple-500 group-hover:scale-110 transition-transform" />
+                          <span className="text-xs font-medium">Tour Bus</span>
+                        </Button>
+                      </Link>
+                      <Link href="/admin/equipment">
+                        <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-teal-200 hover:border-teal-400 hover:bg-teal-50 dark:hover:bg-teal-950 group">
+                          <HardHat className="h-6 w-6 text-teal-500 group-hover:scale-110 transition-transform" />
+                          <span className="text-xs font-medium">Equipment Hire</span>
+                        </Button>
+                      </Link>
+                      <Link href="/admin/imports">
+                        <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-blue-200 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950 group">
+                          <Ship className="h-6 w-6 text-blue-500 group-hover:scale-110 transition-transform" />
+                          <span className="text-xs font-medium">Imports</span>
+                        </Button>
+                      </Link>
+                      <Link href="/admin/recovery">
+                        <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-rose-200 hover:border-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950 group">
+                          <Wrench className="h-6 w-6 text-rose-500 group-hover:scale-110 transition-transform" />
+                          <span className="text-xs font-medium">Recovery Services</span>
+                        </Button>
+                      </Link>
+                    </div>
                   </div>
                 </div>
               </CardContent>
@@ -988,23 +1034,73 @@ export default function ClientLookupPage() {
           {!searchResults.isBlacklisted && (searchResults.client || searchResults.blacklistEntries.length > 0) && (
             <Card className="border-green-500/50 bg-green-500/10">
               <CardContent className="pt-6">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                  <div className="flex items-center gap-4 flex-1">
-                    <CheckCircle2 className="h-8 w-8 text-green-500" />
+                <div className="space-y-6">
+                  <div className="flex items-center gap-4">
+                    <div className="rounded-full bg-green-500/20 p-3">
+                      <CheckCircle2 className="h-8 w-8 text-green-500" />
+                    </div>
                     <div>
-                      <h3 className="font-semibold text-green-500">Client Status: CLEAR</h3>
+                      <h3 className="font-semibold text-green-500 text-lg">Client Status: CLEAR</h3>
                       <p className="text-muted-foreground">
-                        No active blacklist records found for this client. Safe to proceed with services.
+                        No active blacklist records found for this client. Safe to proceed with any service.
                       </p>
                     </div>
                   </div>
-                  <Link href="/admin/car-rental/new">
-                    <Button className="bg-indigo-600 hover:bg-indigo-700 gap-2">
-                      <Car className="h-4 w-4" />
-                      Start Car Rental
-                      <ArrowRight className="h-4 w-4" />
-                    </Button>
-                  </Link>
+                  
+                  {/* All 8 Services */}
+                  <div className="border-t border-green-200 dark:border-green-800 pt-4">
+                    <h4 className="text-sm font-medium text-muted-foreground mb-3">Proceed with Service:</h4>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                      <Link href="/admin/car-rental/new">
+                        <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-indigo-200 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950 group">
+                          <Car className="h-6 w-6 text-indigo-500 group-hover:scale-110 transition-transform" />
+                          <span className="text-xs font-medium">Car Rental</span>
+                        </Button>
+                      </Link>
+                      <Link href="/admin/safari">
+                        <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-amber-200 hover:border-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950 group">
+                          <Compass className="h-6 w-6 text-amber-500 group-hover:scale-110 transition-transform" />
+                          <span className="text-xs font-medium">Safari Tours</span>
+                        </Button>
+                      </Link>
+                      <Link href="/admin/transfers">
+                        <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-sky-200 hover:border-sky-400 hover:bg-sky-50 dark:hover:bg-sky-950 group">
+                          <Plane className="h-6 w-6 text-sky-500 group-hover:scale-110 transition-transform" />
+                          <span className="text-xs font-medium">Airport Transfers</span>
+                        </Button>
+                      </Link>
+                      <Link href="/admin/cargo">
+                        <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-orange-200 hover:border-orange-400 hover:bg-orange-50 dark:hover:bg-orange-950 group">
+                          <Package className="h-6 w-6 text-orange-500 group-hover:scale-110 transition-transform" />
+                          <span className="text-xs font-medium">Cargo Transport</span>
+                        </Button>
+                      </Link>
+                      <Link href="/admin/tour-bus">
+                        <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-purple-200 hover:border-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950 group">
+                          <Bus className="h-6 w-6 text-purple-500 group-hover:scale-110 transition-transform" />
+                          <span className="text-xs font-medium">Tour Bus</span>
+                        </Button>
+                      </Link>
+                      <Link href="/admin/equipment">
+                        <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-teal-200 hover:border-teal-400 hover:bg-teal-50 dark:hover:bg-teal-950 group">
+                          <HardHat className="h-6 w-6 text-teal-500 group-hover:scale-110 transition-transform" />
+                          <span className="text-xs font-medium">Equipment Hire</span>
+                        </Button>
+                      </Link>
+                      <Link href="/admin/imports">
+                        <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-blue-200 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950 group">
+                          <Ship className="h-6 w-6 text-blue-500 group-hover:scale-110 transition-transform" />
+                          <span className="text-xs font-medium">Imports</span>
+                        </Button>
+                      </Link>
+                      <Link href="/admin/recovery">
+                        <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-rose-200 hover:border-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950 group">
+                          <Wrench className="h-6 w-6 text-rose-500 group-hover:scale-110 transition-transform" />
+                          <span className="text-xs font-medium">Recovery Services</span>
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
