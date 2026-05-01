@@ -111,8 +111,34 @@ export default function HomePage() {
         </section>
 
         {/* Services Section */}
-        <section className="bg-card py-16 sm:py-20">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <section className="relative py-16 sm:py-20 overflow-hidden">
+          {/* African Pattern Background */}
+          <div className="absolute inset-0">
+            <Image
+              src="/images/african-pattern-bg.jpg"
+              alt=""
+              fill
+              className="object-cover opacity-10"
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-background via-background/95 to-background" />
+          </div>
+          {/* Decorative African Elements */}
+          <div className="absolute left-0 top-0 h-32 w-32 opacity-20">
+            <svg viewBox="0 0 100 100" className="h-full w-full text-primary">
+              <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" strokeWidth="2" />
+              <circle cx="50" cy="50" r="35" fill="none" stroke="currentColor" strokeWidth="2" />
+              <circle cx="50" cy="50" r="25" fill="none" stroke="currentColor" strokeWidth="2" />
+              <path d="M50 5 L50 95 M5 50 L95 50" stroke="currentColor" strokeWidth="1" />
+            </svg>
+          </div>
+          <div className="absolute right-0 bottom-0 h-40 w-40 opacity-20">
+            <svg viewBox="0 0 100 100" className="h-full w-full text-primary">
+              <polygon points="50,5 95,75 5,75" fill="none" stroke="currentColor" strokeWidth="2" />
+              <polygon points="50,25 80,65 20,65" fill="none" stroke="currentColor" strokeWidth="2" />
+              <polygon points="50,40 65,60 35,60" fill="none" stroke="currentColor" strokeWidth="2" />
+            </svg>
+          </div>
+          <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="mb-12 text-center">
               <h2 className="mb-4 text-3xl font-bold text-foreground sm:text-4xl">
                 Our Services
@@ -129,6 +155,7 @@ export default function HomePage() {
             </div>
           </div>
         </section>
+
 
         {/* Why Choose Us Section */}
         <section className="py-16 sm:py-20">
