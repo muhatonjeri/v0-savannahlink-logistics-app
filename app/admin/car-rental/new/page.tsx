@@ -353,7 +353,25 @@ export default function NewCarRentalAdminPage() {
     setSelectedClient(null);
     setIsNewClient(true);
     form.reset();
+    setSelectedMake("");
     toast.info("Form cleared for new client registration");
+  };
+
+  // Clear only booking details (vehicle, locations, dates) - keep client info
+  const handleNewBookingForClient = () => {
+    // Reset vehicle and booking fields only
+    setSelectedMake("");
+    form.setValue("vehicleMake", "");
+    form.setValue("vehicleModel", "");
+    form.setValue("rentalType", "self-drive");
+    form.setValue("pickupLocation", "");
+    form.setValue("dropoffLocation", "");
+    form.setValue("pickupDate", "");
+    form.setValue("pickupTime", "");
+    form.setValue("returnDate", "");
+    form.setValue("returnTime", "");
+    form.setValue("specialRequests", "");
+    toast.info("Booking details cleared - client info retained for new booking");
   };
 
   // KRA PIN verification mock
@@ -554,27 +572,40 @@ export default function NewCarRentalAdminPage() {
               
               {/* Selected Client Banner */}
               {selectedClient && (
-                <div className="flex items-center gap-3 rounded-lg border-2 border-green-500 bg-green-100 dark:bg-green-900/40 p-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-500 text-white">
-                    <UserCheck className="h-6 w-6" />
+                <div className="flex flex-col gap-3 rounded-lg border-2 border-green-500 bg-green-100 dark:bg-green-900/40 p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-500 text-white">
+                      <UserCheck className="h-6 w-6" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-bold text-green-800 dark:text-green-300 text-lg">
+                        Returning Client: {selectedClient.fullName}
+                      </p>
+                      <p className="text-sm text-green-700 dark:text-green-400">
+                        ID: {selectedClient.idNumber} | {selectedClient.totalBookings} previous booking(s)
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <p className="font-bold text-green-800 dark:text-green-300 text-lg">
-                      Returning Client: {selectedClient.fullName}
-                    </p>
-                    <p className="text-sm text-green-700 dark:text-green-400">
-                      ID: {selectedClient.idNumber} | {selectedClient.totalBookings} previous booking(s)
-                    </p>
+                  <div className="flex gap-2 ml-auto">
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={handleNewBookingForClient}
+                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                    >
+                      <Car className="h-4 w-4 mr-1" />
+                      New Vehicle/Trip
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleNewClient}
+                      className="border-green-500 text-green-700 hover:bg-green-200 dark:text-green-300 dark:hover:bg-green-800"
+                    >
+                      Different Client
+                    </Button>
                   </div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={handleNewClient}
-                    className="border-green-500 text-green-700 hover:bg-green-200 dark:text-green-300 dark:hover:bg-green-800"
-                  >
-                    Clear
-                  </Button>
                 </div>
               )}
             </CardContent>
