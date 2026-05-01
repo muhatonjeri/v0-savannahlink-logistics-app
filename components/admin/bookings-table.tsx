@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Eye, MoreHorizontal, CheckCircle, XCircle, Clock, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Eye, MoreHorizontal, CheckCircle, XCircle, Clock, Trash2, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -53,6 +54,7 @@ const paymentStatusColors = {
 };
 
 export function BookingsTable({ bookings, onRefresh, showService = false }: BookingsTableProps) {
+  const router = useRouter();
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -135,8 +137,14 @@ export function BookingsTable({ bookings, onRefresh, showService = false }: Book
                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
                     <DropdownMenuItem onClick={() => handleView(booking)}>
                       <Eye className="mr-2 h-4 w-4" />
-                      View Details
+                      Quick View
                     </DropdownMenuItem>
+                    {booking.serviceType === "car-rental" && (
+                      <DropdownMenuItem onClick={() => router.push(`/admin/car-rental/${booking.id}`)}>
+                        <ExternalLink className="mr-2 h-4 w-4" />
+                        Full Details & Print
+                      </DropdownMenuItem>
+                    )}
                     <DropdownMenuSeparator />
                     <DropdownMenuLabel>Update Status</DropdownMenuLabel>
                     <DropdownMenuItem onClick={() => handleStatusChange(booking.id, "confirmed")}>
