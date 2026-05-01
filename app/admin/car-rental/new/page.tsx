@@ -2107,51 +2107,57 @@ export default function NewCarRentalAdminPage() {
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="grid gap-6">
-              <div className="grid gap-4 sm:grid-cols-3">
-                <FormField
-                  control={form.control}
-                  name="carMake"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Make *</FormLabel>
-                      <Select 
-                        onValueChange={(value) => {
-                          field.onChange(value);
-                          setSelectedMake(value);
-                          form.setValue("carModel", "");
-                        }} 
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select make" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {carOptions.map((car) => (
-                            <SelectItem key={car.make} value={car.make}>
-                              {car.make}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="carModel"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-gray-700 dark:text-gray-300">Model *</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger className="bg-white dark:bg-gray-800 border-orange-200 focus:border-orange-500">
-                            <SelectValue placeholder="Select model" />
-                          </SelectTrigger>
-                        </FormControl>
+            <CardContent className="pt-6 space-y-6">
+              {/* Vehicle Selection Block */}
+              <div className="rounded-lg border border-orange-200 dark:border-orange-800 bg-orange-50/50 dark:bg-orange-950/20 p-4">
+                <h4 className="font-semibold text-orange-700 dark:text-orange-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
+                  <Car className="h-4 w-4" />
+                  Vehicle Selection
+                </h4>
+                <div className="grid gap-4 sm:grid-cols-3">
+                  <FormField
+                    control={form.control}
+                    name="carMake"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-gray-700 dark:text-gray-300">Make *</FormLabel>
+                        <Select 
+                          onValueChange={(value) => {
+                            field.onChange(value);
+                            setSelectedMake(value);
+                            form.setValue("carModel", "");
+                          }} 
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="bg-white dark:bg-gray-800 border-orange-200 focus:border-orange-500">
+                              <SelectValue placeholder="Select make" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {carOptions.map((car) => (
+                              <SelectItem key={car.make} value={car.make}>
+                                {car.make}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="carModel"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-gray-700 dark:text-gray-300">Model *</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger className="bg-white dark:bg-gray-800 border-orange-200 focus:border-orange-500">
+                              <SelectValue placeholder="Select model" />
+                            </SelectTrigger>
+                          </FormControl>
                         <SelectContent>
                           {carOptions
                             .find((c) => c.make === selectedMake)
@@ -2179,6 +2185,7 @@ export default function NewCarRentalAdminPage() {
                     </FormItem>
                   )}
                 />
+                </div>
               </div>
 
               {/* Vehicle Status Block */}
@@ -2480,8 +2487,9 @@ export default function NewCarRentalAdminPage() {
                       </FormControl>
                       <FormMessage />
                     </FormItem>
-                )}
-              />
+                  )}
+                />
+              </div>
             </CardContent>
           </Card>
 
