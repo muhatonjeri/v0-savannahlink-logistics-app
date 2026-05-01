@@ -77,9 +77,11 @@ const adminCarRentalSchema = z.object({
   // Personal Details
   fullName: z.string().min(2, "Full name is required"),
   idNumber: z.string().min(6, "ID/Passport number is required"),
-  idPhotoUrl: z.string().optional(),
+  idPhotoFrontUrl: z.string().optional(),
+  idPhotoBackUrl: z.string().optional(),
   drivingLicenseNumber: z.string().min(4, "Driving license number is required"),
-  drivingLicenseUrl: z.string().optional(),
+  drivingLicenseFrontUrl: z.string().optional(),
+  drivingLicenseBackUrl: z.string().optional(),
   placeOfWork: z.string().min(2, "Place of work is required"),
   kraPin: z.string().min(10, "KRA PIN is required (e.g., A012345678A)"),
   residence: z.string().min(2, "Residence/Address is required"),
@@ -177,9 +179,11 @@ export default function NewCarRentalAdminPage() {
     defaultValues: {
       fullName: "",
       idNumber: "",
-      idPhotoUrl: "",
+      idPhotoFrontUrl: "",
+    idPhotoBackUrl: "",
       drivingLicenseNumber: "",
-      drivingLicenseUrl: "",
+      drivingLicenseFrontUrl: "",
+    drivingLicenseBackUrl: "",
       placeOfWork: "",
       kraPin: "",
       residence: "",
@@ -293,9 +297,9 @@ export default function NewCarRentalAdminPage() {
         personalDetails: {
           fullName: data.fullName,
           idNumber: data.idNumber,
-          idPhotoUrl: data.idPhotoUrl || undefined,
+          idPhotoUrl: data.idPhotoFrontUrl || undefined,
           drivingLicenseNumber: data.drivingLicenseNumber,
-          drivingLicenseUrl: data.drivingLicenseUrl || undefined,
+          drivingLicenseUrl: data.drivingLicenseFrontUrl || undefined,
           placeOfWork: data.placeOfWork,
           kraPin: data.kraPin,
           residence: data.residence,
@@ -433,9 +437,11 @@ export default function NewCarRentalAdminPage() {
     // Auto-fill form with client data
     form.setValue("fullName", client.fullName);
     form.setValue("idNumber", client.idNumber);
-    form.setValue("idPhotoUrl", client.idPhotoUrl || "");
+    form.setValue("idPhotoFrontUrl", client.idPhotoUrl || "");
+    form.setValue("idPhotoBackUrl", "");
     form.setValue("drivingLicenseNumber", client.drivingLicenseNumber || "");
-    form.setValue("drivingLicenseUrl", client.drivingLicenseUrl || "");
+    form.setValue("drivingLicenseFrontUrl", client.drivingLicenseUrl || "");
+    form.setValue("drivingLicenseBackUrl", "");
     form.setValue("placeOfWork", client.placeOfWork || "");
     form.setValue("kraPin", client.kraPin || "");
     form.setValue("residence", client.residence || "");
@@ -1336,27 +1342,60 @@ export default function NewCarRentalAdminPage() {
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="idPhotoUrl"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FileUpload
-                        id="id-photo"
-                        label="ID/Passport Photo"
-                        accept="image/*"
-                        maxSize={5}
-                        value={field.value}
-                        onChange={field.onChange}
-                        showCamera
-                      />
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+              </div>
+              
+              {/* ID/Passport Photos - Front & Back */}
+              <div className="space-y-3">
+                <h4 className="font-medium text-sm flex items-center gap-2">
+                  <FileText className="h-4 w-4 text-primary" />
+                  ID/Passport Photos
+                </h4>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <FormField
+                    control={form.control}
+                    name="idPhotoFrontUrl"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FileUpload
+                          id="id-photo-front"
+                          label="ID/Passport - Front Side"
+                          accept="image/*"
+                          maxSize={5}
+                          value={field.value}
+                          onChange={field.onChange}
+                          showCamera
+                        />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="idPhotoBackUrl"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FileUpload
+                          id="id-photo-back"
+                          label="ID/Passport - Back Side"
+                          accept="image/*"
+                          maxSize={5}
+                          value={field.value}
+                          onChange={field.onChange}
+                          showCamera
+                        />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
               </div>
 
-              <div className="grid gap-4 sm:grid-cols-2">
+              {/* Driving License - Number & Photos */}
+              <div className="space-y-3">
+                <h4 className="font-medium text-sm flex items-center gap-2">
+                  <Car className="h-4 w-4 text-primary" />
+                  Driving License
+                </h4>
                 <FormField
                   control={form.control}
                   name="drivingLicenseNumber"
@@ -1370,24 +1409,44 @@ export default function NewCarRentalAdminPage() {
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="drivingLicenseUrl"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FileUpload
-                        id="driving-license"
-                        label="Driving License Photo"
-                        accept="image/*"
-                        maxSize={5}
-                        value={field.value}
-                        onChange={field.onChange}
-                        showCamera
-                      />
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <FormField
+                    control={form.control}
+                    name="drivingLicenseFrontUrl"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FileUpload
+                          id="driving-license-front"
+                          label="Driving License - Front Side"
+                          accept="image/*"
+                          maxSize={5}
+                          value={field.value}
+                          onChange={field.onChange}
+                          showCamera
+                        />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="drivingLicenseBackUrl"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FileUpload
+                          id="driving-license-back"
+                          label="Driving License - Back Side"
+                          accept="image/*"
+                          maxSize={5}
+                          value={field.value}
+                          onChange={field.onChange}
+                          showCamera
+                        />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
               </div>
 
               <Separator />
