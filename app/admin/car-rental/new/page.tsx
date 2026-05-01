@@ -2292,107 +2292,133 @@ export default function NewCarRentalAdminPage() {
                 />
               </div>
 
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <FormField
-                    control={form.control}
-                    name="startDate"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Start Date *</FormLabel>
-                        <FormControl>
-                          <Input 
-                            type="date" 
-                            {...field} 
-                            min={new Date().toISOString().split("T")[0]}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="startTime"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Start Time *</FormLabel>
-                        <FormControl>
-                          <Input type="time" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <FormField
-                    control={form.control}
-                    name="endDate"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>End Date *</FormLabel>
-                        <FormControl>
-                          <Input 
-                            type="date" 
-                            {...field} 
-                            onChange={(e) => {
-                              field.onChange(e);
-                              // Auto-calculate number of days when end date is manually changed
-                              const startDate = form.getValues("startDate");
-                              if (startDate && e.target.value) {
-                                const days = calculateDaysBetween(startDate, e.target.value);
-                                if (days > 0) {
-                                  form.setValue("numberOfDays", days.toString());
-                                }
-                              }
-                            }}
-                            min={form.getValues("startDate") || undefined}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="endTime"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>End Time *</FormLabel>
-                        <FormControl>
-                          <Input type="time" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+              {/* Date/Time Block */}
+              <div className="rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-950/20 p-4 mt-4">
+                <h4 className="font-semibold text-slate-700 dark:text-slate-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
+                  <Clock className="h-4 w-4" />
+                  Rental Schedule
+                </h4>
+                <div className="grid gap-6 sm:grid-cols-2">
+                  {/* Pickup Date/Time */}
+                  <div className="rounded-lg bg-green-50/70 dark:bg-green-950/30 p-3 border border-green-200 dark:border-green-800">
+                    <p className="text-xs font-bold text-green-700 dark:text-green-400 uppercase tracking-wide mb-3 flex items-center gap-1">
+                      <Calendar className="h-3 w-3" />
+                      Pickup
+                    </p>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <FormField
+                        control={form.control}
+                        name="startDate"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-gray-700 dark:text-gray-300 text-xs">Date *</FormLabel>
+                            <FormControl>
+                              <Input 
+                                type="date" 
+                                className="bg-white dark:bg-gray-800 border-green-300 focus:border-green-500"
+                                {...field} 
+                                min={new Date().toISOString().split("T")[0]}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="startTime"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-gray-700 dark:text-gray-300 text-xs">Time *</FormLabel>
+                            <FormControl>
+                              <Input type="time" className="bg-white dark:bg-gray-800 border-green-300 focus:border-green-500" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
+                  {/* Return Date/Time */}
+                  <div className="rounded-lg bg-red-50/70 dark:bg-red-950/30 p-3 border border-red-200 dark:border-red-800">
+                    <p className="text-xs font-bold text-red-700 dark:text-red-400 uppercase tracking-wide mb-3 flex items-center gap-1">
+                      <Calendar className="h-3 w-3" />
+                      Return
+                    </p>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <FormField
+                        control={form.control}
+                        name="endDate"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-gray-700 dark:text-gray-300 text-xs">Date *</FormLabel>
+                            <FormControl>
+                              <Input 
+                                type="date" 
+                                className="bg-white dark:bg-gray-800 border-red-300 focus:border-red-500"
+                                {...field} 
+                                onChange={(e) => {
+                                  field.onChange(e);
+                                  // Auto-calculate number of days when end date is manually changed
+                                  const startDate = form.getValues("startDate");
+                                  if (startDate && e.target.value) {
+                                    const days = calculateDaysBetween(startDate, e.target.value);
+                                    if (days > 0) {
+                                      form.setValue("numberOfDays", days.toString());
+                                    }
+                                  }
+                                }}
+                                min={form.getValues("startDate") || undefined}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="endTime"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-gray-700 dark:text-gray-300 text-xs">Time *</FormLabel>
+                            <FormControl>
+                              <Input type="time" className="bg-white dark:bg-gray-800 border-red-300 focus:border-red-500" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
 
               {/* Price Summary */}
               {calculateTotal() > 0 && (
-                <div className="rounded-lg bg-muted/50 p-4">
-                  <h4 className="mb-3 font-medium">Price Summary</h4>
-                  <dl className="grid gap-2 text-sm">
-                    <div className="flex justify-between">
-                      <dt className="text-muted-foreground">
+                <div className="rounded-xl bg-gradient-to-r from-indigo-100 to-purple-100 dark:from-indigo-950/50 dark:to-purple-950/50 border-2 border-indigo-300 dark:border-indigo-700 p-5 mt-4">
+                  <h4 className="mb-3 font-bold text-indigo-800 dark:text-indigo-300 flex items-center gap-2 text-lg">
+                    <DollarSign className="h-5 w-5" />
+                    Price Summary
+                  </h4>
+                  <dl className="grid gap-3 text-sm">
+                    <div className="flex justify-between py-1">
+                      <dt className="text-indigo-700 dark:text-indigo-400">
                         KES {watchDailyRate} x {watchNumberOfDays} day(s)
                       </dt>
-                      <dd>KES {(parseFloat(watchDailyRate || "0") * parseInt(watchNumberOfDays || "0")).toLocaleString()}</dd>
+                      <dd className="font-semibold">KES {(parseFloat(watchDailyRate || "0") * parseInt(watchNumberOfDays || "0")).toLocaleString()}</dd>
                     </div>
                     {watchRentalType === "chauffeured" && (
-                      <div className="flex justify-between">
-                        <dt className="text-muted-foreground">
+                      <div className="flex justify-between py-1">
+                        <dt className="text-indigo-700 dark:text-indigo-400">
                           Chauffeur fee (KES 2,000 x {watchNumberOfDays} days)
                         </dt>
-                        <dd>KES {(2000 * parseInt(watchNumberOfDays || "0")).toLocaleString()}</dd>
+                        <dd className="font-semibold">KES {(2000 * parseInt(watchNumberOfDays || "0")).toLocaleString()}</dd>
                       </div>
                     )}
-                    <Separator />
-                    <div className="flex justify-between pt-2 text-lg font-semibold">
-                      <dt>Total Amount</dt>
-                      <dd className="text-primary">KES {calculateTotal().toLocaleString()}</dd>
+                    <Separator className="my-2 bg-indigo-300 dark:bg-indigo-700" />
+                    <div className="flex justify-between pt-2 text-xl font-bold">
+                      <dt className="text-indigo-900 dark:text-indigo-200">Total Amount</dt>
+                      <dd className="text-green-600 dark:text-green-400">KES {calculateTotal().toLocaleString()}</dd>
                     </div>
                   </dl>
                 </div>
@@ -2401,14 +2427,23 @@ export default function NewCarRentalAdminPage() {
           </Card>
 
           {/* Section 6: Payment Method */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <CreditCard className="h-5 w-5 text-primary" />
-                Payment Method
-              </CardTitle>
+          <Card className="border-l-4 border-l-green-500 shadow-md">
+            <CardHeader className="bg-gradient-to-r from-green-50 to-transparent dark:from-green-950/30">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-500 text-white">
+                  <CreditCard className="h-5 w-5" />
+                </div>
+                <div>
+                  <CardTitle className="text-green-800 dark:text-green-300">
+                    6. Payment Method
+                  </CardTitle>
+                  <CardDescription>
+                    Choose how the customer will pay
+                  </CardDescription>
+                </div>
+              </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-6">
               <FormField
                 control={form.control}
                 name="paymentMethod"
@@ -2420,24 +2455,24 @@ export default function NewCarRentalAdminPage() {
                         defaultValue={field.value}
                         className="grid gap-4 sm:grid-cols-2"
                       >
-                        <div className="relative flex cursor-pointer items-start gap-4 rounded-lg border border-border bg-card p-4 hover:border-primary/50 has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/5">
-                          <RadioGroupItem value="mpesa" id="payment-mpesa" className="mt-1" />
+                        <div className="relative flex cursor-pointer items-start gap-4 rounded-xl border-2 border-green-200 dark:border-green-800 bg-green-50/50 dark:bg-green-950/20 p-5 hover:border-green-400 has-[[data-state=checked]]:border-green-500 has-[[data-state=checked]]:bg-green-100 dark:has-[[data-state=checked]]:bg-green-900/40 transition-all">
+                          <RadioGroupItem value="mpesa" id="payment-mpesa" className="mt-1 border-green-500 text-green-600" />
                           <div className="flex-1">
-                            <label htmlFor="payment-mpesa" className="block cursor-pointer font-medium">
+                            <label htmlFor="payment-mpesa" className="block cursor-pointer font-bold text-green-800 dark:text-green-300">
                               M-Pesa
                             </label>
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-sm text-green-600 dark:text-green-400">
                               Pay via Lipa Na M-Pesa
                             </p>
                           </div>
                         </div>
-                        <div className="relative flex cursor-pointer items-start gap-4 rounded-lg border border-border bg-card p-4 hover:border-primary/50 has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/5">
-                          <RadioGroupItem value="bank" id="payment-bank" className="mt-1" />
+                        <div className="relative flex cursor-pointer items-start gap-4 rounded-xl border-2 border-green-200 dark:border-green-800 bg-green-50/50 dark:bg-green-950/20 p-5 hover:border-green-400 has-[[data-state=checked]]:border-green-500 has-[[data-state=checked]]:bg-green-100 dark:has-[[data-state=checked]]:bg-green-900/40 transition-all">
+                          <RadioGroupItem value="bank" id="payment-bank" className="mt-1 border-green-500 text-green-600" />
                           <div className="flex-1">
-                            <label htmlFor="payment-bank" className="block cursor-pointer font-medium">
+                            <label htmlFor="payment-bank" className="block cursor-pointer font-bold text-green-800 dark:text-green-300">
                               Bank Transfer
                             </label>
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-sm text-green-600 dark:text-green-400">
                               Direct bank deposit/transfer
                             </p>
                           </div>
