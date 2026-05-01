@@ -23,6 +23,8 @@ import {
   Ban,
   AlertOctagon,
   Fingerprint,
+  Upload,
+  IdCard,
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -74,6 +76,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import { FileUpload } from "@/components/forms/file-upload";
 
 // Types
 interface BlacklistEntry {
@@ -93,6 +96,12 @@ interface BlacklistEntry {
   vehicleInvolved?: string;
   amountOwed?: number;
   policeReportNumber?: string;
+  // Document URLs
+  idFrontUrl?: string;
+  idBackUrl?: string;
+  drivingLicenseFrontUrl?: string;
+  drivingLicenseBackUrl?: string;
+  policeReportUrl?: string;
   status: "active" | "resolved" | "under-review";
   createdAt: string;
   updatedAt: string;
@@ -114,6 +123,12 @@ const blacklistFormSchema = z.object({
   vehicleInvolved: z.string().optional(),
   amountOwed: z.string().optional(),
   policeReportNumber: z.string().optional(),
+  // Document uploads
+  idFrontUrl: z.string().optional(),
+  idBackUrl: z.string().optional(),
+  drivingLicenseFrontUrl: z.string().optional(),
+  drivingLicenseBackUrl: z.string().optional(),
+  policeReportUrl: z.string().optional(),
 });
 
 type BlacklistFormValues = z.infer<typeof blacklistFormSchema>;
@@ -230,6 +245,11 @@ export default function BlacklistPage() {
       vehicleInvolved: "",
       amountOwed: "",
       policeReportNumber: "",
+      idFrontUrl: "",
+      idBackUrl: "",
+      drivingLicenseFrontUrl: "",
+      drivingLicenseBackUrl: "",
+      policeReportUrl: "",
     },
   });
 
@@ -559,6 +579,135 @@ export default function BlacklistPage() {
                           </FormControl>
                           <FormDescription className="text-xs">
                             Be as detailed as possible for future reference
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+
+                {/* Supporting Documents */}
+                <div className="rounded-lg border border-blue-200 dark:border-blue-800 bg-blue-50/50 dark:bg-blue-950/20 p-4">
+                  <h4 className="font-semibold text-blue-700 dark:text-blue-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
+                    <Upload className="h-4 w-4" />
+                    Supporting Documents
+                  </h4>
+                  
+                  {/* ID Document Uploads */}
+                  <div className="mb-6">
+                    <h5 className="text-sm font-medium text-blue-600 dark:text-blue-300 mb-3 flex items-center gap-2">
+                      <IdCard className="h-4 w-4" />
+                      National ID / Passport
+                    </h5>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <FormField
+                        control={form.control}
+                        name="idFrontUrl"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FileUpload
+                              id="blacklist-id-front"
+                              label="ID Front Side"
+                              accept="image/*,.pdf"
+                              maxSize={5}
+                              value={field.value || null}
+                              onChange={(url) => field.onChange(url || "")}
+                              showCamera
+                            />
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="idBackUrl"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FileUpload
+                              id="blacklist-id-back"
+                              label="ID Back Side"
+                              accept="image/*,.pdf"
+                              maxSize={5}
+                              value={field.value || null}
+                              onChange={(url) => field.onChange(url || "")}
+                              showCamera
+                            />
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Driving License Uploads */}
+                  <div className="mb-6">
+                    <h5 className="text-sm font-medium text-blue-600 dark:text-blue-300 mb-3 flex items-center gap-2">
+                      <CreditCard className="h-4 w-4" />
+                      Driving License
+                    </h5>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <FormField
+                        control={form.control}
+                        name="drivingLicenseFrontUrl"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FileUpload
+                              id="blacklist-dl-front"
+                              label="License Front Side"
+                              accept="image/*,.pdf"
+                              maxSize={5}
+                              value={field.value || null}
+                              onChange={(url) => field.onChange(url || "")}
+                              showCamera
+                            />
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="drivingLicenseBackUrl"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FileUpload
+                              id="blacklist-dl-back"
+                              label="License Back Side"
+                              accept="image/*,.pdf"
+                              maxSize={5}
+                              value={field.value || null}
+                              onChange={(url) => field.onChange(url || "")}
+                              showCamera
+                            />
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Police Report Upload */}
+                  <div>
+                    <h5 className="text-sm font-medium text-blue-600 dark:text-blue-300 mb-3 flex items-center gap-2">
+                      <FileText className="h-4 w-4" />
+                      Police Report (OB)
+                    </h5>
+                    <FormField
+                      control={form.control}
+                      name="policeReportUrl"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FileUpload
+                            id="blacklist-police-report"
+                            label="Police Report / OB Document"
+                            accept="image/*,.pdf"
+                            maxSize={10}
+                            value={field.value || null}
+                            onChange={(url) => field.onChange(url || "")}
+                            showCamera
+                          />
+                          <FormDescription className="text-xs text-blue-500">
+                            Upload scanned copy of police report or OB extract
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
