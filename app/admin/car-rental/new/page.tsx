@@ -488,47 +488,47 @@ export default function NewCarRentalAdminPage() {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           {/* Client Search Section */}
-          <Card className="border-primary/20 bg-primary/5">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Search className="h-5 w-5 text-primary" />
+          <Card className="border-2 border-amber-500 bg-amber-50 dark:bg-amber-950/30">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-amber-800 dark:text-amber-300">
+                <Search className="h-5 w-5" />
                 Client Lookup
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-amber-700 dark:text-amber-400">
                 Search for returning clients by name, ID number, or phone number to auto-fill their details
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex gap-3">
                 <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-amber-600" />
                   <Input
                     placeholder="Search by name, ID number, or phone..."
                     value={clientSearchQuery}
                     onChange={(e) => handleClientSearch(e.target.value)}
-                    className="pl-10"
+                    className="pl-10 border-amber-300 bg-white dark:bg-amber-950 focus:border-amber-500 focus:ring-amber-500"
                   />
                   {/* Search Results Dropdown */}
                   {showSearchResults && searchResults.length > 0 && (
-                    <div className="absolute top-full left-0 right-0 z-50 mt-1 max-h-60 overflow-auto rounded-md border border-border bg-card shadow-lg">
+                    <div className="absolute top-full left-0 right-0 z-50 mt-1 max-h-60 overflow-auto rounded-md border-2 border-amber-400 bg-white dark:bg-gray-900 shadow-xl">
                       {searchResults.map((client) => (
                         <button
                           key={client.id}
                           type="button"
                           onClick={() => handleSelectClient(client)}
-                          className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-muted/50 transition-colors"
+                          className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-amber-100 dark:hover:bg-amber-900/50 transition-colors border-b border-amber-200 dark:border-amber-800 last:border-b-0"
                         >
-                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-                            <UserCheck className="h-5 w-5 text-primary" />
+                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-500 text-white">
+                            <UserCheck className="h-5 w-5" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="font-medium truncate">{client.fullName}</p>
-                            <p className="text-sm text-muted-foreground">
+                            <p className="font-semibold text-gray-900 dark:text-white truncate">{client.fullName}</p>
+                            <p className="text-sm text-gray-600 dark:text-gray-300">
                               ID: {client.idNumber} | Tel: {client.phone}
                             </p>
                           </div>
                           <div className="text-right">
-                            <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
+                            <span className="text-xs font-medium bg-amber-500 text-white px-2 py-1 rounded-full">
                               {client.totalBookings} booking{client.totalBookings !== 1 ? 's' : ''}
                             </span>
                           </div>
@@ -537,16 +537,15 @@ export default function NewCarRentalAdminPage() {
                     </div>
                   )}
                   {showSearchResults && searchResults.length === 0 && clientSearchQuery.length >= 2 && (
-                    <div className="absolute top-full left-0 right-0 z-50 mt-1 rounded-md border border-border bg-card p-4 text-center text-sm text-muted-foreground shadow-lg">
+                    <div className="absolute top-full left-0 right-0 z-50 mt-1 rounded-md border-2 border-amber-400 bg-white dark:bg-gray-900 p-4 text-center text-sm text-gray-700 dark:text-gray-300 shadow-xl">
                       No clients found matching "{clientSearchQuery}"
                     </div>
                   )}
                 </div>
                 <Button
                   type="button"
-                  variant={isNewClient ? "default" : "outline"}
                   onClick={handleNewClient}
-                  className="gap-2"
+                  className="gap-2 bg-amber-600 hover:bg-amber-700 text-white"
                 >
                   <UserPlus className="h-4 w-4" />
                   New Client
@@ -555,22 +554,24 @@ export default function NewCarRentalAdminPage() {
               
               {/* Selected Client Banner */}
               {selectedClient && (
-                <div className="flex items-center gap-3 rounded-lg border border-green-500/30 bg-green-500/10 p-3">
-                  <UserCheck className="h-5 w-5 text-green-600" />
+                <div className="flex items-center gap-3 rounded-lg border-2 border-green-500 bg-green-100 dark:bg-green-900/40 p-4">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-500 text-white">
+                    <UserCheck className="h-6 w-6" />
+                  </div>
                   <div className="flex-1">
-                    <p className="font-medium text-green-700 dark:text-green-400">
+                    <p className="font-bold text-green-800 dark:text-green-300 text-lg">
                       Returning Client: {selectedClient.fullName}
                     </p>
-                    <p className="text-sm text-green-600/80 dark:text-green-500/80">
+                    <p className="text-sm text-green-700 dark:text-green-400">
                       ID: {selectedClient.idNumber} | {selectedClient.totalBookings} previous booking(s)
                     </p>
                   </div>
                   <Button
                     type="button"
-                    variant="ghost"
+                    variant="outline"
                     size="sm"
                     onClick={handleNewClient}
-                    className="text-green-600 hover:text-green-700"
+                    className="border-green-500 text-green-700 hover:bg-green-200 dark:text-green-300 dark:hover:bg-green-800"
                   >
                     Clear
                   </Button>
