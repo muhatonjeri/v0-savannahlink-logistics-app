@@ -168,6 +168,10 @@ export default function NewCarRentalAdminPage() {
   // Quick booking form state
   const [showQuickBookingForm, setShowQuickBookingForm] = useState(false);
   
+  // Blacklist dialog state
+  const [showBlacklistDialog, setShowBlacklistDialog] = useState(false);
+  const [blacklistReason, setBlacklistReason] = useState("");
+  
   // Fingerprint capture state for new clients
   const [leftThumbScanning, setLeftThumbScanning] = useState(false);
   const [rightThumbScanning, setRightThumbScanning] = useState(false);
@@ -554,6 +558,37 @@ export default function NewCarRentalAdminPage() {
     }
   };
 
+  // Blacklist a client
+  const handleBlacklistClient = () => {
+    if (!selectedClient || !blacklistReason) {
+      toast.error("Please provide a reason for blacklisting");
+      return;
+    }
+
+    const blacklistAlert: ClientAlert = {
+      id: generateId(),
+      type: "blacklisted",
+      title: "BLACKLISTED - DO NOT RENT",
+      description: blacklistReason,
+      date: new Date().toISOString(),
+      resolved: false,
+    };
+
+    const updatedClient: Client = {
+      ...selectedClient,
+      alerts: [...(selectedClient.alerts || []), blacklistAlert],
+      riskLevel: "blocked",
+      notes: `BLACKLISTED: ${blacklistReason}${selectedClient.notes ? `\n\nPrevious notes: ${selectedClient.notes}` : ""}`,
+      updatedAt: new Date().toISOString(),
+    };
+
+    saveClient(updatedClient);
+    setSelectedClient(updatedClient);
+    setShowBlacklistDialog(false);
+    setBlacklistReason("");
+    toast.error(`${selectedClient.fullName} has been BLACKLISTED`);
+  };
+
   // Resolve an alert
   const handleResolveAlert = (alertId: string) => {
     if (!selectedClient) return;
@@ -928,7 +963,7 @@ export default function NewCarRentalAdminPage() {
                         </p>
                       </div>
                     </div>
-                    <div className="flex gap-2 ml-auto">
+                    <div className="flex flex-wrap gap-2 ml-auto">
                       <Button
                         type="button"
                         size="sm"
@@ -942,6 +977,18 @@ export default function NewCarRentalAdminPage() {
                         <Car className="h-4 w-4 mr-1" />
                         New Vehicle/Trip
                       </Button>
+                      {selectedClient.riskLevel !== "blocked" && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setShowBlacklistDialog(true)}
+                          className="border-red-500 text-red-600 hover:bg-red-50 dark:hover:bg-red-950"
+                        >
+                          <Ban className="h-4 w-4 mr-1" />
+                          Blacklist
+                        </Button>
+                      )}
                       <Button
                         type="button"
                         variant="outline"
@@ -2305,6 +2352,83 @@ export default function NewCarRentalAdminPage() {
             >
               <AlertTriangle className="h-4 w-4 mr-2" />
               Add Alert
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Blacklist Client Dialog */}
+      <Dialog open={showBlacklistDialog} onOpenChange={setShowBlacklistDialog}>
+        <DialogContent className="sm:max-w-[450px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-red-600">
+              <Ban className="h-6 w-6" />
+              Blacklist Client
+            </DialogTitle>
+            <DialogDescription>
+              This action will permanently block this client from making any future bookings.
+              {selectedClient && (
+                <span className="block mt-2 p-2 bg-red-50 dark:bg-red-950/50 rounded border border-red-200 dark:border-red-800">
+                  <span className="font-bold text-red-700 dark:text-red-400">{selectedClient.fullName}</span>
+                  <br />
+                  <span className="text-sm text-red-600 dark:text-red-500">ID: {selectedClient.idNumber}</span>
+                </span>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div className="rounded-lg bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 p-4">
+              <div className="flex gap-3">
+                <AlertTriangle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+                <div className="text-sm text-red-800 dark:text-red-300">
+                  <p className="font-bold">Warning: This action is serious</p>
+                  <ul className="list-disc list-inside mt-1 space-y-1 text-red-700 dark:text-red-400">
+                    <li>Client will be blocked from all services</li>
+                    <li>Staff will see a DO NOT RENT warning</li>
+                    <li>This should only be used for serious violations</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="blacklistReason" className="text-red-700 dark:text-red-400">
+                Reason for Blacklisting *
+              </Label>
+              <Textarea
+                id="blacklistReason"
+                value={blacklistReason}
+                onChange={(e) => setBlacklistReason(e.target.value)}
+                placeholder="Explain why this client is being blacklisted (e.g., fraud, theft, repeated violations)..."
+                rows={4}
+                className="border-red-300 focus:border-red-500 focus:ring-red-500"
+              />
+              <p className="text-xs text-muted-foreground">
+                This reason will be visible to all staff members.
+              </p>
+            </div>
+          </div>
+
+          <DialogFooter className="gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setShowBlacklistDialog(false);
+                setBlacklistReason("");
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={handleBlacklistClient}
+              className="bg-red-600 hover:bg-red-700 text-white"
+              disabled={!blacklistReason.trim()}
+            >
+              <Ban className="h-4 w-4 mr-2" />
+              Confirm Blacklist
             </Button>
           </DialogFooter>
         </DialogContent>
