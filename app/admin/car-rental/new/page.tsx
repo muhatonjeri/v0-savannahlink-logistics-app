@@ -29,6 +29,8 @@ import {
   DollarSign,
   Clock,
   FileWarning,
+  Plus,
+  X,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -54,7 +56,18 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
 import { FileUpload } from "@/components/forms/file-upload";
 import { MpesaPayment } from "@/components/payment/mpesa-payment";
-import { saveBooking, generateId, searchClients, saveClientFromBooking, getClients } from "@/lib/store";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { saveBooking, generateId, searchClients, saveClientFromBooking, getClients, saveClient } from "@/lib/store";
+import type { ClientAlert, ClientAlertType } from "@/types";
 import type { Client } from "@/types";
 import { toast } from "sonner";
 import type { CarRentalBooking } from "@/types";
@@ -141,6 +154,14 @@ export default function NewCarRentalAdminPage() {
   const [isScanning, setIsScanning] = useState(false);
   const [scanProgress, setScanProgress] = useState(0);
   const [scanStatus, setScanStatus] = useState<"idle" | "scanning" | "matching" | "found" | "not-found">("idle");
+  
+  // Add Alert Dialog state
+  const [showAlertDialog, setShowAlertDialog] = useState(false);
+  const [alertType, setAlertType] = useState<ClientAlertType>("warning");
+  const [alertTitle, setAlertTitle] = useState("");
+  const [alertDescription, setAlertDescription] = useState("");
+  const [alertAmount, setAlertAmount] = useState("");
+  const [newRiskLevel, setNewRiskLevel] = useState<"low" | "medium" | "high" | "blocked">("medium");
 
   const form = useForm<AdminCarRentalFormData>({
     resolver: zodResolver(adminCarRentalSchema),
@@ -446,6 +467,70 @@ export default function NewCarRentalAdminPage() {
     form.setValue("returnTime", "");
     form.setValue("specialRequests", "");
     toast.info("Booking details cleared - client info retained for new booking");
+  };
+
+  // Add alert to client
+  const handleAddAlert = () => {
+    if (!selectedClient || !alertTitle || !alertDescription) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+
+    const newAlert: ClientAlert = {
+      id: generateId(),
+      type: alertType,
+      title: alertTitle,
+      description: alertDescription,
+      amount: alertAmount ? parseFloat(alertAmount) : undefined,
+      date: new Date().toISOString(),
+      resolved: false,
+    };
+
+    // Update client with new alert
+    const updatedClient: Client = {
+      ...selectedClient,
+      alerts: [...(selectedClient.alerts || []), newAlert],
+      riskLevel: newRiskLevel,
+      totalDebt: alertType === "debt" && alertAmount 
+        ? (selectedClient.totalDebt || 0) + parseFloat(alertAmount)
+        : selectedClient.totalDebt,
+      updatedAt: new Date().toISOString(),
+    };
+
+    // Save to store
+    saveClient(updatedClient);
+    setSelectedClient(updatedClient);
+
+    // Reset form
+    setShowAlertDialog(false);
+    setAlertTitle("");
+    setAlertDescription("");
+    setAlertAmount("");
+    setAlertType("warning");
+    setNewRiskLevel("medium");
+
+    toast.success(`Alert added to ${selectedClient.fullName}'s profile`);
+  };
+
+  // Resolve an alert
+  const handleResolveAlert = (alertId: string) => {
+    if (!selectedClient) return;
+
+    const updatedAlerts = selectedClient.alerts?.map(alert => 
+      alert.id === alertId 
+        ? { ...alert, resolved: true, resolvedDate: new Date().toISOString() }
+        : alert
+    );
+
+    const updatedClient: Client = {
+      ...selectedClient,
+      alerts: updatedAlerts,
+      updatedAt: new Date().toISOString(),
+    };
+
+    saveClient(updatedClient);
+    setSelectedClient(updatedClient);
+    toast.success("Alert marked as resolved");
   };
 
   // KRA PIN verification mock
@@ -837,14 +922,29 @@ export default function NewCarRentalAdminPage() {
                   )}
 
                   {/* Client Alerts Section */}
-                  {selectedClient.alerts && selectedClient.alerts.filter(a => !a.resolved).length > 0 && (
-                    <div className="rounded-lg border-2 border-red-400 bg-red-50 dark:bg-red-950/30 p-4">
-                      <div className="flex items-center gap-2 mb-3">
-                        <AlertTriangle className="h-5 w-5 text-red-600" />
-                        <h4 className="font-bold text-red-800 dark:text-red-300">
-                          Active Alerts ({selectedClient.alerts.filter(a => !a.resolved).length})
+                  <div className="rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <AlertTriangle className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                        <h4 className="font-bold text-gray-800 dark:text-gray-200">
+                          Client Alerts {selectedClient.alerts && selectedClient.alerts.filter(a => !a.resolved).length > 0 && (
+                            <span className="ml-2 text-red-600">({selectedClient.alerts.filter(a => !a.resolved).length} active)</span>
+                          )}
                         </h4>
                       </div>
+                      <Button
+                        type="button"
+                        size="sm"
+                        onClick={() => setShowAlertDialog(true)}
+                        className="bg-red-600 hover:bg-red-700 text-white gap-1"
+                      >
+                        <Plus className="h-4 w-4" />
+                        Add Alert
+                      </Button>
+                    </div>
+                    
+                    {/* Active Alerts List */}
+                    {selectedClient.alerts && selectedClient.alerts.filter(a => !a.resolved).length > 0 ? (
                       <div className="space-y-2">
                         {selectedClient.alerts.filter(a => !a.resolved).map((alert) => (
                           <div 
@@ -891,11 +991,24 @@ export default function NewCarRentalAdminPage() {
                                 Reported: {new Date(alert.date).toLocaleDateString()}
                               </p>
                             </div>
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleResolveAlert(alert.id)}
+                              className="text-green-600 border-green-500 hover:bg-green-100 dark:hover:bg-green-900 flex-shrink-0"
+                            >
+                              Resolve
+                            </Button>
                           </div>
                         ))}
                       </div>
-                    </div>
-                  )}
+                    ) : (
+                      <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-2">
+                        No active alerts for this client. Click "Add Alert" to report an issue.
+                      </p>
+                    )}
+                  </div>
 
                   {/* Client Notes */}
                   {selectedClient.notes && (
@@ -1663,6 +1776,184 @@ export default function NewCarRentalAdminPage() {
           </div>
         </form>
       </Form>
+
+      {/* Add Alert Dialog */}
+      <Dialog open={showAlertDialog} onOpenChange={setShowAlertDialog}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-red-600">
+              <AlertTriangle className="h-5 w-5" />
+              Add Client Alert
+            </DialogTitle>
+            <DialogDescription>
+              Record an issue with this client to alert other staff members.
+              {selectedClient && (
+                <span className="block mt-1 font-medium text-foreground">
+                  Client: {selectedClient.fullName} (ID: {selectedClient.idNumber})
+                </span>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            {/* Alert Type */}
+            <div className="space-y-2">
+              <Label htmlFor="alertType">Alert Type *</Label>
+              <Select value={alertType} onValueChange={(v) => setAlertType(v as ClientAlertType)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select alert type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="debt">
+                    <div className="flex items-center gap-2">
+                      <DollarSign className="h-4 w-4 text-orange-500" />
+                      Debt / Outstanding Payment
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="damage">
+                    <div className="flex items-center gap-2">
+                      <XCircle className="h-4 w-4 text-yellow-500" />
+                      Vehicle Damage
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="late-return">
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-4 w-4 text-blue-500" />
+                      Late Return
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="warning">
+                    <div className="flex items-center gap-2">
+                      <AlertCircle className="h-4 w-4 text-gray-500" />
+                      General Warning
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="fraud">
+                    <div className="flex items-center gap-2">
+                      <ShieldAlert className="h-4 w-4 text-red-500" />
+                      Fraud / Suspicious Activity
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="blacklisted">
+                    <div className="flex items-center gap-2">
+                      <Ban className="h-4 w-4 text-red-600" />
+                      Blacklist Client
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Alert Title */}
+            <div className="space-y-2">
+              <Label htmlFor="alertTitle">Alert Title *</Label>
+              <Input
+                id="alertTitle"
+                value={alertTitle}
+                onChange={(e) => setAlertTitle(e.target.value)}
+                placeholder="e.g., Outstanding balance from Nov rental"
+                className="border-gray-300"
+              />
+            </div>
+
+            {/* Amount (for debt/damage) */}
+            {(alertType === "debt" || alertType === "damage") && (
+              <div className="space-y-2">
+                <Label htmlFor="alertAmount">Amount (KES)</Label>
+                <Input
+                  id="alertAmount"
+                  type="number"
+                  value={alertAmount}
+                  onChange={(e) => setAlertAmount(e.target.value)}
+                  placeholder="e.g., 15000"
+                  className="border-gray-300"
+                />
+              </div>
+            )}
+
+            {/* Description */}
+            <div className="space-y-2">
+              <Label htmlFor="alertDescription">Description *</Label>
+              <Textarea
+                id="alertDescription"
+                value={alertDescription}
+                onChange={(e) => setAlertDescription(e.target.value)}
+                placeholder="Provide details about the incident..."
+                rows={3}
+                className="border-gray-300"
+              />
+            </div>
+
+            {/* Update Risk Level */}
+            <div className="space-y-2">
+              <Label>Update Client Risk Level</Label>
+              <div className="grid grid-cols-4 gap-2">
+                <Button
+                  type="button"
+                  variant={newRiskLevel === "low" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setNewRiskLevel("low")}
+                  className={newRiskLevel === "low" ? "bg-green-600 hover:bg-green-700" : "border-green-500 text-green-600"}
+                >
+                  Low
+                </Button>
+                <Button
+                  type="button"
+                  variant={newRiskLevel === "medium" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setNewRiskLevel("medium")}
+                  className={newRiskLevel === "medium" ? "bg-yellow-500 hover:bg-yellow-600" : "border-yellow-500 text-yellow-600"}
+                >
+                  Medium
+                </Button>
+                <Button
+                  type="button"
+                  variant={newRiskLevel === "high" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setNewRiskLevel("high")}
+                  className={newRiskLevel === "high" ? "bg-orange-500 hover:bg-orange-600" : "border-orange-500 text-orange-600"}
+                >
+                  High
+                </Button>
+                <Button
+                  type="button"
+                  variant={newRiskLevel === "blocked" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setNewRiskLevel("blocked")}
+                  className={newRiskLevel === "blocked" ? "bg-red-600 hover:bg-red-700" : "border-red-500 text-red-600"}
+                >
+                  Block
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {newRiskLevel === "blocked" && "Warning: Blocked clients cannot make any new bookings."}
+                {newRiskLevel === "high" && "High risk clients require manager approval for bookings."}
+                {newRiskLevel === "medium" && "Medium risk clients should be monitored closely."}
+                {newRiskLevel === "low" && "Low risk - normal client status."}
+              </p>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setShowAlertDialog(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={handleAddAlert}
+              className="bg-red-600 hover:bg-red-700 text-white"
+              disabled={!alertTitle || !alertDescription}
+            >
+              <AlertTriangle className="h-4 w-4 mr-2" />
+              Add Alert
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
