@@ -510,11 +510,18 @@ export default function ClientLookupPage() {
       return nameMatch || idMatch || phoneMatch;
     });
 
+    const isBlacklisted = matchedBlacklist.length > 0 && matchedBlacklist.some(e => e.status === "active");
+
     setSearchResults({
       client: matchedClient || null,
       blacklistEntries: matchedBlacklist,
-      isBlacklisted: matchedBlacklist.length > 0 && matchedBlacklist.some(e => e.status === "active"),
+      isBlacklisted,
     });
+
+    // Play warning sound if blacklisted client found
+    if (isBlacklisted) {
+      playWarningSound();
+    }
 
     setIsSearching(false);
   };
@@ -531,6 +538,40 @@ export default function ClientLookupPage() {
       currency: "KES",
       minimumFractionDigits: 0,
     }).format(amount);
+  };
+
+  // Play warning sound when blacklisted client is found
+  const playWarningSound = () => {
+    try {
+      // Create audio context for generating warning sound
+      const audioContext = new (window.AudioContext || (window as typeof window & { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+      
+      // Play 3 beeps for urgent warning
+      const playBeep = (startTime: number, frequency: number) => {
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.value = frequency;
+        oscillator.type = "square";
+        
+        gainNode.gain.setValueAtTime(0.3, startTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + 0.2);
+        
+        oscillator.start(startTime);
+        oscillator.stop(startTime + 0.2);
+      };
+
+      // Play 3 warning beeps with increasing frequency
+      const now = audioContext.currentTime;
+      playBeep(now, 800);
+      playBeep(now + 0.3, 1000);
+      playBeep(now + 0.6, 1200);
+    } catch (error) {
+      console.error("Failed to play warning sound:", error);
+    }
   };
 
   return (
