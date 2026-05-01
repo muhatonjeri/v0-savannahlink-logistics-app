@@ -23,6 +23,7 @@ import {
   ShieldAlert,
   Truck as FleetIcon,
   Receipt,
+  Wallet,
 } from "lucide-react";
 import {
   SidebarProvider,
@@ -100,6 +101,12 @@ const navItems = [
     icon: Receipt,
     color: "text-emerald-500",
   },
+  {
+    title: "Accounts",
+    href: "/admin/accounts",
+    icon: Wallet,
+    color: "text-amber-500",
+  },
 ];
 
 const serviceItems = [
@@ -120,6 +127,7 @@ function getBreadcrumbTitle(pathname: string): string {
   if (pathname.includes("blacklist")) return "Blacklist";
   if (pathname.includes("fleet")) return "Fleet Management";
   if (pathname.includes("receipts")) return "Receipts";
+  if (pathname.includes("accounts")) return "Accounts";
   if (pathname.includes("car-rental")) return "Car Rental";
   if (pathname.includes("safari-tours")) return "Safari Tours";
   if (pathname.includes("transfers")) return "Transfers";
