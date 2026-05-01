@@ -40,6 +40,8 @@ import {
   Edit,
   Upload,
   Save,
+  UserPlus,
+  ArrowRight,
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -105,6 +107,20 @@ const blacklistEditSchema = z.object({
 });
 
 type BlacklistEditFormValues = z.infer<typeof blacklistEditSchema>;
+
+// New client registration schema
+const newClientSchema = z.object({
+  fullName: z.string().min(2, "Full name is required"),
+  idNumber: z.string().min(6, "ID/Passport number is required"),
+  phone: z.string().min(10, "Phone number is required"),
+  email: z.string().email().optional().or(z.literal("")),
+  kraPin: z.string().optional(),
+  residence: z.string().optional(),
+  placeOfWork: z.string().optional(),
+  drivingLicenseNumber: z.string().optional(),
+});
+
+type NewClientFormValues = z.infer<typeof newClientSchema>;
 
 // Blacklist entry type (matching blacklist page)
 interface BlacklistEntry {
@@ -302,6 +318,8 @@ export default function ClientLookupPage() {
   const [editingEntry, setEditingEntry] = useState<BlacklistEntry | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [localBlacklistData, setLocalBlacklistData] = useState<BlacklistEntry[]>(blacklistData);
+  const [isRegisterDialogOpen, setIsRegisterDialogOpen] = useState(false);
+  const [isRegistering, setIsRegistering] = useState(false);
 
   const editForm = useForm<BlacklistEditFormValues>({
     resolver: zodResolver(blacklistEditSchema),
