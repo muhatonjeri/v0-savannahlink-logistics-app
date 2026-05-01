@@ -149,6 +149,29 @@ const carOptions = [
   { make: "Isuzu", models: ["D-Max", "MU-X"] },
 ];
 
+// Vehicle makes and models data
+const vehicleData = [
+  { make: "Toyota", models: ["Land Cruiser V8", "Land Cruiser Prado", "Fortuner", "Hilux", "RAV4", "Corolla", "Camry", "Fielder", "Premio", "Axio", "Vitz", "Noah", "Voxy", "Alphard", "Harrier", "C-HR"] },
+  { make: "Nissan", models: ["X-Trail", "Patrol", "Navara", "Note", "Juke", "Qashqai", "Serena", "Tiida", "Wingroad", "Murano", "Pathfinder"] },
+  { make: "Honda", models: ["CR-V", "HR-V", "Vezel", "Fit", "Civic", "Accord", "Odyssey", "Stepwagon", "Jazz"] },
+  { make: "Mazda", models: ["CX-5", "CX-3", "CX-7", "Demio", "Axela", "Atenza", "BT-50", "MPV"] },
+  { make: "Subaru", models: ["Forester", "Outback", "XV", "Impreza", "Legacy", "Levorg", "WRX"] },
+  { make: "Mercedes-Benz", models: ["E-Class", "C-Class", "S-Class", "GLE", "GLC", "GLA", "A-Class", "V-Class", "Sprinter"] },
+  { make: "BMW", models: ["X5", "X3", "X1", "3 Series", "5 Series", "7 Series", "X6", "X7"] },
+  { make: "Audi", models: ["Q7", "Q5", "Q3", "A4", "A6", "A3", "A8", "e-tron"] },
+  { make: "Land Rover", models: ["Range Rover", "Range Rover Sport", "Discovery", "Defender", "Evoque", "Velar"] },
+  { make: "Mitsubishi", models: ["Pajero", "Outlander", "L200", "ASX", "Eclipse Cross", "Delica", "Colt"] },
+  { make: "Isuzu", models: ["D-Max", "MU-X", "Trooper", "NQR", "FRR"] },
+  { make: "Volkswagen", models: ["Tiguan", "Touareg", "Golf", "Passat", "Polo", "T-Cross", "Amarok"] },
+  { make: "Ford", models: ["Ranger", "Everest", "Explorer", "Escape", "F-150", "Transit"] },
+  { make: "Jeep", models: ["Wrangler", "Grand Cherokee", "Cherokee", "Compass", "Renegade"] },
+  { make: "Suzuki", models: ["Jimny", "Vitara", "Swift", "Alto", "Escudo", "S-Cross"] },
+  { make: "Hyundai", models: ["Tucson", "Santa Fe", "Creta", "Elantra", "Sonata", "Palisade", "H-1"] },
+  { make: "Kia", models: ["Sportage", "Sorento", "Seltos", "Carnival", "Picanto", "Rio", "Cerato"] },
+  { make: "Peugeot", models: ["3008", "5008", "2008", "508", "308", "Partner"] },
+  { make: "Porsche", models: ["Cayenne", "Macan", "Panamera", "911", "Taycan"] },
+];
+
 export default function NewCarRentalAdminPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
