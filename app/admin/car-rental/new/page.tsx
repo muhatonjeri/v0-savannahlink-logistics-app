@@ -2235,36 +2235,36 @@ export default function NewCarRentalAdminPage() {
                       </FormItem>
                     )}
                   />
-                <FormField
-                  control={form.control}
-                  name="etcAmount"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-gray-700 dark:text-gray-300">ETC Amount (KES)</FormLabel>
-                      <FormControl>
-                        <Input type="number" placeholder="500" className="bg-white dark:bg-gray-800 border-cyan-200 focus:border-cyan-500 font-mono" {...field} />
-                      </FormControl>
-                      <FormDescription className="text-cyan-600 text-xs">Electronic toll amount</FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="destination"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-gray-700 dark:text-gray-300 flex items-center gap-1">
-                        <MapPin className="h-3 w-3" />
-                        Destination *
-                      </FormLabel>
-                      <FormControl>
-                        <Input placeholder="Mombasa / Local" className="bg-white dark:bg-gray-800 border-cyan-200 focus:border-cyan-500" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                  <FormField
+                    control={form.control}
+                    name="etcAmount"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-gray-700 dark:text-gray-300">ETC Amount (KES)</FormLabel>
+                        <FormControl>
+                          <Input type="number" placeholder="500" className="bg-white dark:bg-gray-800 border-cyan-200 focus:border-cyan-500 font-mono" {...field} />
+                        </FormControl>
+                        <FormDescription className="text-cyan-600 text-xs">Electronic toll amount</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="destination"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-gray-700 dark:text-gray-300 flex items-center gap-1">
+                          <MapPin className="h-3 w-3" />
+                          Destination *
+                        </FormLabel>
+                        <FormControl>
+                          <Input placeholder="Mombasa / Local" className="bg-white dark:bg-gray-800 border-cyan-200 focus:border-cyan-500" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
               </div>
             </CardContent>
