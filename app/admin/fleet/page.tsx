@@ -97,6 +97,36 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
+// Vehicle makes and models data
+const vehicleData = [
+  { make: "Toyota", models: ["Land Cruiser V8", "Land Cruiser Prado", "Fortuner", "Hilux", "RAV4", "Corolla", "Camry", "Fielder", "Premio", "Axio", "Vitz", "Noah", "Voxy", "Alphard", "Harrier", "C-HR", "Hiace"] },
+  { make: "Nissan", models: ["X-Trail", "Patrol", "Navara", "Note", "Juke", "Qashqai", "Serena", "Tiida", "Wingroad", "Murano", "Pathfinder", "Caravan"] },
+  { make: "Honda", models: ["CR-V", "HR-V", "Vezel", "Fit", "Civic", "Accord", "Odyssey", "Stepwagon", "Jazz"] },
+  { make: "Mazda", models: ["CX-5", "CX-3", "CX-7", "Demio", "Axela", "Atenza", "BT-50", "MPV"] },
+  { make: "Subaru", models: ["Forester", "Outback", "XV", "Impreza", "Legacy", "Levorg", "WRX"] },
+  { make: "Mercedes-Benz", models: ["E-Class", "C-Class", "S-Class", "GLE", "GLC", "GLA", "A-Class", "V-Class", "Sprinter"] },
+  { make: "BMW", models: ["X5", "X3", "X1", "3 Series", "5 Series", "7 Series", "X6", "X7"] },
+  { make: "Audi", models: ["Q7", "Q5", "Q3", "A4", "A6", "A3", "A8", "e-tron"] },
+  { make: "Land Rover", models: ["Range Rover", "Range Rover Sport", "Discovery", "Defender", "Evoque", "Velar"] },
+  { make: "Mitsubishi", models: ["Pajero", "Outlander", "L200", "ASX", "Eclipse Cross", "Delica", "Colt", "Rosa Bus"] },
+  { make: "Isuzu", models: ["D-Max", "MU-X", "Trooper", "NQR", "FRR", "NPR"] },
+  { make: "Volkswagen", models: ["Tiguan", "Touareg", "Golf", "Passat", "Polo", "T-Cross", "Amarok", "Transporter"] },
+  { make: "Ford", models: ["Ranger", "Everest", "Explorer", "Escape", "F-150", "Transit"] },
+  { make: "Jeep", models: ["Wrangler", "Grand Cherokee", "Cherokee", "Compass", "Renegade"] },
+  { make: "Suzuki", models: ["Jimny", "Vitara", "Swift", "Alto", "Escudo", "S-Cross"] },
+  { make: "Hyundai", models: ["Tucson", "Santa Fe", "Creta", "Elantra", "Sonata", "Palisade", "H-1", "County Bus"] },
+  { make: "Kia", models: ["Sportage", "Sorento", "Seltos", "Carnival", "Picanto", "Rio", "Cerato"] },
+  { make: "Peugeot", models: ["3008", "5008", "2008", "508", "308", "Partner"] },
+  { make: "Porsche", models: ["Cayenne", "Macan", "Panamera", "911", "Taycan"] },
+  { make: "Scania", models: ["R-Series", "P-Series", "G-Series", "S-Series"] },
+  { make: "MAN", models: ["TGX", "TGS", "TGM", "TGL", "Lions Coach"] },
+  { make: "Hino", models: ["300 Series", "500 Series", "700 Series"] },
+  { make: "Fuso", models: ["Fighter", "Canter", "Super Great", "Rosa"] },
+];
+
+// Color options for vehicles
+const colorOptions = ["White", "Black", "Silver", "Gray", "Blue", "Red", "Green", "Beige", "Brown", "Orange", "Yellow", "Maroon", "Navy Blue", "Champagne"];
+
 // Types
 interface FleetVehicle {
   id: string;
@@ -360,6 +390,7 @@ export default function FleetManagementPage() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState<FleetVehicle | null>(null);
   const [activeTab, setActiveTab] = useState("fleet");
+  const [selectedMake, setSelectedMake] = useState<string>("");
 
   // Generate notifications on mount and when fleet changes
   useEffect(() => {
@@ -556,19 +587,19 @@ export default function FleetManagementPage() {
               Add Vehicle
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <Car className="h-5 w-5 text-emerald-600" />
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700">
+            <DialogHeader className="border-b border-gray-200 dark:border-gray-700 pb-4">
+              <DialogTitle className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400">
+                <Car className="h-5 w-5" />
                 Add New Vehicle
               </DialogTitle>
-              <DialogDescription>Add a new vehicle to your fleet inventory</DialogDescription>
+              <DialogDescription className="text-gray-600 dark:text-gray-400">Add a new vehicle to your fleet inventory</DialogDescription>
             </DialogHeader>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmitVehicle)} className="space-y-6">
                 {/* Vehicle Details */}
-                <div className="rounded-lg border border-emerald-200 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-950/20 p-4">
-                  <h4 className="font-semibold text-emerald-700 dark:text-emerald-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
+                <div className="rounded-lg border border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-950/50 p-4 shadow-sm">
+                  <h4 className="font-semibold text-emerald-800 dark:text-emerald-300 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
                     <CarFront className="h-4 w-4" />
                     Vehicle Information
                   </h4>
@@ -590,14 +621,45 @@ export default function FleetManagementPage() {
                     <FormField control={form.control} name="vehicleMake" render={({ field }) => (
                       <FormItem>
                         <FormLabel>Make *</FormLabel>
-                        <FormControl><Input placeholder="e.g., Toyota" {...field} /></FormControl>
+                        <Select 
+                          onValueChange={(value) => {
+                            field.onChange(value);
+                            setSelectedMake(value);
+                            form.setValue("vehicleModel", "");
+                          }} 
+                          value={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select make" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {vehicleData.map((v) => (
+                              <SelectItem key={v.make} value={v.make}>{v.make}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                         <FormMessage />
                       </FormItem>
                     )} />
                     <FormField control={form.control} name="vehicleModel" render={({ field }) => (
                       <FormItem>
                         <FormLabel>Model *</FormLabel>
-                        <FormControl><Input placeholder="e.g., Land Cruiser V8" {...field} /></FormControl>
+                        <Select onValueChange={field.onChange} value={field.value} disabled={!selectedMake && !form.getValues("vehicleMake")}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder={selectedMake || form.getValues("vehicleMake") ? "Select model" : "Select make first"} />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {vehicleData
+                              .find((v) => v.make === (selectedMake || form.getValues("vehicleMake")))
+                              ?.models.map((model) => (
+                                <SelectItem key={model} value={model}>{model}</SelectItem>
+                              ))}
+                          </SelectContent>
+                        </Select>
                         <FormMessage />
                       </FormItem>
                     )} />
@@ -644,7 +706,18 @@ export default function FleetManagementPage() {
                     <FormField control={form.control} name="color" render={({ field }) => (
                       <FormItem>
                         <FormLabel>Color *</FormLabel>
-                        <FormControl><Input placeholder="e.g., White" {...field} /></FormControl>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select color" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {colorOptions.map((color) => (
+                              <SelectItem key={color} value={color}>{color}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                         <FormMessage />
                       </FormItem>
                     )} />
@@ -652,8 +725,8 @@ export default function FleetManagementPage() {
                 </div>
 
                 {/* Service & Mileage */}
-                <div className="rounded-lg border border-blue-200 dark:border-blue-800 bg-blue-50/50 dark:bg-blue-950/20 p-4">
-                  <h4 className="font-semibold text-blue-700 dark:text-blue-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
+                <div className="rounded-lg border border-blue-300 dark:border-blue-700 bg-blue-50 dark:bg-blue-950/50 p-4 shadow-sm">
+                  <h4 className="font-semibold text-blue-800 dark:text-blue-300 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
                     <Wrench className="h-4 w-4" />
                     Service & Mileage
                   </h4>
