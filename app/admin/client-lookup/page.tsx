@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import {
   Search,
   User,
@@ -369,7 +369,7 @@ const sampleTransactions: TransactionHistory[] = [
   { id: "TXN-005", date: "2024-04-18", service: "Car Rental", serviceIcon: Car, description: "Nissan X-Trail - 3 Days", amount: 36000, status: "completed", paymentMethod: "Card", reference: "CRD-20240418-99" },
 ];
 
-export default function ClientLookupPage() {
+function ClientLookupContent() {
   const searchParams = useSearchParams();
   const selectedService = searchParams.get("service");
   const currentService = selectedService && serviceConfig[selectedService] ? serviceConfig[selectedService] : null;
@@ -1754,5 +1754,20 @@ export default function ClientLookupPage() {
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+
+export default function ClientLookupPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
+          <p className="text-muted-foreground">Loading client lookup...</p>
+        </div>
+      </div>
+    }>
+      <ClientLookupContent />
+    </Suspense>
   );
 }
