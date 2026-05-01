@@ -2155,7 +2155,6 @@ export default function NewCarRentalAdminPage() {
                     </FormItem>
                   )}
                 />
-                </div>
               </div>
 
               {/* Vehicle Status Block */}
