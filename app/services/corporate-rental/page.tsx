@@ -21,6 +21,8 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { MpesaPayment } from "@/components/payment/mpesa-payment";
+import { DatePicker } from "@/components/ui/date-picker";
+import { TimePicker } from "@/components/ui/time-picker";
 import { saveBooking, generateId } from "@/lib/store";
 import { toast } from "sonner";
 import type { CorporateRentalBooking } from "@/types";
@@ -326,19 +328,19 @@ export default function CorporateRentalPage() {
                   </div>
                   <div className="grid gap-6 sm:grid-cols-2">
                     <FormField control={form.control} name="startDate" render={({ field }) => (
-                      <FormItem><FormLabel>Start Date</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
+                      <FormItem><FormLabel>Start Date</FormLabel><FormControl><DatePicker value={field.value} onChange={(date) => field.onChange(date ? date.toISOString().split("T")[0] : "")} placeholder="Select start date" /></FormControl><FormMessage /></FormItem>
                     )} />
                     <FormField control={form.control} name="startTime" render={({ field }) => (
-                      <FormItem><FormLabel>Pickup Time</FormLabel><FormControl><Input type="time" {...field} /></FormControl><FormMessage /></FormItem>
+                      <FormItem><FormLabel>Pickup Time</FormLabel><FormControl><TimePicker value={field.value} onChange={field.onChange} placeholder="Select time" /></FormControl><FormMessage /></FormItem>
                     )} />
                   </div>
                   {watchTripType !== "one-way" && (
                     <div className="grid gap-6 sm:grid-cols-2">
                       <FormField control={form.control} name="endDate" render={({ field }) => (
-                        <FormItem><FormLabel>End Date</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
+                        <FormItem><FormLabel>End Date</FormLabel><FormControl><DatePicker value={field.value} onChange={(date) => field.onChange(date ? date.toISOString().split("T")[0] : "")} placeholder="Select end date" /></FormControl><FormMessage /></FormItem>
                       )} />
                       <FormField control={form.control} name="endTime" render={({ field }) => (
-                        <FormItem><FormLabel>Return Time</FormLabel><FormControl><Input type="time" {...field} /></FormControl><FormMessage /></FormItem>
+                        <FormItem><FormLabel>Return Time</FormLabel><FormControl><TimePicker value={field.value} onChange={field.onChange} placeholder="Select time" /></FormControl><FormMessage /></FormItem>
                       )} />
                     </div>
                   )}

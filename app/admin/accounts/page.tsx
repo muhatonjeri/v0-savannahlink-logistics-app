@@ -89,6 +89,7 @@ import {
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
+import { DatePicker } from "@/components/ui/date-picker";
 import { cn } from "@/lib/utils";
 
 // Types
@@ -523,7 +524,11 @@ export default function AccountsPage() {
                       <FormItem>
                         <FormLabel>Date</FormLabel>
                         <FormControl>
-                          <Input type="date" {...field} />
+                          <DatePicker
+                            value={field.value}
+                            onChange={(date) => field.onChange(date ? date.toISOString().split("T")[0] : "")}
+                            placeholder="Select date"
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>

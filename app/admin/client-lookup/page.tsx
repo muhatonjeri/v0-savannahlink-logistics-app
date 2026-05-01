@@ -94,6 +94,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { DatePicker } from "@/components/ui/date-picker";
 import { toast } from "sonner";
 
 // Service configuration - hrefs match actual page paths
@@ -1587,7 +1588,13 @@ function ClientLookupContent() {
                     <FormField control={editForm.control} name="incidentDate" render={({ field }) => (
                       <FormItem>
                         <FormLabel>Incident Date *</FormLabel>
-                        <FormControl><Input type="date" {...field} /></FormControl>
+                        <FormControl>
+                          <DatePicker
+                            value={field.value}
+                            onChange={(date) => field.onChange(date ? date.toISOString().split("T")[0] : "")}
+                            placeholder="Select incident date"
+                          />
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />

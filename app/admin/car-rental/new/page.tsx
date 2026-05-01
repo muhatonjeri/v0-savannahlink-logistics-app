@@ -77,6 +77,8 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { DatePicker } from "@/components/ui/date-picker";
+import { TimePicker } from "@/components/ui/time-picker";
 import { saveBooking, generateId, searchClients, saveClientFromBooking, getClients, saveClient, getClientBookingHistory, initializeDemoBookingHistory, checkRogueClient, searchRogueClients } from "@/lib/store";
 import type { ClientAlert, ClientAlertType, Booking, RogueClient } from "@/types";
 import type { Client } from "@/types";
@@ -1567,20 +1569,20 @@ export default function NewCarRentalAdminPage() {
                       <FormItem>
                         <FormLabel className="text-gray-700 dark:text-gray-300">Pickup Date *</FormLabel>
                         <FormControl>
-                          <Input 
-                            type="date" 
-                            className="bg-white dark:bg-gray-800 border-indigo-200 focus:border-indigo-500"
-                            {...field}
-                            onChange={(e) => {
-                              field.onChange(e);
+                          <DatePicker
+                            value={field.value}
+                            onChange={(date) => {
+                              const dateStr = date ? date.toISOString().split("T")[0] : "";
+                              field.onChange(dateStr);
                               // Auto-calculate return date based on number of days
                               const days = form.getValues("numberOfDays");
-                              if (days && e.target.value) {
-                                const pickupDate = new Date(e.target.value);
+                              if (days && dateStr) {
+                                const pickupDate = new Date(dateStr);
                                 pickupDate.setDate(pickupDate.getDate() + parseInt(days));
                                 form.setValue("returnDate", pickupDate.toISOString().split("T")[0]);
                               }
                             }}
+                            placeholder="Select pickup date"
                           />
                         </FormControl>
                         <FormMessage />
@@ -1594,10 +1596,10 @@ export default function NewCarRentalAdminPage() {
                       <FormItem>
                         <FormLabel className="text-gray-700 dark:text-gray-300">Pickup Time *</FormLabel>
                         <FormControl>
-                          <Input 
-                            type="time" 
-                            className="bg-white dark:bg-gray-800 border-indigo-200 focus:border-indigo-500"
-                            {...field}
+                          <TimePicker
+                            value={field.value}
+                            onChange={field.onChange}
+                            placeholder="Select time"
                           />
                         </FormControl>
                         <FormMessage />
@@ -1640,11 +1642,15 @@ export default function NewCarRentalAdminPage() {
                       <FormItem>
                         <FormLabel className="text-gray-700 dark:text-gray-300">Return Date (Auto)</FormLabel>
                         <FormControl>
-                          <Input 
-                            type="date" 
-                            className="bg-green-50 dark:bg-green-900/30 border-green-300 dark:border-green-700 text-green-700 dark:text-green-300 font-semibold"
-                            readOnly
-                            {...field}
+                          <DatePicker
+                            value={field.value}
+                            onChange={(date) => {
+                              const dateStr = date ? date.toISOString().split("T")[0] : "";
+                              field.onChange(dateStr);
+                            }}
+                            placeholder="Auto-calculated"
+                            disabled
+                            className="bg-green-50 dark:bg-green-900/30 border-green-300 dark:border-green-700"
                           />
                         </FormControl>
                         <FormDescription className="text-green-600 dark:text-green-400 text-xs">Calculated automatically</FormDescription>
@@ -1686,10 +1692,13 @@ export default function NewCarRentalAdminPage() {
                         <FormItem>
                           <FormLabel>Start Date *</FormLabel>
                           <FormControl>
-                            <Input 
-                              type="date" 
-                              {...field} 
-                              min={new Date().toISOString().split("T")[0]}
+                            <DatePicker
+                              value={field.value}
+                              onChange={(date) => {
+                                const dateStr = date ? date.toISOString().split("T")[0] : "";
+                                field.onChange(dateStr);
+                              }}
+                              placeholder="Select start date"
                             />
                           </FormControl>
                           <FormMessage />
@@ -1703,7 +1712,11 @@ export default function NewCarRentalAdminPage() {
                         <FormItem>
                           <FormLabel>Start Time *</FormLabel>
                           <FormControl>
-                            <Input type="time" {...field} />
+                            <TimePicker
+                              value={field.value}
+                              onChange={field.onChange}
+                              placeholder="Select time"
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -1718,21 +1731,21 @@ export default function NewCarRentalAdminPage() {
                         <FormItem>
                           <FormLabel>End Date *</FormLabel>
                           <FormControl>
-                            <Input 
-                              type="date" 
-                              {...field} 
-                              onChange={(e) => {
-                                field.onChange(e);
+                            <DatePicker
+                              value={field.value}
+                              onChange={(date) => {
+                                const dateStr = date ? date.toISOString().split("T")[0] : "";
+                                field.onChange(dateStr);
                                 // Auto-calculate number of days when end date is manually changed
                                 const startDate = form.getValues("startDate");
-                                if (startDate && e.target.value) {
-                                  const days = calculateDaysBetween(startDate, e.target.value);
+                                if (startDate && dateStr) {
+                                  const days = calculateDaysBetween(startDate, dateStr);
                                   if (days > 0) {
                                     form.setValue("numberOfDays", days.toString());
                                   }
                                 }
                               }}
-                              min={form.getValues("startDate") || undefined}
+                              placeholder="Select end date"
                             />
                           </FormControl>
                           <FormMessage />
@@ -1746,7 +1759,11 @@ export default function NewCarRentalAdminPage() {
                         <FormItem>
                           <FormLabel>End Time *</FormLabel>
                           <FormControl>
-                            <Input type="time" {...field} />
+                            <TimePicker
+                              value={field.value}
+                              onChange={field.onChange}
+                              placeholder="Select time"
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>

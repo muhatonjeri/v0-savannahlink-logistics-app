@@ -22,6 +22,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { MpesaPayment } from "@/components/payment/mpesa-payment";
+import { DatePicker } from "@/components/ui/date-picker";
 import { saveBooking, generateId } from "@/lib/store";
 import { toast } from "sonner";
 import type { MoversBooking, MoversVehicleType } from "@/types";
@@ -360,7 +361,13 @@ export default function MoversPage() {
                   <FormField control={form.control} name="moveDate" render={({ field }) => (
                     <FormItem>
                       <FormLabel>Move Date</FormLabel>
-                      <FormControl><Input type="date" min={new Date().toISOString().split("T")[0]} {...field} /></FormControl>
+                      <FormControl>
+                        <DatePicker
+                          value={field.value}
+                          onChange={(date) => field.onChange(date ? date.toISOString().split("T")[0] : "")}
+                          placeholder="Select move date"
+                        />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )} />

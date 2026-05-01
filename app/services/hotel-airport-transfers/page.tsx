@@ -34,6 +34,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { MpesaPayment } from "@/components/payment/mpesa-payment";
+import { DatePicker } from "@/components/ui/date-picker";
+import { TimePicker } from "@/components/ui/time-picker";
 import { saveBooking, generateId } from "@/lib/store";
 import { toast } from "sonner";
 import type { TransferBooking } from "@/types";
@@ -772,14 +774,26 @@ export default function TransfersPage() {
                     <FormField control={form.control} name="pickupDate" render={({ field }) => (
                       <FormItem>
                         <FormLabel>Pickup Date</FormLabel>
-                        <FormControl><Input type="date" {...field} /></FormControl>
+                        <FormControl>
+                          <DatePicker
+                            value={field.value}
+                            onChange={(date) => field.onChange(date ? date.toISOString().split("T")[0] : "")}
+                            placeholder="Select pickup date"
+                          />
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
                     <FormField control={form.control} name="pickupTime" render={({ field }) => (
                       <FormItem>
                         <FormLabel>Pickup Time</FormLabel>
-                        <FormControl><Input type="time" {...field} /></FormControl>
+                        <FormControl>
+                          <TimePicker
+                            value={field.value}
+                            onChange={field.onChange}
+                            placeholder="Select time"
+                          />
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />

@@ -31,6 +31,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { MpesaPayment } from "@/components/payment/mpesa-payment";
+import { DatePicker } from "@/components/ui/date-picker";
 import { saveBooking, generateId } from "@/lib/store";
 import { toast } from "sonner";
 import type { SafariTourBooking } from "@/types";
@@ -384,7 +385,11 @@ export default function SafariToursPage() {
                         <FormItem>
                           <FormLabel>Start Date</FormLabel>
                           <FormControl>
-                            <Input type="date" {...field} />
+                            <DatePicker
+                              value={field.value}
+                              onChange={(date) => field.onChange(date ? date.toISOString().split("T")[0] : "")}
+                              placeholder="Select start date"
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -397,7 +402,11 @@ export default function SafariToursPage() {
                         <FormItem>
                           <FormLabel>End Date</FormLabel>
                           <FormControl>
-                            <Input type="date" {...field} />
+                            <DatePicker
+                              value={field.value}
+                              onChange={(date) => field.onChange(date ? date.toISOString().split("T")[0] : "")}
+                              placeholder="Select end date"
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>

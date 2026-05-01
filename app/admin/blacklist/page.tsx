@@ -84,6 +84,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import { DatePicker } from "@/components/ui/date-picker";
 import { FileUpload } from "@/components/forms/file-upload";
 
 // Record type configuration with icons
@@ -640,7 +641,11 @@ export default function BlacklistPage() {
                         <FormItem>
                           <FormLabel>Incident Date *</FormLabel>
                           <FormControl>
-                            <Input type="date" {...field} />
+                            <DatePicker
+                              value={field.value}
+                              onChange={(date) => field.onChange(date ? date.toISOString().split("T")[0] : "")}
+                              placeholder="Select incident date"
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -1383,7 +1388,13 @@ export default function BlacklistPage() {
                     <FormField control={editForm.control} name="incidentDate" render={({ field }) => (
                       <FormItem>
                         <FormLabel>Incident Date *</FormLabel>
-                        <FormControl><Input type="date" {...field} /></FormControl>
+                        <FormControl>
+                          <DatePicker
+                            value={field.value}
+                            onChange={(date) => field.onChange(date ? date.toISOString().split("T")[0] : "")}
+                            placeholder="Select incident date"
+                          />
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />

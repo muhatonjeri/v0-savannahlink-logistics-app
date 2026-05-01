@@ -74,6 +74,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { DatePicker } from "@/components/ui/date-picker";
 
 // Types
 interface InvoiceItem {
@@ -799,10 +800,10 @@ export default function InvoicesPage() {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label>Due Date</Label>
-                  <Input
-                    type="date"
+                  <DatePicker
                     value={newInvoice.dueDate}
-                    onChange={(e) => setNewInvoice({ ...newInvoice, dueDate: e.target.value })}
+                    onChange={(date) => setNewInvoice({ ...newInvoice, dueDate: date ? date.toISOString().split("T")[0] : "" })}
+                    placeholder="Select due date"
                   />
                 </div>
                 <div className="space-y-2">

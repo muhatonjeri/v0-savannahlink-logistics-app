@@ -96,6 +96,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { DatePicker } from "@/components/ui/date-picker";
 
 // Vehicle makes and models data
 const vehicleData = [
@@ -747,15 +748,27 @@ export default function FleetManagementPage() {
                     )} />
                     <FormField control={form.control} name="lastServiceDate" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Last Service Date</FormLabel>
-                        <FormControl><Input type="date" {...field} /></FormControl>
+                        <FormLabel className="text-gray-700 dark:text-gray-300">Last Service Date</FormLabel>
+                        <FormControl>
+                          <DatePicker
+                            value={field.value}
+                            onChange={(date) => field.onChange(date ? date.toISOString().split("T")[0] : "")}
+                            placeholder="Select date"
+                          />
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
                     <FormField control={form.control} name="nextServiceDate" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Next Service Date</FormLabel>
-                        <FormControl><Input type="date" {...field} /></FormControl>
+                        <FormLabel className="text-gray-700 dark:text-gray-300">Next Service Date</FormLabel>
+                        <FormControl>
+                          <DatePicker
+                            value={field.value}
+                            onChange={(date) => field.onChange(date ? date.toISOString().split("T")[0] : "")}
+                            placeholder="Select date"
+                          />
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
@@ -1133,14 +1146,26 @@ export default function FleetManagementPage() {
                     <FormField control={assignmentForm.control} name="dateOut" render={({ field }) => (
                       <FormItem>
                         <FormLabel className="text-gray-700 dark:text-gray-300">Date Out *</FormLabel>
-                        <FormControl><Input type="date" className="bg-white dark:bg-gray-800" {...field} /></FormControl>
+                        <FormControl>
+                          <DatePicker
+                            value={field.value}
+                            onChange={(date) => field.onChange(date ? date.toISOString().split("T")[0] : "")}
+                            placeholder="Select date out"
+                          />
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
                     <FormField control={assignmentForm.control} name="expectedDateIn" render={({ field }) => (
                       <FormItem>
                         <FormLabel className="text-gray-700 dark:text-gray-300">Expected Return *</FormLabel>
-                        <FormControl><Input type="date" className="bg-white dark:bg-gray-800" {...field} /></FormControl>
+                        <FormControl>
+                          <DatePicker
+                            value={field.value}
+                            onChange={(date) => field.onChange(date ? date.toISOString().split("T")[0] : "")}
+                            placeholder="Select return date"
+                          />
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
