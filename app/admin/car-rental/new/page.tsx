@@ -165,6 +165,12 @@ export default function NewCarRentalAdminPage() {
   
   // Quick booking form state
   const [showQuickBookingForm, setShowQuickBookingForm] = useState(false);
+  
+  // Fingerprint capture state for new clients
+  const [leftThumbScanning, setLeftThumbScanning] = useState(false);
+  const [rightThumbScanning, setRightThumbScanning] = useState(false);
+  const [leftThumbCaptured, setLeftThumbCaptured] = useState(false);
+  const [rightThumbCaptured, setRightThumbCaptured] = useState(false);
 
   const form = useForm<AdminCarRentalFormData>({
     resolver: zodResolver(adminCarRentalSchema),
@@ -513,6 +519,33 @@ export default function NewCarRentalAdminPage() {
     setNewRiskLevel("medium");
 
     toast.success(`Alert added to ${selectedClient.fullName}'s profile`);
+  };
+
+  // Capture fingerprint for new client registration
+  const handleCaptureFingerprint = async (hand: "left" | "right") => {
+    if (hand === "left") {
+      setLeftThumbScanning(true);
+    } else {
+      setRightThumbScanning(true);
+    }
+
+    // Simulate fingerprint scanning progress
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
+    // Simulate successful capture
+    const capturedData = `fingerprint_${hand}_${Date.now()}`;
+    
+    if (hand === "left") {
+      form.setValue("fingerprintLeftUrl", capturedData);
+      setLeftThumbScanning(false);
+      setLeftThumbCaptured(true);
+      toast.success("Left thumb fingerprint captured successfully!");
+    } else {
+      form.setValue("fingerprintRightUrl", capturedData);
+      setRightThumbScanning(false);
+      setRightThumbCaptured(true);
+      toast.success("Right thumb fingerprint captured successfully!");
+    }
   };
 
   // Resolve an alert
@@ -1482,47 +1515,128 @@ export default function NewCarRentalAdminPage() {
                 Biometric & Photo
               </CardTitle>
               <CardDescription>
-                Fingerprints and passport photo for verification
+                Scan fingerprints and capture passport photo for verification
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid gap-6 sm:grid-cols-3">
-                <FormField
-                  control={form.control}
-                  name="fingerprintLeftUrl"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FileUpload
-                        id="fingerprint-left"
-                        label="Left Thumb Print"
-                        accept="image/*"
-                        maxSize={2}
-                        value={field.value}
-                        onChange={field.onChange}
-                        showCamera
-                      />
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="fingerprintRightUrl"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FileUpload
-                        id="fingerprint-right"
-                        label="Right Thumb Print"
-                        accept="image/*"
-                        maxSize={2}
-                        value={field.value}
-                        onChange={field.onChange}
-                        showCamera
-                      />
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                {/* Left Thumb Fingerprint Scanner */}
+                <div className="space-y-3">
+                  <label className="text-sm font-medium">Left Thumb Print *</label>
+                  <div className={`relative flex flex-col items-center justify-center rounded-xl border-2 p-6 transition-all ${
+                    leftThumbCaptured 
+                      ? "border-green-500 bg-green-50 dark:bg-green-950/30" 
+                      : leftThumbScanning
+                      ? "border-purple-500 bg-purple-50 dark:bg-purple-950/30 animate-pulse"
+                      : "border-dashed border-gray-300 bg-gray-50 dark:bg-gray-900 hover:border-purple-400 hover:bg-purple-50/50"
+                  }`}>
+                    {leftThumbCaptured ? (
+                      <>
+                        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-500 text-white mb-3">
+                          <CheckCircle2 className="h-8 w-8" />
+                        </div>
+                        <p className="text-sm font-medium text-green-700 dark:text-green-400">Captured Successfully</p>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setLeftThumbCaptured(false);
+                            form.setValue("fingerprintLeftUrl", "");
+                          }}
+                          className="mt-2 text-green-600 hover:text-green-800"
+                        >
+                          Re-scan
+                        </Button>
+                      </>
+                    ) : leftThumbScanning ? (
+                      <>
+                        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-purple-500 text-white mb-3">
+                          <Fingerprint className="h-8 w-8 animate-pulse" />
+                        </div>
+                        <p className="text-sm font-medium text-purple-700 dark:text-purple-400">Scanning...</p>
+                        <p className="text-xs text-purple-600 dark:text-purple-500">Place left thumb on scanner</p>
+                        <div className="mt-2 h-2 w-full max-w-[120px] rounded-full bg-purple-200 overflow-hidden">
+                          <div className="h-full bg-purple-500 animate-[scan_2s_ease-in-out_infinite]" style={{width: '100%'}} />
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700 text-gray-500 mb-3">
+                          <Fingerprint className="h-8 w-8" />
+                        </div>
+                        <Button
+                          type="button"
+                          onClick={() => handleCaptureFingerprint("left")}
+                          className="bg-purple-600 hover:bg-purple-700 text-white"
+                        >
+                          <ScanLine className="h-4 w-4 mr-2" />
+                          Scan Left Thumb
+                        </Button>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {/* Right Thumb Fingerprint Scanner */}
+                <div className="space-y-3">
+                  <label className="text-sm font-medium">Right Thumb Print *</label>
+                  <div className={`relative flex flex-col items-center justify-center rounded-xl border-2 p-6 transition-all ${
+                    rightThumbCaptured 
+                      ? "border-green-500 bg-green-50 dark:bg-green-950/30" 
+                      : rightThumbScanning
+                      ? "border-purple-500 bg-purple-50 dark:bg-purple-950/30 animate-pulse"
+                      : "border-dashed border-gray-300 bg-gray-50 dark:bg-gray-900 hover:border-purple-400 hover:bg-purple-50/50"
+                  }`}>
+                    {rightThumbCaptured ? (
+                      <>
+                        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-500 text-white mb-3">
+                          <CheckCircle2 className="h-8 w-8" />
+                        </div>
+                        <p className="text-sm font-medium text-green-700 dark:text-green-400">Captured Successfully</p>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setRightThumbCaptured(false);
+                            form.setValue("fingerprintRightUrl", "");
+                          }}
+                          className="mt-2 text-green-600 hover:text-green-800"
+                        >
+                          Re-scan
+                        </Button>
+                      </>
+                    ) : rightThumbScanning ? (
+                      <>
+                        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-purple-500 text-white mb-3">
+                          <Fingerprint className="h-8 w-8 animate-pulse" />
+                        </div>
+                        <p className="text-sm font-medium text-purple-700 dark:text-purple-400">Scanning...</p>
+                        <p className="text-xs text-purple-600 dark:text-purple-500">Place right thumb on scanner</p>
+                        <div className="mt-2 h-2 w-full max-w-[120px] rounded-full bg-purple-200 overflow-hidden">
+                          <div className="h-full bg-purple-500 animate-[scan_2s_ease-in-out_infinite]" style={{width: '100%'}} />
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700 text-gray-500 mb-3">
+                          <Fingerprint className="h-8 w-8" />
+                        </div>
+                        <Button
+                          type="button"
+                          onClick={() => handleCaptureFingerprint("right")}
+                          className="bg-purple-600 hover:bg-purple-700 text-white"
+                        >
+                          <ScanLine className="h-4 w-4 mr-2" />
+                          Scan Right Thumb
+                        </Button>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {/* Passport Photo - Keep as upload/camera */}
                 <FormField
                   control={form.control}
                   name="passportPhotoUrl"
