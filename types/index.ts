@@ -256,6 +256,9 @@ export interface Client {
   };
   fingerprintLeftUrl?: string;
   fingerprintRightUrl?: string;
+  // Fingerprint data strings (for biometric systems)
+  leftFingerprint?: string;
+  rightFingerprint?: string;
   passportPhotoUrl?: string;
   totalBookings: number;
   // Alert & Risk fields
