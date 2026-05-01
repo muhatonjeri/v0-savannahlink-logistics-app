@@ -769,13 +769,13 @@ export default function ClientLookupPage() {
       </Card>
 
       {/* Fingerprint Scan Section */}
-      <Card className="border-emerald-200 dark:border-emerald-800 bg-gradient-to-br from-emerald-50/50 to-teal-50/50 dark:from-emerald-950/30 dark:to-teal-950/30">
-        <CardHeader className="pb-4">
-          <CardTitle className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
+      <Card className="border-emerald-300 dark:border-emerald-700 bg-white dark:bg-gray-900 shadow-sm">
+        <CardHeader className="pb-4 border-b border-emerald-100 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/50 rounded-t-lg">
+          <CardTitle className="flex items-center gap-2 text-emerald-700 dark:text-emerald-300">
             <Fingerprint className="h-5 w-5" />
             Biometric Verification
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-emerald-600 dark:text-emerald-400">
             Use fingerprint scanner for instant client identification and blacklist verification.
           </CardDescription>
         </CardHeader>
