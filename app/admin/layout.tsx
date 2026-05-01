@@ -154,7 +154,8 @@ export default function AdminLayout({
   }, [pathname, router]);
 
   const handleSignOut = async () => {
-    // Clear mock auth
+    // Clear mock auth cookie and localStorage
+    document.cookie = 'mock_auth=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
     localStorage.removeItem('mockAuth');
     setMockAuth(null);
     

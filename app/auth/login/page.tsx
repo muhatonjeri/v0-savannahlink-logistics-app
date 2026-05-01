@@ -32,6 +32,12 @@ const MOCK_STAFF = {
   name: 'Staff User'
 }
 
+// Helper to set cookie
+function setCookie(name: string, value: string, days: number = 7) {
+  const expires = new Date(Date.now() + days * 864e5).toUTCString()
+  document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/`
+}
+
 function LoginForm() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -49,20 +55,32 @@ function LoginForm() {
 
     // Check mock credentials
     if (email === MOCK_ADMIN.email && password === MOCK_ADMIN.password) {
-      // Store mock session in localStorage
-      localStorage.setItem('mockAuth', JSON.stringify({
+      // Set mock auth cookie (accessible by middleware)
+      const authData = JSON.stringify({
         user: { email: MOCK_ADMIN.email, role: MOCK_ADMIN.role, name: MOCK_ADMIN.name },
         isAuthenticated: true
-      }))
-      router.push(redirectTo)
-      router.refresh()
+      })
+      setCookie('mock_auth', authData, 7)
+      // Also keep localStorage for client-side checks
+      localStorage.setItem('mockAuth', authData)
+      
+      // Small delay to ensure cookie is set
+      setTimeout(() => {
+        router.push(redirectTo)
+        router.refresh()
+      }, 100)
     } else if (email === MOCK_STAFF.email && password === MOCK_STAFF.password) {
-      localStorage.setItem('mockAuth', JSON.stringify({
+      const authData = JSON.stringify({
         user: { email: MOCK_STAFF.email, role: MOCK_STAFF.role, name: MOCK_STAFF.name },
         isAuthenticated: true
-      }))
-      router.push(redirectTo)
-      router.refresh()
+      })
+      setCookie('mock_auth', authData, 7)
+      localStorage.setItem('mockAuth', authData)
+      
+      setTimeout(() => {
+        router.push(redirectTo)
+        router.refresh()
+      }, 100)
     } else {
       setError('Invalid email or password')
       setIsLoading(false)
@@ -124,6 +142,7 @@ function LoginForm() {
                   width={160}
                   height={54}
                   className="h-16 w-auto"
+                  unoptimized
                 />
               </div>
               <CardTitle className="text-2xl">Staff Portal</CardTitle>

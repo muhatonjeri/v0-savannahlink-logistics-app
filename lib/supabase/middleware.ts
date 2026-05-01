@@ -6,6 +6,20 @@ export async function updateSession(request: NextRequest) {
     request,
   })
 
+  // Check for mock auth cookie first (for development/testing)
+  const mockAuthCookie = request.cookies.get('mock_auth')
+  if (mockAuthCookie) {
+    // Mock auth is active, allow admin access
+    if (request.nextUrl.pathname === '/auth/login') {
+      // If logged in via mock and trying to access login, redirect to admin
+      const url = request.nextUrl.clone()
+      url.pathname = '/admin'
+      return NextResponse.redirect(url)
+    }
+    // Allow access to admin routes with mock auth
+    return supabaseResponse
+  }
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
