@@ -335,9 +335,10 @@ export default function CarRentalDetailPage() {
       <div ref={printRef}>
         {/* Print Header */}
         <div className="header hidden print:block">
-          <h1>SAVANNAH LINK LOGISTICS</h1>
+          <h1>SAVANNATRAIL LOGISTICS & TOURS</h1>
           <p>Muthaiga Square, Thika Superhighway, Nairobi, Kenya</p>
-          <p>Tel: +254 700 000 000 | Email: info@savannahlink.co.ke</p>
+          <p>Tel: +254 700 000 000 | Email: info@savannatrail.co.ke</p>
+          <p style={{fontStyle: 'italic', marginTop: '5px'}}>Journeys That Connect.</p>
           <div className="booking-id">
             BOOKING ID: {booking.id} | DATE: {new Date(booking.createdAt).toLocaleDateString()}
           </div>
@@ -733,7 +734,7 @@ export default function CarRentalDetailPage() {
             <div>
               <div className="mb-2 h-16 border-b-2 border-foreground"></div>
               <p className="text-center text-sm text-muted-foreground">Authorized Officer</p>
-              <p className="text-center text-xs text-muted-foreground">(Savannah Link)</p>
+              <p className="text-center text-xs text-muted-foreground">(SavannaTrail)</p>
             </div>
           </div>
           <div className="mt-8 flex justify-center">
@@ -742,8 +743,9 @@ export default function CarRentalDetailPage() {
             </div>
           </div>
           <div className="mt-8 border-t pt-4 text-center text-xs text-muted-foreground">
-            <p>Savannah Link Logistics | Muthaiga Square, Thika Superhighway, Nairobi</p>
-            <p>Tel: +254 700 000 000 | Email: info@savannahlink.co.ke</p>
+            <p>SavannaTrail Logistics & Tours | Muthaiga Square, Thika Superhighway, Nairobi</p>
+            <p>Tel: +254 700 000 000 | Email: info@savannatrail.co.ke</p>
+            <p className="italic">Journeys That Connect.</p>
             <p className="mt-2">Document generated on {new Date().toLocaleString()}</p>
           </div>
         </div>

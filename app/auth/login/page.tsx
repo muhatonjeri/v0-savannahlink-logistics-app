@@ -1,6 +1,7 @@
 'use client'
 
 import { createClient } from '@/lib/supabase/client'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -14,7 +15,7 @@ import { Label } from '@/components/ui/label'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useState, Suspense } from 'react'
-import { Shield, ArrowLeft } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 
 function LoginForm() {
   const [email, setEmail] = useState('')
@@ -61,8 +62,14 @@ function LoginForm() {
 
           <Card className="border-border/50 bg-card/50 backdrop-blur">
             <CardHeader className="text-center">
-              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-                <Shield className="h-8 w-8 text-primary" />
+              <div className="mx-auto mb-4">
+                <Image
+                  src="/images/logo.png"
+                  alt="SavannaTrail"
+                  width={160}
+                  height={54}
+                  className="h-16 w-auto"
+                />
               </div>
               <CardTitle className="text-2xl">Staff Portal</CardTitle>
               <CardDescription>
@@ -77,7 +84,7 @@ function LoginForm() {
                     <Input
                       id="email"
                       type="email"
-                      placeholder="staff@savannahlink.co.ke"
+                      placeholder="staff@savannatrail.co.ke"
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
@@ -109,7 +116,7 @@ function LoginForm() {
           </Card>
 
           <p className="text-center text-xs text-muted-foreground">
-            This portal is for authorized Savannah Link staff only.
+            This portal is for authorized SavannaTrail staff only.
             <br />
             Contact your administrator if you need access.
           </p>

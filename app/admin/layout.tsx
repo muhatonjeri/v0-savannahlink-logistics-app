@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
@@ -151,13 +152,13 @@ export default function AdminLayout({
       <Sidebar>
         <SidebarHeader className="border-b border-sidebar-border p-4">
           <Link href="/admin" className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-              <span className="text-sm font-bold text-primary-foreground">SL</span>
-            </div>
-            <div className="flex flex-col">
-              <span className="text-sm font-semibold">Savannah Link</span>
-              <span className="text-xs text-muted-foreground">Admin Portal</span>
-            </div>
+            <Image
+              src="/images/logo.png"
+              alt="SavannaTrail"
+              width={140}
+              height={47}
+              className="h-10 w-auto"
+            />
           </Link>
         </SidebarHeader>
 

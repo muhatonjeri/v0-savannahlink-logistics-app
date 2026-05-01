@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -21,13 +22,14 @@ export function Header() {
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
-            <span className="text-lg font-bold text-primary-foreground">SL</span>
-          </div>
-          <div className="hidden sm:block">
-            <span className="text-xl font-bold text-foreground">Savannah Link</span>
-            <span className="block text-xs text-muted-foreground">Logistics & Tours</span>
-          </div>
+          <Image
+            src="/images/logo.png"
+            alt="SavannaTrail Logistics & Tours"
+            width={180}
+            height={60}
+            className="h-14 w-auto"
+            priority
+          />
         </Link>
 
         {/* Desktop Navigation */}

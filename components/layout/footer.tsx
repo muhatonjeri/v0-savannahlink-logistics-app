@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Mail, Phone, MapPin, Globe } from "lucide-react";
 import { services } from "@/lib/services";
 
@@ -9,17 +10,15 @@ export function Footer() {
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
           {/* Company Info */}
           <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
-                <span className="text-lg font-bold text-primary-foreground">SL</span>
-              </div>
-              <div>
-                <span className="text-lg font-bold text-foreground">Savannah Link</span>
-                <span className="block text-xs text-muted-foreground">Logistics & Tours</span>
-              </div>
-            </div>
+            <Image
+              src="/images/logo.png"
+              alt="SavannaTrail Logistics & Tours"
+              width={160}
+              height={54}
+              className="h-14 w-auto"
+            />
             <p className="text-sm text-muted-foreground">
-              Your trusted partner for logistics, transportation, and tour services across Kenya and beyond.
+              Your trusted partner for logistics, transportation, and tour services across Kenya and beyond. Journeys that connect.
             </p>
           </div>
 
@@ -94,10 +93,10 @@ export function Footer() {
               <li className="flex items-center gap-2">
                 <Mail className="h-4 w-4 shrink-0 text-primary" />
                 <a
-                  href="mailto:info@savannahlink.co.ke"
+                  href="mailto:info@savannatrail.co.ke"
                   className="text-sm text-muted-foreground transition-colors hover:text-primary"
                 >
-                  info@savannahlink.co.ke
+                  info@savannatrail.co.ke
                 </a>
               </li>
               <li className="flex items-center gap-2">
@@ -112,12 +111,12 @@ export function Footer() {
               <li className="flex items-center gap-2">
                 <Globe className="h-4 w-4 shrink-0 text-primary" />
                 <a
-                  href="https://www.savanalink.com"
+                  href="https://www.savannatrail.co.ke"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-sm text-muted-foreground transition-colors hover:text-primary"
                 >
-                  www.savanalink.com
+                  www.savannatrail.co.ke
                 </a>
               </li>
             </ul>
@@ -127,7 +126,7 @@ export function Footer() {
         {/* Bottom Bar */}
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-border pt-8 sm:flex-row">
           <p className="text-sm text-muted-foreground">
-            &copy; {new Date().getFullYear()} Savannah Link Logistics & Tours. All rights reserved.
+            &copy; {new Date().getFullYear()} SavannaTrail Logistics & Tours. All rights reserved.
           </p>
           <div className="flex gap-4">
             <Link

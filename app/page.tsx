@@ -62,7 +62,7 @@ export default function HomePage() {
               </h1>
               <p className="mb-8 text-lg text-muted-foreground sm:text-xl text-pretty">
                 From car rentals to safari adventures, airport transfers to cargo handling — 
-                Savannah Link is your trusted partner for all logistics and transportation needs across Kenya.
+                SavannaTrail is your trusted partner for all logistics and transportation needs across Kenya. Journeys that connect.
               </p>
               <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
                 <Button size="lg" className="gap-2" asChild>
@@ -105,7 +105,7 @@ export default function HomePage() {
             <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
               <div>
                 <h2 className="mb-4 text-3xl font-bold text-foreground sm:text-4xl">
-                  Why Choose Savannah Link?
+                  Why Choose SavannaTrail?
                 </h2>
                 <p className="mb-8 text-muted-foreground">
                   With years of experience in Kenya&apos;s logistics and tourism industry, 
@@ -256,10 +256,10 @@ export default function HomePage() {
                 </div>
                 <h3 className="mb-2 font-semibold text-foreground">Email Us</h3>
                 <a
-                  href="mailto:info@savannahlink.co.ke"
+                  href="mailto:info@savannatrail.co.ke"
                   className="text-sm text-muted-foreground hover:text-primary"
                 >
-                  info@savannahlink.co.ke
+                  info@savannatrail.co.ke
                 </a>
               </div>
             </div>
