@@ -7,7 +7,7 @@ import {
   Wrench,
   Package,
   Ship,
-  Tractor,
+  HardHat,
   ArrowRight,
   type LucideIcon,
 } from "lucide-react";
@@ -22,7 +22,7 @@ const iconMap: Record<string, LucideIcon> = {
   Wrench,
   Package,
   Ship,
-  Tractor,
+  HardHat,
 };
 
 interface ServiceCardProps {
