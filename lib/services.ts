@@ -54,7 +54,7 @@ export const services: Service[] = [
     id: "construction-equipment",
     name: "Construction Equipment",
     description: "Heavy machinery and construction equipment rentals. Excavators, cranes, bulldozers, and more.",
-    icon: "HardHat",
+    icon: "Tractor",
     href: "/services/construction-equipment",
   },
 ];
