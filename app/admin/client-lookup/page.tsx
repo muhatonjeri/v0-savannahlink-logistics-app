@@ -96,17 +96,17 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 
-// Service configuration
+// Service configuration - hrefs match actual page paths
 const serviceConfig: Record<string, { title: string; icon: LucideIcon; href: string; color: string; bgColor: string; hoverColor: string }> = {
   "car-rental": { title: "Car Rental", icon: Car, href: "/admin/car-rental/new", color: "text-indigo-600", bgColor: "bg-indigo-100 dark:bg-indigo-950", hoverColor: "hover:bg-indigo-200 dark:hover:bg-indigo-900" },
-  "safari-tours": { title: "Safari Tours", icon: Compass, href: "/admin/safari", color: "text-amber-600", bgColor: "bg-amber-100 dark:bg-amber-950", hoverColor: "hover:bg-amber-200 dark:hover:bg-amber-900" },
+  "safari-tours": { title: "Safari Tours", icon: Compass, href: "/admin/safari-tours", color: "text-amber-600", bgColor: "bg-amber-100 dark:bg-amber-950", hoverColor: "hover:bg-amber-200 dark:hover:bg-amber-900" },
   "transfers": { title: "Airport Transfers", icon: Plane, href: "/admin/transfers", color: "text-sky-600", bgColor: "bg-sky-100 dark:bg-sky-950", hoverColor: "hover:bg-sky-200 dark:hover:bg-sky-900" },
-  "movers": { title: "Cargo Transport", icon: Package, href: "/admin/cargo", color: "text-orange-600", bgColor: "bg-orange-100 dark:bg-orange-950", hoverColor: "hover:bg-orange-200 dark:hover:bg-orange-900" },
-  "corporate-rental": { title: "Tour Bus", icon: Bus, href: "/admin/tour-bus", color: "text-purple-600", bgColor: "bg-purple-100 dark:bg-purple-950", hoverColor: "hover:bg-purple-200 dark:hover:bg-purple-900" },
-  "road-recovery": { title: "Recovery Services", icon: Wrench, href: "/admin/recovery", color: "text-rose-600", bgColor: "bg-rose-100 dark:bg-rose-950", hoverColor: "hover:bg-rose-200 dark:hover:bg-rose-900" },
-  "cargo-handling": { title: "Equipment Hire", icon: HardHat, href: "/admin/equipment", color: "text-teal-600", bgColor: "bg-teal-100 dark:bg-teal-950", hoverColor: "hover:bg-teal-200 dark:hover:bg-teal-900" },
-  "shipment-imports": { title: "Imports", icon: Ship, href: "/admin/imports", color: "text-blue-600", bgColor: "bg-blue-100 dark:bg-blue-950", hoverColor: "hover:bg-blue-200 dark:hover:bg-blue-900" },
-  "construction-equipment": { title: "Construction Equipment", icon: HardHat, href: "/admin/construction", color: "text-yellow-600", bgColor: "bg-yellow-100 dark:bg-yellow-950", hoverColor: "hover:bg-yellow-200 dark:hover:bg-yellow-900" },
+  "movers": { title: "Movers", icon: Truck, href: "/admin/movers", color: "text-violet-600", bgColor: "bg-violet-100 dark:bg-violet-950", hoverColor: "hover:bg-violet-200 dark:hover:bg-violet-900" },
+  "corporate-rental": { title: "Corporate Rental", icon: Bus, href: "/admin/car-rental/new", color: "text-purple-600", bgColor: "bg-purple-100 dark:bg-purple-950", hoverColor: "hover:bg-purple-200 dark:hover:bg-purple-900" },
+  "road-recovery": { title: "Road Recovery", icon: Wrench, href: "/admin/road-recovery", color: "text-rose-600", bgColor: "bg-rose-100 dark:bg-rose-950", hoverColor: "hover:bg-rose-200 dark:hover:bg-rose-900" },
+  "cargo-handling": { title: "Cargo Handling", icon: Package, href: "/admin/cargo-handling", color: "text-orange-600", bgColor: "bg-orange-100 dark:bg-orange-950", hoverColor: "hover:bg-orange-200 dark:hover:bg-orange-900" },
+  "shipment-imports": { title: "Shipment Imports", icon: Ship, href: "/admin/shipment-imports", color: "text-blue-600", bgColor: "bg-blue-100 dark:bg-blue-950", hoverColor: "hover:bg-blue-200 dark:hover:bg-blue-900" },
+  "construction-equipment": { title: "Construction Equipment", icon: HardHat, href: "/admin/construction-equipment", color: "text-yellow-600", bgColor: "bg-yellow-100 dark:bg-yellow-950", hoverColor: "hover:bg-yellow-200 dark:hover:bg-yellow-900" },
 };
 
 // Record type configuration with icons
@@ -968,7 +968,7 @@ function ClientLookupContent() {
                             <span className="text-xs font-medium">Car Rental</span>
                           </Button>
                         </Link>
-                        <Link href="/admin/safari">
+                        <Link href="/admin/safari-tours">
                           <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-amber-200 hover:border-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950 group">
                             <Compass className="h-6 w-6 text-amber-500 group-hover:scale-110 transition-transform" />
                             <span className="text-xs font-medium">Safari Tours</span>
@@ -980,34 +980,34 @@ function ClientLookupContent() {
                             <span className="text-xs font-medium">Airport Transfers</span>
                           </Button>
                         </Link>
-                        <Link href="/admin/cargo">
+                        <Link href="/admin/cargo-handling">
                           <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-orange-200 hover:border-orange-400 hover:bg-orange-50 dark:hover:bg-orange-950 group">
                             <Package className="h-6 w-6 text-orange-500 group-hover:scale-110 transition-transform" />
-                            <span className="text-xs font-medium">Cargo Transport</span>
+                            <span className="text-xs font-medium">Cargo Handling</span>
                           </Button>
                         </Link>
-                        <Link href="/admin/tour-bus">
-                          <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-purple-200 hover:border-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950 group">
-                            <Bus className="h-6 w-6 text-purple-500 group-hover:scale-110 transition-transform" />
-                            <span className="text-xs font-medium">Tour Bus</span>
+                        <Link href="/admin/movers">
+                          <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-violet-200 hover:border-violet-400 hover:bg-violet-50 dark:hover:bg-violet-950 group">
+                            <Truck className="h-6 w-6 text-violet-500 group-hover:scale-110 transition-transform" />
+                            <span className="text-xs font-medium">Movers</span>
                           </Button>
                         </Link>
-                        <Link href="/admin/equipment">
-                          <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-teal-200 hover:border-teal-400 hover:bg-teal-50 dark:hover:bg-teal-950 group">
-                            <HardHat className="h-6 w-6 text-teal-500 group-hover:scale-110 transition-transform" />
-                            <span className="text-xs font-medium">Equipment Hire</span>
+                        <Link href="/admin/construction-equipment">
+                          <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-yellow-200 hover:border-yellow-400 hover:bg-yellow-50 dark:hover:bg-yellow-950 group">
+                            <HardHat className="h-6 w-6 text-yellow-500 group-hover:scale-110 transition-transform" />
+                            <span className="text-xs font-medium">Construction Equipment</span>
                           </Button>
                         </Link>
-                        <Link href="/admin/imports">
+                        <Link href="/admin/shipment-imports">
                           <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-blue-200 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950 group">
                             <Ship className="h-6 w-6 text-blue-500 group-hover:scale-110 transition-transform" />
-                            <span className="text-xs font-medium">Imports</span>
+                            <span className="text-xs font-medium">Shipment Imports</span>
                           </Button>
                         </Link>
-                        <Link href="/admin/recovery">
+                        <Link href="/admin/road-recovery">
                           <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-rose-200 hover:border-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950 group">
                             <Wrench className="h-6 w-6 text-rose-500 group-hover:scale-110 transition-transform" />
-                            <span className="text-xs font-medium">Recovery Services</span>
+                            <span className="text-xs font-medium">Road Recovery</span>
                           </Button>
                         </Link>
                       </div>
@@ -1062,7 +1062,7 @@ function ClientLookupContent() {
                             <span className="text-xs font-medium">Car Rental</span>
                           </Button>
                         </Link>
-                        <Link href="/admin/safari">
+                        <Link href="/admin/safari-tours">
                           <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-amber-200 hover:border-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950 group">
                             <Compass className="h-6 w-6 text-amber-500 group-hover:scale-110 transition-transform" />
                             <span className="text-xs font-medium">Safari Tours</span>
@@ -1074,34 +1074,34 @@ function ClientLookupContent() {
                             <span className="text-xs font-medium">Airport Transfers</span>
                           </Button>
                         </Link>
-                        <Link href="/admin/cargo">
+                        <Link href="/admin/cargo-handling">
                           <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-orange-200 hover:border-orange-400 hover:bg-orange-50 dark:hover:bg-orange-950 group">
                             <Package className="h-6 w-6 text-orange-500 group-hover:scale-110 transition-transform" />
-                            <span className="text-xs font-medium">Cargo Transport</span>
+                            <span className="text-xs font-medium">Cargo Handling</span>
                           </Button>
                         </Link>
-                        <Link href="/admin/tour-bus">
-                          <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-purple-200 hover:border-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950 group">
-                            <Bus className="h-6 w-6 text-purple-500 group-hover:scale-110 transition-transform" />
-                            <span className="text-xs font-medium">Tour Bus</span>
+                        <Link href="/admin/movers">
+                          <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-violet-200 hover:border-violet-400 hover:bg-violet-50 dark:hover:bg-violet-950 group">
+                            <Truck className="h-6 w-6 text-violet-500 group-hover:scale-110 transition-transform" />
+                            <span className="text-xs font-medium">Movers</span>
                           </Button>
                         </Link>
-                        <Link href="/admin/equipment">
-                          <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-teal-200 hover:border-teal-400 hover:bg-teal-50 dark:hover:bg-teal-950 group">
-                            <HardHat className="h-6 w-6 text-teal-500 group-hover:scale-110 transition-transform" />
-                            <span className="text-xs font-medium">Equipment Hire</span>
+                        <Link href="/admin/construction-equipment">
+                          <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-yellow-200 hover:border-yellow-400 hover:bg-yellow-50 dark:hover:bg-yellow-950 group">
+                            <HardHat className="h-6 w-6 text-yellow-500 group-hover:scale-110 transition-transform" />
+                            <span className="text-xs font-medium">Construction Equipment</span>
                           </Button>
                         </Link>
-                        <Link href="/admin/imports">
+                        <Link href="/admin/shipment-imports">
                           <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-blue-200 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950 group">
                             <Ship className="h-6 w-6 text-blue-500 group-hover:scale-110 transition-transform" />
-                            <span className="text-xs font-medium">Imports</span>
+                            <span className="text-xs font-medium">Shipment Imports</span>
                           </Button>
                         </Link>
-                        <Link href="/admin/recovery">
+                        <Link href="/admin/road-recovery">
                           <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-rose-200 hover:border-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950 group">
                             <Wrench className="h-6 w-6 text-rose-500 group-hover:scale-110 transition-transform" />
-                            <span className="text-xs font-medium">Recovery Services</span>
+                            <span className="text-xs font-medium">Road Recovery</span>
                           </Button>
                         </Link>
                       </div>
