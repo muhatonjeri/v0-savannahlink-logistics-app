@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Truck, Calendar, User, CreditCard, ArrowLeft, MapPin } from "lucide-react";
+import { Truck, Calendar, User, CreditCard, ArrowLeft, MapPin, Package } from "lucide-react";
 import Link from "next/link";
 
 import { Header } from "@/components/layout/header";
@@ -24,10 +24,11 @@ import {
 import { MpesaPayment } from "@/components/payment/mpesa-payment";
 import { saveBooking, generateId } from "@/lib/store";
 import { toast } from "sonner";
-import type { MoversBooking } from "@/types";
+import type { MoversBooking, MoversVehicleType } from "@/types";
 
 const moversSchema = z.object({
   moveType: z.enum(["residential", "commercial", "office"]),
+  vehicleType: z.enum(["small-pickup", "large-pickup", "1-ton-truck", "3-ton-truck", "5-ton-truck", "7-ton-truck", "10-ton-truck"]),
   fullName: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
   phone: z.string().min(10, "Phone number must be at least 10 digits"),
@@ -42,10 +43,22 @@ const moversSchema = z.object({
 
 type MoversFormData = z.infer<typeof moversSchema>;
 
-const moveTypeRates = {
-  residential: 15000,
-  commercial: 35000,
-  office: 25000,
+// Vehicle options with pricing
+const vehicleOptions: { type: MoversVehicleType; name: string; description: string; capacity: string; price: number }[] = [
+  { type: "small-pickup", name: "Small Pickup", description: "Ideal for bedsitters & single rooms", capacity: "Up to 500kg", price: 5000 },
+  { type: "large-pickup", name: "Large Pickup", description: "Perfect for 1-bedroom apartments", capacity: "Up to 1 ton", price: 8000 },
+  { type: "1-ton-truck", name: "1 Ton Truck", description: "Suitable for 2-bedroom houses", capacity: "1,000kg", price: 12000 },
+  { type: "3-ton-truck", name: "3 Ton Truck", description: "Great for 3-bedroom houses", capacity: "3,000kg", price: 18000 },
+  { type: "5-ton-truck", name: "5 Ton Truck", description: "For larger homes & offices", capacity: "5,000kg", price: 25000 },
+  { type: "7-ton-truck", name: "7 Ton Truck", description: "Commercial & industrial moves", capacity: "7,000kg", price: 35000 },
+  { type: "10-ton-truck", name: "10 Ton Truck", description: "Heavy commercial relocations", capacity: "10,000kg", price: 50000 },
+];
+
+// Move type multipliers
+const moveTypeMultipliers = {
+  residential: 1,
+  office: 1.3,
+  commercial: 1.5,
 };
 
 export default function MoversPage() {
@@ -53,11 +66,13 @@ export default function MoversPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [bookingComplete, setBookingComplete] = useState(false);
   const [currentBooking, setCurrentBooking] = useState<MoversBooking | null>(null);
+  const [selectedVehicle, setSelectedVehicle] = useState<MoversVehicleType | null>(null);
 
   const form = useForm<MoversFormData>({
     resolver: zodResolver(moversSchema),
     defaultValues: {
       moveType: "residential",
+      vehicleType: "small-pickup",
       fullName: "",
       email: "",
       phone: "",
@@ -72,12 +87,24 @@ export default function MoversPage() {
   });
 
   const watchMoveType = form.watch("moveType");
+  const watchVehicleType = form.watch("vehicleType");
   const watchPacking = form.watch("requiresPacking");
 
+  const getVehiclePrice = (vehicleType: MoversVehicleType) => {
+    return vehicleOptions.find(v => v.type === vehicleType)?.price || 0;
+  };
+
   const calculateTotal = () => {
-    let base = moveTypeRates[watchMoveType] || 0;
-    if (watchPacking) base += 5000;
-    return base;
+    const vehiclePrice = getVehiclePrice(watchVehicleType);
+    const multiplier = moveTypeMultipliers[watchMoveType] || 1;
+    let total = vehiclePrice * multiplier;
+    if (watchPacking) total += 5000;
+    return Math.round(total);
+  };
+
+  const handleVehicleSelect = (vehicleType: MoversVehicleType) => {
+    setSelectedVehicle(vehicleType);
+    form.setValue("vehicleType", vehicleType);
   };
 
   const onSubmit = async (data: MoversFormData) => {
@@ -95,6 +122,7 @@ export default function MoversPage() {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         moveType: data.moveType,
+        vehicleType: data.vehicleType,
         originAddress: data.originAddress,
         destinationAddress: data.destinationAddress,
         moveDate: data.moveDate,
@@ -122,6 +150,7 @@ export default function MoversPage() {
   };
 
   if (bookingComplete && currentBooking) {
+    const vehicleInfo = vehicleOptions.find(v => v.type === currentBooking.vehicleType);
     return (
       <div className="flex min-h-screen flex-col">
         <Header />
@@ -145,6 +174,10 @@ export default function MoversPage() {
                     <div className="flex justify-between">
                       <dt className="text-muted-foreground">Move Type</dt>
                       <dd className="capitalize">{currentBooking.moveType}</dd>
+                    </div>
+                    <div className="flex justify-between">
+                      <dt className="text-muted-foreground">Vehicle</dt>
+                      <dd>{vehicleInfo?.name}</dd>
                     </div>
                     <div className="flex justify-between">
                       <dt className="text-muted-foreground">Date</dt>
@@ -183,13 +216,19 @@ export default function MoversPage() {
               <Truck className="h-7 w-7 text-primary" />
             </div>
             <h1 className="text-3xl font-bold text-foreground">Movers</h1>
-            <p className="mt-2 text-muted-foreground">Professional moving services for homes, offices, and commercial spaces.</p>
+            <p className="mt-2 text-muted-foreground">Professional moving services with vehicles ranging from small pickups to heavy commercial trucks.</p>
           </div>
 
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+              {/* Move Type */}
               <Card>
-                <CardHeader><CardTitle className="flex items-center gap-2 text-lg"><Truck className="h-5 w-5 text-primary" />Move Type</CardTitle></CardHeader>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <Package className="h-5 w-5 text-primary" />Move Type
+                  </CardTitle>
+                  <CardDescription>Select the type of move for accurate pricing</CardDescription>
+                </CardHeader>
                 <CardContent>
                   <FormField control={form.control} name="moveType" render={({ field }) => (
                     <FormItem>
@@ -198,9 +237,9 @@ export default function MoversPage() {
                           <SelectTrigger><SelectValue placeholder="Select move type" /></SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="residential">Residential - KES 15,000 base</SelectItem>
-                          <SelectItem value="office">Office - KES 25,000 base</SelectItem>
-                          <SelectItem value="commercial">Commercial - KES 35,000 base</SelectItem>
+                          <SelectItem value="residential">Residential (Standard Rate)</SelectItem>
+                          <SelectItem value="office">Office (+30% for equipment handling)</SelectItem>
+                          <SelectItem value="commercial">Commercial (+50% for heavy items)</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -209,8 +248,60 @@ export default function MoversPage() {
                 </CardContent>
               </Card>
 
+              {/* Vehicle Selection */}
               <Card>
-                <CardHeader><CardTitle className="flex items-center gap-2 text-lg"><User className="h-5 w-5 text-primary" />Personal Information</CardTitle></CardHeader>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <Truck className="h-5 w-5 text-primary" />Select Vehicle Size
+                  </CardTitle>
+                  <CardDescription>Choose the right vehicle based on your items</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <FormField control={form.control} name="vehicleType" render={({ field }) => (
+                    <FormItem>
+                      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                        {vehicleOptions.map((vehicle) => {
+                          const isSelected = field.value === vehicle.type;
+                          const adjustedPrice = Math.round(vehicle.price * (moveTypeMultipliers[watchMoveType] || 1));
+                          return (
+                            <div
+                              key={vehicle.type}
+                              onClick={() => handleVehicleSelect(vehicle.type)}
+                              className={`cursor-pointer rounded-lg border-2 p-4 transition-all hover:border-primary/50 ${
+                                isSelected ? "border-primary bg-primary/5" : "border-border"
+                              }`}
+                            >
+                              <div className="mb-2 flex items-center justify-between">
+                                <Truck className={`h-8 w-8 ${isSelected ? "text-primary" : "text-muted-foreground"}`} />
+                                {isSelected && (
+                                  <span className="rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
+                                    Selected
+                                  </span>
+                                )}
+                              </div>
+                              <h3 className="font-semibold text-foreground">{vehicle.name}</h3>
+                              <p className="text-xs text-muted-foreground">{vehicle.description}</p>
+                              <p className="mt-1 text-xs text-muted-foreground">{vehicle.capacity}</p>
+                              <p className="mt-2 text-lg font-bold text-primary">
+                                KES {adjustedPrice.toLocaleString()}
+                              </p>
+                            </div>
+                          );
+                        })}
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                </CardContent>
+              </Card>
+
+              {/* Personal Information */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <User className="h-5 w-5 text-primary" />Personal Information
+                  </CardTitle>
+                </CardHeader>
                 <CardContent className="grid gap-6 sm:grid-cols-2">
                   <FormField control={form.control} name="fullName" render={({ field }) => (
                     <FormItem><FormLabel>Full Name</FormLabel><FormControl><Input placeholder="John Kamau" {...field} /></FormControl><FormMessage /></FormItem>
@@ -224,8 +315,13 @@ export default function MoversPage() {
                 </CardContent>
               </Card>
 
+              {/* Move Details */}
               <Card>
-                <CardHeader><CardTitle className="flex items-center gap-2 text-lg"><MapPin className="h-5 w-5 text-primary" />Move Details</CardTitle></CardHeader>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <MapPin className="h-5 w-5 text-primary" />Move Details
+                  </CardTitle>
+                </CardHeader>
                 <CardContent className="grid gap-6">
                   <div className="grid gap-6 sm:grid-cols-2">
                     <FormField control={form.control} name="originAddress" render={({ field }) => (
@@ -262,10 +358,21 @@ export default function MoversPage() {
                     )} />
                   </div>
                   <FormField control={form.control} name="moveDate" render={({ field }) => (
-                    <FormItem><FormLabel>Move Date</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
+                    <FormItem>
+                      <FormLabel>Move Date</FormLabel>
+                      <FormControl><Input type="date" min={new Date().toISOString().split("T")[0]} {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
                   )} />
                   <FormField control={form.control} name="inventoryList" render={({ field }) => (
-                    <FormItem><FormLabel>Inventory List</FormLabel><FormControl><Textarea placeholder="List items to be moved (beds, sofas, appliances, boxes, etc.)" className="min-h-[100px]" {...field} /></FormControl><FormDescription>Provide details about items to help us prepare</FormDescription><FormMessage /></FormItem>
+                    <FormItem>
+                      <FormLabel>Inventory List</FormLabel>
+                      <FormControl>
+                        <Textarea placeholder="List items to be moved (beds, sofas, appliances, boxes, etc.)" className="min-h-[100px]" {...field} />
+                      </FormControl>
+                      <FormDescription>Provide details about items to help us prepare</FormDescription>
+                      <FormMessage />
+                    </FormItem>
                   )} />
                   <FormField control={form.control} name="requiresPacking" render={({ field }) => (
                     <FormItem className="flex flex-row items-start gap-3 rounded-md border border-border p-4">
@@ -279,18 +386,46 @@ export default function MoversPage() {
                 </CardContent>
               </Card>
 
+              {/* Price Summary */}
               <Card>
-                <CardHeader><CardTitle className="flex items-center gap-2 text-lg"><CreditCard className="h-5 w-5 text-primary" />Price Summary</CardTitle></CardHeader>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <CreditCard className="h-5 w-5 text-primary" />Price Summary
+                  </CardTitle>
+                </CardHeader>
                 <CardContent>
                   <dl className="space-y-2">
-                    <div className="flex justify-between text-sm"><dt className="text-muted-foreground capitalize">{watchMoveType} Move (Base)</dt><dd>KES {moveTypeRates[watchMoveType].toLocaleString()}</dd></div>
-                    {watchPacking && <div className="flex justify-between text-sm"><dt className="text-muted-foreground">Packing Service</dt><dd>KES 5,000</dd></div>}
-                    <div className="flex justify-between border-t border-border pt-2 text-lg font-semibold"><dt>Total</dt><dd className="text-primary">KES {calculateTotal().toLocaleString()}</dd></div>
+                    <div className="flex justify-between text-sm">
+                      <dt className="text-muted-foreground">
+                        {vehicleOptions.find(v => v.type === watchVehicleType)?.name || "Vehicle"}
+                      </dt>
+                      <dd>KES {getVehiclePrice(watchVehicleType).toLocaleString()}</dd>
+                    </div>
+                    {watchMoveType !== "residential" && (
+                      <div className="flex justify-between text-sm">
+                        <dt className="text-muted-foreground capitalize">
+                          {watchMoveType} Surcharge ({watchMoveType === "office" ? "+30%" : "+50%"})
+                        </dt>
+                        <dd>KES {Math.round(getVehiclePrice(watchVehicleType) * (moveTypeMultipliers[watchMoveType] - 1)).toLocaleString()}</dd>
+                      </div>
+                    )}
+                    {watchPacking && (
+                      <div className="flex justify-between text-sm">
+                        <dt className="text-muted-foreground">Packing Service</dt>
+                        <dd>KES 5,000</dd>
+                      </div>
+                    )}
+                    <div className="flex justify-between border-t border-border pt-2 text-lg font-semibold">
+                      <dt>Total</dt>
+                      <dd className="text-primary">KES {calculateTotal().toLocaleString()}</dd>
+                    </div>
                   </dl>
                 </CardContent>
               </Card>
 
-              <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>{isSubmitting ? "Processing..." : "Continue to Payment"}</Button>
+              <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
+                {isSubmitting ? "Processing..." : "Continue to Payment"}
+              </Button>
             </form>
           </Form>
         </div>

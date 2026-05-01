@@ -108,9 +108,19 @@ export interface TransferBooking extends BaseBooking {
 }
 
 // Movers Types
+export type MoversVehicleType = 
+  | "small-pickup" 
+  | "large-pickup" 
+  | "1-ton-truck" 
+  | "3-ton-truck" 
+  | "5-ton-truck" 
+  | "7-ton-truck" 
+  | "10-ton-truck";
+
 export interface MoversBooking extends BaseBooking {
   serviceType: "movers";
   moveType: "residential" | "commercial" | "office";
+  vehicleType: MoversVehicleType;
   originAddress: string;
   destinationAddress: string;
   moveDate: string;
