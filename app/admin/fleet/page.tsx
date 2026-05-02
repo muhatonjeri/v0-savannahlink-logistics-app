@@ -959,15 +959,15 @@ export default function FleetManagementPage() {
             <CardContent className="p-0">
               <Table>
                 <TableHeader>
-                  <TableRow className="bg-gray-50 dark:bg-gray-800/50">
-                    <TableHead>Vehicle</TableHead>
-                    <TableHead>Registration</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Assigned To</TableHead>
-                    <TableHead>Date Out</TableHead>
-                    <TableHead>Expected In</TableHead>
-                    <TableHead>Next Service</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                  <TableRow className="bg-[#0a1628] border-b-2 border-[#e67e22]">
+                    <TableHead className="text-[#e67e22]">Vehicle</TableHead>
+                    <TableHead className="text-[#e67e22]">Registration</TableHead>
+                    <TableHead className="text-[#e67e22]">Status</TableHead>
+                    <TableHead className="text-[#e67e22]">Assigned To</TableHead>
+                    <TableHead className="text-[#e67e22]">Date Out</TableHead>
+                    <TableHead className="text-[#e67e22]">Expected In</TableHead>
+                    <TableHead className="text-[#e67e22]">Next Service</TableHead>
+                    <TableHead className="text-[#e67e22] text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
