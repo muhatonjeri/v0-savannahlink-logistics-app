@@ -177,16 +177,10 @@
   .no-print,
   nav,
   aside,
-  .print\\:hidden,
   [data-radix-dialog-overlay],
-  .fixed.inset-0.bg-black,
   button:not(.print-button),
   [role="dialog"] > button,
-  footer:not(.print-footer),
-  .DialogFooter,
-  [class*="DialogFooter"],
-  .bg-blue-50,
-  [class*="bg-blue-950"] {
+  footer:not(.print-footer) {
     display: none !important;
     visibility: hidden !important;
   }
