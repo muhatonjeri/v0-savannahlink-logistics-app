@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import Image from "next/image";
 import { useReactToPrint } from "react-to-print";
 import { format } from "date-fns";
 import { toast } from "sonner";
@@ -207,13 +208,13 @@ const initialInvoices: Invoice[] = [
 
 // Company info for invoice header
 const companyInfo = {
-  name: "SavannaTrail Logistics",
-  tagline: "Your Trusted Partner in Logistics & Travel",
-  address: "Mombasa Road, Industrial Area",
+  name: "SavannaLink Logistics & Tours",
+  tagline: "Journeys That Connect",
+  address: "Muthaiga Square, off Thika Rd",
   city: "Nairobi, Kenya",
-  phone: "+254 700 123 456",
-  email: "info@savannatrail.co.ke",
-  website: "www.savannatrail.co.ke",
+  phone: "+254 727 247 032",
+  email: "info@savannalink.com",
+  website: "www.savannalink.com",
   kraPin: "P012345678Z",
   bankName: "Equity Bank Kenya",
   bankAccount: "0123456789012",
@@ -868,36 +869,51 @@ export default function InvoicesPage() {
           </div>
 
           {selectedInvoice && (
-            <div ref={printRef} className="p-8 bg-white text-gray-900">
+            <div ref={printRef} className="p-8 bg-white text-gray-900 print:p-4">
               {/* Invoice Template */}
-              <div className="space-y-8">
-                {/* Header */}
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h1 className="text-3xl font-bold text-cyan-700">{companyInfo.name}</h1>
-                    <p className="text-sm text-gray-500 italic">{companyInfo.tagline}</p>
-                    <div className="mt-4 text-sm text-gray-600 space-y-1">
-                      <p className="flex items-center gap-2">
-                        <MapPin className="h-4 w-4" />
-                        {companyInfo.address}, {companyInfo.city}
-                      </p>
-                      <p className="flex items-center gap-2">
-                        <Phone className="h-4 w-4" />
-                        {companyInfo.phone}
-                      </p>
-                      <p className="flex items-center gap-2">
-                        <Mail className="h-4 w-4" />
-                        {companyInfo.email}
-                      </p>
-                      <p className="flex items-center gap-2">
-                        <Globe className="h-4 w-4" />
-                        {companyInfo.website}
-                      </p>
+              <div className="space-y-6">
+                {/* Professional Header with Logo */}
+                <div className="border-b-2 border-emerald-600 pb-4">
+                  <div className="flex justify-between items-start">
+                    {/* Company Logo & Info */}
+                    <div className="flex items-start gap-4">
+                      <Image
+                        src="/images/logo.png"
+                        alt={companyInfo.name}
+                        width={100}
+                        height={50}
+                        className="h-auto w-[80px] object-contain print:w-[60px]"
+                        unoptimized
+                      />
+                      <div>
+                        <h1 className="text-2xl font-bold text-emerald-700">{companyInfo.name}</h1>
+                        <p className="text-sm text-gray-500 italic">{companyInfo.tagline}</p>
+                        <div className="mt-2 text-xs text-gray-600 space-y-0.5">
+                          <p className="flex items-center gap-1.5">
+                            <MapPin className="h-3 w-3 text-emerald-600" />
+                            {companyInfo.address}, {companyInfo.city}
+                          </p>
+                          <p className="flex items-center gap-1.5">
+                            <Phone className="h-3 w-3 text-emerald-600" />
+                            {companyInfo.phone}
+                          </p>
+                          <p className="flex items-center gap-1.5">
+                            <Mail className="h-3 w-3 text-emerald-600" />
+                            {companyInfo.email}
+                          </p>
+                          <p className="flex items-center gap-1.5">
+                            <Globe className="h-3 w-3 text-emerald-600" />
+                            {companyInfo.website}
+                          </p>
+                        </div>
+                        <p className="mt-1 text-xs font-semibold text-gray-700">KRA PIN: {companyInfo.kraPin}</p>
+                      </div>
                     </div>
-                    <p className="mt-2 text-sm font-medium">KRA PIN: {companyInfo.kraPin}</p>
-                  </div>
-                  <div className="text-right">
-                    <h2 className="text-4xl font-bold text-gray-300 uppercase">Invoice</h2>
+                    {/* Invoice Info */}
+                    <div className="text-right">
+                      <div className="bg-emerald-50 px-4 py-2 rounded-md inline-block">
+                        <h2 className="text-2xl font-bold text-emerald-700 uppercase tracking-wider">Invoice</h2>
+                      </div>
                     <div className="mt-4 space-y-1 text-sm">
                       <p className="flex items-center justify-end gap-2">
                         <Hash className="h-4 w-4 text-gray-400" />

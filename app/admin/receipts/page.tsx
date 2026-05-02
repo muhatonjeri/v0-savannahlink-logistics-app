@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useRef } from "react";
+import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -131,12 +132,12 @@ interface ReceiptData {
 
 // Company details (would come from settings in production)
 const companyDetails = {
-  name: "SavannahLink Logistics Ltd",
+  name: "SavannaLink Logistics & Tours",
   kraPin: "P051234567X",
-  address: "Westlands Business Park, Nairobi",
-  phone: "+254 700 123 456",
-  email: "info@savannahlink.co.ke",
-  website: "www.savannahlink.co.ke",
+  address: "Muthaiga Square, off Thika Rd, Nairobi, Kenya",
+  phone: "+254 727 247 032",
+  email: "info@savannalink.com",
+  website: "www.savannalink.com",
   etimsDeviceNumber: "ETIMS-2024-00123",
 };
 
@@ -1167,14 +1168,35 @@ export default function ReceiptsPage() {
                 </DialogTitle>
               </DialogHeader>
 
-              {/* Company Header */}
-              <div className="text-center border-b pb-4">
-                <h2 className="text-xl font-bold">{companyDetails.name}</h2>
-                <p className="text-sm text-muted-foreground">{companyDetails.address}</p>
-                <p className="text-sm text-muted-foreground">
-                  Tel: {companyDetails.phone} | Email: {companyDetails.email}
-                </p>
-                <p className="text-sm font-medium mt-1">KRA PIN: {companyDetails.kraPin}</p>
+              {/* Company Header - Professional Print Template */}
+              <div className="border-b-2 border-emerald-600 pb-4 print:border-b-2 print:border-emerald-600">
+                <div className="flex items-center justify-between gap-4">
+                  {/* Logo */}
+                  <div className="flex-shrink-0">
+                    <Image
+                      src="/images/logo.png"
+                      alt={companyDetails.name}
+                      width={120}
+                      height={60}
+                      className="h-auto w-[100px] object-contain print:w-[80px]"
+                      unoptimized
+                    />
+                  </div>
+                  {/* Company Info */}
+                  <div className="flex-1 text-right">
+                    <h2 className="text-xl font-bold text-emerald-700 dark:text-emerald-400 print:text-emerald-700">{companyDetails.name}</h2>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 print:text-gray-600">{companyDetails.address}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 print:text-gray-600">
+                      Tel: {companyDetails.phone} | Email: {companyDetails.email}
+                    </p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 print:text-gray-600">Website: {companyDetails.website}</p>
+                    <p className="text-sm font-semibold text-gray-800 dark:text-gray-200 mt-1 print:text-gray-800">KRA PIN: {companyDetails.kraPin}</p>
+                  </div>
+                </div>
+                {/* Receipt Title */}
+                <div className="mt-4 text-center bg-emerald-50 dark:bg-emerald-950/30 py-2 rounded-md print:bg-emerald-50">
+                  <h3 className="text-lg font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 print:text-emerald-700">Official Receipt</h3>
+                </div>
               </div>
 
               {/* Receipt Info */}

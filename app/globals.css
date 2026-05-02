@@ -147,3 +147,95 @@
     opacity: 1;
   }
 }
+
+/* Professional Print Styles */
+@media print {
+  /* Reset background and text for print */
+  body {
+    background: white !important;
+    color: black !important;
+    font-size: 12pt;
+    line-height: 1.4;
+  }
+  
+  /* Hide non-printable elements */
+  .no-print,
+  button,
+  nav,
+  header:not(.print-header),
+  footer:not(.print-footer),
+  [role="dialog"] > div:not([data-print-area]),
+  .print\\:hidden {
+    display: none !important;
+  }
+  
+  /* Show only the print area */
+  [data-print-area] {
+    display: block !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    padding: 20px !important;
+    background: white !important;
+    color: black !important;
+  }
+  
+  /* Receipt/Invoice specific styles */
+  .print-receipt {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 auto !important;
+    background: white !important;
+  }
+  
+  /* Company header */
+  .print-receipt h2 {
+    font-size: 18pt !important;
+    color: #065f46 !important;
+    margin-bottom: 4px;
+  }
+  
+  /* Ensure tables print well */
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    font-size: 10pt;
+  }
+  
+  th, td {
+    border: 1px solid #e5e7eb !important;
+    padding: 8px !important;
+    text-align: left;
+  }
+  
+  th {
+    background: #f3f4f6 !important;
+    font-weight: 600;
+    color: black !important;
+  }
+  
+  /* Badge/status colors */
+  .bg-emerald-50 {
+    background: #ecfdf5 !important;
+  }
+  
+  .text-emerald-700 {
+    color: #047857 !important;
+  }
+  
+  /* Hide dialog backdrop */
+  [data-radix-dialog-overlay],
+  .fixed.inset-0 {
+    display: none !important;
+  }
+  
+  /* Page breaks */
+  .page-break {
+    page-break-before: always;
+  }
+  
+  .no-page-break {
+    page-break-inside: avoid;
+  }
+}

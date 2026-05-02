@@ -371,7 +371,20 @@ export default function AdminLayout({
             </BreadcrumbList>
           </Breadcrumb>
         </header>
-        <main className="flex-1 overflow-auto p-4 md:p-6">{children}</main>
+        <main className="flex-1 overflow-auto p-4 md:p-6 relative">
+          {/* Watermark Logo */}
+          <div className="fixed bottom-4 right-4 pointer-events-none z-0 opacity-[0.03] print:hidden">
+            <Image
+              src="/images/logo.png"
+              alt=""
+              width={300}
+              height={150}
+              className="h-auto w-[200px] md:w-[300px] object-contain"
+              unoptimized
+            />
+          </div>
+          <div className="relative z-10">{children}</div>
+        </main>
       </SidebarInset>
     </SidebarProvider>
   );
