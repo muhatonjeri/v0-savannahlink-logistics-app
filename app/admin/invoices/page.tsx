@@ -36,6 +36,7 @@ import {
   Clock,
   XCircle,
   AlertCircle,
+  Smartphone,
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -869,64 +870,64 @@ export default function InvoicesPage() {
           </div>
 
           {selectedInvoice && (
-            <div ref={printRef} className="p-8 bg-white text-gray-900 print:p-4">
-              {/* Invoice Template */}
-              <div className="space-y-6">
-                {/* Professional Header with Logo */}
-                <div className="border-b-2 border-emerald-600 pb-4">
+            <div ref={printRef} className="print-receipt bg-white rounded-lg border border-gray-200" data-print-area="true">
+              {/* Professional Invoice Template */}
+              <div className="p-8 text-gray-900">
+                {/* Header with Logo and Invoice Info */}
+                <div className="border-b-4 border-emerald-600 pb-6 mb-6">
                   <div className="flex justify-between items-start">
                     {/* Company Logo & Info */}
-                    <div className="flex items-start gap-4">
+                    <div className="flex items-start gap-5">
                       <Image
                         src="/images/logo.png"
                         alt={companyInfo.name}
                         width={100}
                         height={50}
-                        className="h-auto w-[80px] object-contain print:w-[60px]"
+                        className="h-auto w-[90px] object-contain"
                         unoptimized
                       />
                       <div>
                         <h1 className="text-2xl font-bold text-emerald-700">{companyInfo.name}</h1>
                         <p className="text-sm text-gray-500 italic">{companyInfo.tagline}</p>
-                        <div className="mt-2 text-xs text-gray-600 space-y-0.5">
-                          <p className="flex items-center gap-1.5">
-                            <MapPin className="h-3 w-3 text-emerald-600" />
+                        <div className="mt-3 text-sm text-gray-600 space-y-1">
+                          <p className="flex items-center gap-2">
+                            <MapPin className="h-4 w-4 text-emerald-600" />
                             {companyInfo.address}, {companyInfo.city}
                           </p>
-                          <p className="flex items-center gap-1.5">
-                            <Phone className="h-3 w-3 text-emerald-600" />
+                          <p className="flex items-center gap-2">
+                            <Phone className="h-4 w-4 text-emerald-600" />
                             {companyInfo.phone}
                           </p>
-                          <p className="flex items-center gap-1.5">
-                            <Mail className="h-3 w-3 text-emerald-600" />
+                          <p className="flex items-center gap-2">
+                            <Mail className="h-4 w-4 text-emerald-600" />
                             {companyInfo.email}
                           </p>
-                          <p className="flex items-center gap-1.5">
-                            <Globe className="h-3 w-3 text-emerald-600" />
+                          <p className="flex items-center gap-2">
+                            <Globe className="h-4 w-4 text-emerald-600" />
                             {companyInfo.website}
                           </p>
                         </div>
-                        <p className="mt-1 text-xs font-semibold text-gray-700">KRA PIN: {companyInfo.kraPin}</p>
+                        <p className="mt-2 text-sm font-bold text-gray-800">KRA PIN: {companyInfo.kraPin}</p>
                       </div>
                     </div>
-                    {/* Invoice Info */}
+                    
+                    {/* Invoice Number Box */}
                     <div className="text-right">
-                      <div className="bg-emerald-50 px-4 py-2 rounded-md inline-block">
-                        <h2 className="text-2xl font-bold text-emerald-700 uppercase tracking-wider">Invoice</h2>
+                      <div className="inline-block bg-emerald-600 text-white px-6 py-3 rounded-lg mb-4">
+                        <p className="text-sm uppercase tracking-wider opacity-90">Invoice</p>
+                        <p className="text-2xl font-bold font-mono">{selectedInvoice.invoiceNumber}</p>
                       </div>
-                      <div className="mt-4 space-y-1 text-sm">
-                      <p className="flex items-center justify-end gap-2">
-                        <Hash className="h-4 w-4 text-gray-400" />
-                        <span className="font-bold text-lg">{selectedInvoice.invoiceNumber}</span>
-                      </p>
-                      <p className="flex items-center justify-end gap-2">
-                        <Calendar className="h-4 w-4 text-gray-400" />
-                        Issue Date: {format(new Date(selectedInvoice.issueDate), "MMMM dd, yyyy")}
-                      </p>
-                      <p className="flex items-center justify-end gap-2">
-                        <Calendar className="h-4 w-4 text-gray-400" />
-                        Due Date: {format(new Date(selectedInvoice.dueDate), "MMMM dd, yyyy")}
-                      </p>
+                      <div className="space-y-2 text-sm">
+                        <p className="flex items-center justify-end gap-2">
+                          <Calendar className="h-4 w-4 text-gray-400" />
+                          <span className="text-gray-600">Issue Date:</span>
+                          <span className="font-semibold">{format(new Date(selectedInvoice.issueDate), "MMMM dd, yyyy")}</span>
+                        </p>
+                        <p className="flex items-center justify-end gap-2">
+                          <Calendar className="h-4 w-4 text-gray-400" />
+                          <span className="text-gray-600">Due Date:</span>
+                          <span className="font-semibold text-red-600">{format(new Date(selectedInvoice.dueDate), "MMMM dd, yyyy")}</span>
+                        </p>
                       </div>
                       <Badge 
                         className={`mt-3 ${statusConfig[selectedInvoice.status].color}`}
@@ -937,119 +938,177 @@ export default function InvoicesPage() {
                   </div>
                 </div>
 
-                <Separator />
-
-                {/* Bill To */}
-                <div className="grid grid-cols-2 gap-8">
-                  <div>
-                    <h3 className="text-sm font-semibold text-gray-500 uppercase mb-2">Bill To</h3>
-                    <div className="space-y-1">
-                      <p className="font-bold text-lg flex items-center gap-2">
-                        <User className="h-4 w-4 text-cyan-600" />
-                        {selectedInvoice.customerName}
-                      </p>
+                {/* Bill To & Service Info */}
+                <div className="grid grid-cols-2 gap-8 mb-6">
+                  <div className="bg-gray-50 rounded-lg p-5 border border-gray-200">
+                    <h3 className="text-sm font-bold text-gray-800 uppercase mb-3 pb-2 border-b border-gray-300 flex items-center gap-2 tracking-wide">
+                      <User className="h-4 w-4 text-emerald-600" />
+                      Bill To
+                    </h3>
+                    <div className="space-y-2">
+                      <p className="font-bold text-xl text-gray-900">{selectedInvoice.customerName}</p>
                       {selectedInvoice.customerAddress && (
                         <p className="text-sm text-gray-600">{selectedInvoice.customerAddress}</p>
                       )}
                       {selectedInvoice.customerPhone && (
-                        <p className="text-sm text-gray-600">{selectedInvoice.customerPhone}</p>
+                        <p className="text-sm text-gray-600 flex items-center gap-2">
+                          <Phone className="h-3.5 w-3.5 text-gray-400" />
+                          {selectedInvoice.customerPhone}
+                        </p>
                       )}
                       {selectedInvoice.customerEmail && (
-                        <p className="text-sm text-gray-600">{selectedInvoice.customerEmail}</p>
+                        <p className="text-sm text-gray-600 flex items-center gap-2">
+                          <Mail className="h-3.5 w-3.5 text-gray-400" />
+                          {selectedInvoice.customerEmail}
+                        </p>
                       )}
                       {selectedInvoice.customerKraPin && (
-                        <p className="text-sm font-medium">KRA PIN: {selectedInvoice.customerKraPin}</p>
+                        <p className="text-sm font-semibold text-gray-800 mt-2">KRA PIN: {selectedInvoice.customerKraPin}</p>
                       )}
                     </div>
                   </div>
-                  <div>
-                    <h3 className="text-sm font-semibold text-gray-500 uppercase mb-2">Service</h3>
-                    <div className="flex items-center gap-2">
-                      {(() => {
-                        const ServiceIcon = getServiceIcon(selectedInvoice.serviceType);
-                        return <ServiceIcon className="h-5 w-5 text-cyan-600" />;
-                      })()}
-                      <span className="font-medium">{getServiceLabel(selectedInvoice.serviceType)}</span>
+                  <div className="bg-gray-50 rounded-lg p-5 border border-gray-200">
+                    <h3 className="text-sm font-bold text-gray-800 uppercase mb-3 pb-2 border-b border-gray-300 tracking-wide">
+                      Invoice Details
+                    </h3>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-3">
+                        {(() => {
+                          const ServiceIcon = getServiceIcon(selectedInvoice.serviceType);
+                          return <ServiceIcon className="h-5 w-5 text-emerald-600" />;
+                        })()}
+                        <span className="font-semibold text-gray-900">{getServiceLabel(selectedInvoice.serviceType)}</span>
+                      </div>
+                      <p className="text-sm text-gray-600">
+                        <span className="font-medium">Payment Terms:</span> {selectedInvoice.paymentTerms}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        <span className="font-medium">Currency:</span> KES (Kenya Shillings)
+                      </p>
                     </div>
-                    <p className="text-sm text-gray-500 mt-1">Payment Terms: {selectedInvoice.paymentTerms}</p>
                   </div>
                 </div>
 
                 {/* Items Table */}
-                <div className="rounded-lg border overflow-hidden">
-                  <table className="w-full">
-                    <thead className="bg-cyan-50">
-                      <tr>
-                        <th className="text-left py-3 px-4 font-semibold text-cyan-700">Description</th>
-                        <th className="text-center py-3 px-4 font-semibold text-cyan-700">Qty</th>
-                        <th className="text-right py-3 px-4 font-semibold text-cyan-700">Unit Price</th>
-                        <th className="text-right py-3 px-4 font-semibold text-cyan-700">Amount</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {selectedInvoice.items.map((item, index) => (
-                        <tr key={item.id} className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}>
-                          <td className="py-3 px-4">{item.description}</td>
-                          <td className="py-3 px-4 text-center">{item.quantity}</td>
-                          <td className="py-3 px-4 text-right">KES {item.unitPrice.toLocaleString()}</td>
-                          <td className="py-3 px-4 text-right font-medium">KES {item.amount.toLocaleString()}</td>
+                <div className="mb-6">
+                  <h3 className="font-bold text-gray-800 mb-3 uppercase text-sm tracking-wide">Description of Services</h3>
+                  <div className="border-2 border-gray-200 rounded-lg overflow-hidden">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="bg-emerald-600 text-white">
+                          <th className="text-left py-4 px-5 font-semibold">Description</th>
+                          <th className="text-center py-4 px-5 font-semibold w-24">Qty</th>
+                          <th className="text-right py-4 px-5 font-semibold w-36">Unit Price (KES)</th>
+                          <th className="text-right py-4 px-5 font-semibold w-36">Amount (KES)</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {selectedInvoice.items.map((item, index) => (
+                          <tr key={item.id} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+                            <td className="py-4 px-5 text-gray-800">{item.description}</td>
+                            <td className="py-4 px-5 text-center text-gray-700">{item.quantity}</td>
+                            <td className="py-4 px-5 text-right text-gray-700">{item.unitPrice.toLocaleString()}</td>
+                            <td className="py-4 px-5 text-right font-semibold text-gray-900">{item.amount.toLocaleString()}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
 
                 {/* Totals */}
-                <div className="flex justify-end">
-                  <div className="w-72 space-y-2">
-                    <div className="flex justify-between py-2">
-                      <span className="text-gray-600">Subtotal:</span>
-                      <span className="font-medium">KES {selectedInvoice.subtotal.toLocaleString()}</span>
-                    </div>
-                    <div className="flex justify-between py-2">
-                      <span className="text-gray-600">VAT ({selectedInvoice.vatRate}%):</span>
-                      <span className="font-medium">KES {selectedInvoice.vatAmount.toLocaleString()}</span>
-                    </div>
-                    <Separator />
-                    <div className="flex justify-between py-3 text-xl font-bold">
-                      <span>Total:</span>
-                      <span className="text-cyan-700">KES {selectedInvoice.total.toLocaleString()}</span>
+                <div className="flex justify-end mb-6">
+                  <div className="w-96 bg-gray-50 rounded-lg border-2 border-gray-200 p-5">
+                    <div className="space-y-3">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">Subtotal:</span>
+                        <span className="font-medium text-gray-800">KES {selectedInvoice.subtotal.toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">VAT ({selectedInvoice.vatRate}%):</span>
+                        <span className="font-medium text-gray-800">KES {selectedInvoice.vatAmount.toLocaleString()}</span>
+                      </div>
+                      <div className="border-t-2 border-emerald-600 pt-4 mt-4">
+                        <div className="flex justify-between text-xl font-bold">
+                          <span className="text-gray-800">TOTAL DUE:</span>
+                          <span className="text-emerald-700">KES {selectedInvoice.total.toLocaleString()}</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
 
                 {/* Payment Info */}
-                <div className="grid grid-cols-2 gap-8 p-6 bg-gray-50 rounded-lg">
-                  <div>
-                    <h3 className="text-sm font-semibold text-gray-500 uppercase mb-3">Bank Transfer</h3>
-                    <div className="space-y-1 text-sm">
-                      <p><span className="text-gray-500">Bank:</span> {companyInfo.bankName}</p>
-                      <p><span className="text-gray-500">Account:</span> {companyInfo.bankAccount}</p>
-                      <p><span className="text-gray-500">Branch:</span> {companyInfo.bankBranch}</p>
+                <div className="grid grid-cols-2 gap-6 mb-6">
+                  <div className="bg-blue-50 rounded-lg p-5 border border-blue-200">
+                    <h3 className="text-sm font-bold text-blue-800 uppercase mb-3 flex items-center gap-2 tracking-wide">
+                      <Building2 className="h-4 w-4" />
+                      Bank Transfer
+                    </h3>
+                    <div className="space-y-2 text-sm">
+                      <p className="flex justify-between">
+                        <span className="text-gray-600">Bank:</span>
+                        <span className="font-semibold text-gray-800">{companyInfo.bankName}</span>
+                      </p>
+                      <p className="flex justify-between">
+                        <span className="text-gray-600">Account:</span>
+                        <span className="font-mono font-semibold text-gray-800">{companyInfo.bankAccount}</span>
+                      </p>
+                      <p className="flex justify-between">
+                        <span className="text-gray-600">Branch:</span>
+                        <span className="font-semibold text-gray-800">{companyInfo.bankBranch}</span>
+                      </p>
                     </div>
                   </div>
-                  <div>
-                    <h3 className="text-sm font-semibold text-gray-500 uppercase mb-3">M-Pesa Payment</h3>
-                    <div className="space-y-1 text-sm">
-                      <p><span className="text-gray-500">Paybill:</span> {companyInfo.mpesaPaybill}</p>
-                      <p><span className="text-gray-500">Account No:</span> {companyInfo.mpesaAccountNo}</p>
-                      <p className="text-xs text-gray-400 mt-1">Use invoice number as account reference</p>
+                  <div className="bg-green-50 rounded-lg p-5 border border-green-200">
+                    <h3 className="text-sm font-bold text-green-800 uppercase mb-3 flex items-center gap-2 tracking-wide">
+                      <Smartphone className="h-4 w-4" />
+                      M-Pesa Payment
+                    </h3>
+                    <div className="space-y-2 text-sm">
+                      <p className="flex justify-between">
+                        <span className="text-gray-600">Paybill:</span>
+                        <span className="font-mono font-bold text-xl text-green-700">{companyInfo.mpesaPaybill}</span>
+                      </p>
+                      <p className="flex justify-between">
+                        <span className="text-gray-600">Account No:</span>
+                        <span className="font-mono font-semibold text-gray-800">{companyInfo.mpesaAccountNo}</span>
+                      </p>
+                      <p className="text-xs text-green-700 mt-2 font-medium">
+                        Use invoice number as account reference
+                      </p>
                     </div>
                   </div>
                 </div>
 
                 {/* Notes */}
                 {selectedInvoice.notes && (
-                  <div className="p-4 bg-cyan-50 rounded-lg border border-cyan-100">
-                    <h3 className="text-sm font-semibold text-cyan-700 mb-2">Notes</h3>
-                    <p className="text-sm text-gray-600">{selectedInvoice.notes}</p>
+                  <div className="p-5 bg-amber-50 rounded-lg border border-amber-200 mb-6">
+                    <h3 className="text-sm font-bold text-amber-800 mb-2 uppercase tracking-wide">Notes</h3>
+                    <p className="text-sm text-gray-700">{selectedInvoice.notes}</p>
                   </div>
                 )}
 
+                {/* Terms */}
+                <div className="p-5 bg-gray-100 rounded-lg border border-gray-200 mb-6">
+                  <h3 className="text-sm font-bold text-gray-800 mb-2 uppercase tracking-wide">Terms & Conditions</h3>
+                  <ul className="text-xs text-gray-600 space-y-1 list-disc list-inside">
+                    <li>Payment is due by the date indicated above</li>
+                    <li>Late payments may incur additional charges</li>
+                    <li>Please include invoice number in all payment references</li>
+                    <li>This invoice is valid for 30 days from issue date</li>
+                  </ul>
+                </div>
+
                 {/* Footer */}
-                <div className="text-center text-sm text-gray-500 pt-6 border-t">
-                  <p>Thank you for your business!</p>
-                  <p className="mt-1">For inquiries, contact us at {companyInfo.email} or {companyInfo.phone}</p>
+                <div className="print-footer text-center pt-6 border-t-2 border-gray-200">
+                  <p className="text-lg font-bold text-emerald-700">Thank You For Your Business!</p>
+                  <p className="text-sm text-gray-500 mt-2">
+                    For inquiries, contact us at {companyInfo.email} or {companyInfo.phone}
+                  </p>
+                  <p className="text-xs text-gray-400 mt-2">
+                    {companyInfo.website} | KRA PIN: {companyInfo.kraPin}
+                  </p>
                 </div>
               </div>
             </div>
