@@ -424,28 +424,29 @@
 /* Dark Mode Text Visibility Enhancements */
 .dark {
   /* Ensure all gray text colors are visible on dark backgrounds */
-  .text-gray-900 {
+  .text-gray-900:not(.print-receipt *) {
     color: var(--foreground);
   }
   
-  .text-gray-800 {
+  .text-gray-800:not(.print-receipt *) {
     color: oklch(0.95 0 0);
   }
   
-  .text-gray-700 {
+  .text-gray-700:not(.print-receipt *) {
     color: oklch(0.85 0 0);
   }
   
-  .text-gray-600 {
+  .text-gray-600:not(.print-receipt *) {
     color: oklch(0.75 0 0);
   }
   
-  .text-gray-500 {
+  .text-gray-500:not(.print-receipt *) {
     color: oklch(0.65 0 0);
   }
   
-  /* Table text visibility */
-  td, th {
+  /* Table text visibility - excluding print templates */
+  td:not(.print-receipt td), 
+  th:not(.print-receipt th) {
     color: var(--foreground);
   }
   
@@ -463,8 +464,19 @@
     color: var(--foreground);
   }
   
-  /* Badge text on dark backgrounds */
-  .bg-gray-100, .bg-gray-50 {
+  /* Badge text on light backgrounds in dark mode */
+  .bg-gray-100:not(.print-receipt *), 
+  .bg-gray-50:not(.print-receipt *) {
+    color: #1f2937;
+  }
+  
+  /* Light background colors need dark text */
+  .bg-blue-50:not(.print-receipt *),
+  .bg-emerald-50:not(.print-receipt *),
+  .bg-amber-50:not(.print-receipt *),
+  .bg-red-50:not(.print-receipt *),
+  .bg-yellow-50:not(.print-receipt *),
+  .bg-green-50:not(.print-receipt *) {
     color: #1f2937;
   }
   
@@ -473,5 +485,16 @@
   [class*="CardContent"] span,
   [class*="CardContent"] div {
     color: inherit;
+  }
+  
+  /* Dialog backgrounds */
+  [role="dialog"] {
+    color: var(--foreground);
+  }
+  
+  /* Dropdown menus */
+  [role="menu"],
+  [role="listbox"] {
+    color: var(--foreground);
   }
 }
