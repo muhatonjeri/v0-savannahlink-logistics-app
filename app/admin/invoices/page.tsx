@@ -927,12 +927,13 @@ export default function InvoicesPage() {
                         <Calendar className="h-4 w-4 text-gray-400" />
                         Due Date: {format(new Date(selectedInvoice.dueDate), "MMMM dd, yyyy")}
                       </p>
+                      </div>
+                      <Badge 
+                        className={`mt-3 ${statusConfig[selectedInvoice.status].color}`}
+                      >
+                        {statusConfig[selectedInvoice.status].label}
+                      </Badge>
                     </div>
-                    <Badge 
-                      className={`mt-3 ${statusConfig[selectedInvoice.status].color}`}
-                    >
-                      {statusConfig[selectedInvoice.status].label}
-                    </Badge>
                   </div>
                 </div>
 
