@@ -17,6 +17,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { MpesaPayment } from "@/components/payment/mpesa-payment";
+import { DatePicker } from "@/components/ui/date-picker";
 import { saveBooking, generateId } from "@/lib/store";
 import { toast } from "sonner";
 import type { ShipmentBooking } from "@/types";
@@ -203,7 +204,7 @@ export default function ShipmentImportsPage() {
 
                   <div className="grid gap-6 sm:grid-cols-2">
                     <FormField control={form.control} name="estimatedWeight" render={({ field }) => (<FormItem><FormLabel>Estimated Weight (kg)</FormLabel><FormControl><Input type="number" min="1" placeholder="100" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                    <FormField control={form.control} name="expectedArrival" render={({ field }) => (<FormItem><FormLabel>Expected Arrival Date</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                    <FormField control={form.control} name="expectedArrival" render={({ field }) => (<FormItem><FormLabel>Expected Arrival Date</FormLabel><FormControl><DatePicker value={field.value} onChange={(date) => field.onChange(date ? date.toISOString().split("T")[0] : "")} placeholder="Select arrival date" /></FormControl><FormMessage /></FormItem>)} />
                   </div>
                 </CardContent>
               </Card>

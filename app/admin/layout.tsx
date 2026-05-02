@@ -1,22 +1,31 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import Image from "next/image";
+import { usePathname, useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+import type { User } from "@supabase/supabase-js";
 import {
   Car,
   Compass,
   Plane,
   Truck,
+  Bus,
   Wrench,
   Package,
   Ship,
   HardHat,
   LayoutDashboard,
   Users,
-  ChevronRight,
   LogOut,
-  Menu,
+  User as UserIcon,
+  ShieldAlert,
+  Truck as FleetIcon,
+  Receipt,
+  Wallet,
+  FileText,
+  UserSearch,
 } from "lucide-react";
 import {
   SidebarProvider,
@@ -43,38 +52,103 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+
+// Mock auth type
+interface MockAuth {
+  user: {
+    email: string;
+    role: string;
+    name: string;
+  };
+  isAuthenticated: boolean;
+}
 
 const navItems = [
   {
     title: "Dashboard",
     href: "/admin",
     icon: LayoutDashboard,
+    color: "text-blue-500",
   },
   {
     title: "Users",
     href: "/admin/users",
     icon: Users,
+    color: "text-green-500",
+  },
+  {
+    title: "Client Lookup",
+    href: "/admin/client-lookup",
+    icon: UserSearch,
+    color: "text-indigo-500",
+  },
+  {
+    title: "Blacklist",
+    href: "/admin/blacklist",
+    icon: ShieldAlert,
+    color: "text-red-500",
+  },
+  {
+    title: "Fleet Management",
+    href: "/admin/fleet",
+    icon: FleetIcon,
+    color: "text-purple-500",
+  },
+  {
+    title: "Receipts",
+    href: "/admin/receipts",
+    icon: Receipt,
+    color: "text-emerald-500",
+  },
+  {
+    title: "Accounts",
+    href: "/admin/accounts",
+    icon: Wallet,
+    color: "text-amber-500",
+  },
+  {
+    title: "Invoices",
+    href: "/admin/invoices",
+    icon: FileText,
+    color: "text-cyan-500",
   },
 ];
 
 const serviceItems = [
-  { title: "Car Rental", href: "/admin/car-rental", icon: Car },
-  { title: "Safari Tours", href: "/admin/safari-tours", icon: Compass },
-  { title: "Transfers", href: "/admin/transfers", icon: Plane },
-  { title: "Movers", href: "/admin/movers", icon: Truck },
-  { title: "Road Recovery", href: "/admin/road-recovery", icon: Wrench },
-  { title: "Cargo Handling", href: "/admin/cargo-handling", icon: Package },
-  { title: "Shipment Imports", href: "/admin/shipment-imports", icon: Ship },
-  { title: "Construction Equipment", href: "/admin/construction-equipment", icon: HardHat },
+  { title: "Car Rental", href: "/admin/client-lookup?service=car-rental", icon: Car, color: "text-emerald-500" },
+  { title: "Safari Tours", href: "/admin/client-lookup?service=safari-tours", icon: Compass, color: "text-amber-500" },
+  { title: "Transfers", href: "/admin/client-lookup?service=transfers", icon: Plane, color: "text-sky-500" },
+  { title: "Movers", href: "/admin/client-lookup?service=movers", icon: Truck, color: "text-violet-500" },
+  { title: "Corporate Rental", href: "/admin/client-lookup?service=corporate-rental", icon: Bus, color: "text-indigo-500" },
+  { title: "Road Recovery", href: "/admin/client-lookup?service=road-recovery", icon: Wrench, color: "text-rose-500" },
+  { title: "Cargo Handling", href: "/admin/client-lookup?service=cargo-handling", icon: Package, color: "text-orange-500" },
+  { title: "Shipment Imports", href: "/admin/client-lookup?service=shipment-imports", icon: Ship, color: "text-cyan-500" },
+  { title: "Construction Equipment", href: "/admin/client-lookup?service=construction-equipment", icon: HardHat, color: "text-yellow-500" },
 ];
 
 function getBreadcrumbTitle(pathname: string): string {
   if (pathname === "/admin") return "Dashboard";
   if (pathname === "/admin/users") return "Users";
+  if (pathname.includes("client-lookup")) return "Client Lookup";
+  if (pathname.includes("blacklist")) return "Blacklist";
+  if (pathname.includes("fleet")) return "Fleet Management";
+  if (pathname.includes("receipts")) return "Receipts";
+  if (pathname.includes("accounts")) return "Accounts";
+  if (pathname.includes("invoices")) return "Invoices";
   if (pathname.includes("car-rental")) return "Car Rental";
   if (pathname.includes("safari-tours")) return "Safari Tours";
   if (pathname.includes("transfers")) return "Transfers";
   if (pathname.includes("movers")) return "Movers";
+  if (pathname.includes("corporate-rental")) return "Corporate Rental";
   if (pathname.includes("road-recovery")) return "Road Recovery";
   if (pathname.includes("cargo-handling")) return "Cargo Handling";
   if (pathname.includes("shipment-imports")) return "Shipment Imports";
@@ -88,19 +162,106 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const [user, setUser] = useState<User | null>(null);
+  const [mockAuth, setMockAuth] = useState<MockAuth | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Check for mock auth first
+    const mockAuthData = localStorage.getItem('mockAuth');
+    if (mockAuthData) {
+      try {
+        const parsed = JSON.parse(mockAuthData) as MockAuth;
+        if (parsed.isAuthenticated) {
+          setMockAuth(parsed);
+          setIsLoading(false);
+          return;
+        }
+      } catch {
+        localStorage.removeItem('mockAuth');
+      }
+    }
+
+    // Fall back to Supabase auth
+    const supabase = createClient();
+    
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUser(user);
+      setIsLoading(false);
+      
+      // If no user and no mock auth, redirect to login
+      if (!user && !mockAuthData) {
+        router.push('/auth/login?redirect=' + encodeURIComponent(pathname));
+      }
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, [pathname, router]);
+
+  const handleSignOut = async () => {
+    // Clear mock auth cookie and localStorage
+    document.cookie = 'mock_auth=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    localStorage.removeItem('mockAuth');
+    setMockAuth(null);
+    
+    // Also sign out from Supabase
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    
+    router.push("/");
+    router.refresh();
+  };
+
+  const getCurrentEmail = () => {
+    if (mockAuth) return mockAuth.user.email;
+    return user?.email || "User";
+  };
+
+  const getUserInitials = () => {
+    const email = getCurrentEmail();
+    return email.substring(0, 2).toUpperCase();
+  };
+
+  const getUserRole = () => {
+    if (mockAuth) {
+      return mockAuth.user.role === "admin" ? "Admin" : "Staff";
+    }
+    const role = user?.user_metadata?.role;
+    if (role === "admin") return "Admin";
+    return "Staff";
+  };
+
+  // Redirect if not authenticated
+  if (!isLoading && !user && !mockAuth) {
+    router.push('/auth/login?redirect=' + encodeURIComponent(pathname));
+    return null;
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="animate-pulse text-muted-foreground">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <SidebarProvider>
       <Sidebar>
         <SidebarHeader className="border-b border-sidebar-border p-4">
           <Link href="/admin" className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-              <span className="text-sm font-bold text-primary-foreground">SL</span>
-            </div>
-            <div className="flex flex-col">
-              <span className="text-sm font-semibold">Savannah Link</span>
-              <span className="text-xs text-muted-foreground">Admin Portal</span>
-            </div>
+            <Image
+              src="/images/logo.png"
+              alt="SavannaTrail"
+              width={140}
+              height={47}
+              className="h-10 w-auto"
+            />
           </Link>
         </SidebarHeader>
 
@@ -117,7 +278,7 @@ export default function AdminLayout({
                       tooltip={item.title}
                     >
                       <Link href={item.href}>
-                        <item.icon className="h-4 w-4" />
+                        <item.icon className={`h-4 w-4 ${item.color}`} />
                         <span>{item.title}</span>
                       </Link>
                     </SidebarMenuButton>
@@ -139,7 +300,7 @@ export default function AdminLayout({
                       tooltip={item.title}
                     >
                       <Link href={item.href}>
-                        <item.icon className="h-4 w-4" />
+                        <item.icon className={`h-4 w-4 ${item.color}`} />
                         <span>{item.title}</span>
                       </Link>
                     </SidebarMenuButton>
@@ -151,12 +312,42 @@ export default function AdminLayout({
         </SidebarContent>
 
         <SidebarFooter className="border-t border-sidebar-border p-4">
-          <Button variant="ghost" className="w-full justify-start gap-2" asChild>
-            <Link href="/">
-              <LogOut className="h-4 w-4" />
-              <span>Exit Admin</span>
-            </Link>
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="w-full justify-start gap-2 px-2">
+                <Avatar className="h-8 w-8">
+                  <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                    {getUserInitials()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex flex-col items-start text-left">
+                  <span className="text-sm font-medium truncate max-w-[140px]">
+                    {getCurrentEmail()}
+                  </span>
+                  <span className="text-xs text-muted-foreground">{getUserRole()}</span>
+                </div>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem disabled>
+                <UserIcon className="mr-2 h-4 w-4" />
+                Profile Settings
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link href="/">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Exit to Website
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
+                <LogOut className="mr-2 h-4 w-4" />
+                Sign Out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </SidebarFooter>
       </Sidebar>
 

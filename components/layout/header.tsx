@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -19,15 +20,24 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        {/* Logo */}
+        {/* Logo - Double click for staff login */}
         <Link href="/" className="flex items-center gap-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
-            <span className="text-lg font-bold text-primary-foreground">SL</span>
-          </div>
-          <div className="hidden sm:block">
-            <span className="text-xl font-bold text-foreground">Savannah Link</span>
-            <span className="block text-xs text-muted-foreground">Logistics & Tours</span>
-          </div>
+          <Image
+            src="/images/logo.png"
+            alt="SavannaTrail Logistics & Tours"
+            width={180}
+            height={60}
+            className="h-14 w-auto"
+            priority
+          />
+        </Link>
+        {/* Hidden Staff Login - Only visible on hover */}
+        <Link 
+          href="/auth/login" 
+          className="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 text-[10px] text-transparent hover:text-muted-foreground/50 transition-colors"
+          title="Staff Portal"
+        >
+          Staff
         </Link>
 
         {/* Desktop Navigation */}
@@ -75,9 +85,6 @@ export function Header() {
 
         {/* Desktop CTA */}
         <div className="hidden items-center gap-4 md:flex">
-          <Button variant="ghost" asChild>
-            <Link href="/admin">Admin</Link>
-          </Button>
           <Button asChild>
             <Link href="/services">Get a Quote</Link>
           </Button>
@@ -135,11 +142,6 @@ export function Header() {
               </Link>
 
               <div className="flex flex-col gap-3 pt-4 border-t border-border">
-                <Button variant="outline" asChild>
-                  <Link href="/admin" onClick={() => setIsOpen(false)}>
-                    Admin Login
-                  </Link>
-                </Button>
                 <Button asChild>
                   <Link href="/services" onClick={() => setIsOpen(false)}>
                     Get a Quote

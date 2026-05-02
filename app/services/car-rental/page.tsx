@@ -32,6 +32,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { MpesaPayment } from "@/components/payment/mpesa-payment";
+import { DatePicker } from "@/components/ui/date-picker";
+import { TimePicker } from "@/components/ui/time-picker";
 import { saveBooking, generateId } from "@/lib/store";
 import { toast } from "sonner";
 import type { CarRentalBooking } from "@/types";
@@ -456,7 +458,11 @@ export default function CarRentalPage() {
                         <FormItem>
                           <FormLabel>Pickup Date</FormLabel>
                           <FormControl>
-                            <Input type="date" {...field} />
+                            <DatePicker
+                              value={field.value}
+                              onChange={(date) => field.onChange(date ? date.toISOString().split("T")[0] : "")}
+                              placeholder="Select pickup date"
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -469,7 +475,11 @@ export default function CarRentalPage() {
                         <FormItem>
                           <FormLabel>Pickup Time</FormLabel>
                           <FormControl>
-                            <Input type="time" {...field} />
+                            <TimePicker
+                              value={field.value}
+                              onChange={field.onChange}
+                              placeholder="Select time"
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -482,7 +492,11 @@ export default function CarRentalPage() {
                         <FormItem>
                           <FormLabel>Return Date</FormLabel>
                           <FormControl>
-                            <Input type="date" {...field} />
+                            <DatePicker
+                              value={field.value}
+                              onChange={(date) => field.onChange(date ? date.toISOString().split("T")[0] : "")}
+                              placeholder="Select return date"
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -495,7 +509,11 @@ export default function CarRentalPage() {
                         <FormItem>
                           <FormLabel>Return Time</FormLabel>
                           <FormControl>
-                            <Input type="time" {...field} />
+                            <TimePicker
+                              value={field.value}
+                              onChange={field.onChange}
+                              placeholder="Select time"
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>

@@ -18,6 +18,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { MpesaPayment } from "@/components/payment/mpesa-payment";
+import { DatePicker } from "@/components/ui/date-picker";
 import { saveBooking, generateId } from "@/lib/store";
 import { toast } from "sonner";
 import type { CargoBooking } from "@/types";
@@ -209,7 +210,7 @@ export default function CargoHandlingPage() {
                     <FormField control={form.control} name="destinationPort" render={({ field }) => (<FormItem><FormLabel>Destination</FormLabel><FormControl><Input placeholder="Nairobi ICD" {...field} /></FormControl><FormMessage /></FormItem>)} />
                   </div>
 
-                  <FormField control={form.control} name="pickupDate" render={({ field }) => (<FormItem><FormLabel>Pickup/Collection Date</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                  <FormField control={form.control} name="pickupDate" render={({ field }) => (<FormItem><FormLabel>Pickup/Collection Date</FormLabel><FormControl><DatePicker value={field.value} onChange={(date) => field.onChange(date ? date.toISOString().split("T")[0] : "")} placeholder="Select pickup date" /></FormControl><FormMessage /></FormItem>)} />
 
                   <FormField control={form.control} name="cargoDescription" render={({ field }) => (<FormItem><FormLabel>Cargo Description (Optional)</FormLabel><FormControl><Textarea placeholder="Additional details about your cargo" {...field} /></FormControl><FormMessage /></FormItem>)} />
 

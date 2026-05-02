@@ -4,6 +4,7 @@ export type ServiceType =
   | "safari-tours"
   | "hotel-airport-transfers"
   | "movers"
+  | "corporate-rental"
   | "road-recovery"
   | "cargo-handling"
   | "shipment-imports"
@@ -15,6 +16,8 @@ export interface Service {
   description: string;
   icon: string;
   href: string;
+  color: string;
+  image: string;
 }
 
 // Booking Types
@@ -105,9 +108,19 @@ export interface TransferBooking extends BaseBooking {
 }
 
 // Movers Types
+export type MoversVehicleType = 
+  | "small-pickup" 
+  | "large-pickup" 
+  | "1-ton-truck" 
+  | "3-ton-truck" 
+  | "5-ton-truck" 
+  | "7-ton-truck" 
+  | "10-ton-truck";
+
 export interface MoversBooking extends BaseBooking {
   serviceType: "movers";
   moveType: "residential" | "commercial" | "office";
+  vehicleType: MoversVehicleType;
   originAddress: string;
   destinationAddress: string;
   moveDate: string;
@@ -117,6 +130,24 @@ export interface MoversBooking extends BaseBooking {
     origin: "ground" | "stairs" | "elevator";
     destination: "ground" | "stairs" | "elevator";
   };
+}
+
+// Corporate Rental Types
+export interface CorporateRentalBooking extends BaseBooking {
+  serviceType: "corporate-rental";
+  vehicleType: "10-seater-van" | "14-seater-van" | "22-seater-bus" | "33-seater-bus" | "45-seater-bus" | "52-seater-bus";
+  rentalType: "with-driver" | "self-drive";
+  companyName?: string;
+  pickupLocation: string;
+  dropoffLocation: string;
+  tripType: "one-way" | "round-trip" | "multi-day";
+  startDate: string;
+  startTime: string;
+  endDate?: string;
+  endTime?: string;
+  numberOfPassengers: number;
+  purpose: string;
+  specialRequests?: string;
 }
 
 // Road Recovery Types
@@ -183,10 +214,61 @@ export type Booking =
   | SafariTourBooking
   | TransferBooking
   | MoversBooking
+  | CorporateRentalBooking
   | RoadRecoveryBooking
   | CargoBooking
   | ShipmentBooking
   | ConstructionEquipmentBooking;
+
+// Client Alert Types
+export type ClientAlertType = "debt" | "damage" | "late-return" | "fraud" | "blacklisted" | "warning";
+
+export interface ClientAlert {
+  id: string;
+  type: ClientAlertType;
+  title: string;
+  description: string;
+  amount?: number; // For debt alerts
+  date: string;
+  resolved: boolean;
+  resolvedDate?: string;
+  resolvedBy?: string;
+}
+
+// Client Types (for returning customers)
+export interface Client {
+  id: string;
+  fullName: string;
+  idNumber: string;
+  idPhotoUrl?: string;
+  drivingLicenseNumber?: string;
+  drivingLicenseUrl?: string;
+  placeOfWork?: string;
+  kraPin?: string;
+  residence?: string;
+  phone: string;
+  alternativePhone?: string;
+  email?: string;
+  nextOfKin?: {
+    name: string;
+    phone: string;
+    relationship: string;
+  };
+  fingerprintLeftUrl?: string;
+  fingerprintRightUrl?: string;
+  // Fingerprint data strings (for biometric systems)
+  leftFingerprint?: string;
+  rightFingerprint?: string;
+  passportPhotoUrl?: string;
+  totalBookings: number;
+  // Alert & Risk fields
+  alerts?: ClientAlert[];
+  riskLevel?: "low" | "medium" | "high" | "blocked";
+  totalDebt?: number;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
 // Admin User Types
 export type UserRole = "admin" | "staff";
@@ -225,4 +307,34 @@ export interface FileUpload {
   mimeType: string;
   size: number;
   createdAt: string;
+}
+
+// Rogue Client Types (Industry-wide blacklist)
+export type RogueClientSeverity = "warning" | "high-risk" | "blacklisted" | "fraud";
+
+export interface RogueClient {
+  id: string;
+  fullName: string;
+  idNumber: string;
+  phone?: string;
+  alternativePhone?: string;
+  email?: string;
+  photoUrl?: string;
+  severity: RogueClientSeverity;
+  reason: string;
+  incidents: RogueIncident[];
+  reportedBy: string; // Company that reported
+  reportedAt: string;
+  lastUpdated: string;
+  isActive: boolean; // Can be deactivated if resolved
+}
+
+export interface RogueIncident {
+  id: string;
+  date: string;
+  type: "theft" | "damage" | "fraud" | "non-payment" | "accident" | "assault" | "other";
+  description: string;
+  amountOwed?: number;
+  reportedBy: string;
+  vehicleInvolved?: string;
 }

@@ -18,6 +18,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { MpesaPayment } from "@/components/payment/mpesa-payment";
+import { DatePicker } from "@/components/ui/date-picker";
 import { saveBooking, generateId } from "@/lib/store";
 import { toast } from "sonner";
 import type { ConstructionEquipmentBooking } from "@/types";
@@ -222,8 +223,8 @@ export default function ConstructionEquipmentPage() {
                 <CardHeader><CardTitle className="flex items-center gap-2 text-lg"><Calendar className="h-5 w-5 text-primary" />Rental Period & Site</CardTitle></CardHeader>
                 <CardContent className="grid gap-6">
                   <div className="grid gap-6 sm:grid-cols-2">
-                    <FormField control={form.control} name="rentalStartDate" render={({ field }) => (<FormItem><FormLabel>Start Date</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                    <FormField control={form.control} name="rentalEndDate" render={({ field }) => (<FormItem><FormLabel>End Date</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                    <FormField control={form.control} name="rentalStartDate" render={({ field }) => (<FormItem><FormLabel>Start Date</FormLabel><FormControl><DatePicker value={field.value} onChange={(date) => field.onChange(date ? date.toISOString().split("T")[0] : "")} placeholder="Select start date" /></FormControl><FormMessage /></FormItem>)} />
+                    <FormField control={form.control} name="rentalEndDate" render={({ field }) => (<FormItem><FormLabel>End Date</FormLabel><FormControl><DatePicker value={field.value} onChange={(date) => field.onChange(date ? date.toISOString().split("T")[0] : "")} placeholder="Select end date" /></FormControl><FormMessage /></FormItem>)} />
                   </div>
 
                   <FormField control={form.control} name="deliverySite" render={({ field }) => (<FormItem><FormLabel>Delivery Site Address</FormLabel><FormControl><Input placeholder="Site address with landmarks" {...field} /></FormControl><FormDescription>Where should we deliver the equipment?</FormDescription><FormMessage /></FormItem>)} />

@@ -7,6 +7,8 @@ export const services: Service[] = [
     description: "Self-drive and chauffeured vehicle rentals for all your transportation needs. Wide range of vehicles from economy to luxury.",
     icon: "Car",
     href: "/services/car-rental",
+    color: "emerald",
+    image: "/images/services/car-rental.jpg",
   },
   {
     id: "safari-tours",
@@ -14,6 +16,8 @@ export const services: Service[] = [
     description: "Experience the magic of Kenya with our expertly guided safari tours. Explore Maasai Mara, Amboseli, and more.",
     icon: "Compass",
     href: "/services/safari-tours",
+    color: "amber",
+    image: "/images/services/safari-tours.jpg",
   },
   {
     id: "hotel-airport-transfers",
@@ -21,6 +25,8 @@ export const services: Service[] = [
     description: "Reliable pickup and drop-off services between airports, hotels, and any location in Nairobi and beyond.",
     icon: "Plane",
     href: "/services/hotel-airport-transfers",
+    color: "sky",
+    image: "/images/services/hotel-transfers.jpg",
   },
   {
     id: "movers",
@@ -28,6 +34,17 @@ export const services: Service[] = [
     description: "Professional moving services for residential and commercial relocations. Packing, loading, and safe delivery.",
     icon: "Truck",
     href: "/services/movers",
+    color: "violet",
+    image: "/images/services/movers.jpg",
+  },
+  {
+    id: "corporate-rental",
+    name: "Corporate Rental",
+    description: "Luxury vans and buses for corporate events, group travel, and tours. 10-seaters, 14-seaters, and buses from 22-seater onwards.",
+    icon: "Bus",
+    href: "/services/corporate-rental",
+    color: "indigo",
+    image: "/images/services/corporate-rental.jpg",
   },
   {
     id: "road-recovery",
@@ -35,6 +52,8 @@ export const services: Service[] = [
     description: "24/7 emergency road recovery and towing services. We get you back on the road quickly and safely.",
     icon: "Wrench",
     href: "/services/road-recovery",
+    color: "rose",
+    image: "/images/services/road-recovery.jpg",
   },
   {
     id: "cargo-handling",
@@ -42,6 +61,8 @@ export const services: Service[] = [
     description: "Efficient cargo handling and logistics solutions. Port clearance, warehousing, and distribution services.",
     icon: "Package",
     href: "/services/cargo-handling",
+    color: "orange",
+    image: "/images/services/cargo-handling.jpg",
   },
   {
     id: "shipment-imports",
@@ -49,13 +70,17 @@ export const services: Service[] = [
     description: "Complete import facilitation services. Customs clearance, documentation, and door-to-door delivery.",
     icon: "Ship",
     href: "/services/shipment-imports",
+    color: "cyan",
+    image: "/images/services/shipment-imports.jpg",
   },
   {
     id: "construction-equipment",
     name: "Construction Equipment",
     description: "Heavy machinery and construction equipment rentals. Excavators, cranes, bulldozers, and more.",
-    icon: "HardHat",
+    icon: "Tractor",
     href: "/services/construction-equipment",
+    color: "yellow",
+    image: "/images/services/construction-equipment.jpg",
   },
 ];
 
