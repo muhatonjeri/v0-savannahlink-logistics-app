@@ -871,10 +871,10 @@ export default function InvoicesPage() {
 
           {selectedInvoice && (
             <div ref={printRef} className="print-receipt bg-white rounded-lg border border-gray-200" data-print-area="true">
-              {/* Professional Invoice Template */}
-              <div className="p-8 text-gray-900">
+              {/* Professional Invoice Template - Savanna Brand Colors */}
+              <div className="p-8 text-[#0a1628]">
                 {/* Header with Logo and Invoice Info */}
-                <div className="border-b-4 border-emerald-600 pb-6 mb-6">
+                <div className="border-b-4 border-[#0a1628] pb-6 mb-6">
                   <div className="flex justify-between items-start">
                     {/* Company Logo & Info */}
                     <div className="flex items-start gap-5">
@@ -887,44 +887,44 @@ export default function InvoicesPage() {
                         unoptimized
                       />
                       <div>
-                        <h1 className="text-2xl font-bold text-emerald-700">{companyInfo.name}</h1>
+                        <h1 className="text-2xl font-bold text-[#0a1628]">{companyInfo.name}</h1>
                         <p className="text-sm text-gray-500 italic">{companyInfo.tagline}</p>
                         <div className="mt-3 text-sm text-gray-600 space-y-1">
                           <p className="flex items-center gap-2">
-                            <MapPin className="h-4 w-4 text-emerald-600" />
+                            <MapPin className="h-4 w-4 text-[#e67e22]" />
                             {companyInfo.address}, {companyInfo.city}
                           </p>
                           <p className="flex items-center gap-2">
-                            <Phone className="h-4 w-4 text-emerald-600" />
+                            <Phone className="h-4 w-4 text-[#e67e22]" />
                             {companyInfo.phone}
                           </p>
                           <p className="flex items-center gap-2">
-                            <Mail className="h-4 w-4 text-emerald-600" />
+                            <Mail className="h-4 w-4 text-[#e67e22]" />
                             {companyInfo.email}
                           </p>
                           <p className="flex items-center gap-2">
-                            <Globe className="h-4 w-4 text-emerald-600" />
+                            <Globe className="h-4 w-4 text-[#e67e22]" />
                             {companyInfo.website}
                           </p>
                         </div>
-                        <p className="mt-2 text-sm font-bold text-gray-800">KRA PIN: {companyInfo.kraPin}</p>
+                        <p className="mt-2 text-sm font-bold text-[#0a1628]">KRA PIN: {companyInfo.kraPin}</p>
                       </div>
                     </div>
                     
                     {/* Invoice Number Box */}
                     <div className="text-right">
-                      <div className="inline-block bg-emerald-600 text-white px-6 py-3 rounded-lg mb-4">
+                      <div className="inline-block bg-[#0a1628] text-white px-6 py-3 rounded-lg mb-4">
                         <p className="text-sm uppercase tracking-wider opacity-90">Invoice</p>
                         <p className="text-2xl font-bold font-mono">{selectedInvoice.invoiceNumber}</p>
                       </div>
                       <div className="space-y-2 text-sm">
                         <p className="flex items-center justify-end gap-2">
-                          <Calendar className="h-4 w-4 text-gray-400" />
+                          <Calendar className="h-4 w-4 text-[#e67e22]" />
                           <span className="text-gray-600">Issue Date:</span>
-                          <span className="font-semibold">{format(new Date(selectedInvoice.issueDate), "MMMM dd, yyyy")}</span>
+                          <span className="font-semibold text-[#0a1628]">{format(new Date(selectedInvoice.issueDate), "MMMM dd, yyyy")}</span>
                         </p>
                         <p className="flex items-center justify-end gap-2">
-                          <Calendar className="h-4 w-4 text-gray-400" />
+                          <Calendar className="h-4 w-4 text-[#e67e22]" />
                           <span className="text-gray-600">Due Date:</span>
                           <span className="font-semibold text-red-600">{format(new Date(selectedInvoice.dueDate), "MMMM dd, yyyy")}</span>
                         </p>
@@ -941,49 +941,49 @@ export default function InvoicesPage() {
                 {/* Bill To & Service Info */}
                 <div className="grid grid-cols-2 gap-8 mb-6">
                   <div className="bg-gray-50 rounded-lg p-5 border border-gray-200">
-                    <h3 className="text-sm font-bold text-gray-800 uppercase mb-3 pb-2 border-b border-gray-300 flex items-center gap-2 tracking-wide">
-                      <User className="h-4 w-4 text-emerald-600" />
+                    <h3 className="text-sm font-bold text-[#0a1628] uppercase mb-3 pb-2 border-b border-gray-300 flex items-center gap-2 tracking-wide">
+                      <User className="h-4 w-4 text-[#e67e22]" />
                       Bill To
                     </h3>
                     <div className="space-y-2">
-                      <p className="font-bold text-xl text-gray-900">{selectedInvoice.customerName}</p>
+                      <p className="font-bold text-xl text-[#0a1628]">{selectedInvoice.customerName}</p>
                       {selectedInvoice.customerAddress && (
                         <p className="text-sm text-gray-600">{selectedInvoice.customerAddress}</p>
                       )}
                       {selectedInvoice.customerPhone && (
                         <p className="text-sm text-gray-600 flex items-center gap-2">
-                          <Phone className="h-3.5 w-3.5 text-gray-400" />
+                          <Phone className="h-3.5 w-3.5 text-[#e67e22]" />
                           {selectedInvoice.customerPhone}
                         </p>
                       )}
                       {selectedInvoice.customerEmail && (
                         <p className="text-sm text-gray-600 flex items-center gap-2">
-                          <Mail className="h-3.5 w-3.5 text-gray-400" />
+                          <Mail className="h-3.5 w-3.5 text-[#e67e22]" />
                           {selectedInvoice.customerEmail}
                         </p>
                       )}
                       {selectedInvoice.customerKraPin && (
-                        <p className="text-sm font-semibold text-gray-800 mt-2">KRA PIN: {selectedInvoice.customerKraPin}</p>
+                        <p className="text-sm font-semibold text-[#0a1628] mt-2">KRA PIN: {selectedInvoice.customerKraPin}</p>
                       )}
                     </div>
                   </div>
                   <div className="bg-gray-50 rounded-lg p-5 border border-gray-200">
-                    <h3 className="text-sm font-bold text-gray-800 uppercase mb-3 pb-2 border-b border-gray-300 tracking-wide">
+                    <h3 className="text-sm font-bold text-[#0a1628] uppercase mb-3 pb-2 border-b border-gray-300 tracking-wide">
                       Invoice Details
                     </h3>
                     <div className="space-y-2">
                       <div className="flex items-center gap-3">
                         {(() => {
                           const ServiceIcon = getServiceIcon(selectedInvoice.serviceType);
-                          return <ServiceIcon className="h-5 w-5 text-emerald-600" />;
+                          return <ServiceIcon className="h-5 w-5 text-[#e67e22]" />;
                         })()}
-                        <span className="font-semibold text-gray-900">{getServiceLabel(selectedInvoice.serviceType)}</span>
+                        <span className="font-semibold text-[#0a1628]">{getServiceLabel(selectedInvoice.serviceType)}</span>
                       </div>
                       <p className="text-sm text-gray-600">
-                        <span className="font-medium">Payment Terms:</span> {selectedInvoice.paymentTerms}
+                        <span className="font-medium text-[#0a1628]">Payment Terms:</span> {selectedInvoice.paymentTerms}
                       </p>
                       <p className="text-sm text-gray-600">
-                        <span className="font-medium">Currency:</span> KES (Kenya Shillings)
+                        <span className="font-medium text-[#0a1628]">Currency:</span> KES (Kenya Shillings)
                       </p>
                     </div>
                   </div>
@@ -991,11 +991,11 @@ export default function InvoicesPage() {
 
                 {/* Items Table */}
                 <div className="mb-6">
-                  <h3 className="font-bold text-gray-800 mb-3 uppercase text-sm tracking-wide">Description of Services</h3>
+                  <h3 className="font-bold text-[#0a1628] mb-3 uppercase text-sm tracking-wide">Description of Services</h3>
                   <div className="border-2 border-gray-200 rounded-lg overflow-hidden">
                     <table className="w-full">
                       <thead>
-                        <tr className="bg-emerald-600 text-white">
+                        <tr className="bg-[#0a1628] text-white">
                           <th className="text-left py-4 px-5 font-semibold">Description</th>
                           <th className="text-center py-4 px-5 font-semibold w-24">Qty</th>
                           <th className="text-right py-4 px-5 font-semibold w-36">Unit Price (KES)</th>
@@ -1004,11 +1004,11 @@ export default function InvoicesPage() {
                       </thead>
                       <tbody>
                         {selectedInvoice.items.map((item, index) => (
-                          <tr key={item.id} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-                            <td className="py-4 px-5 text-gray-800">{item.description}</td>
-                            <td className="py-4 px-5 text-center text-gray-700">{item.quantity}</td>
-                            <td className="py-4 px-5 text-right text-gray-700">{item.unitPrice.toLocaleString()}</td>
-                            <td className="py-4 px-5 text-right font-semibold text-gray-900">{item.amount.toLocaleString()}</td>
+                          <tr key={item.id} className={index % 2 === 0 ? "bg-white text-[#0a1628]" : "bg-gray-50 text-[#0a1628]"}>
+                            <td className="py-4 px-5">{item.description}</td>
+                            <td className="py-4 px-5 text-center">{item.quantity}</td>
+                            <td className="py-4 px-5 text-right">{item.unitPrice.toLocaleString()}</td>
+                            <td className="py-4 px-5 text-right font-semibold">{item.amount.toLocaleString()}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -1018,20 +1018,20 @@ export default function InvoicesPage() {
 
                 {/* Totals */}
                 <div className="flex justify-end mb-6">
-                  <div className="w-96 bg-gray-50 rounded-lg border-2 border-gray-200 p-5">
+                  <div className="w-96 bg-gray-50 rounded-lg border-2 border-[#e67e22] p-5">
                     <div className="space-y-3">
                       <div className="flex justify-between text-sm">
                         <span className="text-gray-600">Subtotal:</span>
-                        <span className="font-medium text-gray-800">KES {selectedInvoice.subtotal.toLocaleString()}</span>
+                        <span className="font-medium text-[#0a1628]">KES {selectedInvoice.subtotal.toLocaleString()}</span>
                       </div>
                       <div className="flex justify-between text-sm">
                         <span className="text-gray-600">VAT ({selectedInvoice.vatRate}%):</span>
-                        <span className="font-medium text-gray-800">KES {selectedInvoice.vatAmount.toLocaleString()}</span>
+                        <span className="font-medium text-[#0a1628]">KES {selectedInvoice.vatAmount.toLocaleString()}</span>
                       </div>
-                      <div className="border-t-2 border-emerald-600 pt-4 mt-4">
+                      <div className="border-t-2 border-[#0a1628] pt-4 mt-4">
                         <div className="flex justify-between text-xl font-bold">
-                          <span className="text-gray-800">TOTAL DUE:</span>
-                          <span className="text-emerald-700">KES {selectedInvoice.total.toLocaleString()}</span>
+                          <span className="text-[#0a1628]">TOTAL DUE:</span>
+                          <span className="text-[#e67e22]">KES {selectedInvoice.total.toLocaleString()}</span>
                         </div>
                       </div>
                     </div>
@@ -1040,41 +1040,41 @@ export default function InvoicesPage() {
 
                 {/* Payment Info */}
                 <div className="grid grid-cols-2 gap-6 mb-6">
-                  <div className="bg-blue-50 rounded-lg p-5 border border-blue-200">
-                    <h3 className="text-sm font-bold text-blue-800 uppercase mb-3 flex items-center gap-2 tracking-wide">
-                      <Building2 className="h-4 w-4" />
+                  <div className="bg-gray-50 rounded-lg p-5 border border-[#0a1628]">
+                    <h3 className="text-sm font-bold text-[#0a1628] uppercase mb-3 flex items-center gap-2 tracking-wide">
+                      <Building2 className="h-4 w-4 text-[#e67e22]" />
                       Bank Transfer
                     </h3>
                     <div className="space-y-2 text-sm">
                       <p className="flex justify-between">
                         <span className="text-gray-600">Bank:</span>
-                        <span className="font-semibold text-gray-800">{companyInfo.bankName}</span>
+                        <span className="font-semibold text-[#0a1628]">{companyInfo.bankName}</span>
                       </p>
                       <p className="flex justify-between">
                         <span className="text-gray-600">Account:</span>
-                        <span className="font-mono font-semibold text-gray-800">{companyInfo.bankAccount}</span>
+                        <span className="font-mono font-semibold text-[#0a1628]">{companyInfo.bankAccount}</span>
                       </p>
                       <p className="flex justify-between">
                         <span className="text-gray-600">Branch:</span>
-                        <span className="font-semibold text-gray-800">{companyInfo.bankBranch}</span>
+                        <span className="font-semibold text-[#0a1628]">{companyInfo.bankBranch}</span>
                       </p>
                     </div>
                   </div>
-                  <div className="bg-green-50 rounded-lg p-5 border border-green-200">
-                    <h3 className="text-sm font-bold text-green-800 uppercase mb-3 flex items-center gap-2 tracking-wide">
-                      <Smartphone className="h-4 w-4" />
+                  <div className="bg-orange-50 rounded-lg p-5 border border-[#e67e22]">
+                    <h3 className="text-sm font-bold text-[#0a1628] uppercase mb-3 flex items-center gap-2 tracking-wide">
+                      <Smartphone className="h-4 w-4 text-[#e67e22]" />
                       M-Pesa Payment
                     </h3>
                     <div className="space-y-2 text-sm">
                       <p className="flex justify-between">
                         <span className="text-gray-600">Paybill:</span>
-                        <span className="font-mono font-bold text-xl text-green-700">{companyInfo.mpesaPaybill}</span>
+                        <span className="font-mono font-bold text-xl text-[#e67e22]">{companyInfo.mpesaPaybill}</span>
                       </p>
                       <p className="flex justify-between">
                         <span className="text-gray-600">Account No:</span>
-                        <span className="font-mono font-semibold text-gray-800">{companyInfo.mpesaAccountNo}</span>
+                        <span className="font-mono font-semibold text-[#0a1628]">{companyInfo.mpesaAccountNo}</span>
                       </p>
-                      <p className="text-xs text-green-700 mt-2 font-medium">
+                      <p className="text-xs text-[#e67e22] mt-2 font-medium">
                         Use invoice number as account reference
                       </p>
                     </div>
@@ -1083,15 +1083,15 @@ export default function InvoicesPage() {
 
                 {/* Notes */}
                 {selectedInvoice.notes && (
-                  <div className="p-5 bg-amber-50 rounded-lg border border-amber-200 mb-6">
-                    <h3 className="text-sm font-bold text-amber-800 mb-2 uppercase tracking-wide">Notes</h3>
-                    <p className="text-sm text-gray-700">{selectedInvoice.notes}</p>
+                  <div className="p-5 bg-orange-50 rounded-lg border border-[#e67e22] mb-6">
+                    <h3 className="text-sm font-bold text-[#0a1628] mb-2 uppercase tracking-wide">Notes</h3>
+                    <p className="text-sm text-[#0a1628]">{selectedInvoice.notes}</p>
                   </div>
                 )}
 
                 {/* Terms */}
                 <div className="p-5 bg-gray-100 rounded-lg border border-gray-200 mb-6">
-                  <h3 className="text-sm font-bold text-gray-800 mb-2 uppercase tracking-wide">Terms & Conditions</h3>
+                  <h3 className="text-sm font-bold text-[#0a1628] mb-2 uppercase tracking-wide">Terms & Conditions</h3>
                   <ul className="text-xs text-gray-600 space-y-1 list-disc list-inside">
                     <li>Payment is due by the date indicated above</li>
                     <li>Late payments may incur additional charges</li>
@@ -1101,12 +1101,12 @@ export default function InvoicesPage() {
                 </div>
 
                 {/* Footer */}
-                <div className="print-footer text-center pt-6 border-t-2 border-gray-200">
-                  <p className="text-lg font-bold text-emerald-700">Thank You For Your Business!</p>
-                  <p className="text-sm text-gray-500 mt-2">
+                <div className="print-footer text-center pt-6 border-t-2 border-[#0a1628]">
+                  <p className="text-lg font-bold text-[#e67e22]">Thank You For Your Business!</p>
+                  <p className="text-sm text-[#0a1628] mt-2">
                     For inquiries, contact us at {companyInfo.email} or {companyInfo.phone}
                   </p>
-                  <p className="text-xs text-gray-400 mt-2">
+                  <p className="text-xs text-gray-500 mt-2">
                     {companyInfo.website} | KRA PIN: {companyInfo.kraPin}
                   </p>
                 </div>

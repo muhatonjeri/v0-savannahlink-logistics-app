@@ -936,7 +936,7 @@ export default function NewCarRentalAdminPage() {
                           variant="outline"
                           size="sm"
                           onClick={() => setShowClientHistory(!showClientHistory)}
-                          className="gap-2"
+                          className="gap-2 border-[#e67e22] text-[#e67e22] hover:bg-[#e67e22] hover:text-white"
                         >
                           <History className="h-4 w-4" />
                           View History
@@ -953,7 +953,7 @@ export default function NewCarRentalAdminPage() {
                           form.reset();
                           router.push("/admin/car-rental/new");
                         }}
-                        className="gap-2 text-gray-600"
+                        className="gap-2 border-blue-500 text-blue-400 hover:bg-blue-500 hover:text-white"
                       >
                         <User className="h-4 w-4" />
                         Different Client

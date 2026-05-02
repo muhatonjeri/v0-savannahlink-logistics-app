@@ -583,29 +583,29 @@ export default function FleetManagementPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Fleet Management</h1>
-          <p className="text-muted-foreground">Manage your vehicle fleet, assignments, and maintenance schedules</p>
+<h1 className="text-2xl font-bold tracking-tight text-[#e67e22]">Fleet Management</h1>
+            <p className="text-gray-300">Manage your vehicle fleet, assignments, and maintenance schedules</p>
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-emerald-600 hover:bg-emerald-700">
+            <Button className="bg-[#e67e22] hover:bg-[#d35400] text-white">
               <Plus className="h-4 w-4 mr-2" />
               Add Vehicle
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700">
-            <DialogHeader className="border-b border-gray-200 dark:border-gray-700 pb-4">
-              <DialogTitle className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400">
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-[#0a1628] border-2 border-[#e67e22]/50">
+            <DialogHeader className="border-b border-[#e67e22]/30 pb-4">
+              <DialogTitle className="flex items-center gap-2 text-[#e67e22]">
                 <Car className="h-5 w-5" />
                 Add New Vehicle
               </DialogTitle>
-              <DialogDescription className="text-gray-600 dark:text-gray-400">Add a new vehicle to your fleet inventory</DialogDescription>
+              <DialogDescription className="text-gray-300">Add a new vehicle to your fleet inventory</DialogDescription>
             </DialogHeader>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmitVehicle)} className="space-y-6">
                 {/* Vehicle Details */}
-                <div className="rounded-lg border-2 border-emerald-400 dark:border-emerald-600 bg-white dark:bg-gray-900 p-4 shadow-sm">
-                  <h4 className="font-semibold text-emerald-700 dark:text-emerald-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
+                <div className="rounded-lg border-2 border-[#e67e22]/50 bg-[#0f1d32] p-4 shadow-sm">
+                  <h4 className="font-semibold text-[#e67e22] mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
                     <CarFront className="h-4 w-4" />
                     Vehicle Information
                   </h4>
@@ -705,7 +705,18 @@ export default function FleetManagementPage() {
                     <FormField control={form.control} name="year" render={({ field }) => (
                       <FormItem>
                         <FormLabel>Year *</FormLabel>
-                        <FormControl><Input type="number" placeholder="e.g., 2023" {...field} /></FormControl>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select year" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {Array.from({ length: 30 }, (_, i) => new Date().getFullYear() - i).map((year) => (
+                              <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                         <FormMessage />
                       </FormItem>
                     )} />
@@ -731,8 +742,8 @@ export default function FleetManagementPage() {
                 </div>
 
                 {/* Service & Mileage */}
-                <div className="rounded-lg border-2 border-blue-400 dark:border-blue-600 bg-white dark:bg-gray-900 p-4 shadow-sm">
-                  <h4 className="font-semibold text-blue-700 dark:text-blue-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
+                <div className="rounded-lg border-2 border-blue-500/50 bg-[#0f1d32] p-4 shadow-sm">
+                  <h4 className="font-semibold text-blue-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
                     <Wrench className="h-4 w-4" />
                     Service & Mileage
                   </h4>
@@ -842,8 +853,8 @@ export default function FleetManagementPage() {
                 )} />
 
                 <DialogFooter>
-                  <Button type="button" variant="outline" onClick={() => setIsAddDialogOpen(false)}>Cancel</Button>
-                  <Button type="submit" className="bg-emerald-600 hover:bg-emerald-700">Add Vehicle</Button>
+                  <Button type="button" variant="outline" onClick={() => setIsAddDialogOpen(false)} className="border-gray-500 text-gray-300 hover:bg-gray-700">Cancel</Button>
+                  <Button type="submit" className="bg-[#e67e22] hover:bg-[#d35400] text-white">Add Vehicle</Button>
                 </DialogFooter>
               </form>
             </Form>
@@ -893,14 +904,14 @@ export default function FleetManagementPage() {
 
       {/* Tabs for Fleet and Notifications */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="bg-gray-100 dark:bg-gray-800">
-          <TabsTrigger value="fleet" className="flex items-center gap-2">
+        <TabsList className="bg-[#0a1628] border border-[#e67e22]/50">
+          <TabsTrigger value="fleet" className="flex items-center gap-2 text-white data-[state=active]:bg-[#e67e22] data-[state=active]:text-white">
             <Car className="h-4 w-4" />
-            Fleet Inventory
+            <span className="font-semibold">Fleet Inventory</span>
           </TabsTrigger>
-          <TabsTrigger value="notifications" className="flex items-center gap-2">
+          <TabsTrigger value="notifications" className="flex items-center gap-2 text-white data-[state=active]:bg-[#e67e22] data-[state=active]:text-white">
             <Bell className="h-4 w-4" />
-            Notifications
+            <span className="font-semibold">Notifications</span>
             {notifications.length > 0 && (
               <Badge className="ml-1 bg-red-500 text-white text-xs px-1.5 py-0.5">{notifications.length}</Badge>
             )}
@@ -959,15 +970,15 @@ export default function FleetManagementPage() {
             <CardContent className="p-0">
               <Table>
                 <TableHeader>
-                  <TableRow className="bg-gray-50 dark:bg-gray-800/50">
-                    <TableHead>Vehicle</TableHead>
-                    <TableHead>Registration</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Assigned To</TableHead>
-                    <TableHead>Date Out</TableHead>
-                    <TableHead>Expected In</TableHead>
-                    <TableHead>Next Service</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                  <TableRow className="bg-[#0a1628] border-b-2 border-[#e67e22]">
+                    <TableHead className="text-[#e67e22]">Vehicle</TableHead>
+                    <TableHead className="text-[#e67e22]">Registration</TableHead>
+                    <TableHead className="text-[#e67e22]">Status</TableHead>
+                    <TableHead className="text-[#e67e22]">Assigned To</TableHead>
+                    <TableHead className="text-[#e67e22]">Date Out</TableHead>
+                    <TableHead className="text-[#e67e22]">Expected In</TableHead>
+                    <TableHead className="text-[#e67e22]">Next Service</TableHead>
+                    <TableHead className="text-[#e67e22] text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
