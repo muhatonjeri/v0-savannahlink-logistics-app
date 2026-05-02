@@ -151,6 +151,7 @@ interface FleetVehicle {
   lastServiceDate?: string;
   nextServiceDate?: string;
   nextServiceMileage?: number;
+  serviceInterval?: number;
   currentMileage?: number;
   // Metadata
   notes?: string;
@@ -181,6 +182,7 @@ const fleetFormSchema = z.object({
   year: z.string().min(4, "Year is required"),
   color: z.string().min(2, "Color is required"),
   currentMileage: z.string().optional(),
+  serviceInterval: z.string().optional(),
   lastServiceDate: z.string().optional(),
   nextServiceDate: z.string().optional(),
   nextServiceMileage: z.string().optional(),
@@ -732,7 +734,7 @@ export default function FleetManagementPage() {
                     <Wrench className="h-4 w-4" />
                     Service & Mileage
                   </h4>
-                  <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="grid gap-4 sm:grid-cols-3">
                     <FormField control={form.control} name="currentMileage" render={({ field }) => (
                       <FormItem>
                         <FormLabel className="text-gray-700 dark:text-gray-300">Current Mileage (KM)</FormLabel>
@@ -744,31 +746,58 @@ export default function FleetManagementPage() {
                             {...field}
                             onChange={(e) => {
                               field.onChange(e.target.value);
-                              // Auto-calculate next service mileage (+10,000 KM)
+                              // Auto-calculate next service mileage based on interval
+                              const interval = form.getValues("serviceInterval") || "10000";
                               if (e.target.value) {
-                                const nextService = parseInt(e.target.value) + 10000;
+                                const nextService = parseInt(e.target.value) + parseInt(interval);
+                                form.setValue("nextServiceMileage", nextService.toString());
+                              }
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={form.control} name="serviceInterval" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-gray-700 dark:text-gray-300">Service Interval (KM)</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="number" 
+                            placeholder="e.g., 10000" 
+                            className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                            {...field}
+                            onChange={(e) => {
+                              field.onChange(e.target.value);
+                              // Recalculate next service when interval changes
+                              const currentMileage = form.getValues("currentMileage");
+                              if (currentMileage && e.target.value) {
+                                const nextService = parseInt(currentMileage) + parseInt(e.target.value);
                                 form.setValue("nextServiceMileage", nextService.toString());
                               }
                             }}
                           />
                         </FormControl>
                         <FormDescription className="text-gray-500 dark:text-gray-400 text-xs">
-                          Next service auto-calculated at +10,000 KM
+                          Default: 10,000 KM
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )} />
                     <FormField control={form.control} name="nextServiceMileage" render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-700 dark:text-gray-300">Next Service Mileage (KM)</FormLabel>
+                        <FormLabel className="text-gray-700 dark:text-gray-300">Next Service (KM)</FormLabel>
                         <FormControl>
                           <Input 
                             type="number" 
-                            placeholder="e.g., 50000" 
+                            placeholder="Auto-calculated" 
                             className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                             {...field}
                           />
                         </FormControl>
+                        <FormDescription className="text-gray-500 dark:text-gray-400 text-xs">
+                          Auto-calculated or edit manually
+                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )} />
