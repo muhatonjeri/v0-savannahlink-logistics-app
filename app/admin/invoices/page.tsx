@@ -914,7 +914,7 @@ export default function InvoicesPage() {
                       <div className="bg-emerald-50 px-4 py-2 rounded-md inline-block">
                         <h2 className="text-2xl font-bold text-emerald-700 uppercase tracking-wider">Invoice</h2>
                       </div>
-                    <div className="mt-4 space-y-1 text-sm">
+                      <div className="mt-4 space-y-1 text-sm">
                       <p className="flex items-center justify-end gap-2">
                         <Hash className="h-4 w-4 text-gray-400" />
                         <span className="font-bold text-lg">{selectedInvoice.invoiceNumber}</span>
