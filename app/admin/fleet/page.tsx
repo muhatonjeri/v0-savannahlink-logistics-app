@@ -583,8 +583,8 @@ export default function FleetManagementPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Fleet Management</h1>
-          <p className="text-muted-foreground">Manage your vehicle fleet, assignments, and maintenance schedules</p>
+<h1 className="text-2xl font-bold tracking-tight text-[#e67e22]">Fleet Management</h1>
+            <p className="text-gray-300">Manage your vehicle fleet, assignments, and maintenance schedules</p>
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
