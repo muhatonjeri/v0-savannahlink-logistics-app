@@ -26,6 +26,7 @@ import {
   Wallet,
   FileText,
   UserSearch,
+  Settings,
 } from "lucide-react";
 import {
   SidebarProvider,
@@ -121,6 +122,12 @@ const navItems = [
     icon: FileText,
     color: "text-cyan-500",
   },
+  {
+    title: "Services Config",
+    href: "/admin/services",
+    icon: Settings,
+    color: "text-gray-500",
+  },
 ];
 
 const serviceItems = [
@@ -144,6 +151,7 @@ function getBreadcrumbTitle(pathname: string): string {
   if (pathname.includes("receipts")) return "Receipts";
   if (pathname.includes("accounts")) return "Accounts";
   if (pathname.includes("invoices")) return "Invoices";
+  if (pathname.includes("services")) return "Services Config";
   if (pathname.includes("car-rental")) return "Car Rental";
   if (pathname.includes("safari-tours")) return "Safari Tours";
   if (pathname.includes("transfers")) return "Transfers";
