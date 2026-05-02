@@ -186,7 +186,7 @@
   .DialogFooter,
   [class*="DialogFooter"],
   .bg-blue-50,
-  .dark\\:bg-blue-950\\/30 {
+  [class*="bg-blue-950"] {
     display: none !important;
     visibility: hidden !important;
   }
