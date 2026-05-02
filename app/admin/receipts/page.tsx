@@ -1269,26 +1269,26 @@ export default function ReceiptsPage() {
                 <div className="grid grid-cols-2 gap-6 mb-5">
                   {/* Customer Details */}
                   <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                    <h3 className="font-bold text-[#0a1628] mb-3 pb-2 border-b border-gray-300 flex items-center gap-2 uppercase text-sm tracking-wide">
-                      <User className="h-4 w-4 text-[#e67e22]" />
+                    <h3 className="font-bold text-gray-800 mb-3 pb-2 border-b border-gray-300 flex items-center gap-2 uppercase text-sm tracking-wide">
+                      <User className="h-4 w-4 text-emerald-600" />
                       Received From
                     </h3>
                     <div className="space-y-2 text-sm">
-                      <p className="font-semibold text-lg text-[#0a1628]">{selectedReceipt.customerName}</p>
+                      <p className="font-semibold text-lg text-gray-900">{selectedReceipt.customerName}</p>
                       <p className="text-gray-600">{selectedReceipt.customerPhone}</p>
                       {selectedReceipt.customerEmail && (
                         <p className="text-gray-600">{selectedReceipt.customerEmail}</p>
                       )}
                       {selectedReceipt.customerKraPin && (
-                        <p className="text-[#0a1628] font-medium">KRA PIN: {selectedReceipt.customerKraPin}</p>
+                        <p className="text-gray-700 font-medium">KRA PIN: {selectedReceipt.customerKraPin}</p>
                       )}
                     </div>
                   </div>
 
                   {/* Payment Details */}
                   <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                    <h3 className="font-bold text-[#0a1628] mb-3 pb-2 border-b border-gray-300 flex items-center gap-2 uppercase text-sm tracking-wide">
-                      <CreditCard className="h-4 w-4 text-[#e67e22]" />
+                    <h3 className="font-bold text-gray-800 mb-3 pb-2 border-b border-gray-300 flex items-center gap-2 uppercase text-sm tracking-wide">
+                      <CreditCard className="h-4 w-4 text-emerald-600" />
                       Payment Information
                     </h3>
                     <div className="space-y-2 text-sm">
@@ -1298,15 +1298,15 @@ export default function ReceiptsPage() {
                           const Icon = config.icon;
                           return (
                             <>
-                              <Icon className="h-5 w-5 text-[#e67e22]" />
-                              <span className="font-semibold text-[#0a1628]">{config.label}</span>
+                              <Icon className="h-5 w-5 text-emerald-600" />
+                              <span className="font-semibold text-gray-900">{config.label}</span>
                             </>
                           );
                         })()}
                       </div>
                       <p className="text-gray-700">
                         <span className="text-gray-500">Transaction:</span>{" "}
-                        <code className="bg-orange-100 text-[#0a1628] px-2 py-0.5 rounded font-mono text-xs">
+                        <code className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-mono text-xs">
                           {selectedReceipt.transactionCode}
                         </code>
                       </p>
@@ -1320,11 +1320,11 @@ export default function ReceiptsPage() {
 
                 {/* Items Table */}
                 <div className="mb-5">
-                  <h3 className="font-bold text-[#0a1628] mb-3 uppercase text-sm tracking-wide">Description of Services/Items</h3>
+                  <h3 className="font-bold text-gray-800 mb-3 uppercase text-sm tracking-wide">Description of Services/Items</h3>
                   <div className="border-2 border-gray-200 rounded-lg overflow-hidden">
                     <table className="w-full">
                       <thead>
-                        <tr className="bg-[#0a1628] text-white">
+                        <tr className="bg-emerald-600 text-white">
                           <th className="text-left py-3 px-4 font-semibold">Description</th>
                           <th className="text-center py-3 px-4 font-semibold w-20">Qty</th>
                           <th className="text-right py-3 px-4 font-semibold w-32">Unit Price</th>
@@ -1333,11 +1333,11 @@ export default function ReceiptsPage() {
                       </thead>
                       <tbody>
                         {selectedReceipt.items.map((item, index) => (
-                          <tr key={index} className={index % 2 === 0 ? "bg-white text-[#0a1628]" : "bg-gray-50 text-[#0a1628]"}>
-                            <td className="py-3 px-4">{item.description}</td>
-                            <td className="py-3 px-4 text-center">{item.quantity}</td>
-                            <td className="py-3 px-4 text-right">{formatCurrency(item.unitPrice)}</td>
-                            <td className="py-3 px-4 text-right font-semibold">{formatCurrency(item.amount)}</td>
+                          <tr key={index} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+                            <td className="py-3 px-4 text-gray-800">{item.description}</td>
+                            <td className="py-3 px-4 text-center text-gray-700">{item.quantity}</td>
+                            <td className="py-3 px-4 text-right text-gray-700">{formatCurrency(item.unitPrice)}</td>
+                            <td className="py-3 px-4 text-right font-semibold text-gray-900">{formatCurrency(item.amount)}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -1347,20 +1347,20 @@ export default function ReceiptsPage() {
 
                 {/* Totals Section */}
                 <div className="flex justify-end mb-5">
-                  <div className="w-80 bg-gray-50 rounded-lg border-2 border-[#e67e22] p-4">
+                  <div className="w-80 bg-gray-50 rounded-lg border-2 border-gray-200 p-4">
                     <div className="space-y-2">
-                      <div className="flex justify-between text-sm text-[#0a1628]">
+                      <div className="flex justify-between text-sm text-gray-700">
                         <span>Subtotal:</span>
                         <span className="font-medium">{formatCurrency(selectedReceipt.subtotal)}</span>
                       </div>
-                      <div className="flex justify-between text-sm text-[#0a1628]">
+                      <div className="flex justify-between text-sm text-gray-700">
                         <span>VAT (16%):</span>
                         <span className="font-medium">{formatCurrency(selectedReceipt.taxAmount)}</span>
                       </div>
-                      <div className="border-t-2 border-[#0a1628] pt-3 mt-3">
+                      <div className="border-t-2 border-emerald-600 pt-3 mt-3">
                         <div className="flex justify-between text-xl font-bold">
-                          <span className="text-[#0a1628]">TOTAL:</span>
-                          <span className="text-[#e67e22]">{formatCurrency(selectedReceipt.totalAmount)}</span>
+                          <span className="text-gray-800">TOTAL:</span>
+                          <span className="text-emerald-700">{formatCurrency(selectedReceipt.totalAmount)}</span>
                         </div>
                       </div>
                     </div>
@@ -1368,48 +1368,48 @@ export default function ReceiptsPage() {
                 </div>
 
                 {/* Amount in Words */}
-                <div className="bg-orange-50 border border-[#e67e22] rounded-lg p-3 mb-5">
-                  <p className="text-sm text-[#0a1628]">
-                    <span className="font-semibold text-[#e67e22]">Amount in Words:</span>{" "}
+                <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3 mb-5">
+                  <p className="text-sm text-gray-700">
+                    <span className="font-semibold text-emerald-700">Amount in Words:</span>{" "}
                     <span className="italic">Kenya Shillings {numberToWords(selectedReceipt.totalAmount)} Only</span>
                   </p>
                 </div>
 
                 {/* eTIMS Verification */}
-                <div className="bg-gradient-to-r from-orange-50 to-amber-50 border-2 border-[#e67e22] rounded-lg p-4 text-center mb-5">
+                <div className="bg-gradient-to-r from-emerald-50 to-emerald-100 border-2 border-emerald-300 rounded-lg p-4 text-center mb-5">
                   <div className="flex items-center justify-center gap-3 mb-2">
-                    <div className="bg-white p-2 rounded-lg border border-[#e67e22]">
-                      <QrCode className="h-8 w-8 text-[#e67e22]" />
+                    <div className="bg-white p-2 rounded-lg border border-emerald-300">
+                      <QrCode className="h-8 w-8 text-emerald-600" />
                     </div>
                     <div className="text-left">
-                      <p className="font-bold text-[#0a1628] text-lg">eTIMS Verified Receipt</p>
-                      <p className="text-xs text-[#e67e22]">Device: {selectedReceipt.etimsDeviceNumber}</p>
+                      <p className="font-bold text-emerald-700 text-lg">eTIMS Verified Receipt</p>
+                      <p className="text-xs text-emerald-600">Device: {selectedReceipt.etimsDeviceNumber}</p>
                     </div>
                   </div>
-                  <p className="text-xs text-[#0a1628] font-medium">
-                    Verify at: <span className="underline text-[#e67e22]">{selectedReceipt.etimsVerificationUrl}</span>
+                  <p className="text-xs text-emerald-700 font-medium">
+                    Verify at: <span className="underline">{selectedReceipt.etimsVerificationUrl}</span>
                   </p>
                 </div>
 
                 {/* Signature Section */}
                 <div className="grid grid-cols-2 gap-8 mt-8 pt-4 border-t border-gray-300">
                   <div className="text-center">
-                    <div className="h-16 border-b border-[#0a1628] mb-2"></div>
-                    <p className="text-sm text-[#0a1628] font-medium">Received By (Signature)</p>
+                    <div className="h-16 border-b border-gray-400 mb-2"></div>
+                    <p className="text-sm text-gray-600 font-medium">Received By (Signature)</p>
                   </div>
                   <div className="text-center">
-                    <div className="h-16 border-b border-[#0a1628] mb-2"></div>
-                    <p className="text-sm text-[#0a1628] font-medium">Issued By: {selectedReceipt.issuedBy}</p>
+                    <div className="h-16 border-b border-gray-400 mb-2"></div>
+                    <p className="text-sm text-gray-600 font-medium">Issued By: {selectedReceipt.issuedBy}</p>
                   </div>
                 </div>
 
                 {/* Footer */}
-                <div className="print-footer text-center mt-6 pt-4 border-t-2 border-[#0a1628]">
-                  <p className="text-sm font-semibold text-[#e67e22]">Thank You For Your Business!</p>
-                  <p className="text-xs text-[#0a1628] mt-1">
+                <div className="print-footer text-center mt-6 pt-4 border-t-2 border-gray-200">
+                  <p className="text-sm font-semibold text-emerald-700">Thank You For Your Business!</p>
+                  <p className="text-xs text-gray-500 mt-1">
                     This is an official receipt. Please retain for your records.
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-gray-400 mt-1">
                     {companyDetails.website} | {companyDetails.email}
                   </p>
                 </div>

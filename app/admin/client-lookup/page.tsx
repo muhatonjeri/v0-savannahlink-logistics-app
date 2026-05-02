@@ -1167,321 +1167,125 @@ function ClientLookupContent() {
             </Card>
           )}
 
-          {/* Full Client Profile - Comprehensive View */}
-          {searchResults.client && (
-            <Card className="border-2 border-green-500/30 bg-gradient-to-br from-green-500/5 to-transparent">
-              <CardHeader className="pb-4">
-                <div className="flex items-start justify-between">
-                  <CardTitle className="flex items-center gap-2 text-green-600 dark:text-green-400">
-                    <UserCheck className="h-6 w-6" />
-                    Complete Client Profile
+          <div className="grid gap-6 lg:grid-cols-2">
+            {/* Client Information */}
+            {searchResults.client && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <UserCheck className="h-5 w-5 text-green-500" />
+                    Client Information
                   </CardTitle>
-                  <div className="flex items-center gap-2">
-                    {searchResults.client.riskLevel && (
-                      <Badge className={`text-sm font-bold ${
-                        searchResults.client.riskLevel === "blocked" 
-                          ? "bg-red-600 text-white" 
-                          : searchResults.client.riskLevel === "high"
-                          ? "bg-orange-500 text-white"
-                          : searchResults.client.riskLevel === "medium"
-                          ? "bg-yellow-500 text-black"
-                          : "bg-green-500 text-white"
-                      }`}>
-                        {searchResults.client.riskLevel === "blocked" ? "BLOCKED" : `${searchResults.client.riskLevel.toUpperCase()} RISK`}
-                      </Badge>
-                    )}
-                    <Badge variant="outline" className="text-green-600 dark:text-green-400 border-green-500">
-                      Verified Client
-                    </Badge>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Profile Header with Photo */}
-                <div className="flex flex-col md:flex-row gap-6">
-                  {/* Passport Photo */}
-                  <div className="flex flex-col items-center gap-3">
-                    <div className="relative">
-                      <div className={`w-32 h-40 rounded-lg border-4 overflow-hidden ${
-                        searchResults.client.riskLevel === "blocked" 
-                          ? "border-red-500" 
-                          : searchResults.client.riskLevel === "high"
-                          ? "border-orange-500"
-                          : searchResults.client.riskLevel === "medium"
-                          ? "border-yellow-500"
-                          : "border-green-500"
-                      }`}>
-                        {searchResults.client.passportPhotoUrl ? (
-                          <img 
-                            src={searchResults.client.passportPhotoUrl} 
-                            alt="Passport Photo"
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                            <User className="h-16 w-16 text-gray-400" />
-                          </div>
-                        )}
-                      </div>
-                      {searchResults.client.riskLevel !== "blocked" && (
-                        <div className="absolute -bottom-2 -right-2 bg-green-500 rounded-full p-1.5">
-                          <CheckCircle2 className="h-5 w-5 text-white" />
-                        </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center gap-4">
+                    <div className={`flex h-16 w-16 items-center justify-center rounded-full ${
+                      searchResults.client.riskLevel === "blocked" 
+                        ? "bg-red-500/20" 
+                        : searchResults.client.riskLevel === "high"
+                        ? "bg-orange-500/20"
+                        : searchResults.client.riskLevel === "medium"
+                        ? "bg-yellow-500/20"
+                        : "bg-green-500/20"
+                    }`}>
+                      {searchResults.client.riskLevel === "blocked" ? (
+                        <Ban className={`h-8 w-8 text-red-500`} />
+                      ) : (
+                        <UserCheck className={`h-8 w-8 ${
+                          searchResults.client.riskLevel === "high"
+                            ? "text-orange-500"
+                            : searchResults.client.riskLevel === "medium"
+                            ? "text-yellow-500"
+                            : "text-green-500"
+                        }`} />
                       )}
                     </div>
-                    <p className="text-xs text-muted-foreground font-medium">Passport Photo</p>
-                  </div>
-
-                  {/* Basic Info */}
-                  <div className="flex-1 space-y-4">
                     <div>
-                      <h2 className="text-2xl font-bold text-foreground">{searchResults.client.fullName}</h2>
+                      <h3 className="text-lg font-semibold flex items-center gap-2">
+                        {searchResults.client.fullName}
+                        {searchResults.client.riskLevel && (
+                          <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                            searchResults.client.riskLevel === "blocked" 
+                              ? "bg-red-600 text-white" 
+                              : searchResults.client.riskLevel === "high"
+                              ? "bg-orange-500 text-white"
+                              : searchResults.client.riskLevel === "medium"
+                              ? "bg-yellow-500 text-black"
+                              : "bg-green-500 text-white"
+                          }`}>
+                            {searchResults.client.riskLevel === "blocked" ? "BLOCKED" : `${searchResults.client.riskLevel.toUpperCase()} RISK`}
+                          </span>
+                        )}
+                      </h3>
                       <p className="text-sm text-muted-foreground">
-                        Client ID: {searchResults.client.id} | Member since {searchResults.client.createdAt}
+                        Client since {searchResults.client.createdAt} | {searchResults.client.totalBookings || 0} bookings
                       </p>
                     </div>
-
-                    {/* Client Stats - Horizontal */}
-                    <div className="grid grid-cols-4 gap-3">
-                      <div className="rounded-lg bg-blue-500/10 p-3 text-center">
-                        <p className="text-xl font-bold text-blue-500">{searchResults.client.totalBookings}</p>
-                        <p className="text-xs text-muted-foreground">Bookings</p>
-                      </div>
-                      <div className="rounded-lg bg-green-500/10 p-3 text-center">
-                        <p className="text-lg font-bold text-green-500">{formatCurrency((searchResults.client as typeof searchResults.client & { totalSpent?: number }).totalSpent || 0)}</p>
-                        <p className="text-xs text-muted-foreground">Total Spent</p>
-                      </div>
-                      <div className="rounded-lg bg-amber-500/10 p-3 text-center">
-                        <p className="text-sm font-bold text-amber-500">{searchResults.client.lastBookingDate || "N/A"}</p>
-                        <p className="text-xs text-muted-foreground">Last Booking</p>
-                      </div>
-                      <div className="rounded-lg bg-purple-500/10 p-3 text-center">
-                        <p className="text-lg font-bold text-purple-500">{formatCurrency(searchResults.client.totalDebt || 0)}</p>
-                        <p className="text-xs text-muted-foreground">Outstanding</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <Separator />
-
-                {/* Personal Details Grid */}
-                <div className="grid gap-6 md:grid-cols-2">
-                  {/* Identification Details */}
-                  <div className="space-y-4">
-                    <h3 className="font-semibold text-sm text-[#e67e22] uppercase tracking-wide flex items-center gap-2">
-                      <IdCard className="h-4 w-4" />
-                      Identification Details
-                    </h3>
-                    <div className="grid gap-3 bg-muted/30 rounded-lg p-4">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-muted-foreground">ID/Passport Number</span>
-                        <span className="font-mono font-bold text-foreground">{searchResults.client.idNumber}</span>
-                      </div>
-                      <Separator className="bg-border/50" />
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-muted-foreground">Driving License</span>
-                        <span className="font-mono font-bold text-foreground">{searchResults.client.drivingLicenseNumber || "Not provided"}</span>
-                      </div>
-                      <Separator className="bg-border/50" />
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-muted-foreground">KRA PIN</span>
-                        <span className="font-mono font-bold text-foreground">{searchResults.client.kraPin || "Not provided"}</span>
-                      </div>
-                    </div>
                   </div>
 
-                  {/* Contact Details */}
-                  <div className="space-y-4">
-                    <h3 className="font-semibold text-sm text-[#e67e22] uppercase tracking-wide flex items-center gap-2">
-                      <Phone className="h-4 w-4" />
-                      Contact Information
-                    </h3>
-                    <div className="grid gap-3 bg-muted/30 rounded-lg p-4">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-muted-foreground">Primary Phone</span>
-                        <span className="font-bold text-foreground">{searchResults.client.phone}</span>
-                      </div>
-                      <Separator className="bg-border/50" />
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-muted-foreground">Alternative Phone</span>
-                        <span className="font-bold text-foreground">{searchResults.client.alternativePhone || "Not provided"}</span>
-                      </div>
-                      <Separator className="bg-border/50" />
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-muted-foreground">Email</span>
-                        <span className="font-bold text-foreground">{searchResults.client.email || "Not provided"}</span>
-                      </div>
+                  <Separator />
+
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div className="flex items-center gap-2 text-sm">
+                      <IdCard className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-muted-foreground">ID:</span>
+                      <span className="font-medium">{searchResults.client.idNumber}</span>
                     </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <Phone className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-muted-foreground">Phone:</span>
+                      <span className="font-medium">{searchResults.client.phone}</span>
+                    </div>
+                    {searchResults.client.email && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <Mail className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-muted-foreground">Email:</span>
+                        <span className="font-medium">{searchResults.client.email}</span>
+                      </div>
+                    )}
+                    {searchResults.client.kraPin && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <FileText className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-muted-foreground">KRA PIN:</span>
+                        <span className="font-medium">{searchResults.client.kraPin}</span>
+                      </div>
+                    )}
+                    {searchResults.client.residence && (
+                      <div className="flex items-center gap-2 text-sm sm:col-span-2">
+                        <MapPin className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-muted-foreground">Residence:</span>
+                        <span className="font-medium">{searchResults.client.residence}</span>
+                      </div>
+                    )}
+                    {searchResults.client.placeOfWork && (
+                      <div className="flex items-center gap-2 text-sm sm:col-span-2">
+                        <Building className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-muted-foreground">Employer:</span>
+                        <span className="font-medium">{searchResults.client.placeOfWork}</span>
+                      </div>
+                    )}
                   </div>
 
-                  {/* Residence & Work */}
-                  <div className="space-y-4">
-                    <h3 className="font-semibold text-sm text-[#e67e22] uppercase tracking-wide flex items-center gap-2">
-                      <MapPin className="h-4 w-4" />
-                      Address & Work
-                    </h3>
-                    <div className="grid gap-3 bg-muted/30 rounded-lg p-4">
-                      <div className="flex justify-between items-start">
-                        <span className="text-sm text-muted-foreground">Residence</span>
-                        <span className="font-bold text-foreground text-right max-w-[60%]">{searchResults.client.residence || "Not provided"}</span>
-                      </div>
-                      <Separator className="bg-border/50" />
-                      <div className="flex justify-between items-start">
-                        <span className="text-sm text-muted-foreground">Place of Work</span>
-                        <span className="font-bold text-foreground text-right max-w-[60%]">{searchResults.client.placeOfWork || "Not provided"}</span>
-                      </div>
+                  <Separator />
+
+                  {/* Client Stats */}
+                  <div className="grid grid-cols-3 gap-4 text-center">
+                    <div className="rounded-lg bg-blue-500/10 p-3">
+                      <p className="text-2xl font-bold text-blue-500">{searchResults.client.totalBookings}</p>
+                      <p className="text-xs text-muted-foreground">Total Bookings</p>
+                    </div>
+                    <div className="rounded-lg bg-green-500/10 p-3">
+                      <p className="text-lg font-bold text-green-500">{formatCurrency((searchResults.client as typeof searchResults.client & { totalSpent?: number }).totalSpent || 0)}</p>
+                      <p className="text-xs text-muted-foreground">Total Spent</p>
+                    </div>
+                    <div className="rounded-lg bg-amber-500/10 p-3">
+                      <p className="text-sm font-bold text-amber-500">{searchResults.client.lastBookingDate || "N/A"}</p>
+                      <p className="text-xs text-muted-foreground">Last Booking</p>
                     </div>
                   </div>
-
-                  {/* Next of Kin */}
-                  <div className="space-y-4">
-                    <h3 className="font-semibold text-sm text-[#e67e22] uppercase tracking-wide flex items-center gap-2">
-                      <User className="h-4 w-4" />
-                      Next of Kin
-                    </h3>
-                    <div className="grid gap-3 bg-muted/30 rounded-lg p-4">
-                      {searchResults.client.nextOfKin ? (
-                        <>
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm text-muted-foreground">Name</span>
-                            <span className="font-bold text-foreground">{searchResults.client.nextOfKin.name}</span>
-                          </div>
-                          <Separator className="bg-border/50" />
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm text-muted-foreground">Phone</span>
-                            <span className="font-bold text-foreground">{searchResults.client.nextOfKin.phone}</span>
-                          </div>
-                          <Separator className="bg-border/50" />
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm text-muted-foreground">Relationship</span>
-                            <Badge variant="secondary">{searchResults.client.nextOfKin.relationship}</Badge>
-                          </div>
-                        </>
-                      ) : (
-                        <p className="text-sm text-muted-foreground italic">No next of kin information provided</p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                <Separator />
-
-                {/* Document Photos Section */}
-                <div className="space-y-4">
-                  <h3 className="font-semibold text-sm text-[#e67e22] uppercase tracking-wide flex items-center gap-2">
-                    <FileText className="h-4 w-4" />
-                    Documents & Biometrics
-                  </h3>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {/* ID Photo */}
-                    <div className="space-y-2">
-                      <div className="aspect-[3/2] rounded-lg border-2 border-dashed border-muted-foreground/30 overflow-hidden bg-muted/30">
-                        {searchResults.client.idPhotoUrl ? (
-                          <img 
-                            src={searchResults.client.idPhotoUrl} 
-                            alt="ID Document"
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground">
-                            <IdCard className="h-8 w-8 mb-1" />
-                            <span className="text-xs">No ID Photo</span>
-                          </div>
-                        )}
-                      </div>
-                      <p className="text-xs text-center text-muted-foreground font-medium">ID Document</p>
-                    </div>
-
-                    {/* Driving License Photo */}
-                    <div className="space-y-2">
-                      <div className="aspect-[3/2] rounded-lg border-2 border-dashed border-muted-foreground/30 overflow-hidden bg-muted/30">
-                        {searchResults.client.drivingLicenseUrl ? (
-                          <img 
-                            src={searchResults.client.drivingLicenseUrl} 
-                            alt="Driving License"
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground">
-                            <Car className="h-8 w-8 mb-1" />
-                            <span className="text-xs">No DL Photo</span>
-                          </div>
-                        )}
-                      </div>
-                      <p className="text-xs text-center text-muted-foreground font-medium">Driving License</p>
-                    </div>
-
-                    {/* Left Fingerprint */}
-                    <div className="space-y-2">
-                      <div className="aspect-square rounded-lg border-2 border-dashed border-muted-foreground/30 overflow-hidden bg-muted/30">
-                        {searchResults.client.fingerprintLeftUrl ? (
-                          <img 
-                            src={searchResults.client.fingerprintLeftUrl} 
-                            alt="Left Fingerprint"
-                            className="w-full h-full object-contain bg-white dark:bg-gray-800 p-2"
-                          />
-                        ) : searchResults.client.leftFingerprint ? (
-                          <div className="w-full h-full flex flex-col items-center justify-center bg-green-500/10">
-                            <Fingerprint className="h-12 w-12 text-green-500" />
-                            <span className="text-xs text-green-600 dark:text-green-400 mt-1">Captured</span>
-                          </div>
-                        ) : (
-                          <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground">
-                            <Fingerprint className="h-8 w-8 mb-1" />
-                            <span className="text-xs">Not Captured</span>
-                          </div>
-                        )}
-                      </div>
-                      <p className="text-xs text-center text-muted-foreground font-medium">Left Thumb</p>
-                    </div>
-
-                    {/* Right Fingerprint */}
-                    <div className="space-y-2">
-                      <div className="aspect-square rounded-lg border-2 border-dashed border-muted-foreground/30 overflow-hidden bg-muted/30">
-                        {searchResults.client.fingerprintRightUrl ? (
-                          <img 
-                            src={searchResults.client.fingerprintRightUrl} 
-                            alt="Right Fingerprint"
-                            className="w-full h-full object-contain bg-white dark:bg-gray-800 p-2"
-                          />
-                        ) : searchResults.client.rightFingerprint ? (
-                          <div className="w-full h-full flex flex-col items-center justify-center bg-green-500/10">
-                            <Fingerprint className="h-12 w-12 text-green-500" />
-                            <span className="text-xs text-green-600 dark:text-green-400 mt-1">Captured</span>
-                          </div>
-                        ) : (
-                          <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground">
-                            <Fingerprint className="h-8 w-8 mb-1" />
-                            <span className="text-xs">Not Captured</span>
-                          </div>
-                        )}
-                      </div>
-                      <p className="text-xs text-center text-muted-foreground font-medium">Right Thumb</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Notes Section */}
-                {searchResults.client.notes && (
-                  <>
-                    <Separator />
-                    <div className="space-y-2">
-                      <h3 className="font-semibold text-sm text-[#e67e22] uppercase tracking-wide flex items-center gap-2">
-                        <FileText className="h-4 w-4" />
-                        Notes
-                      </h3>
-                      <div className="bg-amber-500/10 rounded-lg p-4 border border-amber-500/30">
-                        <p className="text-sm text-foreground">{searchResults.client.notes}</p>
-                      </div>
-                    </div>
-                  </>
-                )}
-              </CardContent>
-            </Card>
-          )}
-
-          <div className="grid gap-6 lg:grid-cols-2">
+                </CardContent>
+              </Card>
+            )}
 
             {/* Blacklist Records */}
             {searchResults.blacklistEntries.length > 0 && (

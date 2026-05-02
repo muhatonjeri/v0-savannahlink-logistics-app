@@ -261,8 +261,6 @@ export interface Client {
   rightFingerprint?: string;
   passportPhotoUrl?: string;
   totalBookings: number;
-  totalSpent?: number;
-  lastBookingDate?: string;
   // Alert & Risk fields
   alerts?: ClientAlert[];
   riskLevel?: "low" | "medium" | "high" | "blocked";

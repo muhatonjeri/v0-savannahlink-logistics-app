@@ -9,7 +9,7 @@
   --foreground: oklch(0.98 0 0);
   --card: oklch(0.15 0.02 250);
   --card-foreground: oklch(0.98 0 0);
-  --popover: oklch(0.25 0.02 250);
+  --popover: oklch(0.15 0.02 250);
   --popover-foreground: oklch(0.98 0 0);
   --primary: oklch(0.68 0.18 45);
   --primary-foreground: oklch(0.12 0.02 250);
@@ -51,7 +51,7 @@
   --foreground: oklch(0.98 0 0);
   --card: oklch(0.15 0.02 250);
   --card-foreground: oklch(0.98 0 0);
-  --popover: oklch(0.25 0.02 250);
+  --popover: oklch(0.15 0.02 250);
   --popover-foreground: oklch(0.98 0 0);
   --primary: oklch(0.68 0.18 45);
   --primary-foreground: oklch(0.12 0.02 250);
@@ -421,93 +421,32 @@
   }
 }
 
-/* ========================================
-   TEXT VISIBILITY FIXES
-   ======================================== */
-
-/* WHITE/LIGHT BACKGROUNDS - Use dark readable text */
-.bg-white:not(.print-receipt *),
-.bg-gray-50:not(.print-receipt *),
-.bg-gray-100:not(.print-receipt *),
-.bg-slate-50:not(.print-receipt *),
-.bg-slate-100:not(.print-receipt *) {
-  color: #1f2937 !important;
-}
-
-.bg-white:not(.print-receipt *) *,
-.bg-gray-50:not(.print-receipt *) *,
-.bg-gray-100:not(.print-receipt *) * {
-  --tw-text-opacity: 1;
-}
-
-/* Light colored backgrounds need dark text */
-.bg-blue-50:not(.print-receipt *),
-.bg-emerald-50:not(.print-receipt *),
-.bg-amber-50:not(.print-receipt *),
-.bg-red-50:not(.print-receipt *),
-.bg-yellow-50:not(.print-receipt *),
-.bg-green-50:not(.print-receipt *),
-.bg-orange-50:not(.print-receipt *),
-.bg-cyan-50:not(.print-receipt *),
-.bg-purple-50:not(.print-receipt *),
-.bg-pink-50:not(.print-receipt *) {
-  color: #1f2937 !important;
-}
-
-/* DARK BACKGROUNDS - Use bright visible text */
-.bg-black,
-.bg-gray-900,
-.bg-gray-800,
-.bg-slate-900,
-.bg-slate-800,
-.bg-zinc-900,
-.bg-zinc-800,
-.bg-neutral-900,
-.bg-neutral-800,
-[class*="bg-\\[#0a1628\\]"] {
-  color: #f9fafb !important;
-}
-
-/* Dark colored backgrounds need light text */
-.bg-blue-900,
-.bg-blue-800,
-.bg-emerald-900,
-.bg-emerald-800,
-.bg-amber-900,
-.bg-amber-800,
-.bg-red-900,
-.bg-red-800,
-.bg-green-900,
-.bg-green-800 {
-  color: #f9fafb !important;
-}
-
 /* Dark Mode Text Visibility Enhancements */
 .dark {
   /* Ensure all gray text colors are visible on dark backgrounds */
-  .text-gray-900:not(.print-receipt *):not(.bg-white *):not(.bg-gray-50 *):not(.bg-gray-100 *) {
-    color: #f9fafb !important;
+  .text-gray-900:not(.print-receipt *) {
+    color: var(--foreground);
   }
   
-  .text-gray-800:not(.print-receipt *):not(.bg-white *):not(.bg-gray-50 *):not(.bg-gray-100 *) {
-    color: #f3f4f6 !important;
+  .text-gray-800:not(.print-receipt *) {
+    color: oklch(0.95 0 0);
   }
   
-  .text-gray-700:not(.print-receipt *):not(.bg-white *):not(.bg-gray-50 *):not(.bg-gray-100 *) {
-    color: #e5e7eb !important;
+  .text-gray-700:not(.print-receipt *) {
+    color: oklch(0.85 0 0);
   }
   
-  .text-gray-600:not(.print-receipt *):not(.bg-white *):not(.bg-gray-50 *):not(.bg-gray-100 *) {
-    color: #d1d5db !important;
+  .text-gray-600:not(.print-receipt *) {
+    color: oklch(0.75 0 0);
   }
   
-  .text-gray-500:not(.print-receipt *):not(.bg-white *):not(.bg-gray-50 *):not(.bg-gray-100 *) {
-    color: #9ca3af !important;
+  .text-gray-500:not(.print-receipt *) {
+    color: oklch(0.65 0 0);
   }
   
   /* Table text visibility - excluding print templates */
-  td:not(.print-receipt td):not(.bg-white td):not(.bg-gray-50 td), 
-  th:not(.print-receipt th):not(.bg-white th):not(.bg-gray-50 th) {
+  td:not(.print-receipt td), 
+  th:not(.print-receipt th) {
     color: var(--foreground);
   }
   
@@ -517,12 +456,28 @@
   }
   
   input::placeholder, textarea::placeholder {
-    color: #9ca3af;
+    color: oklch(0.55 0 0);
   }
   
   /* Labels and descriptions */
   label {
     color: var(--foreground);
+  }
+  
+  /* Badge text on light backgrounds in dark mode */
+  .bg-gray-100:not(.print-receipt *), 
+  .bg-gray-50:not(.print-receipt *) {
+    color: #1f2937;
+  }
+  
+  /* Light background colors need dark text */
+  .bg-blue-50:not(.print-receipt *),
+  .bg-emerald-50:not(.print-receipt *),
+  .bg-amber-50:not(.print-receipt *),
+  .bg-red-50:not(.print-receipt *),
+  .bg-yellow-50:not(.print-receipt *),
+  .bg-green-50:not(.print-receipt *) {
+    color: #1f2937;
   }
   
   /* Ensure card content is visible */
@@ -541,16 +496,5 @@
   [role="menu"],
   [role="listbox"] {
     color: var(--foreground);
-  }
-  
-  /* Headings on dark backgrounds */
-  h1, h2, h3, h4, h5, h6 {
-    color: var(--foreground);
-  }
-  
-  /* Paragraphs and spans */
-  p:not(.print-receipt p):not(.bg-white p):not(.bg-gray-50 p):not(.bg-gray-100 p),
-  span:not(.print-receipt span):not(.bg-white span):not(.bg-gray-50 span):not(.bg-gray-100 span) {
-    color: inherit;
   }
 }
