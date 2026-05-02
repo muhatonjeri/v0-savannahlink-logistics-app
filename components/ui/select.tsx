@@ -92,7 +92,7 @@ function SelectLabel({
   return (
     <SelectPrimitive.Label
       data-slot="select-label"
-      className={cn('text-muted-foreground px-2 py-1.5 text-xs', className)}
+      className={cn('text-[#e67e22] font-semibold px-2 py-1.5 text-xs uppercase tracking-wide', className)}
       {...props}
     />
   )
@@ -129,7 +129,7 @@ function SelectSeparator({
   return (
     <SelectPrimitive.Separator
       data-slot="select-separator"
-      className={cn('bg-border pointer-events-none -mx-1 my-1 h-px', className)}
+      className={cn('bg-[#e67e22]/30 pointer-events-none -mx-1 my-1 h-px', className)}
       {...props}
     />
   )
@@ -143,7 +143,7 @@ function SelectScrollUpButton({
     <SelectPrimitive.ScrollUpButton
       data-slot="select-scroll-up-button"
       className={cn(
-        'flex cursor-default items-center justify-center py-1',
+        'flex cursor-default items-center justify-center py-1 bg-[#1a2744] text-[#e67e22] hover:bg-[#e67e22]/20',
         className,
       )}
       {...props}
@@ -161,7 +161,7 @@ function SelectScrollDownButton({
     <SelectPrimitive.ScrollDownButton
       data-slot="select-scroll-down-button"
       className={cn(
-        'flex cursor-default items-center justify-center py-1',
+        'flex cursor-default items-center justify-center py-1 bg-[#1a2744] text-[#e67e22] hover:bg-[#e67e22]/20',
         className,
       )}
       {...props}
