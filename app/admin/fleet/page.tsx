@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -383,6 +384,7 @@ function generateNotifications(fleet: FleetVehicle[]): Notification[] {
 }
 
 export default function FleetManagementPage() {
+  const router = useRouter();
   const [fleet, setFleet] = useState<FleetVehicle[]>(mockFleetData);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -1042,8 +1044,11 @@ export default function FleetManagementPage() {
                             <DropdownMenuContent align="end">
                               <DropdownMenuLabel>Actions</DropdownMenuLabel>
                               <DropdownMenuSeparator />
+                              <DropdownMenuItem onClick={() => router.push(`/admin/fleet/${vehicle.id}`)}>
+                                <CarFront className="h-4 w-4 mr-2" />View Profile
+                              </DropdownMenuItem>
                               <DropdownMenuItem onClick={() => { setSelectedVehicle(vehicle); setIsViewDialogOpen(true); }}>
-                                <Eye className="h-4 w-4 mr-2" />View Details
+                                <Eye className="h-4 w-4 mr-2" />Quick View
                               </DropdownMenuItem>
                               {vehicle.status === "available" && (
                                 <DropdownMenuItem onClick={() => { setSelectedVehicle(vehicle); setIsAssignDialogOpen(true); }}>
