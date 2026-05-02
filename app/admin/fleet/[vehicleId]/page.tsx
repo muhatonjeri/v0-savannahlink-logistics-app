@@ -1641,15 +1641,15 @@ export default function VehicleProfilePage() {
 
                 <div className="grid grid-cols-3 gap-2 text-center bg-gray-50 dark:bg-gray-800/50 rounded p-3 mb-4">
                   <div>
-                    <p className="text-xs text-gray-500">Receipt No.</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Receipt No.</p>
                     <p className="font-mono font-bold text-gray-900 dark:text-white text-sm">{selectedReceipt.receiptNumber}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500">Date</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Date</p>
                     <p className="font-semibold text-gray-900 dark:text-white text-sm">{format(parseISO(selectedReceipt.date), "dd MMM yyyy")}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500">Time</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Time</p>
                     <p className="font-semibold text-gray-900 dark:text-white text-sm">{format(new Date(), "HH:mm")}</p>
                   </div>
                 </div>
@@ -1657,24 +1657,24 @@ export default function VehicleProfilePage() {
                 <div className="space-y-2 text-sm mb-4">
                   {selectedReceipt.clientName && (
                     <div className="flex justify-between py-1 border-b border-dashed border-gray-200 dark:border-gray-700">
-                      <span className="text-gray-500">Customer</span>
+                      <span className="text-gray-500 dark:text-gray-400">Customer</span>
                       <span className="font-medium text-gray-900 dark:text-white">{selectedReceipt.clientName}</span>
                     </div>
                   )}
                   <div className="flex justify-between py-1 border-b border-dashed border-gray-200 dark:border-gray-700">
-                    <span className="text-gray-500">Description</span>
+                    <span className="text-gray-500 dark:text-gray-400">Description</span>
                     <span className="font-medium text-gray-900 dark:text-white text-right max-w-[60%]">{selectedReceipt.description}</span>
                   </div>
                   <div className="flex justify-between py-1 border-b border-dashed border-gray-200 dark:border-gray-700">
-                    <span className="text-gray-500">Vehicle</span>
+                    <span className="text-gray-500 dark:text-gray-400">Vehicle</span>
                     <span className="font-medium text-gray-900 dark:text-white">{vehicle.registrationNo}</span>
                   </div>
                   <div className="flex justify-between py-1 border-b border-dashed border-gray-200 dark:border-gray-700">
-                    <span className="text-gray-500">Payment</span>
+                    <span className="text-gray-500 dark:text-gray-400">Payment</span>
                     <span className="font-medium text-gray-900 dark:text-white uppercase">{selectedReceipt.paymentMethod}</span>
                   </div>
                   <div className="flex justify-between py-1">
-                    <span className="text-gray-500">Reference</span>
+                    <span className="text-gray-500 dark:text-gray-400">Reference</span>
                     <span className="font-mono text-gray-900 dark:text-white">{selectedReceipt.reference}</span>
                   </div>
                 </div>

@@ -420,3 +420,58 @@
     font-size: 8pt !important;
   }
 }
+
+/* Dark Mode Text Visibility Enhancements */
+.dark {
+  /* Ensure all gray text colors are visible on dark backgrounds */
+  .text-gray-900 {
+    color: var(--foreground);
+  }
+  
+  .text-gray-800 {
+    color: oklch(0.95 0 0);
+  }
+  
+  .text-gray-700 {
+    color: oklch(0.85 0 0);
+  }
+  
+  .text-gray-600 {
+    color: oklch(0.75 0 0);
+  }
+  
+  .text-gray-500 {
+    color: oklch(0.65 0 0);
+  }
+  
+  /* Table text visibility */
+  td, th {
+    color: var(--foreground);
+  }
+  
+  /* Input and form field visibility */
+  input, textarea, select {
+    color: var(--foreground);
+  }
+  
+  input::placeholder, textarea::placeholder {
+    color: oklch(0.55 0 0);
+  }
+  
+  /* Labels and descriptions */
+  label {
+    color: var(--foreground);
+  }
+  
+  /* Badge text on dark backgrounds */
+  .bg-gray-100, .bg-gray-50 {
+    color: #1f2937;
+  }
+  
+  /* Ensure card content is visible */
+  [class*="CardContent"] p,
+  [class*="CardContent"] span,
+  [class*="CardContent"] div {
+    color: inherit;
+  }
+}

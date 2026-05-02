@@ -619,7 +619,7 @@ export default function ServicesManagementPage() {
                   <div className="flex items-center gap-2">
                     <Badge
                       variant="outline"
-                      className={service.isActive ? "bg-emerald-50 text-emerald-700" : "bg-gray-100 text-gray-500"}
+                      className={service.isActive ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300" : "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400"}
                     >
                       {service.isActive ? "Active" : "Inactive"}
                     </Badge>
@@ -688,7 +688,7 @@ export default function ServicesManagementPage() {
               </div>
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-500">VAT Rate:</span>
+                  <span className="text-sm text-gray-500 dark:text-gray-400">VAT Rate:</span>
                   <Select
                     value={selectedService.vatRate.toString()}
                     onValueChange={(v) => updateVatRate(selectedService.id, parseInt(v))}
