@@ -1210,10 +1210,10 @@ export default function ReceiptsPage() {
                 </DialogTitle>
               </DialogHeader>
 
-              {/* Professional Print Template */}
+              {/* Professional Print Template - Savanna Brand Colors */}
               <div className="bg-white text-gray-900 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
                 {/* Company Header */}
-                <div className="print-header border-b-4 border-emerald-600 pb-5 mb-5">
+                <div className="print-header border-b-4 border-[#0a1628] pb-5 mb-5">
                   <div className="flex items-start justify-between gap-6">
                     {/* Logo & Company Info */}
                     <div className="flex items-start gap-4">
@@ -1226,18 +1226,18 @@ export default function ReceiptsPage() {
                         unoptimized
                       />
                       <div>
-                        <h1 className="text-2xl font-bold text-emerald-700">{companyDetails.name}</h1>
+                        <h1 className="text-2xl font-bold text-[#0a1628]">{companyDetails.name}</h1>
                         <div className="mt-2 text-sm text-gray-600 space-y-0.5">
                           <p className="flex items-center gap-2">
-                            <MapPin className="h-3.5 w-3.5 text-emerald-600" />
+                            <MapPin className="h-3.5 w-3.5 text-[#e67e22]" />
                             {companyDetails.address}
                           </p>
                           <p className="flex items-center gap-2">
-                            <Phone className="h-3.5 w-3.5 text-emerald-600" />
+                            <Phone className="h-3.5 w-3.5 text-[#e67e22]" />
                             {companyDetails.phone}
                           </p>
                           <p className="flex items-center gap-2">
-                            <Mail className="h-3.5 w-3.5 text-emerald-600" />
+                            <Mail className="h-3.5 w-3.5 text-[#e67e22]" />
                             {companyDetails.email}
                           </p>
                         </div>
@@ -1246,20 +1246,20 @@ export default function ReceiptsPage() {
                     </div>
                     {/* Receipt Number Box */}
                     <div className="text-right">
-                      <div className="inline-block bg-emerald-600 text-white px-5 py-2 rounded-lg">
+                      <div className="inline-block bg-[#0a1628] text-white px-5 py-2 rounded-lg">
                         <p className="text-xs uppercase tracking-wider opacity-90">Receipt No.</p>
                         <p className="text-xl font-bold font-mono">{selectedReceipt.receiptNumber}</p>
                       </div>
                       <div className="mt-3 text-sm text-gray-600">
                         <p><span className="font-medium">Date:</span> {formatDate(selectedReceipt.issuedAt)}</p>
-                        <p><span className="font-medium">eTIMS:</span> <span className="text-emerald-600 font-mono">{selectedReceipt.etimsReceiptNumber}</span></p>
+                        <p><span className="font-medium">eTIMS:</span> <span className="text-[#e67e22] font-mono">{selectedReceipt.etimsReceiptNumber}</span></p>
                       </div>
                     </div>
                   </div>
                   
                   {/* Receipt Title Banner */}
-                  <div className="mt-5 bg-gradient-to-r from-emerald-50 to-emerald-100 border-2 border-emerald-200 py-3 rounded-lg text-center">
-                    <h2 className="text-xl font-bold uppercase tracking-[0.2em] text-emerald-700">
+                  <div className="mt-5 bg-gradient-to-r from-orange-50 to-amber-50 border-2 border-[#e67e22] py-3 rounded-lg text-center">
+                    <h2 className="text-xl font-bold uppercase tracking-[0.2em] text-[#0a1628]">
                       Official Receipt
                     </h2>
                   </div>
