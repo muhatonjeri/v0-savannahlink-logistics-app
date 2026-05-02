@@ -1120,9 +1120,9 @@ export default function BlacklistPage() {
 
       {/* View Details Dialog */}
       <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl bg-white dark:bg-gray-900">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
+            <DialogTitle className="flex items-center gap-2 text-gray-900 dark:text-white">
               <ShieldAlert className="h-5 w-5 text-red-500" />
               Blacklist Entry Details
             </DialogTitle>
@@ -1130,60 +1130,60 @@ export default function BlacklistPage() {
           {selectedEntry && (
             <div className="space-y-6">
               {/* Personal Info */}
-              <div className="rounded-lg border border-red-200 dark:border-red-800 bg-red-50/50 dark:bg-red-950/20 p-4">
-                <h4 className="font-semibold text-red-700 dark:text-red-400 mb-3 flex items-center gap-2">
+              <div className="rounded-lg border-2 border-red-300 dark:border-red-600 bg-white dark:bg-gray-800 p-4">
+                <h4 className="font-bold text-red-600 dark:text-red-400 mb-3 flex items-center gap-2 text-base">
                   <User className="h-4 w-4" />
                   Personal Information
                 </h4>
                 <div className="grid gap-3 sm:grid-cols-2 text-sm">
                   <div>
-                    <span className="text-gray-500 dark:text-gray-400">Full Name:</span>
-                    <p className="font-medium text-gray-900 dark:text-white">{selectedEntry.fullName}</p>
+                    <span className="text-gray-600 dark:text-gray-300 font-medium">Full Name:</span>
+                    <p className="font-semibold text-gray-900 dark:text-white mt-0.5">{selectedEntry.fullName}</p>
                   </div>
                   <div>
-                    <span className="text-gray-500 dark:text-gray-400">ID Number:</span>
-                    <p className="font-mono text-gray-900 dark:text-white">{selectedEntry.idNumber}</p>
+                    <span className="text-gray-600 dark:text-gray-300 font-medium">ID Number:</span>
+                    <p className="font-mono font-semibold text-gray-900 dark:text-white mt-0.5">{selectedEntry.idNumber}</p>
                   </div>
                   <div>
-                    <span className="text-gray-500 dark:text-gray-400">Phone:</span>
-                    <p className="text-gray-900 dark:text-white">{selectedEntry.phoneNumber}</p>
+                    <span className="text-gray-600 dark:text-gray-300 font-medium">Phone:</span>
+                    <p className="font-semibold text-gray-900 dark:text-white mt-0.5">{selectedEntry.phoneNumber}</p>
                   </div>
                   {selectedEntry.email && (
                     <div>
-                      <span className="text-gray-500 dark:text-gray-400">Email:</span>
-                      <p className="text-gray-900 dark:text-white">{selectedEntry.email}</p>
+                      <span className="text-gray-600 dark:text-gray-300 font-medium">Email:</span>
+                      <p className="font-semibold text-gray-900 dark:text-white mt-0.5">{selectedEntry.email}</p>
                     </div>
                   )}
                   {selectedEntry.drivingLicenseNumber && (
                     <div>
-                      <span className="text-gray-500 dark:text-gray-400">License:</span>
-                      <p className="font-mono text-gray-900 dark:text-white">{selectedEntry.drivingLicenseNumber}</p>
+                      <span className="text-gray-600 dark:text-gray-300 font-medium">License:</span>
+                      <p className="font-mono font-semibold text-gray-900 dark:text-white mt-0.5">{selectedEntry.drivingLicenseNumber}</p>
                     </div>
                   )}
                   {selectedEntry.kraPin && (
                     <div>
-                      <span className="text-gray-500 dark:text-gray-400">KRA PIN:</span>
-                      <p className="font-mono text-gray-900 dark:text-white">{selectedEntry.kraPin}</p>
+                      <span className="text-gray-600 dark:text-gray-300 font-medium">KRA PIN:</span>
+                      <p className="font-mono font-semibold text-gray-900 dark:text-white mt-0.5">{selectedEntry.kraPin}</p>
                     </div>
                   )}
                   {selectedEntry.residence && (
                     <div className="sm:col-span-2">
-                      <span className="text-gray-500 dark:text-gray-400">Residence:</span>
-                      <p className="text-gray-900 dark:text-white">{selectedEntry.residence}</p>
+                      <span className="text-gray-600 dark:text-gray-300 font-medium">Residence:</span>
+                      <p className="font-semibold text-gray-900 dark:text-white mt-0.5">{selectedEntry.residence}</p>
                     </div>
                   )}
                 </div>
               </div>
 
               {/* Incident Info */}
-              <div className="rounded-lg border border-orange-200 dark:border-orange-800 bg-orange-50/50 dark:bg-orange-950/20 p-4">
-                <h4 className="font-semibold text-orange-700 dark:text-orange-400 mb-3 flex items-center gap-2">
+              <div className="rounded-lg border-2 border-orange-300 dark:border-orange-600 bg-white dark:bg-gray-800 p-4">
+                <h4 className="font-bold text-orange-600 dark:text-orange-400 mb-3 flex items-center gap-2 text-base">
                   <AlertTriangle className="h-4 w-4" />
                   Incident Details
                 </h4>
                 <div className="grid gap-3 sm:grid-cols-2 text-sm">
                   <div>
-                    <span className="text-gray-500 dark:text-gray-400">Record Type:</span>
+                    <span className="text-gray-600 dark:text-gray-300 font-medium">Record Type:</span>
                     <div className="mt-1">
                       <Badge className={recordTypeConfig[selectedEntry.recordType].color}>
                         {recordTypeConfig[selectedEntry.recordType].label}
@@ -1191,7 +1191,7 @@ export default function BlacklistPage() {
                     </div>
                   </div>
                   <div>
-                    <span className="text-gray-500 dark:text-gray-400">Severity:</span>
+                    <span className="text-gray-600 dark:text-gray-300 font-medium">Severity:</span>
                     <div className="mt-1">
                       <Badge className={severityConfig[selectedEntry.severity].color}>
                         {severityConfig[selectedEntry.severity].label}
@@ -1199,11 +1199,11 @@ export default function BlacklistPage() {
                     </div>
                   </div>
                   <div>
-                    <span className="text-gray-500 dark:text-gray-400">Incident Date:</span>
-                    <p className="text-gray-900 dark:text-white">{new Date(selectedEntry.incidentDate).toLocaleDateString()}</p>
+                    <span className="text-gray-600 dark:text-gray-300 font-medium">Incident Date:</span>
+                    <p className="font-semibold text-gray-900 dark:text-white mt-0.5">{new Date(selectedEntry.incidentDate).toLocaleDateString()}</p>
                   </div>
                   <div>
-                    <span className="text-gray-500 dark:text-gray-400">Status:</span>
+                    <span className="text-gray-600 dark:text-gray-300 font-medium">Status:</span>
                     <div className="mt-1">
                       <Badge className={statusConfig[selectedEntry.status].color}>
                         {statusConfig[selectedEntry.status].label}
@@ -1212,36 +1212,36 @@ export default function BlacklistPage() {
                   </div>
                   {selectedEntry.vehicleInvolved && (
                     <div>
-                      <span className="text-gray-500 dark:text-gray-400">Vehicle:</span>
-                      <p className="font-mono text-gray-900 dark:text-white">{selectedEntry.vehicleInvolved}</p>
+                      <span className="text-gray-600 dark:text-gray-300 font-medium">Vehicle:</span>
+                      <p className="font-mono font-semibold text-gray-900 dark:text-white mt-0.5">{selectedEntry.vehicleInvolved}</p>
                     </div>
                   )}
                   {selectedEntry.amountOwed && (
                     <div>
-                      <span className="text-gray-500 dark:text-gray-400">Amount Owed:</span>
-                      <p className="font-semibold text-red-600 dark:text-red-400">
+                      <span className="text-gray-600 dark:text-gray-300 font-medium">Amount Owed:</span>
+                      <p className="font-bold text-red-600 dark:text-red-400 mt-0.5">
                         KES {selectedEntry.amountOwed.toLocaleString()}
                       </p>
                     </div>
                   )}
                   {selectedEntry.policeReportNumber && (
                     <div>
-                      <span className="text-gray-500 dark:text-gray-400">Police Report:</span>
-                      <p className="font-mono text-gray-900 dark:text-white">{selectedEntry.policeReportNumber}</p>
+                      <span className="text-gray-600 dark:text-gray-300 font-medium">Police Report:</span>
+                      <p className="font-mono font-semibold text-gray-900 dark:text-white mt-0.5">{selectedEntry.policeReportNumber}</p>
                     </div>
                   )}
                   <div>
-                    <span className="text-gray-500 dark:text-gray-400">Reported By:</span>
-                    <p className="text-gray-900 dark:text-white">{selectedEntry.reportedBy}</p>
+                    <span className="text-gray-600 dark:text-gray-300 font-medium">Reported By:</span>
+                    <p className="font-semibold text-gray-900 dark:text-white mt-0.5">{selectedEntry.reportedBy}</p>
                   </div>
                   <div className="sm:col-span-2">
-                    <span className="text-gray-500 dark:text-gray-400">Description:</span>
-                    <p className="mt-1 text-gray-900 dark:text-white">{selectedEntry.description}</p>
+                    <span className="text-gray-600 dark:text-gray-300 font-medium">Description:</span>
+                    <p className="mt-1 font-medium text-gray-900 dark:text-white leading-relaxed">{selectedEntry.description}</p>
                   </div>
                 </div>
               </div>
 
-              <div className="flex justify-between text-xs text-muted-foreground">
+              <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400">
                 <span>Created: {new Date(selectedEntry.createdAt).toLocaleDateString()}</span>
                 <span>Updated: {new Date(selectedEntry.updatedAt).toLocaleDateString()}</span>
               </div>
