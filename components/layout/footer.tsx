@@ -24,7 +24,7 @@ export function Footer() {
             {/* Social Media Icons */}
             <div className="flex items-center gap-3">
               <a
-                href="https://wa.me/254700000000"
+                href="https://wa.me/254727247032"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex h-10 w-10 items-center justify-center rounded-full bg-[#25D366] text-white transition-all hover:scale-110 hover:shadow-lg hover:shadow-[#25D366]/30"
@@ -35,7 +35,7 @@ export function Footer() {
                 </svg>
               </a>
               <a
-                href="https://facebook.com/savannatrail"
+                href="https://facebook.com/savannalink"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex h-10 w-10 items-center justify-center rounded-full bg-[#1877F2] text-white transition-all hover:scale-110 hover:shadow-lg hover:shadow-[#1877F2]/30"
@@ -44,7 +44,7 @@ export function Footer() {
                 <Facebook className="h-5 w-5" />
               </a>
               <a
-                href="https://instagram.com/savannatrail"
+                href="https://instagram.com/savannalink"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-tr from-[#F58529] via-[#DD2A7B] to-[#8134AF] text-white transition-all hover:scale-110 hover:shadow-lg hover:shadow-[#DD2A7B]/30"
@@ -53,7 +53,7 @@ export function Footer() {
                 <Instagram className="h-5 w-5" />
               </a>
               <a
-                href="https://tiktok.com/@savannatrail"
+                href="https://tiktok.com/@savannalink"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex h-10 w-10 items-center justify-center rounded-full bg-black text-white transition-all hover:scale-110 hover:shadow-lg hover:shadow-black/30"
@@ -64,7 +64,7 @@ export function Footer() {
                 </svg>
               </a>
               <a
-                href="https://twitter.com/savannatrail"
+                href="https://twitter.com/savannalink"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex h-10 w-10 items-center justify-center rounded-full bg-black text-white transition-all hover:scale-110 hover:shadow-lg hover:shadow-black/30"
@@ -75,7 +75,7 @@ export function Footer() {
                 </svg>
               </a>
               <a
-                href="https://youtube.com/@savannatrail"
+                href="https://youtube.com/@savannalink"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex h-10 w-10 items-center justify-center rounded-full bg-[#FF0000] text-white transition-all hover:scale-110 hover:shadow-lg hover:shadow-[#FF0000]/30"
@@ -157,30 +157,30 @@ export function Footer() {
               <li className="flex items-center gap-2">
                 <Mail className="h-4 w-4 shrink-0 text-primary" />
                 <a
-                  href="mailto:info@savannatrail.co.ke"
+                  href="mailto:info@savannalink.com"
                   className="text-sm text-muted-foreground transition-colors hover:text-primary"
                 >
-                  info@savannatrail.co.ke
+                  info@savannalink.com
                 </a>
               </li>
               <li className="flex items-center gap-2">
                 <Phone className="h-4 w-4 shrink-0 text-primary" />
                 <a
-                  href="tel:+254700000000"
+                  href="tel:+254727247032"
                   className="text-sm text-muted-foreground transition-colors hover:text-primary"
                 >
-                  +254 700 000 000
+                  +254 727 247 032
                 </a>
               </li>
               <li className="flex items-center gap-2">
                 <Globe className="h-4 w-4 shrink-0 text-primary" />
                 <a
-                  href="https://www.savannatrail.co.ke"
+                  href="https://www.savannalink.com"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-sm text-muted-foreground transition-colors hover:text-primary"
                 >
-                  www.savannatrail.co.ke
+                  www.savannalink.com
                 </a>
               </li>
             </ul>
@@ -190,7 +190,7 @@ export function Footer() {
         {/* Bottom Bar */}
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-border pt-8 sm:flex-row">
           <p className="text-sm text-muted-foreground">
-            &copy; {new Date().getFullYear()} SavannaTrail Logistics & Tours. All rights reserved.
+            &copy; {new Date().getFullYear()} SavannaLink Logistics & Tours. All rights reserved.
           </p>
           <div className="flex gap-4">
             <Link

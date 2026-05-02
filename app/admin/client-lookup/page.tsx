@@ -378,7 +378,7 @@ function ClientLookupContent() {
   const currentService = selectedService && serviceConfig[selectedService] ? serviceConfig[selectedService] : null;
   
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchType, setSearchType] = useState<"name" | "id" | "phone">("name");
+  const [searchType, setSearchType] = useState<"name" | "id" | "phone" | "krapin" | "license" | "payment">("name");
   const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState<{
     client: (Client | StoreClient) | null;
@@ -504,6 +504,10 @@ function ClientLookupContent() {
       registerForm.setValue("idNumber", searchQuery);
     } else if (searchType === "phone") {
       registerForm.setValue("phone", searchQuery);
+    } else if (searchType === "krapin") {
+      registerForm.setValue("kraPin", searchQuery);
+    } else if (searchType === "license") {
+      registerForm.setValue("drivingLicense", searchQuery);
     }
     setIsRegisterDialogOpen(true);
   };
@@ -566,11 +570,16 @@ function ClientLookupContent() {
       const nameMatch = entry.fullName.toLowerCase().includes(query);
       const idMatch = entry.idNumber.toLowerCase().includes(query);
       const phoneMatch = entry.phoneNumber.toLowerCase().replace(/\s/g, "").includes(query.replace(/\s/g, ""));
+      const kraPinMatch = entry.kraPin?.toLowerCase().includes(query) || false;
+      const licenseMatch = entry.drivingLicenseNumber?.toLowerCase().includes(query) || false;
       
       if (searchType === "name") return nameMatch;
       if (searchType === "id") return idMatch;
       if (searchType === "phone") return phoneMatch;
-      return nameMatch || idMatch || phoneMatch;
+      if (searchType === "krapin") return kraPinMatch;
+      if (searchType === "license") return licenseMatch;
+      if (searchType === "payment") return phoneMatch || idMatch; // Payment codes often use phone/ID
+      return nameMatch || idMatch || phoneMatch || kraPinMatch || licenseMatch;
     });
 
     // Search clients from store (includes both demo and registered clients)
@@ -581,11 +590,16 @@ function ClientLookupContent() {
       const nameMatch = client.fullName.toLowerCase().includes(query);
       const idMatch = client.idNumber.toLowerCase().includes(query);
       const phoneMatch = client.phone.toLowerCase().includes(query);
+      const kraPinMatch = client.kraPin?.toLowerCase().includes(query) || false;
+      const licenseMatch = client.drivingLicense?.toLowerCase().includes(query) || false;
       
       if (searchType === "name") return nameMatch;
       if (searchType === "id") return idMatch;
       if (searchType === "phone") return phoneMatch;
-      return nameMatch || idMatch || phoneMatch;
+      if (searchType === "krapin") return kraPinMatch;
+      if (searchType === "license") return licenseMatch;
+      if (searchType === "payment") return phoneMatch || idMatch;
+      return nameMatch || idMatch || phoneMatch || kraPinMatch || licenseMatch;
     });
 
     const isBlacklisted = matchedBlacklist.length > 0 && matchedBlacklist.some(e => e.status === "active");
@@ -762,7 +776,7 @@ function ClientLookupContent() {
         </CardHeader>
         <CardContent>
           <div className="flex flex-col gap-4 sm:flex-row">
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <Button
                 variant={searchType === "name" ? "default" : "outline"}
                 size="sm"
@@ -779,7 +793,7 @@ function ClientLookupContent() {
                 className="gap-1"
               >
                 <IdCard className="h-4 w-4" />
-                ID Number
+                ID No
               </Button>
               <Button
                 variant={searchType === "phone" ? "default" : "outline"}
@@ -790,6 +804,33 @@ function ClientLookupContent() {
                 <Phone className="h-4 w-4" />
                 Phone
               </Button>
+              <Button
+                variant={searchType === "krapin" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setSearchType("krapin")}
+                className="gap-1"
+              >
+                <Building className="h-4 w-4" />
+                KRA PIN
+              </Button>
+              <Button
+                variant={searchType === "license" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setSearchType("license")}
+                className="gap-1"
+              >
+                <Car className="h-4 w-4" />
+                DL No
+              </Button>
+              <Button
+                variant={searchType === "payment" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setSearchType("payment")}
+                className="gap-1"
+              >
+                <CreditCard className="h-4 w-4" />
+                Payment Code
+              </Button>
             </div>
             <div className="flex flex-1 gap-2">
               <Input
@@ -798,7 +839,13 @@ function ClientLookupContent() {
                     ? "Enter client name..."
                     : searchType === "id"
                     ? "Enter ID/Passport number..."
-                    : "Enter phone number..."
+                    : searchType === "phone"
+                    ? "Enter phone number..."
+                    : searchType === "krapin"
+                    ? "Enter KRA PIN (e.g., A012345678X)..."
+                    : searchType === "license"
+                    ? "Enter driving license number..."
+                    : "Enter M-Pesa code or payment reference..."
                 }
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}

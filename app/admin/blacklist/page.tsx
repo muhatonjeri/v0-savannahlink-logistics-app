@@ -490,9 +490,9 @@ export default function BlacklistPage() {
                       name="fullName"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Full Name *</FormLabel>
+                          <FormLabel className="text-gray-800 dark:text-gray-200">Full Name *</FormLabel>
                           <FormControl>
-                            <Input placeholder="John Kamau Mwangi" {...field} />
+                            <Input placeholder="John Kamau Mwangi" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -503,9 +503,9 @@ export default function BlacklistPage() {
                       name="idNumber"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>ID/Passport Number *</FormLabel>
+                          <FormLabel className="text-gray-800 dark:text-gray-200">ID/Passport Number *</FormLabel>
                           <FormControl>
-                            <Input placeholder="12345678" {...field} />
+                            <Input placeholder="12345678" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -516,9 +516,9 @@ export default function BlacklistPage() {
                       name="phoneNumber"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Phone Number *</FormLabel>
+                          <FormLabel className="text-gray-800 dark:text-gray-200">Phone Number *</FormLabel>
                           <FormControl>
-                            <Input placeholder="0712345678" {...field} />
+                            <Input placeholder="0712345678" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -529,9 +529,9 @@ export default function BlacklistPage() {
                       name="email"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Email</FormLabel>
+                          <FormLabel className="text-gray-800 dark:text-gray-200">Email</FormLabel>
                           <FormControl>
-                            <Input placeholder="email@example.com" type="email" {...field} />
+                            <Input placeholder="email@example.com" type="email" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -542,9 +542,9 @@ export default function BlacklistPage() {
                       name="drivingLicenseNumber"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Driving License Number</FormLabel>
+                          <FormLabel className="text-gray-800 dark:text-gray-200">Driving License Number</FormLabel>
                           <FormControl>
-                            <Input placeholder="DL123456" {...field} />
+                            <Input placeholder="DL123456" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -555,9 +555,9 @@ export default function BlacklistPage() {
                       name="kraPin"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>KRA PIN</FormLabel>
+                          <FormLabel className="text-gray-800 dark:text-gray-200">KRA PIN</FormLabel>
                           <FormControl>
-                            <Input placeholder="A012345678B" {...field} />
+                            <Input placeholder="A012345678B" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -568,9 +568,9 @@ export default function BlacklistPage() {
                       name="residence"
                       render={({ field }) => (
                         <FormItem className="sm:col-span-2">
-                          <FormLabel>Residence/Address</FormLabel>
+                          <FormLabel className="text-gray-800 dark:text-gray-200">Residence/Address</FormLabel>
                           <FormControl>
-                            <Input placeholder="Westlands, Nairobi" {...field} />
+                            <Input placeholder="Westlands, Nairobi" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -591,10 +591,10 @@ export default function BlacklistPage() {
                       name="recordType"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Record Type *</FormLabel>
+                          <FormLabel className="text-gray-800 dark:text-gray-200">Record Type *</FormLabel>
                           <Select onValueChange={field.onChange} defaultValue={field.value}>
                             <FormControl>
-                              <SelectTrigger>
+                              <SelectTrigger className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600">
                                 <SelectValue placeholder="Select type" />
                               </SelectTrigger>
                             </FormControl>
@@ -616,10 +616,10 @@ export default function BlacklistPage() {
                       name="severity"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Severity *</FormLabel>
+                          <FormLabel className="text-gray-800 dark:text-gray-200">Severity *</FormLabel>
                           <Select onValueChange={field.onChange} defaultValue={field.value}>
                             <FormControl>
-                              <SelectTrigger>
+                              <SelectTrigger className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600">
                                 <SelectValue placeholder="Select severity" />
                               </SelectTrigger>
                             </FormControl>
@@ -639,7 +639,7 @@ export default function BlacklistPage() {
                       name="incidentDate"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Incident Date *</FormLabel>
+                          <FormLabel className="text-gray-800 dark:text-gray-200">Incident Date *</FormLabel>
                           <FormControl>
                             <DatePicker
                               value={field.value}
@@ -656,9 +656,9 @@ export default function BlacklistPage() {
                       name="vehicleInvolved"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Vehicle Involved</FormLabel>
+                          <FormLabel className="text-gray-800 dark:text-gray-200">Vehicle Involved</FormLabel>
                           <FormControl>
-                            <Input placeholder="Toyota Prado KCX 123A" {...field} />
+                            <Input placeholder="Toyota Prado KCX 123A" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -669,9 +669,9 @@ export default function BlacklistPage() {
                       name="amountOwed"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Amount Owed (KES)</FormLabel>
+                          <FormLabel className="text-gray-800 dark:text-gray-200">Amount Owed (KES)</FormLabel>
                           <FormControl>
-                            <Input type="number" placeholder="150000" {...field} />
+                            <Input type="number" placeholder="150000" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -682,11 +682,11 @@ export default function BlacklistPage() {
                       name="policeReportNumber"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Police Report Number</FormLabel>
+                          <FormLabel className="text-gray-800 dark:text-gray-200">Police Report Number</FormLabel>
                           <FormControl>
-                            <Input placeholder="OB/123/2024" {...field} />
+                            <Input placeholder="OB/123/2024" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600" {...field} />
                           </FormControl>
-                          <FormDescription className="text-xs">
+                          <FormDescription className="text-xs text-gray-500 dark:text-gray-400">
                             If a police report was filed
                           </FormDescription>
                           <FormMessage />
@@ -698,15 +698,15 @@ export default function BlacklistPage() {
                       name="description"
                       render={({ field }) => (
                         <FormItem className="sm:col-span-2">
-                          <FormLabel>Detailed Description *</FormLabel>
+                          <FormLabel className="text-gray-800 dark:text-gray-200">Detailed Description *</FormLabel>
                           <FormControl>
                             <Textarea
                               placeholder="Provide a detailed account of the incident, including dates, amounts, and any relevant circumstances..."
-                              className="min-h-[100px]"
+                              className="min-h-[100px] bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
                               {...field}
                             />
                           </FormControl>
-                          <FormDescription className="text-xs">
+                          <FormDescription className="text-xs text-gray-500 dark:text-gray-400">
                             Be as detailed as possible for future reference
                           </FormDescription>
                           <FormMessage />
@@ -1120,9 +1120,9 @@ export default function BlacklistPage() {
 
       {/* View Details Dialog */}
       <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl bg-white dark:bg-gray-900">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
+            <DialogTitle className="flex items-center gap-2 text-gray-900 dark:text-white">
               <ShieldAlert className="h-5 w-5 text-red-500" />
               Blacklist Entry Details
             </DialogTitle>
@@ -1130,60 +1130,60 @@ export default function BlacklistPage() {
           {selectedEntry && (
             <div className="space-y-6">
               {/* Personal Info */}
-              <div className="rounded-lg border border-red-200 dark:border-red-800 bg-red-50/50 dark:bg-red-950/20 p-4">
-                <h4 className="font-semibold text-red-700 dark:text-red-400 mb-3 flex items-center gap-2">
+              <div className="rounded-lg border-2 border-red-300 dark:border-red-600 bg-white dark:bg-gray-800 p-4">
+                <h4 className="font-bold text-red-600 dark:text-red-400 mb-3 flex items-center gap-2 text-base">
                   <User className="h-4 w-4" />
                   Personal Information
                 </h4>
                 <div className="grid gap-3 sm:grid-cols-2 text-sm">
                   <div>
-                    <span className="text-muted-foreground">Full Name:</span>
-                    <p className="font-medium">{selectedEntry.fullName}</p>
+                    <span className="text-gray-600 dark:text-gray-300 font-medium">Full Name:</span>
+                    <p className="font-semibold text-gray-900 dark:text-white mt-0.5">{selectedEntry.fullName}</p>
                   </div>
                   <div>
-                    <span className="text-muted-foreground">ID Number:</span>
-                    <p className="font-mono">{selectedEntry.idNumber}</p>
+                    <span className="text-gray-600 dark:text-gray-300 font-medium">ID Number:</span>
+                    <p className="font-mono font-semibold text-gray-900 dark:text-white mt-0.5">{selectedEntry.idNumber}</p>
                   </div>
                   <div>
-                    <span className="text-muted-foreground">Phone:</span>
-                    <p>{selectedEntry.phoneNumber}</p>
+                    <span className="text-gray-600 dark:text-gray-300 font-medium">Phone:</span>
+                    <p className="font-semibold text-gray-900 dark:text-white mt-0.5">{selectedEntry.phoneNumber}</p>
                   </div>
                   {selectedEntry.email && (
                     <div>
-                      <span className="text-muted-foreground">Email:</span>
-                      <p>{selectedEntry.email}</p>
+                      <span className="text-gray-600 dark:text-gray-300 font-medium">Email:</span>
+                      <p className="font-semibold text-gray-900 dark:text-white mt-0.5">{selectedEntry.email}</p>
                     </div>
                   )}
                   {selectedEntry.drivingLicenseNumber && (
                     <div>
-                      <span className="text-muted-foreground">License:</span>
-                      <p className="font-mono">{selectedEntry.drivingLicenseNumber}</p>
+                      <span className="text-gray-600 dark:text-gray-300 font-medium">License:</span>
+                      <p className="font-mono font-semibold text-gray-900 dark:text-white mt-0.5">{selectedEntry.drivingLicenseNumber}</p>
                     </div>
                   )}
                   {selectedEntry.kraPin && (
                     <div>
-                      <span className="text-muted-foreground">KRA PIN:</span>
-                      <p className="font-mono">{selectedEntry.kraPin}</p>
+                      <span className="text-gray-600 dark:text-gray-300 font-medium">KRA PIN:</span>
+                      <p className="font-mono font-semibold text-gray-900 dark:text-white mt-0.5">{selectedEntry.kraPin}</p>
                     </div>
                   )}
                   {selectedEntry.residence && (
                     <div className="sm:col-span-2">
-                      <span className="text-muted-foreground">Residence:</span>
-                      <p>{selectedEntry.residence}</p>
+                      <span className="text-gray-600 dark:text-gray-300 font-medium">Residence:</span>
+                      <p className="font-semibold text-gray-900 dark:text-white mt-0.5">{selectedEntry.residence}</p>
                     </div>
                   )}
                 </div>
               </div>
 
               {/* Incident Info */}
-              <div className="rounded-lg border border-orange-200 dark:border-orange-800 bg-orange-50/50 dark:bg-orange-950/20 p-4">
-                <h4 className="font-semibold text-orange-700 dark:text-orange-400 mb-3 flex items-center gap-2">
+              <div className="rounded-lg border-2 border-orange-300 dark:border-orange-600 bg-white dark:bg-gray-800 p-4">
+                <h4 className="font-bold text-orange-600 dark:text-orange-400 mb-3 flex items-center gap-2 text-base">
                   <AlertTriangle className="h-4 w-4" />
                   Incident Details
                 </h4>
                 <div className="grid gap-3 sm:grid-cols-2 text-sm">
                   <div>
-                    <span className="text-muted-foreground">Record Type:</span>
+                    <span className="text-gray-600 dark:text-gray-300 font-medium">Record Type:</span>
                     <div className="mt-1">
                       <Badge className={recordTypeConfig[selectedEntry.recordType].color}>
                         {recordTypeConfig[selectedEntry.recordType].label}
@@ -1191,7 +1191,7 @@ export default function BlacklistPage() {
                     </div>
                   </div>
                   <div>
-                    <span className="text-muted-foreground">Severity:</span>
+                    <span className="text-gray-600 dark:text-gray-300 font-medium">Severity:</span>
                     <div className="mt-1">
                       <Badge className={severityConfig[selectedEntry.severity].color}>
                         {severityConfig[selectedEntry.severity].label}
@@ -1199,11 +1199,11 @@ export default function BlacklistPage() {
                     </div>
                   </div>
                   <div>
-                    <span className="text-muted-foreground">Incident Date:</span>
-                    <p>{new Date(selectedEntry.incidentDate).toLocaleDateString()}</p>
+                    <span className="text-gray-600 dark:text-gray-300 font-medium">Incident Date:</span>
+                    <p className="font-semibold text-gray-900 dark:text-white mt-0.5">{new Date(selectedEntry.incidentDate).toLocaleDateString()}</p>
                   </div>
                   <div>
-                    <span className="text-muted-foreground">Status:</span>
+                    <span className="text-gray-600 dark:text-gray-300 font-medium">Status:</span>
                     <div className="mt-1">
                       <Badge className={statusConfig[selectedEntry.status].color}>
                         {statusConfig[selectedEntry.status].label}
@@ -1212,36 +1212,36 @@ export default function BlacklistPage() {
                   </div>
                   {selectedEntry.vehicleInvolved && (
                     <div>
-                      <span className="text-muted-foreground">Vehicle:</span>
-                      <p className="font-mono">{selectedEntry.vehicleInvolved}</p>
+                      <span className="text-gray-600 dark:text-gray-300 font-medium">Vehicle:</span>
+                      <p className="font-mono font-semibold text-gray-900 dark:text-white mt-0.5">{selectedEntry.vehicleInvolved}</p>
                     </div>
                   )}
                   {selectedEntry.amountOwed && (
                     <div>
-                      <span className="text-muted-foreground">Amount Owed:</span>
-                      <p className="font-semibold text-red-500">
+                      <span className="text-gray-600 dark:text-gray-300 font-medium">Amount Owed:</span>
+                      <p className="font-bold text-red-600 dark:text-red-400 mt-0.5">
                         KES {selectedEntry.amountOwed.toLocaleString()}
                       </p>
                     </div>
                   )}
                   {selectedEntry.policeReportNumber && (
                     <div>
-                      <span className="text-muted-foreground">Police Report:</span>
-                      <p className="font-mono">{selectedEntry.policeReportNumber}</p>
+                      <span className="text-gray-600 dark:text-gray-300 font-medium">Police Report:</span>
+                      <p className="font-mono font-semibold text-gray-900 dark:text-white mt-0.5">{selectedEntry.policeReportNumber}</p>
                     </div>
                   )}
                   <div>
-                    <span className="text-muted-foreground">Reported By:</span>
-                    <p>{selectedEntry.reportedBy}</p>
+                    <span className="text-gray-600 dark:text-gray-300 font-medium">Reported By:</span>
+                    <p className="font-semibold text-gray-900 dark:text-white mt-0.5">{selectedEntry.reportedBy}</p>
                   </div>
                   <div className="sm:col-span-2">
-                    <span className="text-muted-foreground">Description:</span>
-                    <p className="mt-1 text-foreground">{selectedEntry.description}</p>
+                    <span className="text-gray-600 dark:text-gray-300 font-medium">Description:</span>
+                    <p className="mt-1 font-medium text-gray-900 dark:text-white leading-relaxed">{selectedEntry.description}</p>
                   </div>
                 </div>
               </div>
 
-              <div className="flex justify-between text-xs text-muted-foreground">
+              <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400">
                 <span>Created: {new Date(selectedEntry.createdAt).toLocaleDateString()}</span>
                 <span>Updated: {new Date(selectedEntry.updatedAt).toLocaleDateString()}</span>
               </div>
@@ -1279,23 +1279,23 @@ export default function BlacklistPage() {
                   <div className="grid gap-4 sm:grid-cols-2">
                     <FormField control={editForm.control} name="fullName" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Full Name *</FormLabel>
-                        <FormControl><Input placeholder="Full legal name" {...field} /></FormControl>
+                        <FormLabel className="text-gray-800 dark:text-gray-200">Full Name *</FormLabel>
+                        <FormControl><Input placeholder="Full legal name" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600" {...field} /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
                     <FormField control={editForm.control} name="idNumber" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>ID Number *</FormLabel>
-                        <FormControl><Input placeholder="National ID number" {...field} /></FormControl>
+                        <FormLabel className="text-gray-800 dark:text-gray-200">ID Number *</FormLabel>
+                        <FormControl><Input placeholder="National ID number" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600" {...field} /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
                     <FormField control={editForm.control} name="phoneNumber" render={({ field }) => (
                       <FormItem className="sm:col-span-2">
-                        <FormLabel>Phone Number(s) *</FormLabel>
-                        <FormControl><Input placeholder="e.g., 0712345678 / 0723456789 (separate multiple with /)" {...field} /></FormControl>
-                        <FormDescription className="text-xs text-blue-600">
+                        <FormLabel className="text-gray-800 dark:text-gray-200">Phone Number(s) *</FormLabel>
+                        <FormControl><Input placeholder="e.g., 0712345678 / 0723456789 (separate multiple with /)" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600" {...field} /></FormControl>
+                        <FormDescription className="text-xs text-blue-600 dark:text-blue-400">
                           Add multiple phone numbers separated by / if the person uses different numbers
                         </FormDescription>
                         <FormMessage />
@@ -1303,30 +1303,30 @@ export default function BlacklistPage() {
                     )} />
                     <FormField control={editForm.control} name="email" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Email</FormLabel>
-                        <FormControl><Input type="email" placeholder="email@example.com" {...field} /></FormControl>
+                        <FormLabel className="text-gray-800 dark:text-gray-200">Email</FormLabel>
+                        <FormControl><Input type="email" placeholder="email@example.com" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600" {...field} /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
                     <FormField control={editForm.control} name="drivingLicenseNumber" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Driving License</FormLabel>
-                        <FormControl><Input placeholder="License number" {...field} /></FormControl>
+                        <FormLabel className="text-gray-800 dark:text-gray-200">Driving License</FormLabel>
+                        <FormControl><Input placeholder="License number" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600" {...field} /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
                     <FormField control={editForm.control} name="kraPin" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>KRA PIN</FormLabel>
-                        <FormControl><Input placeholder="KRA PIN" {...field} /></FormControl>
+                        <FormLabel className="text-gray-800 dark:text-gray-200">KRA PIN</FormLabel>
+                        <FormControl><Input placeholder="KRA PIN" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600" {...field} /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
                     <FormField control={editForm.control} name="residence" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Known Locations/Residence</FormLabel>
-                        <FormControl><Input placeholder="e.g., Westlands / Kilimani / Karen" {...field} /></FormControl>
-                        <FormDescription className="text-xs text-blue-600">
+                        <FormLabel className="text-gray-800 dark:text-gray-200">Known Locations/Residence</FormLabel>
+                        <FormControl><Input placeholder="e.g., Westlands / Kilimani / Karen" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600" {...field} /></FormControl>
+                        <FormDescription className="text-xs text-blue-600 dark:text-blue-400">
                           Add multiple locations separated by / if known
                         </FormDescription>
                         <FormMessage />
@@ -1344,10 +1344,10 @@ export default function BlacklistPage() {
                   <div className="grid gap-4 sm:grid-cols-2">
                     <FormField control={editForm.control} name="recordType" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Record Type *</FormLabel>
+                        <FormLabel className="text-gray-800 dark:text-gray-200">Record Type *</FormLabel>
                         <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
-                            <SelectTrigger>
+                            <SelectTrigger className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600">
                               <SelectValue placeholder="Select type" />
                             </SelectTrigger>
                           </FormControl>
@@ -1368,10 +1368,10 @@ export default function BlacklistPage() {
                     )} />
                     <FormField control={editForm.control} name="severity" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Severity *</FormLabel>
+                        <FormLabel className="text-gray-800 dark:text-gray-200">Severity *</FormLabel>
                         <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
-                            <SelectTrigger>
+                            <SelectTrigger className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600">
                               <SelectValue placeholder="Select severity" />
                             </SelectTrigger>
                           </FormControl>
@@ -1387,7 +1387,7 @@ export default function BlacklistPage() {
                     )} />
                     <FormField control={editForm.control} name="incidentDate" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Incident Date *</FormLabel>
+                        <FormLabel className="text-gray-800 dark:text-gray-200">Incident Date *</FormLabel>
                         <FormControl>
                           <DatePicker
                             value={field.value}
@@ -1400,36 +1400,36 @@ export default function BlacklistPage() {
                     )} />
                     <FormField control={editForm.control} name="vehicleInvolved" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Vehicle Involved</FormLabel>
-                        <FormControl><Input placeholder="e.g., Toyota Prado KCX 123A" {...field} /></FormControl>
+                        <FormLabel className="text-gray-800 dark:text-gray-200">Vehicle Involved</FormLabel>
+                        <FormControl><Input placeholder="e.g., Toyota Prado KCX 123A" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600" {...field} /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
                     <FormField control={editForm.control} name="amountOwed" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Amount Owed (KES)</FormLabel>
-                        <FormControl><Input type="number" placeholder="0" {...field} /></FormControl>
+                        <FormLabel className="text-gray-800 dark:text-gray-200">Amount Owed (KES)</FormLabel>
+                        <FormControl><Input type="number" placeholder="0" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600" {...field} /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
                     <FormField control={editForm.control} name="policeReportNumber" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Police Report / OB Number</FormLabel>
-                        <FormControl><Input placeholder="e.g., OB/123/2024" {...field} /></FormControl>
+                        <FormLabel className="text-gray-800 dark:text-gray-200">Police Report / OB Number</FormLabel>
+                        <FormControl><Input placeholder="e.g., OB/123/2024" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600" {...field} /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
                     <FormField control={editForm.control} name="description" render={({ field }) => (
                       <FormItem className="sm:col-span-2">
-                        <FormLabel>Description *</FormLabel>
+                        <FormLabel className="text-gray-800 dark:text-gray-200">Description *</FormLabel>
                         <FormControl>
                           <Textarea 
                             placeholder="Detailed description of the incident, additional crimes, aliases used, etc." 
-                            className="min-h-[100px]"
+                            className="min-h-[100px] bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
                             {...field} 
                           />
                         </FormControl>
-                        <FormDescription className="text-xs text-orange-600">
+                        <FormDescription className="text-xs text-orange-600 dark:text-orange-400">
                           Include any new crimes, additional details, or updates to the original incident
                         </FormDescription>
                         <FormMessage />

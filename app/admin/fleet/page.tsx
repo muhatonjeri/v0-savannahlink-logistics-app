@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -151,6 +152,7 @@ interface FleetVehicle {
   lastServiceDate?: string;
   nextServiceDate?: string;
   nextServiceMileage?: number;
+  serviceInterval?: number;
   currentMileage?: number;
   // Metadata
   notes?: string;
@@ -181,6 +183,7 @@ const fleetFormSchema = z.object({
   year: z.string().min(4, "Year is required"),
   color: z.string().min(2, "Color is required"),
   currentMileage: z.string().optional(),
+  serviceInterval: z.string().optional(),
   lastServiceDate: z.string().optional(),
   nextServiceDate: z.string().optional(),
   nextServiceMileage: z.string().optional(),
@@ -192,6 +195,7 @@ const assignmentFormSchema = z.object({
   assignedStaffPhone: z.string().min(10, "Valid phone number is required"),
   assignmentPurpose: z.string().min(5, "Assignment purpose is required"),
   dateOut: z.string().min(1, "Date out is required"),
+  numberOfDays: z.string().optional(),
   expectedDateIn: z.string().min(1, "Expected return date is required"),
 });
 
@@ -380,6 +384,7 @@ function generateNotifications(fleet: FleetVehicle[]): Notification[] {
 }
 
 export default function FleetManagementPage() {
+  const router = useRouter();
   const [fleet, setFleet] = useState<FleetVehicle[]>(mockFleetData);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -731,18 +736,70 @@ export default function FleetManagementPage() {
                     <Wrench className="h-4 w-4" />
                     Service & Mileage
                   </h4>
-                  <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="grid gap-4 sm:grid-cols-3">
                     <FormField control={form.control} name="currentMileage" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Current Mileage (KM)</FormLabel>
-                        <FormControl><Input type="number" placeholder="e.g., 45000" {...field} /></FormControl>
+                        <FormLabel className="text-gray-700 dark:text-gray-300">Current Mileage (KM)</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="number" 
+                            placeholder="e.g., 45000" 
+                            className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                            {...field}
+                            onChange={(e) => {
+                              field.onChange(e.target.value);
+                              // Auto-calculate next service mileage based on interval
+                              const interval = form.getValues("serviceInterval") || "10000";
+                              if (e.target.value) {
+                                const nextService = parseInt(e.target.value) + parseInt(interval);
+                                form.setValue("nextServiceMileage", nextService.toString());
+                              }
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={form.control} name="serviceInterval" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-gray-700 dark:text-gray-300">Service Interval (KM)</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="number" 
+                            placeholder="e.g., 10000" 
+                            className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                            {...field}
+                            onChange={(e) => {
+                              field.onChange(e.target.value);
+                              // Recalculate next service when interval changes
+                              const currentMileage = form.getValues("currentMileage");
+                              if (currentMileage && e.target.value) {
+                                const nextService = parseInt(currentMileage) + parseInt(e.target.value);
+                                form.setValue("nextServiceMileage", nextService.toString());
+                              }
+                            }}
+                          />
+                        </FormControl>
+                        <FormDescription className="text-gray-500 dark:text-gray-400 text-xs">
+                          Default: 10,000 KM
+                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )} />
                     <FormField control={form.control} name="nextServiceMileage" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Next Service Mileage (KM)</FormLabel>
-                        <FormControl><Input type="number" placeholder="e.g., 50000" {...field} /></FormControl>
+                        <FormLabel className="text-gray-700 dark:text-gray-300">Next Service (KM)</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="number" 
+                            placeholder="Auto-calculated" 
+                            className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription className="text-gray-500 dark:text-gray-400 text-xs">
+                          Auto-calculated or edit manually
+                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )} />
@@ -987,8 +1044,11 @@ export default function FleetManagementPage() {
                             <DropdownMenuContent align="end">
                               <DropdownMenuLabel>Actions</DropdownMenuLabel>
                               <DropdownMenuSeparator />
+                              <DropdownMenuItem onClick={() => router.push(`/admin/fleet/${vehicle.id}`)}>
+                                <CarFront className="h-4 w-4 mr-2" />View Profile
+                              </DropdownMenuItem>
                               <DropdownMenuItem onClick={() => { setSelectedVehicle(vehicle); setIsViewDialogOpen(true); }}>
-                                <Eye className="h-4 w-4 mr-2" />View Details
+                                <Eye className="h-4 w-4 mr-2" />Quick View
                               </DropdownMenuItem>
                               {vehicle.status === "available" && (
                                 <DropdownMenuItem onClick={() => { setSelectedVehicle(vehicle); setIsAssignDialogOpen(true); }}>
@@ -1049,7 +1109,7 @@ export default function FleetManagementPage() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
-                            <span className="font-semibold text-sm">{notification.vehicleName}</span>
+                            <span className="font-semibold text-sm text-gray-900 dark:text-white">{notification.vehicleName}</span>
                             <Badge variant="outline" className="font-mono text-xs">{notification.registrationNo}</Badge>
                             <Badge className={`text-xs ${
                               notification.priority === "critical" ? "bg-red-500" :
@@ -1142,15 +1202,46 @@ export default function FleetManagementPage() {
                       <FormMessage />
                     </FormItem>
                   )} />
-                  <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="grid gap-4 sm:grid-cols-3">
                     <FormField control={assignmentForm.control} name="dateOut" render={({ field }) => (
                       <FormItem>
                         <FormLabel className="text-gray-700 dark:text-gray-300">Date Out *</FormLabel>
                         <FormControl>
                           <DatePicker
                             value={field.value}
-                            onChange={(date) => field.onChange(date ? date.toISOString().split("T")[0] : "")}
+                            onChange={(date) => {
+                              field.onChange(date ? date.toISOString().split("T")[0] : "");
+                              // Auto-calculate expected return if days is set
+                              const days = assignmentForm.getValues("numberOfDays");
+                              if (date && days) {
+                                const returnDate = addDays(date, parseInt(days));
+                                assignmentForm.setValue("expectedDateIn", returnDate.toISOString().split("T")[0]);
+                              }
+                            }}
                             placeholder="Select date out"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={assignmentForm.control} name="numberOfDays" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-gray-700 dark:text-gray-300">No. of Days</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="number" 
+                            placeholder="e.g., 3" 
+                            className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                            {...field}
+                            onChange={(e) => {
+                              field.onChange(e.target.value);
+                              // Auto-calculate expected return date
+                              const dateOut = assignmentForm.getValues("dateOut");
+                              if (dateOut && e.target.value) {
+                                const returnDate = addDays(new Date(dateOut), parseInt(e.target.value));
+                                assignmentForm.setValue("expectedDateIn", returnDate.toISOString().split("T")[0]);
+                              }
+                            }}
                           />
                         </FormControl>
                         <FormMessage />

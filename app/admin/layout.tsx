@@ -26,6 +26,7 @@ import {
   Wallet,
   FileText,
   UserSearch,
+  Settings,
 } from "lucide-react";
 import {
   SidebarProvider,
@@ -121,6 +122,12 @@ const navItems = [
     icon: FileText,
     color: "text-cyan-500",
   },
+  {
+    title: "Services Config",
+    href: "/admin/services",
+    icon: Settings,
+    color: "text-gray-500",
+  },
 ];
 
 const serviceItems = [
@@ -144,6 +151,7 @@ function getBreadcrumbTitle(pathname: string): string {
   if (pathname.includes("receipts")) return "Receipts";
   if (pathname.includes("accounts")) return "Accounts";
   if (pathname.includes("invoices")) return "Invoices";
+  if (pathname.includes("services")) return "Services Config";
   if (pathname.includes("car-rental")) return "Car Rental";
   if (pathname.includes("safari-tours")) return "Safari Tours";
   if (pathname.includes("transfers")) return "Transfers";
@@ -371,7 +379,20 @@ export default function AdminLayout({
             </BreadcrumbList>
           </Breadcrumb>
         </header>
-        <main className="flex-1 overflow-auto p-4 md:p-6">{children}</main>
+        <main className="flex-1 overflow-auto p-4 md:p-6 relative">
+          {/* Watermark Logo */}
+          <div className="fixed bottom-4 right-4 pointer-events-none z-0 opacity-[0.03] print:hidden">
+            <Image
+              src="/images/logo.png"
+              alt=""
+              width={300}
+              height={150}
+              className="h-auto w-[200px] md:w-[300px] object-contain"
+              unoptimized
+            />
+          </div>
+          <div className="relative z-10">{children}</div>
+        </main>
       </SidebarInset>
     </SidebarProvider>
   );
