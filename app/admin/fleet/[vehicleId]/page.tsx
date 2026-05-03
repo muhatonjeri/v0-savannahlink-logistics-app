@@ -584,8 +584,8 @@ export default function VehicleProfilePage() {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="flex flex-col items-center gap-4">
-          <RefreshCw className="h-8 w-8 animate-spin text-emerald-600" />
-          <p className="text-gray-600 dark:text-gray-400">Loading vehicle profile...</p>
+          <RefreshCw className="h-8 w-8 animate-spin text-[#e67e22]" />
+          <p className="text-gray-300">Loading vehicle profile...</p>
         </div>
       </div>
     );
@@ -610,7 +610,7 @@ export default function VehicleProfilePage() {
           </Button>
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+              <h1 className="text-2xl font-bold text-[#e67e22]">
                 {vehicle.vehicleName}
               </h1>
               <Badge className={
@@ -622,7 +622,7 @@ export default function VehicleProfilePage() {
                 {vehicle.status.charAt(0).toUpperCase() + vehicle.status.slice(1).replace("-", " ")}
               </Badge>
             </div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-sm text-gray-300">
               {vehicle.vehicleMake} {vehicle.vehicleModel} • {vehicle.registrationNo} • {vehicle.year}
             </p>
           </div>
@@ -666,7 +666,7 @@ export default function VehicleProfilePage() {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6 h-auto gap-1 p-1">
+        <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6 h-auto gap-1 p-1 bg-[#0a1628] border border-[#e67e22]/30">
           <TabsTrigger value="overview" className="flex items-center gap-2 py-2">
             <BarChart3 className="h-4 w-4" />
             <span className="hidden sm:inline">Overview</span>
@@ -697,35 +697,35 @@ export default function VehicleProfilePage() {
         <TabsContent value="overview" className="space-y-6">
           {/* Quick Stats */}
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <Card className="border-l-4 border-l-emerald-500">
+            <Card className="border-l-4 border-l-emerald-500 bg-[#0f1d32]">
               <CardHeader className="pb-2">
-                <CardDescription className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                <CardDescription className="flex items-center gap-2 text-gray-300">
                   <TrendingUp className="h-4 w-4" />
                   Total Revenue
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                <div className="text-2xl font-bold text-white">
                   KES {vehicle.totalRevenue.toLocaleString()}
                 </div>
-                <p className="text-sm text-emerald-600 dark:text-emerald-400">
+                <p className="text-sm text-emerald-400">
                   +12% from last month
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="border-l-4 border-l-red-500">
+            <Card className="border-l-4 border-l-red-500 bg-[#0f1d32]">
               <CardHeader className="pb-2">
-                <CardDescription className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                <CardDescription className="flex items-center gap-2 text-gray-300">
                   <TrendingDown className="h-4 w-4" />
                   Total Expenses
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                <div className="text-2xl font-bold text-white">
                   KES {vehicle.totalExpenses.toLocaleString()}
                 </div>
-                <p className="text-sm text-gray-500">This year</p>
+                <p className="text-sm text-gray-400">This year</p>
               </CardContent>
             </Card>
 

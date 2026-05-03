@@ -131,6 +131,7 @@ const adminCarRentalSchema = z.object({
   startTime: z.string().min(1, "Start time is required"),
   endDate: z.string().min(1, "End date is required"),
   endTime: z.string().min(1, "End time is required"),
+  currency: z.enum(["KES", "USD", "EUR", "GBP"]).default("KES"),
   
   // Payment Method
   paymentMethod: z.enum(["mpesa", "bank"]),
@@ -291,6 +292,7 @@ export default function NewCarRentalAdminPage() {
   const watchPaymentMethod = form.watch("paymentMethod");
   const watchStartDate = form.watch("startDate");
   const watchStartTime = form.watch("startTime");
+  const watchCurrency = form.watch("currency") || "KES";
 
   // Pre-fill form when existing client is selected
   useEffect(() => {
@@ -1705,8 +1707,8 @@ export default function NewCarRentalAdminPage() {
             </CardHeader>
             <CardContent className="pt-6 space-y-4">
               {/* Rental Dates Block */}
-              <div className="rounded-lg border-2 border-indigo-300 dark:border-indigo-700 bg-white dark:bg-gray-900 p-4 shadow-sm">
-                <h4 className="font-semibold text-indigo-800 dark:text-indigo-300 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
+              <div className="rounded-lg border-2 border-[#e67e22]/50 bg-[#0f1d32] p-4 shadow-sm">
+                <h4 className="font-semibold text-[#e67e22] mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
                   <Calendar className="h-4 w-4" />
                   Rental Period
                 </h4>
@@ -1716,7 +1718,7 @@ export default function NewCarRentalAdminPage() {
                     name="pickupDate"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-700 dark:text-gray-300">Pickup Date *</FormLabel>
+                        <FormLabel className="text-gray-200">Pickup Date *</FormLabel>
                         <FormControl>
                           <DatePicker
                             value={field.value}
@@ -1743,7 +1745,7 @@ export default function NewCarRentalAdminPage() {
                     name="pickupTime"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-700 dark:text-gray-300">Pickup Time *</FormLabel>
+                        <FormLabel className="text-gray-200">Pickup Time *</FormLabel>
                         <FormControl>
                           <TimePicker
                             value={field.value}
@@ -1760,7 +1762,7 @@ export default function NewCarRentalAdminPage() {
                     name="numberOfDays"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-700 dark:text-gray-300">Number of Days *</FormLabel>
+                        <FormLabel className="text-gray-200">Number of Days *</FormLabel>
                         <FormControl>
                           <Input 
                             type="number" 
@@ -1789,7 +1791,7 @@ export default function NewCarRentalAdminPage() {
                     name="returnDate"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-700 dark:text-gray-300">Return Date (Auto)</FormLabel>
+                        <FormLabel className="text-gray-200">Return Date (Auto)</FormLabel>
                         <FormControl>
                           <DatePicker
                             value={field.value}
@@ -1811,18 +1813,42 @@ export default function NewCarRentalAdminPage() {
               </div>
 
               {/* Pricing Details Block */}
-              <div className="rounded-lg border-2 border-indigo-300 dark:border-indigo-700 bg-white dark:bg-gray-900 p-4 shadow-sm">
-                <h4 className="font-semibold text-indigo-800 dark:text-indigo-300 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
+              <div className="rounded-lg border-2 border-[#e67e22]/50 bg-[#0f1d32] p-4 shadow-sm">
+                <h4 className="font-semibold text-[#e67e22] mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
                   <CreditCard className="h-4 w-4" />
                   Pricing Details
                 </h4>
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div className="grid gap-4 sm:grid-cols-3">
+                  <FormField
+                    control={form.control}
+                    name="currency"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-gray-200">Currency *</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value || "KES"}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select currency" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="KES">KES (Kenya Shilling)</SelectItem>
+                            <SelectItem value="USD">USD (US Dollar)</SelectItem>
+                            <SelectItem value="EUR">EUR (Euro)</SelectItem>
+                            <SelectItem value="GBP">GBP (British Pound)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormDescription className="text-gray-400 text-xs">Select based on client origin</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                   <FormField
                     control={form.control}
                     name="dailyRate"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Daily Rate (KES) *</FormLabel>
+                      <FormItem className="sm:col-span-2">
+                        <FormLabel className="text-gray-200">Daily Rate *</FormLabel>
                         <FormControl>
                           <Input type="number" min="1000" placeholder="5000" {...field} />
                         </FormControl>
@@ -1924,27 +1950,27 @@ export default function NewCarRentalAdminPage() {
 
               {/* Price Summary */}
               {calculateTotal() > 0 && (
-                <div className="rounded-lg bg-muted/50 p-4">
-                  <h4 className="mb-3 font-medium">Price Summary</h4>
+                <div className="rounded-lg bg-[#0f1d32] border border-[#e67e22]/30 p-4">
+                  <h4 className="mb-3 font-medium text-[#e67e22]">Price Summary</h4>
                   <dl className="grid gap-2 text-sm">
                     <div className="flex justify-between">
-                      <dt className="text-muted-foreground">
-                        KES {watchDailyRate} x {watchNumberOfDays} day(s)
+                      <dt className="text-gray-300">
+                        {watchCurrency} {watchDailyRate} x {watchNumberOfDays} day(s)
                       </dt>
-                      <dd>KES {(parseFloat(watchDailyRate || "0") * parseInt(watchNumberOfDays || "0")).toLocaleString()}</dd>
+                      <dd className="text-white">{watchCurrency} {(parseFloat(watchDailyRate || "0") * parseInt(watchNumberOfDays || "0")).toLocaleString()}</dd>
                     </div>
                     {watchRentalType === "chauffeured" && (
                       <div className="flex justify-between">
-                        <dt className="text-muted-foreground">
-                          Chauffeur fee (KES 2,000 x {watchNumberOfDays} days)
+                        <dt className="text-gray-300">
+                          Chauffeur fee ({watchCurrency} 2,000 x {watchNumberOfDays} days)
                         </dt>
-                        <dd>KES {(2000 * parseInt(watchNumberOfDays || "0")).toLocaleString()}</dd>
+                        <dd className="text-white">{watchCurrency} {(2000 * parseInt(watchNumberOfDays || "0")).toLocaleString()}</dd>
                       </div>
                     )}
-                    <Separator />
+                    <Separator className="bg-[#e67e22]/30" />
                     <div className="flex justify-between pt-2 text-lg font-semibold">
-                      <dt>Total Amount</dt>
-                      <dd className="text-primary">KES {calculateTotal().toLocaleString()}</dd>
+                      <dt className="text-white">Total Amount</dt>
+                      <dd className="text-[#e67e22]">{watchCurrency} {calculateTotal().toLocaleString()}</dd>
                     </div>
                   </dl>
                 </div>

@@ -580,8 +580,8 @@ export default function ServicesManagementPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Services Management</h1>
-          <p className="text-gray-600 dark:text-gray-400">
+          <h1 className="text-2xl font-bold text-[#e67e22]">Services Management</h1>
+          <p className="text-gray-300">
             Configure service rates, items, and settings for all SavannahLink services
           </p>
         </div>

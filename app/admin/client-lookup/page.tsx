@@ -553,9 +553,85 @@ function ClientLookupContent() {
     }
   };
 
+  // Validate input based on search type
+  const validateSearchInput = (query: string, type: typeof searchType): { valid: boolean; message: string } => {
+    const trimmedQuery = query.trim();
+    
+    switch (type) {
+      case "phone":
+        // Phone should start with + or 0 and contain mostly digits
+        const phoneRegex = /^[\+]?[0-9\s\-]{9,15}$/;
+        if (!phoneRegex.test(trimmedQuery.replace(/\s/g, ""))) {
+          // Check if it looks like an ID number
+          if (/^[0-9]{6,8}$/.test(trimmedQuery)) {
+            return { valid: false, message: "This looks like an ID number. Please select 'ID No' search type instead." };
+          }
+          if (/^[A-Z][0-9]{9}[A-Z]$/i.test(trimmedQuery)) {
+            return { valid: false, message: "This looks like a KRA PIN. Please select 'KRA PIN' search type instead." };
+          }
+          return { valid: false, message: "Please enter a valid phone number (e.g., +254712345678 or 0712345678)" };
+        }
+        return { valid: true, message: "" };
+        
+      case "id":
+        // ID should be 6-8 digits or passport format
+        const idRegex = /^[A-Z0-9]{6,12}$/i;
+        if (!idRegex.test(trimmedQuery)) {
+          if (/^[\+]?[0-9]{10,13}$/.test(trimmedQuery.replace(/\s/g, ""))) {
+            return { valid: false, message: "This looks like a phone number. Please select 'Phone' search type instead." };
+          }
+          return { valid: false, message: "Please enter a valid ID/Passport number (6-12 alphanumeric characters)" };
+        }
+        return { valid: true, message: "" };
+        
+      case "krapin":
+        // KRA PIN format: A012345678X
+        const kraRegex = /^[A-Z][0-9]{9}[A-Z]$/i;
+        if (!kraRegex.test(trimmedQuery)) {
+          return { valid: false, message: "Please enter a valid KRA PIN (e.g., A012345678X)" };
+        }
+        return { valid: true, message: "" };
+        
+      case "license":
+        // Driving license format varies but usually alphanumeric
+        const dlRegex = /^[A-Z0-9]{5,15}$/i;
+        if (!dlRegex.test(trimmedQuery)) {
+          return { valid: false, message: "Please enter a valid driving license number" };
+        }
+        return { valid: true, message: "" };
+        
+      case "name":
+        // Name should contain letters and spaces
+        if (trimmedQuery.length < 2) {
+          return { valid: false, message: "Please enter at least 2 characters" };
+        }
+        // Check if it looks like a number
+        if (/^[0-9]+$/.test(trimmedQuery)) {
+          return { valid: false, message: "This looks like an ID number. Please select 'ID No' search type instead." };
+        }
+        if (/^[\+]?[0-9]{10,13}$/.test(trimmedQuery.replace(/\s/g, ""))) {
+          return { valid: false, message: "This looks like a phone number. Please select 'Phone' search type instead." };
+        }
+        return { valid: true, message: "" };
+        
+      default:
+        return { valid: true, message: "" };
+    }
+  };
+
   // Search function
   const handleSearch = async () => {
     if (!searchQuery.trim()) return;
+    
+    // Validate input first
+    const validation = validateSearchInput(searchQuery, searchType);
+    if (!validation.valid) {
+      toast.error("Invalid Input Format", {
+        description: validation.message,
+        duration: 5000,
+      });
+      return;
+    }
     
     setIsSearching(true);
     setSearchResults(null);
