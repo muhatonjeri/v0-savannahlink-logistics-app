@@ -19,7 +19,7 @@ import { ArrowLeft, TestTube } from 'lucide-react'
 
 // Mock credentials for testing
 const MOCK_ADMIN = {
-  email: 'admin@Moventra Safaris & Logistics Ltd.co.ke',
+  email: 'admin@moventrasafarislogisticsltd.com',
   password: 'admin123',
   role: 'admin',
   name: 'Admin User'
@@ -215,7 +215,7 @@ function LoginForm() {
                     </Button>
                   </div>
                   <p className="text-[10px] text-muted-foreground mt-2 text-center">
-                    Admin: admin@Moventra Safaris & Logistics Ltd.co.ke / admin123<br/>
+                    Admin: admin@moventrasafarislogisticsltd.com / admin123<br/>
                     Staff: staff@Moventra Safaris & Logistics Ltd.co.ke / staff123
                   </p>
                 </div>

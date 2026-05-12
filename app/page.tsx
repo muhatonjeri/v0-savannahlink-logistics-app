@@ -344,10 +344,10 @@ export default function HomePage() {
                 <h3 className="mb-2 font-semibold text-foreground">Email Us</h3>
                 <div className="space-y-1">
                   <a
-                    href="mailto:info@Moventra Safaris & Logistics Ltd.co.ke"
+                    href="mailto:info@moventrasafarislogisticsltd.com"
                     className="block text-sm text-muted-foreground hover:text-primary"
                   >
-                    info@Moventra Safaris & Logistics Ltd.co.ke
+                    info@moventrasafarislogisticsltd.com
                   </a>
                   <a
                     href="mailto:booking@moventrasafarislogisticsltd.com"
@@ -356,10 +356,10 @@ export default function HomePage() {
                     booking@moventrasafarislogisticsltd.com
                   </a>
                   <a
-                    href="mailto:support@Moventra Safaris & Logistics Ltd.co.ke"
+                    href="mailto:support@moventrasafarislogisticsltd.com"
                     className="block text-sm text-muted-foreground hover:text-primary"
                   >
-                    support@Moventra Safaris & Logistics Ltd.co.ke
+                    support@moventrasafarislogisticsltd.com
                   </a>
                 </div>
               </div>

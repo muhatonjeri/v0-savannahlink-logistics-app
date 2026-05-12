@@ -552,7 +552,7 @@ export default function VehicleProfilePage() {
               <div class="footer">
                 <div class="footer-text">Thank you for your business!</div>
                 <div class="contact-info">
-                  Tel: +254 700 123 456 | Email: info@Moventra Safaris & Logistics Ltd.co.ke<br>
+                  Tel: +254 700 123 456 | Email: info@moventrasafarislogisticsltd.com<br>
                   Nairobi, Kenya | www.Moventra Safaris & Logistics Ltd.co.ke
                 </div>
                 <div class="qr-placeholder">QR Code</div>
@@ -1694,7 +1694,7 @@ export default function VehicleProfilePage() {
                 <div className="text-center mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
                   <p className="text-sm text-gray-600 dark:text-gray-400">Thank you for your business!</p>
                   <p className="text-xs text-gray-400 mt-1">
-                    Tel: +254 700 123 456 | info@Moventra Safaris & Logistics Ltd.co.ke
+                    Tel: +254 700 123 456 | info@moventrasafarislogisticsltd.com
                   </p>
                 </div>
               </div>

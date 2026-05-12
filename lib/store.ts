@@ -640,7 +640,7 @@ const defaultUsers: AdminUser[] = [
   {
     id: "admin-1",
     name: "Admin User",
-    email: "admin@Moventra Safaris & Logistics Ltd.co.ke",
+    email: "admin@moventrasafarislogisticsltd.com",
     role: "admin",
     createdAt: new Date().toISOString(),
   },

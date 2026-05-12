@@ -337,7 +337,7 @@ export default function CarRentalDetailPage() {
         <div className="header hidden print:block">
           <h1>Moventra Safaris & Logistics Ltd LOGISTICS & TOURS</h1>
           <p>Muthaiga Square, Thika Superhighway, Nairobi, Kenya</p>
-          <p>Tel: +254 700 000 000 | Email: info@Moventra Safaris & Logistics Ltd.co.ke</p>
+          <p>Tel: +254 700 000 000 | Email: info@moventrasafarislogisticsltd.com</p>
           <p style={{fontStyle: 'italic', marginTop: '5px'}}>Journeys That Connect.</p>
           <div className="booking-id">
             BOOKING ID: {booking.id} | DATE: {new Date(booking.createdAt).toLocaleDateString()}
@@ -744,7 +744,7 @@ export default function CarRentalDetailPage() {
           </div>
           <div className="mt-8 border-t pt-4 text-center text-xs text-muted-foreground">
             <p>Moventra Safaris & Logistics Ltd Logistics & Tours | Muthaiga Square, Thika Superhighway, Nairobi</p>
-            <p>Tel: +254 700 000 000 | Email: info@Moventra Safaris & Logistics Ltd.co.ke</p>
+            <p>Tel: +254 700 000 000 | Email: info@moventrasafarislogisticsltd.com</p>
             <p className="italic">Journeys That Connect.</p>
             <p className="mt-2">Document generated on {new Date().toLocaleString()}</p>
           </div>
