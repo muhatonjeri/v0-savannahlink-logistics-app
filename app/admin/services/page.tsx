@@ -412,7 +412,7 @@ export default function ServicesManagementPage() {
 
   // Load from localStorage
   useEffect(() => {
-    const saved = localStorage.getItem("savannahlink_services_config");
+    const saved = localStorage.getItem("Moventra Safaris & Logistics Ltd_services_config");
     if (saved) {
       try {
         setServices(JSON.parse(saved));
@@ -425,7 +425,7 @@ export default function ServicesManagementPage() {
   // Save to localStorage
   const saveServices = (updatedServices: ServiceConfig[]) => {
     setServices(updatedServices);
-    localStorage.setItem("savannahlink_services_config", JSON.stringify(updatedServices));
+    localStorage.setItem("Moventra Safaris & Logistics Ltd_services_config", JSON.stringify(updatedServices));
     toast.success("Services configuration saved");
   };
 
@@ -582,7 +582,7 @@ export default function ServicesManagementPage() {
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Services Management</h1>
           <p className="text-gray-600 dark:text-gray-400">
-            Configure service rates, items, and settings for all SavannahLink services
+            Configure service rates, items, and settings for all Moventra Safaris & Logistics Ltd services
           </p>
         </div>
         <div className="flex items-center gap-2">

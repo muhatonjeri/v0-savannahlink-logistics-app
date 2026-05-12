@@ -155,7 +155,7 @@ const initialInvoices: Invoice[] = [
     issueDate: "2024-03-01",
     dueDate: "2024-03-15",
     paymentTerms: "Net 14",
-    notes: "Thank you for choosing SavannaTrail Logistics for your safari experience!",
+    notes: "Thank you for choosing Moventra Safaris & Logistics Ltd Logistics for your safari experience!",
     createdAt: "2024-03-01",
   },
   {
@@ -209,13 +209,13 @@ const initialInvoices: Invoice[] = [
 
 // Company info for invoice header
 const companyInfo = {
-  name: "SavannaLink Logistics & Tours",
+  name: "Moventra Safaris & Logistics Ltd Logistics & Tours",
   tagline: "Journeys That Connect",
   address: "Muthaiga Square, off Thika Rd",
   city: "Nairobi, Kenya",
   phone: "+254 727 247 032",
-  email: "info@savannalink.com",
-  website: "www.savannalink.com",
+  email: "info@Moventra Safaris & Logistics Ltd.com",
+  website: "www.Moventra Safaris & Logistics Ltd.com",
   kraPin: "P012345678Z",
   bankName: "Equity Bank Kenya",
   bankAccount: "0123456789012",

@@ -24,7 +24,7 @@ export function Header() {
         <Link href="/" className="flex items-center gap-2">
           <Image
             src="/images/logo.png"
-            alt="SavannaTrail Logistics & Tours"
+            alt="Moventra Safaris & Logistics Ltd Logistics & Tours"
             width={180}
             height={60}
             className="h-14 w-auto"

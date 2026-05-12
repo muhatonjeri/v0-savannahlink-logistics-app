@@ -8,8 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export const metadata = {
-  title: "Contact Us | SavannaTrail Logistics & Tours",
-  description: "Get in touch with SavannaTrail for all your logistics and tour needs in Kenya. Visit our office, call us, or send us a message.",
+  title: "Contact Us | Moventra Safaris & Logistics Ltd Logistics & Tours",
+  description: "Get in touch with Moventra Safaris & Logistics Ltd for all your logistics and tour needs in Kenya. Visit our office, call us, or send us a message.",
 };
 
 export default function ContactPage() {
@@ -93,22 +93,22 @@ export default function ContactPage() {
                 </CardHeader>
                 <CardContent className="space-y-1">
                   <a
-                    href="mailto:info@savannatrail.co.ke"
+                    href="mailto:info@Moventra Safaris & Logistics Ltd.co.ke"
                     className="block text-sm text-muted-foreground hover:text-primary"
                   >
-                    info@savannatrail.co.ke
+                    info@Moventra Safaris & Logistics Ltd.co.ke
                   </a>
                   <a
-                    href="mailto:bookings@savannatrail.co.ke"
+                    href="mailto:booking@moventrasafarislogisticsltd.com"
                     className="block text-sm text-muted-foreground hover:text-primary"
                   >
-                    bookings@savannatrail.co.ke
+                    booking@moventrasafarislogisticsltd.com
                   </a>
                   <a
-                    href="mailto:support@savannatrail.co.ke"
+                    href="mailto:support@Moventra Safaris & Logistics Ltd.co.ke"
                     className="block text-sm text-muted-foreground hover:text-primary"
                   >
-                    support@savannatrail.co.ke
+                    support@Moventra Safaris & Logistics Ltd.co.ke
                   </a>
                 </CardContent>
               </Card>
@@ -207,7 +207,7 @@ export default function ContactPage() {
                         </svg>
                       </a>
                       <a
-                        href="https://facebook.com/savannatrail"
+                        href="https://facebook.com/Moventra Safaris & Logistics Ltd"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex h-12 w-12 items-center justify-center rounded-full bg-[#1877F2] text-white transition-all hover:scale-110"
@@ -218,7 +218,7 @@ export default function ContactPage() {
                         </svg>
                       </a>
                       <a
-                        href="https://instagram.com/savannatrail"
+                        href="https://instagram.com/Moventra Safaris & Logistics Ltd"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-tr from-[#F58529] via-[#DD2A7B] to-[#8134AF] text-white transition-all hover:scale-110"
@@ -229,7 +229,7 @@ export default function ContactPage() {
                         </svg>
                       </a>
                       <a
-                        href="https://tiktok.com/@savannatrail"
+                        href="https://tiktok.com/@Moventra Safaris & Logistics Ltd"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex h-12 w-12 items-center justify-center rounded-full bg-black text-white transition-all hover:scale-110"
@@ -240,7 +240,7 @@ export default function ContactPage() {
                         </svg>
                       </a>
                       <a
-                        href="https://twitter.com/savannatrail"
+                        href="https://twitter.com/Moventra Safaris & Logistics Ltd"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex h-12 w-12 items-center justify-center rounded-full bg-black text-white transition-all hover:scale-110"
@@ -251,7 +251,7 @@ export default function ContactPage() {
                         </svg>
                       </a>
                       <a
-                        href="https://youtube.com/@savannatrail"
+                        href="https://youtube.com/@Moventra Safaris & Logistics Ltd"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex h-12 w-12 items-center justify-center rounded-full bg-[#FF0000] text-white transition-all hover:scale-110"
@@ -283,7 +283,7 @@ export default function ContactPage() {
                         allowFullScreen
                         loading="lazy"
                         referrerPolicy="no-referrer-when-downgrade"
-                        title="SavannaTrail Office Location"
+                        title="Moventra Safaris & Logistics Ltd Office Location"
                         className="h-full w-full"
                       />
                     </div>

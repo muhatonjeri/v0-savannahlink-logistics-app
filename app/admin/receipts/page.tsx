@@ -132,12 +132,12 @@ interface ReceiptData {
 
 // Company details (would come from settings in production)
 const companyDetails = {
-  name: "SavannaLink Logistics & Tours",
+  name: "Moventra Safaris & Logistics Ltd Logistics & Tours",
   kraPin: "P051234567X",
   address: "Muthaiga Square, off Thika Rd, Nairobi, Kenya",
   phone: "+254 727 247 032",
-  email: "info@savannalink.com",
-  website: "www.savannalink.com",
+  email: "info@Moventra Safaris & Logistics Ltd.com",
+  website: "www.Moventra Safaris & Logistics Ltd.com",
   etimsDeviceNumber: "ETIMS-2024-00123",
 };
 
@@ -522,7 +522,7 @@ export default function ReceiptsPage() {
       //   method: 'POST',
       //   body: JSON.stringify({
       //     to: receipt.customerPhone,
-      //     message: `SavannahLink Receipt ${receipt.receiptNumber}. Amount: KES ${receipt.totalAmount.toLocaleString()}. Ref: ${receipt.transactionCode}. Thank you for your business!`
+      //     message: `Moventra Safaris & Logistics Ltd Receipt ${receipt.receiptNumber}. Amount: KES ${receipt.totalAmount.toLocaleString()}. Ref: ${receipt.transactionCode}. Thank you for your business!`
       //   })
       // });
 

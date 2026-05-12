@@ -16,13 +16,13 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: 'Savannah Link - Logistics & Tours',
-    template: '%s | Savannah Link'
+    default: 'Moventra Safaris & Logistics Ltd - Logistics & Tours',
+    template: '%s | Moventra Safaris & Logistics Ltd'
   },
   description: 'Your trusted partner for logistics, transportation, and tour services across Kenya. Car rental, safari tours, movers, cargo handling, and more.',
   keywords: ['logistics', 'tours', 'car rental', 'safari', 'Kenya', 'Nairobi', 'transportation', 'movers', 'cargo'],
-  authors: [{ name: 'Savannah Link' }],
-  creator: 'Savannah Link',
+  authors: [{ name: 'Moventra Safaris & Logistics Ltd' }],
+  creator: 'Moventra Safaris & Logistics Ltd',
   icons: {
     icon: [
       {

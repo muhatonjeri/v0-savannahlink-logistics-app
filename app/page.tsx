@@ -83,7 +83,7 @@ export default function HomePage() {
                 <span>Serving Kenya & East Africa</span>
               </div>
               <h1 className="mb-4 text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl text-balance">
-                <span className="text-primary">SavannaTrail</span>
+                <span className="text-primary">Moventra Safaris & Logistics Ltd</span>
               </h1>
               <p className="mb-2 text-xl font-semibold text-foreground/80 sm:text-2xl">
                 Logistics & Tours
@@ -93,7 +93,7 @@ export default function HomePage() {
               </p>
               <p className="mb-8 text-lg text-muted-foreground sm:text-xl text-pretty">
                 From car rentals to safari adventures, airport transfers to cargo handling — 
-                SavannaTrail is your trusted partner for all logistics and transportation needs across Kenya. Journeys that connect.
+                Moventra Safaris & Logistics Ltd is your trusted partner for all logistics and transportation needs across Kenya. Journeys that connect.
               </p>
               <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
                 <Button size="lg" className="gap-2" asChild>
@@ -163,7 +163,7 @@ export default function HomePage() {
             <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
               <div>
                 <h2 className="mb-4 text-3xl font-bold text-foreground sm:text-4xl">
-                  Why Choose SavannaTrail?
+                  Why Choose Moventra Safaris & Logistics Ltd?
                 </h2>
                 <p className="mb-8 text-muted-foreground">
                   With years of experience in Kenya&apos;s logistics and tourism industry, 
@@ -344,22 +344,22 @@ export default function HomePage() {
                 <h3 className="mb-2 font-semibold text-foreground">Email Us</h3>
                 <div className="space-y-1">
                   <a
-                    href="mailto:info@savannatrail.co.ke"
+                    href="mailto:info@Moventra Safaris & Logistics Ltd.co.ke"
                     className="block text-sm text-muted-foreground hover:text-primary"
                   >
-                    info@savannatrail.co.ke
+                    info@Moventra Safaris & Logistics Ltd.co.ke
                   </a>
                   <a
-                    href="mailto:bookings@savannatrail.co.ke"
+                    href="mailto:booking@moventrasafarislogisticsltd.com"
                     className="block text-sm text-muted-foreground hover:text-primary"
                   >
-                    bookings@savannatrail.co.ke
+                    booking@moventrasafarislogisticsltd.com
                   </a>
                   <a
-                    href="mailto:support@savannatrail.co.ke"
+                    href="mailto:support@Moventra Safaris & Logistics Ltd.co.ke"
                     className="block text-sm text-muted-foreground hover:text-primary"
                   >
-                    support@savannatrail.co.ke
+                    support@Moventra Safaris & Logistics Ltd.co.ke
                   </a>
                 </div>
               </div>
@@ -374,36 +374,36 @@ export default function HomePage() {
                 <h3 className="mb-2 font-semibold text-foreground">Follow Us</h3>
                 <div className="space-y-1 text-sm">
                   <a
-                    href="https://facebook.com/savannatrail"
+                    href="https://facebook.com/Moventra Safaris & Logistics Ltd"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="block text-muted-foreground hover:text-primary"
                   >
-                    Facebook: @savannatrail
+                    Facebook: @Moventra Safaris & Logistics Ltd
                   </a>
                   <a
-                    href="https://instagram.com/savannatrail"
+                    href="https://instagram.com/Moventra Safaris & Logistics Ltd"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="block text-muted-foreground hover:text-primary"
                   >
-                    Instagram: @savannatrail
+                    Instagram: @Moventra Safaris & Logistics Ltd
                   </a>
                   <a
-                    href="https://twitter.com/savannatrail"
+                    href="https://twitter.com/Moventra Safaris & Logistics Ltd"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="block text-muted-foreground hover:text-primary"
                   >
-                    X (Twitter): @savannatrail
+                    X (Twitter): @Moventra Safaris & Logistics Ltd
                   </a>
                   <a
-                    href="https://tiktok.com/@savannatrail"
+                    href="https://tiktok.com/@Moventra Safaris & Logistics Ltd"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="block text-muted-foreground hover:text-primary"
                   >
-                    TikTok: @savannatrail
+                    TikTok: @Moventra Safaris & Logistics Ltd
                   </a>
                 </div>
               </div>

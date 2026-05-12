@@ -492,7 +492,7 @@ export default function VehicleProfilePage() {
           <body>
             <div class="receipt-container">
               <div class="header">
-                <div class="company-name">SavannahLink</div>
+                <div class="company-name">Moventra Safaris & Logistics Ltd</div>
                 <div class="company-tagline">Premium Vehicle Rental Services</div>
               </div>
               
@@ -552,8 +552,8 @@ export default function VehicleProfilePage() {
               <div class="footer">
                 <div class="footer-text">Thank you for your business!</div>
                 <div class="contact-info">
-                  Tel: +254 700 123 456 | Email: info@savannahlink.co.ke<br>
-                  Nairobi, Kenya | www.savannahlink.co.ke
+                  Tel: +254 700 123 456 | Email: info@Moventra Safaris & Logistics Ltd.co.ke<br>
+                  Nairobi, Kenya | www.Moventra Safaris & Logistics Ltd.co.ke
                 </div>
                 <div class="qr-placeholder">QR Code</div>
               </div>
@@ -1629,7 +1629,7 @@ export default function VehicleProfilePage() {
               {/* Receipt Preview Content */}
               <div className="border-2 border-emerald-200 dark:border-emerald-800 rounded-lg p-6 bg-gradient-to-b from-emerald-50 to-white dark:from-emerald-950/30 dark:to-gray-900">
                 <div className="text-center border-b-2 border-emerald-500 pb-4 mb-4">
-                  <h2 className="text-xl font-bold text-emerald-700 dark:text-emerald-400 tracking-wider">SavannahLink</h2>
+                  <h2 className="text-xl font-bold text-emerald-700 dark:text-emerald-400 tracking-wider">Moventra Safaris & Logistics Ltd</h2>
                   <p className="text-xs text-gray-500 uppercase tracking-widest">Premium Vehicle Rental Services</p>
                 </div>
                 
@@ -1694,7 +1694,7 @@ export default function VehicleProfilePage() {
                 <div className="text-center mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
                   <p className="text-sm text-gray-600 dark:text-gray-400">Thank you for your business!</p>
                   <p className="text-xs text-gray-400 mt-1">
-                    Tel: +254 700 123 456 | info@savannahlink.co.ke
+                    Tel: +254 700 123 456 | info@Moventra Safaris & Logistics Ltd.co.ke
                   </p>
                 </div>
               </div>

@@ -19,14 +19,14 @@ import { ArrowLeft, TestTube } from 'lucide-react'
 
 // Mock credentials for testing
 const MOCK_ADMIN = {
-  email: 'admin@savannatrail.co.ke',
+  email: 'admin@Moventra Safaris & Logistics Ltd.co.ke',
   password: 'admin123',
   role: 'admin',
   name: 'Admin User'
 }
 
 const MOCK_STAFF = {
-  email: 'staff@savannatrail.co.ke', 
+  email: 'staff@Moventra Safaris & Logistics Ltd.co.ke', 
   password: 'staff123',
   role: 'staff',
   name: 'Staff User'
@@ -138,7 +138,7 @@ function LoginForm() {
               <div className="mx-auto mb-4">
                 <Image
                   src="/images/logo.png"
-                  alt="SavannaTrail"
+                  alt="Moventra Safaris & Logistics Ltd"
                   width={160}
                   height={54}
                   className="h-16 w-auto"
@@ -158,7 +158,7 @@ function LoginForm() {
                     <Input
                       id="email"
                       type="email"
-                      placeholder="staff@savannatrail.co.ke"
+                      placeholder="staff@Moventra Safaris & Logistics Ltd.co.ke"
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
@@ -215,8 +215,8 @@ function LoginForm() {
                     </Button>
                   </div>
                   <p className="text-[10px] text-muted-foreground mt-2 text-center">
-                    Admin: admin@savannatrail.co.ke / admin123<br/>
-                    Staff: staff@savannatrail.co.ke / staff123
+                    Admin: admin@Moventra Safaris & Logistics Ltd.co.ke / admin123<br/>
+                    Staff: staff@Moventra Safaris & Logistics Ltd.co.ke / staff123
                   </p>
                 </div>
               )}
@@ -235,7 +235,7 @@ function LoginForm() {
           </Card>
 
           <p className="text-center text-xs text-muted-foreground">
-            This portal is for authorized SavannaTrail staff only.
+            This portal is for authorized Moventra Safaris & Logistics Ltd staff only.
             <br />
             Contact your administrator if you need access.
           </p>

@@ -265,7 +265,7 @@ export default function AdminLayout({
           <Link href="/admin" className="flex items-center gap-2">
             <Image
               src="/images/logo.png"
-              alt="SavannaTrail"
+              alt="Moventra Safaris & Logistics Ltd"
               width={140}
               height={47}
               className="h-10 w-auto"

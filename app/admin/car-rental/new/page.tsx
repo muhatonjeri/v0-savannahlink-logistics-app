@@ -813,7 +813,7 @@ export default function NewCarRentalAdminPage() {
                   <p className="text-sm text-muted-foreground">
                     Bank: KCB Bank
                     <br />
-                    Account: Savannah Link Ltd
+                    Account: Moventra Safaris & Logistics Ltd Ltd
                     <br />
                     A/C No: 1234567890
                     <br />

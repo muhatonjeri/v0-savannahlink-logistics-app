@@ -69,7 +69,7 @@ export function MpesaPayment({
         amount,
         bookingId,
         accountReference: `SL-${bookingId.substring(0, 8)}`,
-        transactionDesc: "Savannah Link Booking Payment",
+        transactionDesc: "Moventra Safaris & Logistics Ltd Booking Payment",
       });
 
       if (response.success) {

@@ -129,7 +129,7 @@ export default function UsersPage() {
                 <FieldLabel>Email Address</FieldLabel>
                 <Input
                   type="email"
-                  placeholder="john@savannahlink.co.ke"
+                  placeholder="john@Moventra Safaris & Logistics Ltd.co.ke"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 />

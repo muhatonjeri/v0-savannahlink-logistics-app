@@ -7,8 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
 export const metadata = {
-  title: "About Us | SavannaTrail Logistics & Tours",
-  description: "Learn about SavannaTrail - Kenya's trusted partner for logistics, transportation, and tour services. Our story, mission, and commitment to excellence.",
+  title: "About Us | Moventra Safaris & Logistics Ltd Logistics & Tours",
+  description: "Learn about Moventra Safaris & Logistics Ltd - Kenya's trusted partner for logistics, transportation, and tour services. Our story, mission, and commitment to excellence.",
 };
 
 export default function AboutPage() {
@@ -30,7 +30,7 @@ export default function AboutPage() {
           </div>
           <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
             <h1 className="mb-4 text-4xl font-bold text-foreground sm:text-5xl">
-              About <span className="text-primary">SavannaTrail</span>
+              About <span className="text-primary">Moventra Safaris & Logistics Ltd</span>
             </h1>
             <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
               Your trusted partner for logistics, transportation, and tour services across Kenya and East Africa. Journeys that connect.
@@ -48,20 +48,20 @@ export default function AboutPage() {
                 </h2>
                 <div className="space-y-4 text-muted-foreground">
                   <p>
-                    SavannaTrail was founded with a simple mission: to provide reliable, professional, and customer-focused logistics and tour services in Kenya. What started as a small car rental operation has grown into a comprehensive service provider covering everything from safari tours to cargo handling.
+                    Moventra Safaris & Logistics Ltd was founded with a simple mission: to provide reliable, professional, and customer-focused logistics and tour services in Kenya. What started as a small car rental operation has grown into a comprehensive service provider covering everything from safari tours to cargo handling.
                   </p>
                   <p>
                     With over 10 years of experience in the industry, we&apos;ve built a reputation for excellence, reliability, and customer satisfaction. Our team of experienced professionals is dedicated to ensuring every journey is smooth, safe, and memorable.
                   </p>
                   <p>
-                    Today, SavannaTrail operates a fleet of over 50 vehicles and serves hundreds of satisfied customers across Kenya and East Africa. We continue to grow and innovate, always keeping our customers&apos; needs at the heart of everything we do.
+                    Today, Moventra Safaris & Logistics Ltd operates a fleet of over 50 vehicles and serves hundreds of satisfied customers across Kenya and East Africa. We continue to grow and innovate, always keeping our customers&apos; needs at the heart of everything we do.
                   </p>
                 </div>
               </div>
               <div className="relative aspect-square overflow-hidden rounded-2xl">
                 <Image
                   src="/images/hero-suv.jpg"
-                  alt="SavannaTrail Fleet"
+                  alt="Moventra Safaris & Logistics Ltd Fleet"
                   fill
                   className="object-cover"
                 />
@@ -108,7 +108,7 @@ export default function AboutPage() {
                 Our Core Values
               </h2>
               <p className="mx-auto max-w-2xl text-muted-foreground">
-                These principles guide everything we do at SavannaTrail.
+                These principles guide everything we do at Moventra Safaris & Logistics Ltd.
               </p>
             </div>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -180,7 +180,7 @@ export default function AboutPage() {
         <section className="py-16 sm:py-20">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
             <h2 className="mb-4 text-3xl font-bold text-foreground sm:text-4xl">
-              Ready to Experience SavannaTrail?
+              Ready to Experience Moventra Safaris & Logistics Ltd?
             </h2>
             <p className="mx-auto mb-8 max-w-2xl text-muted-foreground">
               Whether you need a car rental, safari tour, or logistics support, we&apos;re here to help. Get in touch today.
