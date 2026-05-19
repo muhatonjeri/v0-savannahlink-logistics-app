@@ -389,6 +389,31 @@ const itemSchema = z.object({
 
 type ItemFormData = z.infer<typeof itemSchema>;
 
+// Booking & payment types
+interface ServicePayment {
+  id: string;
+  date: string;
+  amount: number;
+  method: "mpesa" | "bank" | "cash" | "cheque";
+  reference: string;
+  note?: string;
+}
+
+interface ServiceBooking {
+  id: string;
+  serviceId: string;
+  clientName: string;
+  clientPhone: string;
+  clientEmail?: string;
+  description: string;
+  totalAmount: number;
+  amountPaid: number;
+  payments: ServicePayment[];
+  status: "pending" | "partial" | "paid" | "cancelled";
+  bookingDate: string;
+  notes?: string;
+}
+
 export default function ServicesManagementPage() {
   const [services, setServices] = useState<ServiceConfig[]>(initialServicesConfig);
   const [selectedService, setSelectedService] = useState<ServiceConfig | null>(null);
@@ -397,6 +422,30 @@ export default function ServicesManagementPage() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [activeTab, setActiveTab] = useState("rates");
+
+  // Booking state
+  const [bookings, setBookings] = useState<ServiceBooking[]>([
+    {
+      id: "bk-001", serviceId: "car-rental", clientName: "John Kamau", clientPhone: "+254 722 111 222",
+      clientEmail: "john@example.com", description: "Toyota Fortuner – 5 days", totalAmount: 60000,
+      amountPaid: 18000, payments: [
+        { id: "p1", date: "2024-03-10", amount: 18000, method: "mpesa", reference: "QGH7Y3K1P2", note: "30% deposit" }
+      ], status: "partial", bookingDate: "2024-03-10",
+    },
+    {
+      id: "bk-002", serviceId: "safari-tours", clientName: "Sarah Wanjiku", clientPhone: "+254 733 999 888",
+      description: "Maasai Mara 3 Days – 2 pax", totalAmount: 90000, amountPaid: 90000, payments: [
+        { id: "p1", date: "2024-03-05", amount: 45000, method: "bank", reference: "EQB-00456", note: "Deposit" },
+        { id: "p2", date: "2024-03-12", amount: 45000, method: "mpesa", reference: "RKL9P2W1X3", note: "Balance" },
+      ], status: "paid", bookingDate: "2024-03-05",
+    },
+  ]);
+  const [isBookingDialogOpen, setIsBookingDialogOpen] = useState(false);
+  const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState<ServiceBooking | null>(null);
+  const [bookingForm, setBookingForm] = useState({ clientName: "", clientPhone: "", clientEmail: "", description: "", totalAmount: "", notes: "" });
+  const [paymentForm, setPaymentForm] = useState({ amount: "", method: "mpesa" as ServicePayment["method"], reference: "", note: "" });
 
   const itemForm = useForm<ItemFormData>({
     resolver: zodResolver(itemSchema),
@@ -575,6 +624,57 @@ export default function ServicesManagementPage() {
     return groups;
   };
 
+  // Booking handlers
+  const handleCreateBooking = () => {
+    if (!selectedService) return;
+    const total = parseFloat(bookingForm.totalAmount);
+    if (!bookingForm.clientName || !bookingForm.description || !total) {
+      toast.error("Please fill in all required fields"); return;
+    }
+    const booking: ServiceBooking = {
+      id: `bk-${Date.now()}`, serviceId: selectedService.id,
+      clientName: bookingForm.clientName, clientPhone: bookingForm.clientPhone,
+      clientEmail: bookingForm.clientEmail, description: bookingForm.description,
+      totalAmount: total, amountPaid: 0, payments: [], status: "pending",
+      bookingDate: new Date().toISOString().split("T")[0], notes: bookingForm.notes,
+    };
+    setBookings([booking, ...bookings]);
+    setIsBookingDialogOpen(false);
+    setBookingForm({ clientName: "", clientPhone: "", clientEmail: "", description: "", totalAmount: "", notes: "" });
+    toast.success("Booking created successfully");
+  };
+
+  const handleRecordPayment = () => {
+    if (!selectedBooking) return;
+    const amount = parseFloat(paymentForm.amount);
+    const balance = selectedBooking.totalAmount - selectedBooking.amountPaid;
+    if (!amount || amount <= 0) { toast.error("Enter a valid amount"); return; }
+    if (amount > balance) { toast.error(`Exceeds balance of KES ${balance.toLocaleString()}`); return; }
+    if (!paymentForm.reference) { toast.error("Enter a payment reference"); return; }
+
+    const payment: ServicePayment = {
+      id: Date.now().toString(), date: new Date().toISOString().split("T")[0],
+      amount, method: paymentForm.method, reference: paymentForm.reference, note: paymentForm.note,
+    };
+    const newPaid = selectedBooking.amountPaid + amount;
+    const newStatus: ServiceBooking["status"] = newPaid >= selectedBooking.totalAmount ? "paid" : "partial";
+    const updated = { ...selectedBooking, amountPaid: newPaid, payments: [...selectedBooking.payments, payment], status: newStatus };
+    setBookings(bookings.map(b => b.id === selectedBooking.id ? updated : b));
+    setSelectedBooking(updated);
+    setIsPaymentDialogOpen(false);
+    setPaymentForm({ amount: "", method: "mpesa", reference: "", note: "" });
+    toast.success(`Payment of KES ${amount.toLocaleString()} recorded`);
+  };
+
+  const serviceBookings = selectedService ? bookings.filter(b => b.serviceId === selectedService.id) : [];
+
+  const bookingStatusConfig = {
+    pending: { label: "Pending", color: "bg-gray-500/20 text-gray-400 border-gray-500/30" },
+    partial: { label: "Partial", color: "bg-amber-500/20 text-amber-500 border-amber-500/30" },
+    paid: { label: "Paid", color: "bg-green-500/20 text-green-500 border-green-500/30" },
+    cancelled: { label: "Cancelled", color: "bg-red-500/20 text-red-400 border-red-500/30" },
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -703,123 +803,224 @@ export default function ServicesManagementPage() {
                     </SelectContent>
                   </Select>
                 </div>
-                <Button onClick={openAddDialog} className="gap-2">
-                  <Plus className="h-4 w-4" />
-                  Add Item
-                </Button>
+                {activeTab === "rates" && (
+                  <Button onClick={openAddDialog} className="gap-2">
+                    <Plus className="h-4 w-4" />
+                    Add Item
+                  </Button>
+                )}
+                {activeTab === "bookings" && (
+                  <Button onClick={() => setIsBookingDialogOpen(true)} className="gap-2 bg-emerald-600 hover:bg-emerald-700">
+                    <Plus className="h-4 w-4" />
+                    New Booking
+                  </Button>
+                )}
               </div>
             </div>
           </CardHeader>
           <CardContent>
-            {/* Search */}
-            <div className="mb-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <Input
-                  placeholder="Search items..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-            </div>
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
+              <TabsList className="mb-4">
+                <TabsTrigger value="rates">Rates & Items</TabsTrigger>
+                <TabsTrigger value="bookings">
+                  Bookings
+                  {serviceBookings.length > 0 && (
+                    <span className="ml-2 bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300 text-xs px-1.5 py-0.5 rounded-full">
+                      {serviceBookings.length}
+                    </span>
+                  )}
+                </TabsTrigger>
+              </TabsList>
 
-            {/* Items by Category */}
-            <Accordion type="multiple" defaultValue={Object.keys(groupByCategory(selectedService.items))} className="space-y-2">
-              {Object.entries(groupByCategory(filterItems(selectedService.items))).map(([category, items]) => (
-                <AccordionItem key={category} value={category} className="border rounded-lg px-4">
-                  <AccordionTrigger className="hover:no-underline py-3">
-                    <div className="flex items-center gap-3">
-                      <span className="font-semibold text-gray-900 dark:text-white">{category}</span>
-                      <Badge variant="secondary">{items.length} items</Badge>
+              {/* ── RATES TAB ── */}
+              <TabsContent value="rates">
+                <div className="mb-4">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Input
+                      placeholder="Search items..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-10"
+                    />
+                  </div>
+                </div>
+
+                <Accordion type="multiple" defaultValue={Object.keys(groupByCategory(selectedService.items))} className="space-y-2">
+                  {Object.entries(groupByCategory(filterItems(selectedService.items))).map(([category, items]) => (
+                    <AccordionItem key={category} value={category} className="border rounded-lg px-4">
+                      <AccordionTrigger className="hover:no-underline py-3">
+                        <div className="flex items-center gap-3">
+                          <span className="font-semibold text-gray-900 dark:text-white">{category}</span>
+                          <Badge variant="secondary">{items.length} items</Badge>
+                        </div>
+                      </AccordionTrigger>
+                      <AccordionContent>
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead className="w-[50px]">Status</TableHead>
+                              <TableHead>Name</TableHead>
+                              <TableHead className="hidden md:table-cell">Description</TableHead>
+                              <TableHead className="text-right">Price</TableHead>
+                              <TableHead>Unit</TableHead>
+                              <TableHead className="text-right w-[120px]">Actions</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {items.map(item => (
+                              <TableRow key={item.id} className={!item.isActive ? "opacity-50" : ""}>
+                                <TableCell>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-8 w-8 p-0"
+                                    onClick={() => toggleItemActive(selectedService.id, item.id)}
+                                  >
+                                    {item.isActive ? (
+                                      <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+                                    ) : (
+                                      <AlertCircle className="h-5 w-5 text-gray-400" />
+                                    )}
+                                  </Button>
+                                </TableCell>
+                                <TableCell className="font-medium">{item.name}</TableCell>
+                                <TableCell className="hidden md:table-cell text-gray-500 dark:text-gray-400 max-w-[200px] truncate">
+                                  {item.description}
+                                </TableCell>
+                                <TableCell className="text-right font-mono font-semibold text-emerald-600 dark:text-emerald-400">
+                                  {item.unit === "percent" || item.unit === "percent of value"
+                                    ? `${item.basePrice}%`
+                                    : formatCurrency(item.basePrice)}
+                                </TableCell>
+                                <TableCell className="text-gray-500 dark:text-gray-400">{item.unit}</TableCell>
+                                <TableCell className="text-right">
+                                  <div className="flex items-center justify-end gap-1">
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => openEditDialog(item)}
+                                    >
+                                      <Pencil className="h-4 w-4" />
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
+                                      onClick={() => deleteItem(selectedService.id, item.id)}
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                  </div>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </AccordionContent>
+                    </AccordionItem>
+                  ))}
+                </Accordion>
+
+                <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                  <h4 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                    <Settings className="h-4 w-4" />
+                    Service Settings
+                  </h4>
+                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                    {Object.entries(selectedService.settings).map(([key, value]) => (
+                      <div key={key} className="flex items-center justify-between p-2 bg-white dark:bg-gray-900 rounded border">
+                        <span className="text-sm text-gray-600 dark:text-gray-400 capitalize">
+                          {key.replace(/([A-Z])/g, " $1").trim()}
+                        </span>
+                        <span className="font-medium text-gray-900 dark:text-white">
+                          {typeof value === "boolean" ? (value ? "Yes" : "No") : String(value)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </TabsContent>
+
+              {/* ── BOOKINGS TAB ── */}
+              <TabsContent value="bookings">
+                {serviceBookings.length === 0 ? (
+                  <div className="text-center py-12 text-muted-foreground">
+                    <DollarSign className="h-10 w-10 mx-auto mb-3 opacity-30" />
+                    <p className="font-medium">No bookings yet</p>
+                    <p className="text-sm mt-1">Click "New Booking" to add one</p>
+                  </div>
+                ) : (
+                  <>
+                    {/* Summary row */}
+                    <div className="grid grid-cols-3 gap-3 mb-4">
+                      <div className="rounded-lg border bg-muted/30 p-3 text-center">
+                        <p className="text-xs text-muted-foreground">Total Billed</p>
+                        <p className="font-bold text-lg">KES {serviceBookings.reduce((s, b) => s + b.totalAmount, 0).toLocaleString()}</p>
+                      </div>
+                      <div className="rounded-lg border bg-green-500/10 p-3 text-center">
+                        <p className="text-xs text-muted-foreground">Collected</p>
+                        <p className="font-bold text-lg text-green-600">KES {serviceBookings.reduce((s, b) => s + b.amountPaid, 0).toLocaleString()}</p>
+                      </div>
+                      <div className="rounded-lg border bg-red-500/10 p-3 text-center">
+                        <p className="text-xs text-muted-foreground">Outstanding</p>
+                        <p className="font-bold text-lg text-red-500">KES {serviceBookings.reduce((s, b) => s + (b.totalAmount - b.amountPaid), 0).toLocaleString()}</p>
+                      </div>
                     </div>
-                  </AccordionTrigger>
-                  <AccordionContent>
+
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead className="w-[50px]">Status</TableHead>
-                          <TableHead>Name</TableHead>
-                          <TableHead className="hidden md:table-cell">Description</TableHead>
-                          <TableHead className="text-right">Price</TableHead>
-                          <TableHead>Unit</TableHead>
-                          <TableHead className="text-right w-[120px]">Actions</TableHead>
+                          <TableHead>Client</TableHead>
+                          <TableHead>Description</TableHead>
+                          <TableHead>Total</TableHead>
+                          <TableHead>Paid</TableHead>
+                          <TableHead>Balance</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead className="text-right">Actions</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {items.map(item => (
-                          <TableRow key={item.id} className={!item.isActive ? "opacity-50" : ""}>
+                        {serviceBookings.map(booking => (
+                          <TableRow key={booking.id}>
                             <TableCell>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-8 w-8 p-0"
-                                onClick={() => toggleItemActive(selectedService.id, item.id)}
-                              >
-                                {item.isActive ? (
-                                  <CheckCircle2 className="h-5 w-5 text-emerald-600" />
-                                ) : (
-                                  <AlertCircle className="h-5 w-5 text-gray-400" />
-                                )}
-                              </Button>
+                              <p className="font-medium">{booking.clientName}</p>
+                              <p className="text-xs text-muted-foreground">{booking.clientPhone}</p>
                             </TableCell>
-                            <TableCell className="font-medium">{item.name}</TableCell>
-                            <TableCell className="hidden md:table-cell text-gray-500 dark:text-gray-400 max-w-[200px] truncate">
-                              {item.description}
+                            <TableCell className="max-w-[180px] truncate text-sm">{booking.description}</TableCell>
+                            <TableCell className="font-semibold">KES {booking.totalAmount.toLocaleString()}</TableCell>
+                            <TableCell className="text-green-600 font-medium">KES {booking.amountPaid.toLocaleString()}</TableCell>
+                            <TableCell className={`font-semibold ${(booking.totalAmount - booking.amountPaid) > 0 ? "text-red-500" : "text-green-600"}`}>
+                              KES {(booking.totalAmount - booking.amountPaid).toLocaleString()}
                             </TableCell>
-                            <TableCell className="text-right font-mono font-semibold text-emerald-600 dark:text-emerald-400">
-                              {item.unit === "percent" || item.unit === "percent of value"
-                                ? `${item.basePrice}%`
-                                : formatCurrency(item.basePrice)}
+                            <TableCell>
+                              <Badge variant="outline" className={bookingStatusConfig[booking.status].color}>
+                                {bookingStatusConfig[booking.status].label}
+                              </Badge>
                             </TableCell>
-                            <TableCell className="text-gray-500 dark:text-gray-400">{item.unit}</TableCell>
                             <TableCell className="text-right">
-                              <div className="flex items-center justify-end gap-1">
+                              {(booking.status === "pending" || booking.status === "partial") && (
                                 <Button
-                                  variant="ghost"
                                   size="sm"
-                                  onClick={() => openEditDialog(item)}
+                                  className="bg-green-600 hover:bg-green-700 h-7 text-xs"
+                                  onClick={() => { setSelectedBooking(booking); setIsPaymentDialogOpen(true); }}
                                 >
-                                  <Pencil className="h-4 w-4" />
+                                  <CheckCircle2 className="h-3 w-3 mr-1" />
+                                  Pay
                                 </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
-                                  onClick={() => deleteItem(selectedService.id, item.id)}
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              </div>
+                              )}
+                              {booking.status === "paid" && (
+                                <Badge variant="outline" className="text-green-600 border-green-500/30">Cleared</Badge>
+                              )}
                             </TableCell>
                           </TableRow>
                         ))}
                       </TableBody>
                     </Table>
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-
-            {/* Service Settings */}
-            <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-              <h4 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-                <Settings className="h-4 w-4" />
-                Service Settings
-              </h4>
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {Object.entries(selectedService.settings).map(([key, value]) => (
-                  <div key={key} className="flex items-center justify-between p-2 bg-white dark:bg-gray-900 rounded border">
-                    <span className="text-sm text-gray-600 dark:text-gray-400 capitalize">
-                      {key.replace(/([A-Z])/g, " $1").trim()}
-                    </span>
-                    <span className="font-medium text-gray-900 dark:text-white">
-                      {typeof value === "boolean" ? (value ? "Yes" : "No") : String(value)}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
+                  </>
+                )}
+              </TabsContent>
+            </Tabs>
           </CardContent>
         </Card>
       )}
@@ -962,6 +1163,142 @@ export default function ServicesManagementPage() {
               </DialogFooter>
             </form>
           </Form>
+        </DialogContent>
+      </Dialog>
+      {/* New Booking Dialog */}
+      <Dialog open={isBookingDialogOpen} onOpenChange={setIsBookingDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Plus className="h-5 w-5 text-emerald-500" />
+              New Booking — {selectedService?.name}
+            </DialogTitle>
+            <DialogDescription>Record a new client booking and set the total charge</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Client Name *</label>
+              <Input placeholder="Full name" value={bookingForm.clientName} onChange={e => setBookingForm({ ...bookingForm, clientName: e.target.value })} />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Phone *</label>
+                <Input placeholder="+254 7XX XXX XXX" value={bookingForm.clientPhone} onChange={e => setBookingForm({ ...bookingForm, clientPhone: e.target.value })} />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Email</label>
+                <Input placeholder="email@example.com" value={bookingForm.clientEmail} onChange={e => setBookingForm({ ...bookingForm, clientEmail: e.target.value })} />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Service Description *</label>
+              <Input placeholder="e.g. Toyota Fortuner – 5 days" value={bookingForm.description} onChange={e => setBookingForm({ ...bookingForm, description: e.target.value })} />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Total Amount (KES) *</label>
+              <Input type="number" placeholder="0" value={bookingForm.totalAmount} onChange={e => setBookingForm({ ...bookingForm, totalAmount: e.target.value })} />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Notes</label>
+              <Input placeholder="Any additional notes..." value={bookingForm.notes} onChange={e => setBookingForm({ ...bookingForm, notes: e.target.value })} />
+            </div>
+          </div>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setIsBookingDialogOpen(false)}>Cancel</Button>
+            <Button onClick={handleCreateBooking} className="bg-emerald-600 hover:bg-emerald-700">
+              <Plus className="h-4 w-4 mr-2" />
+              Create Booking
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Record Payment Dialog */}
+      <Dialog open={isPaymentDialogOpen} onOpenChange={setIsPaymentDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <CheckCircle2 className="h-5 w-5 text-green-500" />
+              Record Payment
+            </DialogTitle>
+            <DialogDescription>
+              {selectedBooking && (
+                <span>{selectedBooking.clientName} — Balance: <strong className="text-red-500">KES {(selectedBooking.totalAmount - selectedBooking.amountPaid).toLocaleString()}</strong></span>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          {selectedBooking && (
+            <div className="space-y-4 py-2">
+              <div className="rounded-lg border bg-muted/40 p-4 space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Total:</span>
+                  <span className="font-semibold">KES {selectedBooking.totalAmount.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between text-green-600">
+                  <span>Paid:</span>
+                  <span className="font-semibold">KES {selectedBooking.amountPaid.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between text-red-500 font-bold border-t pt-2">
+                  <span>Outstanding:</span>
+                  <span>KES {(selectedBooking.totalAmount - selectedBooking.amountPaid).toLocaleString()}</span>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Quick Select</label>
+                <div className="flex gap-2 flex-wrap">
+                  {[25, 50, 75, 100].map(pct => {
+                    const amt = Math.round((selectedBooking.totalAmount - selectedBooking.amountPaid) * pct / 100);
+                    return (
+                      <Button key={pct} variant="outline" size="sm"
+                        className={pct === 100 ? "border-green-500 text-green-600" : ""}
+                        onClick={() => setPaymentForm({ ...paymentForm, amount: amt.toString() })}>
+                        {pct === 100 ? "Full" : `${pct}%`} — KES {amt.toLocaleString()}
+                      </Button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Amount (KES) *</label>
+                <Input type="number" placeholder="Enter amount" value={paymentForm.amount} onChange={e => setPaymentForm({ ...paymentForm, amount: e.target.value })} />
+                {paymentForm.amount && parseFloat(paymentForm.amount) > 0 && (
+                  <p className="text-xs text-muted-foreground">Remaining after payment: <span className="font-semibold text-amber-500">KES {Math.max(0, (selectedBooking.totalAmount - selectedBooking.amountPaid) - parseFloat(paymentForm.amount)).toLocaleString()}</span></p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Payment Method *</label>
+                <Select value={paymentForm.method} onValueChange={v => setPaymentForm({ ...paymentForm, method: v as ServicePayment["method"] })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="mpesa">M-Pesa</SelectItem>
+                    <SelectItem value="bank">Bank Transfer</SelectItem>
+                    <SelectItem value="cash">Cash</SelectItem>
+                    <SelectItem value="cheque">Cheque</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Reference / Transaction ID *</label>
+                <Input placeholder={paymentForm.method === "mpesa" ? "e.g. QGH7Y3K2P1" : "e.g. TXN-00123"} value={paymentForm.reference} onChange={e => setPaymentForm({ ...paymentForm, reference: e.target.value })} />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Note (Optional)</label>
+                <Input placeholder="e.g. Deposit, Partial, Final balance..." value={paymentForm.note} onChange={e => setPaymentForm({ ...paymentForm, note: e.target.value })} />
+              </div>
+            </div>
+          )}
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => { setIsPaymentDialogOpen(false); setPaymentForm({ amount: "", method: "mpesa", reference: "", note: "" }); }}>Cancel</Button>
+            <Button onClick={handleRecordPayment} className="bg-green-600 hover:bg-green-700">
+              <CheckCircle2 className="h-4 w-4 mr-2" />
+              Record Payment
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
