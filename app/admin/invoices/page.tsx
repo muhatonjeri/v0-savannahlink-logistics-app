@@ -87,6 +87,15 @@ interface InvoiceItem {
   amount: number;
 }
 
+interface PaymentRecord {
+  id: string;
+  date: string;
+  amount: number;
+  method: "mpesa" | "bank" | "cash" | "cheque";
+  reference: string;
+  note?: string;
+}
+
 interface Invoice {
   id: string;
   invoiceNumber: string;
@@ -101,7 +110,9 @@ interface Invoice {
   vatRate: number;
   vatAmount: number;
   total: number;
-  status: "draft" | "sent" | "paid" | "overdue" | "cancelled";
+  amountPaid: number;
+  payments: PaymentRecord[];
+  status: "draft" | "sent" | "paid" | "partial" | "overdue" | "cancelled";
   issueDate: string;
   dueDate: string;
   paymentTerms: string;
@@ -127,6 +138,7 @@ const statusConfig: Record<Invoice["status"], { label: string; color: string; ic
   draft: { label: "Draft", color: "bg-gray-500/20 text-gray-400 border-gray-500/30", icon: Clock },
   sent: { label: "Sent", color: "bg-blue-500/20 text-blue-400 border-blue-500/30", icon: Send },
   paid: { label: "Paid", color: "bg-green-500/20 text-green-400 border-green-500/30", icon: CheckCircle2 },
+  partial: { label: "Partial", color: "bg-amber-500/20 text-amber-400 border-amber-500/30", icon: AlertCircle },
   overdue: { label: "Overdue", color: "bg-red-500/20 text-red-400 border-red-500/30", icon: AlertCircle },
   cancelled: { label: "Cancelled", color: "bg-orange-500/20 text-orange-400 border-orange-500/30", icon: XCircle },
 };
@@ -151,6 +163,11 @@ const initialInvoices: Invoice[] = [
     vatRate: 16,
     vatAmount: 34240,
     total: 248240,
+    amountPaid: 248240,
+    payments: [
+      { id: "p1", date: "2024-03-05", amount: 124120, method: "mpesa", reference: "QGH7Y3K2P1", note: "Deposit" },
+      { id: "p2", date: "2024-03-14", amount: 124120, method: "bank", reference: "EQB-TXN-00123", note: "Balance" },
+    ],
     status: "paid",
     issueDate: "2024-03-01",
     dueDate: "2024-03-15",
@@ -176,7 +193,11 @@ const initialInvoices: Invoice[] = [
     vatRate: 16,
     vatAmount: 46560,
     total: 337560,
-    status: "sent",
+    amountPaid: 150000,
+    payments: [
+      { id: "p1", date: "2024-03-12", amount: 150000, method: "bank", reference: "EQB-TXN-00456", note: "Deposit 50%" },
+    ],
+    status: "partial",
     issueDate: "2024-03-10",
     dueDate: "2024-03-24",
     paymentTerms: "Net 14",
@@ -199,6 +220,8 @@ const initialInvoices: Invoice[] = [
     vatRate: 16,
     vatAmount: 96800,
     total: 701800,
+    amountPaid: 0,
+    payments: [],
     status: "overdue",
     issueDate: "2024-02-15",
     dueDate: "2024-03-01",
@@ -228,11 +251,20 @@ export default function InvoicesPage() {
   const [invoices, setInvoices] = useState<Invoice[]>(initialInvoices);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [serviceFilter, setServiceFilter] = useState<string>("all");
   const printRef = useRef<HTMLDivElement>(null);
+
+  // Payment form state
+  const [paymentForm, setPaymentForm] = useState({
+    amount: "",
+    method: "mpesa" as PaymentRecord["method"],
+    reference: "",
+    note: "",
+  });
 
   // New invoice form state
   const [newInvoice, setNewInvoice] = useState({
@@ -327,6 +359,8 @@ export default function InvoicesPage() {
       vatRate,
       vatAmount,
       total,
+      amountPaid: 0,
+      payments: [],
       status: "draft",
       issueDate: new Date().toISOString().split("T")[0],
       dueDate: newInvoice.dueDate || new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
@@ -356,6 +390,41 @@ export default function InvoicesPage() {
     setVatRate(16);
   };
 
+  // Record a payment (partial or full)
+  const handleRecordPayment = () => {
+    if (!selectedInvoice) return;
+    const amount = parseFloat(paymentForm.amount);
+    if (!amount || amount <= 0) { toast.error("Enter a valid payment amount"); return; }
+    const balance = selectedInvoice.total - selectedInvoice.amountPaid;
+    if (amount > balance) { toast.error(`Amount exceeds balance of KES ${balance.toLocaleString()}`); return; }
+    if (!paymentForm.reference) { toast.error("Enter a payment reference"); return; }
+
+    const newPayment: PaymentRecord = {
+      id: Date.now().toString(),
+      date: new Date().toISOString().split("T")[0],
+      amount,
+      method: paymentForm.method,
+      reference: paymentForm.reference,
+      note: paymentForm.note,
+    };
+
+    const newAmountPaid = selectedInvoice.amountPaid + amount;
+    const newStatus: Invoice["status"] = newAmountPaid >= selectedInvoice.total ? "paid" : "partial";
+
+    const updatedInvoice = {
+      ...selectedInvoice,
+      amountPaid: newAmountPaid,
+      payments: [...selectedInvoice.payments, newPayment],
+      status: newStatus,
+    };
+
+    setInvoices(invoices.map((inv) => inv.id === selectedInvoice.id ? updatedInvoice : inv));
+    setSelectedInvoice(updatedInvoice);
+    setIsPaymentDialogOpen(false);
+    setPaymentForm({ amount: "", method: "mpesa", reference: "", note: "" });
+    toast.success(`Payment of KES ${amount.toLocaleString()} recorded successfully`);
+  };
+
   // Update invoice status
   const updateInvoiceStatus = (id: string, status: Invoice["status"]) => {
     setInvoices(invoices.map((inv) => (inv.id === id ? { ...inv, status } : inv)));
@@ -379,9 +448,10 @@ export default function InvoicesPage() {
     draft: invoices.filter((i) => i.status === "draft").length,
     sent: invoices.filter((i) => i.status === "sent").length,
     paid: invoices.filter((i) => i.status === "paid").length,
+    partial: invoices.filter((i) => i.status === "partial").length,
     overdue: invoices.filter((i) => i.status === "overdue").length,
-    totalRevenue: invoices.filter((i) => i.status === "paid").reduce((sum, i) => sum + i.total, 0),
-    pendingRevenue: invoices.filter((i) => i.status === "sent" || i.status === "overdue").reduce((sum, i) => sum + i.total, 0),
+    totalRevenue: invoices.reduce((sum, i) => sum + i.amountPaid, 0),
+    pendingRevenue: invoices.filter((i) => i.status !== "paid" && i.status !== "cancelled").reduce((sum, i) => sum + (i.total - i.amountPaid), 0),
   };
 
   return (
@@ -470,6 +540,7 @@ export default function InvoicesPage() {
                   <SelectItem value="all">All Status</SelectItem>
                   <SelectItem value="draft">Draft</SelectItem>
                   <SelectItem value="sent">Sent</SelectItem>
+                  <SelectItem value="partial">Partial</SelectItem>
                   <SelectItem value="paid">Paid</SelectItem>
                   <SelectItem value="overdue">Overdue</SelectItem>
                   <SelectItem value="cancelled">Cancelled</SelectItem>
@@ -508,8 +579,9 @@ export default function InvoicesPage() {
                 <TableHead>Invoice #</TableHead>
                 <TableHead>Customer</TableHead>
                 <TableHead>Service</TableHead>
-                <TableHead>Amount</TableHead>
-                <TableHead>Issue Date</TableHead>
+                <TableHead>Total</TableHead>
+                <TableHead>Paid</TableHead>
+                <TableHead>Balance</TableHead>
                 <TableHead>Due Date</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
@@ -538,7 +610,12 @@ export default function InvoicesPage() {
                     <TableCell className="font-semibold">
                       KES {invoice.total.toLocaleString()}
                     </TableCell>
-                    <TableCell>{format(new Date(invoice.issueDate), "MMM dd, yyyy")}</TableCell>
+                    <TableCell className="text-green-600 font-medium">
+                      KES {invoice.amountPaid.toLocaleString()}
+                    </TableCell>
+                    <TableCell className={`font-semibold ${(invoice.total - invoice.amountPaid) > 0 ? "text-red-500" : "text-green-600"}`}>
+                      KES {(invoice.total - invoice.amountPaid).toLocaleString()}
+                    </TableCell>
                     <TableCell>{format(new Date(invoice.dueDate), "MMM dd, yyyy")}</TableCell>
                     <TableCell>
                       <Badge variant="outline" className={statusInfo.color}>
@@ -563,6 +640,18 @@ export default function InvoicesPage() {
                             <Eye className="h-4 w-4 mr-2" />
                             View Invoice
                           </DropdownMenuItem>
+                          {(invoice.status === "sent" || invoice.status === "partial" || invoice.status === "overdue") && (
+                            <DropdownMenuItem
+                              onClick={() => {
+                                setSelectedInvoice(invoice);
+                                setIsPaymentDialogOpen(true);
+                              }}
+                              className="text-green-600"
+                            >
+                              <CheckCircle2 className="h-4 w-4 mr-2" />
+                              Record Payment
+                            </DropdownMenuItem>
+                          )}
                           <DropdownMenuItem onClick={() => {
                             setSelectedInvoice(invoice);
                             setIsViewDialogOpen(true);
@@ -858,6 +947,16 @@ export default function InvoicesPage() {
               Invoice Preview
             </DialogTitle>
             <div className="flex items-center gap-2">
+              {selectedInvoice && (selectedInvoice.status === "sent" || selectedInvoice.status === "partial" || selectedInvoice.status === "overdue") && (
+                <Button
+                  size="sm"
+                  className="bg-green-600 hover:bg-green-700"
+                  onClick={() => setIsPaymentDialogOpen(true)}
+                >
+                  <CheckCircle2 className="h-4 w-4 mr-2" />
+                  Record Payment
+                </Button>
+              )}
               <Button variant="outline" size="sm" onClick={handlePrint}>
                 <Printer className="h-4 w-4 mr-2" />
                 Print
@@ -1034,9 +1133,52 @@ export default function InvoicesPage() {
                           <span className="text-[#e67e22]">KES {selectedInvoice.total.toLocaleString()}</span>
                         </div>
                       </div>
+                      {selectedInvoice.amountPaid > 0 && (
+                        <>
+                          <div className="flex justify-between text-sm text-green-700 font-medium">
+                            <span>Amount Paid:</span>
+                            <span>KES {selectedInvoice.amountPaid.toLocaleString()}</span>
+                          </div>
+                          <div className={`flex justify-between text-base font-bold ${(selectedInvoice.total - selectedInvoice.amountPaid) > 0 ? "text-red-600" : "text-green-600"}`}>
+                            <span>Balance Due:</span>
+                            <span>KES {(selectedInvoice.total - selectedInvoice.amountPaid).toLocaleString()}</span>
+                          </div>
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>
+
+                {/* Payment History */}
+                {selectedInvoice.payments.length > 0 && (
+                  <div className="mb-6">
+                    <h3 className="font-bold text-[#0a1628] mb-3 uppercase text-sm tracking-wide">Payment History</h3>
+                    <div className="border-2 border-gray-200 rounded-lg overflow-hidden">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="bg-gray-100 text-[#0a1628]">
+                            <th className="text-left py-3 px-4 font-semibold">Date</th>
+                            <th className="text-left py-3 px-4 font-semibold">Method</th>
+                            <th className="text-left py-3 px-4 font-semibold">Reference</th>
+                            <th className="text-left py-3 px-4 font-semibold">Note</th>
+                            <th className="text-right py-3 px-4 font-semibold">Amount (KES)</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {selectedInvoice.payments.map((p) => (
+                            <tr key={p.id} className="border-t border-gray-100">
+                              <td className="py-3 px-4">{format(new Date(p.date), "MMM dd, yyyy")}</td>
+                              <td className="py-3 px-4 capitalize">{p.method === "mpesa" ? "M-Pesa" : p.method}</td>
+                              <td className="py-3 px-4 font-mono text-xs">{p.reference}</td>
+                              <td className="py-3 px-4 text-gray-500">{p.note || "—"}</td>
+                              <td className="py-3 px-4 text-right font-semibold text-green-700">{p.amount.toLocaleString()}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
 
                 {/* Payment Info */}
                 <div className="grid grid-cols-2 gap-6 mb-6">
@@ -1113,6 +1255,124 @@ export default function InvoicesPage() {
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+      {/* Record Payment Dialog */}
+      <Dialog open={isPaymentDialogOpen} onOpenChange={setIsPaymentDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <CheckCircle2 className="h-5 w-5 text-green-500" />
+              Record Payment
+            </DialogTitle>
+            <DialogDescription>
+              {selectedInvoice && (
+                <span>Invoice {selectedInvoice.invoiceNumber} — Balance: <strong className="text-red-500">KES {(selectedInvoice.total - selectedInvoice.amountPaid).toLocaleString()}</strong></span>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedInvoice && (
+            <div className="space-y-4 py-2">
+              {/* Balance Summary */}
+              <div className="rounded-lg border bg-muted/40 p-4 space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Invoice Total:</span>
+                  <span className="font-semibold">KES {selectedInvoice.total.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between text-green-600">
+                  <span>Amount Paid:</span>
+                  <span className="font-semibold">KES {selectedInvoice.amountPaid.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between text-red-500 font-bold border-t pt-2">
+                  <span>Outstanding Balance:</span>
+                  <span>KES {(selectedInvoice.total - selectedInvoice.amountPaid).toLocaleString()}</span>
+                </div>
+              </div>
+
+              {/* Quick amount buttons */}
+              <div className="space-y-2">
+                <Label>Quick Select Amount</Label>
+                <div className="flex gap-2 flex-wrap">
+                  {[25, 50, 75, 100].map((pct) => {
+                    const amt = Math.round((selectedInvoice.total - selectedInvoice.amountPaid) * pct / 100);
+                    return (
+                      <Button
+                        key={pct}
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setPaymentForm({ ...paymentForm, amount: amt.toString() })}
+                        className={pct === 100 ? "border-green-500 text-green-600" : ""}
+                      >
+                        {pct === 100 ? "Full" : `${pct}%`} — KES {amt.toLocaleString()}
+                      </Button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Payment Amount (KES) *</Label>
+                <Input
+                  type="number"
+                  placeholder="Enter amount"
+                  value={paymentForm.amount}
+                  onChange={(e) => setPaymentForm({ ...paymentForm, amount: e.target.value })}
+                />
+                {paymentForm.amount && parseFloat(paymentForm.amount) > 0 && (
+                  <p className="text-xs text-muted-foreground">
+                    Remaining balance after payment:{" "}
+                    <span className="font-semibold text-amber-500">
+                      KES {Math.max(0, (selectedInvoice.total - selectedInvoice.amountPaid) - parseFloat(paymentForm.amount)).toLocaleString()}
+                    </span>
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label>Payment Method *</Label>
+                <Select value={paymentForm.method} onValueChange={(v) => setPaymentForm({ ...paymentForm, method: v as PaymentRecord["method"] })}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="mpesa">M-Pesa</SelectItem>
+                    <SelectItem value="bank">Bank Transfer</SelectItem>
+                    <SelectItem value="cash">Cash</SelectItem>
+                    <SelectItem value="cheque">Cheque</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Reference / Transaction ID *</Label>
+                <Input
+                  placeholder={paymentForm.method === "mpesa" ? "e.g. QGH7Y3K2P1" : "e.g. TXN-00123"}
+                  value={paymentForm.reference}
+                  onChange={(e) => setPaymentForm({ ...paymentForm, reference: e.target.value })}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Note (Optional)</Label>
+                <Input
+                  placeholder="e.g. Deposit, Partial payment, Final balance..."
+                  value={paymentForm.note}
+                  onChange={(e) => setPaymentForm({ ...paymentForm, note: e.target.value })}
+                />
+              </div>
+            </div>
+          )}
+
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => { setIsPaymentDialogOpen(false); setPaymentForm({ amount: "", method: "mpesa", reference: "", note: "" }); }}>
+              Cancel
+            </Button>
+            <Button onClick={handleRecordPayment} className="bg-green-600 hover:bg-green-700">
+              <CheckCircle2 className="h-4 w-4 mr-2" />
+              Record Payment
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
