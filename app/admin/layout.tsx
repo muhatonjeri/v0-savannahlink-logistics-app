@@ -245,8 +245,13 @@ export default function AdminLayout({
   };
 
   // Redirect if not authenticated
+  useEffect(() => {
+    if (!isLoading && !user && !mockAuth) {
+      router.push('/auth/login?redirect=' + encodeURIComponent(pathname));
+    }
+  }, [isLoading, user, mockAuth, pathname]);
+
   if (!isLoading && !user && !mockAuth) {
-    router.push('/auth/login?redirect=' + encodeURIComponent(pathname));
     return null;
   }
 
