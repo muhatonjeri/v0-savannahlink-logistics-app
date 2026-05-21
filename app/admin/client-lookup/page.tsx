@@ -858,13 +858,8 @@ function ClientLookupContent() {
               </Button>
             </div>
           </div>
-        </CardContent>
-      </Card>
-
-      {/* Fingerprint Scan Section - Compact */}
-      <Card className="border-emerald-300 dark:border-emerald-700 bg-white dark:bg-gray-900 shadow-sm">
-        <CardContent className="py-4">
-          <div className="flex items-center gap-4">
+          <div className="mt-4 border-t border-emerald-500/20 pt-4">
+            <div className="flex items-center gap-4">
             {/* Fingerprint Scanner Visual - Smaller */}
             <div 
               className={`relative w-16 h-16 rounded-xl border-2 flex items-center justify-center cursor-pointer transition-all duration-300 shrink-0 ${
@@ -930,6 +925,7 @@ function ClientLookupContent() {
               )}
               {isFingerprintScanning ? "Scanning..." : "Scan"}
             </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
