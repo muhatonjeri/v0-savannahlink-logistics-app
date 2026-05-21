@@ -556,10 +556,10 @@ export default function FleetManagementPage() {
   // Get notification badge
   function getNotificationBadge(notification: Notification) {
     const colors = {
-      critical: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 border-red-300",
-      high: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 border-orange-300",
-      medium: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border-amber-300",
-      low: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 border-blue-300",
+      critical: "bg-red-950/40 border-red-500 border-l-4",
+      high: "bg-orange-950/40 border-orange-500 border-l-4",
+      medium: "bg-amber-950/40 border-amber-500 border-l-4",
+      low: "bg-blue-950/40 border-blue-500 border-l-4",
     };
     return colors[notification.priority];
   }
@@ -1130,8 +1130,8 @@ export default function FleetManagementPage() {
                               {notification.priority.toUpperCase()}
                             </Badge>
                           </div>
-                          <p className="text-sm text-gray-700 dark:text-gray-300">{notification.message}</p>
-                          <p className="text-xs text-muted-foreground mt-1">
+                          <p className="text-sm text-gray-200">{notification.message}</p>
+                          <p className="text-xs text-gray-400 mt-1">
                             {notification.type === "overdue" && "Vehicle has exceeded its expected return date"}
                             {notification.type === "due-soon" && "Vehicle is approaching its return date"}
                             {notification.type === "service-due" && "Scheduled service maintenance is approaching"}
