@@ -597,3 +597,61 @@ th[class*="bg-"] {
 [data-radix-dropdown-menu-item] {
   color: var(--foreground) !important;
 }
+
+/* ── Readability fixes: ensure text is always visible on dark backgrounds ── */
+
+/* Table headers on dark backgrounds */
+.bg-\[\#0a1628\] th,
+.bg-\[\#0a1628\] td,
+.bg-\[\#0f1d32\] th,
+.bg-\[\#0f1d32\] td,
+.bg-\[\#1a2744\] th,
+.bg-\[\#1a2744\] td {
+  color: white !important;
+}
+
+/* SelectContent, DropdownMenu, PopoverContent - ensure readable */
+[data-slot="select-content"],
+[data-slot="dropdown-menu-content"],
+[data-slot="popover-content"],
+[data-slot="command"] {
+  background-color: oklch(0.15 0.02 250);
+  color: oklch(0.98 0 0);
+}
+
+[data-slot="select-item"],
+[data-slot="dropdown-menu-item"],
+[data-slot="command-item"] {
+  color: oklch(0.98 0 0);
+}
+
+[data-slot="select-item"]:hover,
+[data-slot="dropdown-menu-item"]:hover,
+[data-slot="command-item"]:hover {
+  background-color: oklch(0.20 0.02 250);
+  color: white;
+}
+
+/* TableHead always white on dark header rows */
+thead.dark-header th,
+tr.dark-header th {
+  color: white !important;
+}
+
+/* Input fields on dark backgrounds */
+.bg-\[\#0a1628\] input,
+.bg-\[\#0f1d32\] input,
+.bg-\[\#1a2744\] input {
+  color: white;
+  background-color: oklch(0.20 0.02 250);
+}
+
+/* Gray text on dark backgrounds - boost contrast */
+.bg-\[\#0a1628\] .text-gray-500,
+.bg-\[\#0f1d32\] .text-gray-500,
+.bg-\[\#0a1628\] .text-gray-600,
+.bg-\[\#0f1d32\] .text-gray-600,
+.bg-\[\#0a1628\] .text-muted-foreground,
+.bg-\[\#0f1d32\] .text-muted-foreground {
+  color: oklch(0.75 0 0) !important;
+}
