@@ -1535,12 +1535,12 @@ export default function VehicleProfilePage() {
                       <TableCell>
                         <Badge className={
                           receipt.type === "rental" 
-                            ? "bg-emerald-100 text-emerald-700"
+                            ? "bg-emerald-600 text-white"
                             : receipt.type === "payment"
-                            ? "bg-blue-100 text-blue-700"
+                            ? "bg-blue-600 text-white"
                             : receipt.type === "expense"
-                            ? "bg-orange-100 text-orange-700"
-                            : "bg-purple-100 text-purple-700"
+                            ? "bg-orange-500 text-white"
+                            : "bg-purple-600 text-white"
                         }>
                           {receipt.type.charAt(0).toUpperCase() + receipt.type.slice(1)}
                         </Badge>
