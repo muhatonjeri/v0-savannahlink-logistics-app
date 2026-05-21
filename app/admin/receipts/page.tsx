@@ -136,7 +136,7 @@ const companyDetails = {
   kraPin: "P051234567X",
   address: "Muthaiga Square, off Thika Rd, Nairobi, Kenya",
   phone: "+254 727 247 032",
-  email: "info@Moventra Safaris & Logistics Ltd.com",
+  email: "info@moventrasafarislogisticsltd.com",
   website: "www.Moventra Safaris & Logistics Ltd.com",
   etimsDeviceNumber: "ETIMS-2024-00123",
 };
@@ -1277,7 +1277,7 @@ export default function ReceiptsPage() {
                       <p className="font-semibold text-lg text-[#0a1628]">{selectedReceipt.customerName}</p>
                       <p className="text-gray-600">{selectedReceipt.customerPhone}</p>
                       {selectedReceipt.customerEmail && (
-                        <p className="text-gray-600">{selectedReceipt.customerEmail}</p>
+                        <p className="text-gray-600 break-all">{selectedReceipt.customerEmail}</p>
                       )}
                       {selectedReceipt.customerKraPin && (
                         <p className="text-[#0a1628] font-medium">KRA PIN: {selectedReceipt.customerKraPin}</p>
@@ -1432,7 +1432,7 @@ export default function ReceiptsPage() {
                     {isSendingEmail ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
                     Send Email
                     {selectedReceipt?.customerEmail && (
-                      <span className="text-xs opacity-70">({selectedReceipt.customerEmail})</span>
+                      <span className="text-xs opacity-70 break-all">({selectedReceipt.customerEmail})</span>
                     )}
                   </Button>
                   <Button

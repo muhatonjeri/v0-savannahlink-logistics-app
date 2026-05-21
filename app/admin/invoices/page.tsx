@@ -237,7 +237,7 @@ const companyInfo = {
   address: "Muthaiga Square, off Thika Rd",
   city: "Nairobi, Kenya",
   phone: "+254 727 247 032",
-  email: "info@Moventra Safaris & Logistics Ltd.com",
+  email: "info@moventrasafarislogisticsltd.com",
   website: "www.Moventra Safaris & Logistics Ltd.com",
   kraPin: "P012345678Z",
   bankName: "Equity Bank Kenya",
@@ -998,8 +998,8 @@ export default function InvoicesPage() {
                             {companyInfo.phone}
                           </p>
                           <p className="flex items-center gap-2">
-                            <Mail className="h-4 w-4 text-[#e67e22]" />
-                            {companyInfo.email}
+                            <Mail className="h-4 w-4 text-[#e67e22] shrink-0" />
+                            <span className="break-all">{companyInfo.email}</span>
                           </p>
                           <p className="flex items-center gap-2">
                             <Globe className="h-4 w-4 text-[#e67e22]" />
@@ -1057,8 +1057,8 @@ export default function InvoicesPage() {
                       )}
                       {selectedInvoice.customerEmail && (
                         <p className="text-sm text-gray-600 flex items-center gap-2">
-                          <Mail className="h-3.5 w-3.5 text-[#e67e22]" />
-                          {selectedInvoice.customerEmail}
+                          <Mail className="h-3.5 w-3.5 text-[#e67e22] shrink-0" />
+                          <span className="break-all">{selectedInvoice.customerEmail}</span>
                         </p>
                       )}
                       {selectedInvoice.customerKraPin && (
@@ -1246,7 +1246,7 @@ export default function InvoicesPage() {
                 <div className="print-footer text-center pt-6 border-t-2 border-[#0a1628]">
                   <p className="text-lg font-bold text-[#e67e22]">Thank You For Your Business!</p>
                   <p className="text-sm text-[#0a1628] mt-2">
-                    For inquiries, contact us at {companyInfo.email} or {companyInfo.phone}
+                    For inquiries, contact us at <span className="break-all">{companyInfo.email}</span> or {companyInfo.phone}
                   </p>
                   <p className="text-xs text-gray-500 mt-2">
                     {companyInfo.website} | KRA PIN: {companyInfo.kraPin}
