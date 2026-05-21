@@ -302,14 +302,14 @@ const idleReasonLabels: Record<string, { label: string; color: string }> = {
 };
 
 const expenseCategoryLabels: Record<string, { label: string; icon: React.ReactNode; color: string }> = {
-  "fuel": { label: "Fuel", icon: <Fuel className="h-4 w-4" />, color: "bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300" },
+  "fuel": { label: "Fuel", icon: <Fuel className="h-4 w-4" />, color: "bg-amber-500 text-white" },
   "maintenance": { label: "Maintenance", icon: <Wrench className="h-4 w-4" />, color: "bg-blue-600 text-white" },
   "repairs": { label: "Repairs", icon: <Wrench className="h-4 w-4" />, color: "bg-orange-500 text-white" },
-  "parking": { label: "Parking", icon: <MapPin className="h-4 w-4" />, color: "bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300" },
-  "toll": { label: "Toll", icon: <CreditCard className="h-4 w-4" />, color: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300" },
-  "cleaning": { label: "Cleaning", icon: <RefreshCw className="h-4 w-4" />, color: "bg-cyan-100 text-cyan-700 dark:bg-cyan-900/50 dark:text-cyan-300" },
-  "accessories": { label: "Accessories", icon: <CarFront className="h-4 w-4" />, color: "bg-pink-100 text-pink-700 dark:bg-pink-900/50 dark:text-pink-300" },
-  "other": { label: "Other", icon: <FileText className="h-4 w-4" />, color: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300" },
+  "parking": { label: "Parking", icon: <MapPin className="h-4 w-4" />, color: "bg-purple-600 text-white" },
+  "toll": { label: "Toll", icon: <CreditCard className="h-4 w-4" />, color: "bg-slate-500 text-white" },
+  "cleaning": { label: "Cleaning", icon: <RefreshCw className="h-4 w-4" />, color: "bg-cyan-600 text-white" },
+  "accessories": { label: "Accessories", icon: <CarFront className="h-4 w-4" />, color: "bg-pink-600 text-white" },
+  "other": { label: "Other", icon: <FileText className="h-4 w-4" />, color: "bg-gray-500 text-white" },
 };
 
 const fineTypeLabels: Record<string, { label: string; color: string }> = {
