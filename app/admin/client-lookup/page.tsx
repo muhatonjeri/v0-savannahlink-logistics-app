@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from "react";
 import {
   Search,
+  ScanSearch,
   User,
   Phone,
   Mail,
@@ -750,8 +751,13 @@ function ClientLookupContent() {
       {/* Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">Client Lookup</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600 shadow-lg">
+              <ScanSearch className="h-5 w-5 text-white" />
+            </div>
+            Client Lookup
+          </h1>
+          <p className="text-gray-400 mt-1 ml-13 pl-1">
             Search clients by name, ID number, or phone number. Automatically checks against blacklist.
           </p>
         </div>
