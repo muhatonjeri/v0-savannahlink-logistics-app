@@ -906,7 +906,7 @@ export default function NewCarRentalAdminPage() {
                         )}
                       </div>
                       <div>
-                        <h3 className="font-bold text-lg text-gray-900 dark:text-white flex items-center gap-2">
+                        <h3 className="font-bold text-lg text-white flex items-center gap-2">
                           {selectedClient.fullName}
                           <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
                             selectedClient.riskLevel === "blocked" 
@@ -920,13 +920,13 @@ export default function NewCarRentalAdminPage() {
                             {selectedClient.riskLevel === "blocked" ? "BLOCKED" : `${selectedClient.riskLevel?.toUpperCase()} RISK`}
                           </span>
                         </h3>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                        <p className="text-sm text-gray-300 dark:text-gray-400">
                           ID: {selectedClient.idNumber} | Phone: {selectedClient.phone}
                         </p>
                       </div>
                     </div>
                     <div className="flex items-center gap-4">
-                      <div className="text-center px-4 py-2 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+                      <div className="text-center px-4 py-2 bg-[#0f1d32] rounded-lg shadow-sm">
                         <p className="text-2xl font-bold text-blue-600">{selectedClient.totalBookings || 0}</p>
                         <p className="text-xs text-gray-500 dark:text-gray-400">Previous Bookings</p>
                       </div>
@@ -982,7 +982,7 @@ export default function NewCarRentalAdminPage() {
               )}
 
               {/* Contact Information Block */}
-              <div className="rounded-lg border-2 border-blue-300 dark:border-blue-700 bg-white dark:bg-gray-900 p-4 shadow-sm">
+              <div className="rounded-lg border-2 border-blue-300 dark:border-blue-700 bg-[#0f1d32] p-4 shadow-sm">
                 <h4 className="font-semibold text-blue-800 dark:text-blue-300 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
                   <Phone className="h-4 w-4" />
                   Contact Information
@@ -993,9 +993,9 @@ export default function NewCarRentalAdminPage() {
                     name="fullName"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-700 dark:text-gray-300">Full Name *</FormLabel>
+                        <FormLabel className="text-gray-200 dark:text-gray-300">Full Name *</FormLabel>
                         <FormControl>
-                          <Input placeholder="John Kamau Mwangi" className="bg-white dark:bg-gray-800 border-blue-200 focus:border-blue-500" {...field} />
+                          <Input placeholder="John Kamau Mwangi" className="bg-[#0a1628] border-blue-500/50 focus:border-blue-400 text-white" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -1006,9 +1006,9 @@ export default function NewCarRentalAdminPage() {
                     name="phone"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-700 dark:text-gray-300">Phone Number (M-Pesa) *</FormLabel>
+                        <FormLabel className="text-gray-200 dark:text-gray-300">Phone Number (M-Pesa) *</FormLabel>
                         <FormControl>
-                          <Input type="tel" placeholder="0712345678" className="bg-white dark:bg-gray-800 border-blue-200 focus:border-blue-500" {...field} />
+                          <Input type="tel" placeholder="0712345678" className="bg-[#0a1628] border-blue-500/50 focus:border-blue-400 text-white" {...field} />
                         </FormControl>
                         <FormDescription className="text-blue-600 dark:text-blue-400 text-xs">Primary M-Pesa registered number</FormDescription>
                         <FormMessage />
@@ -1020,9 +1020,9 @@ export default function NewCarRentalAdminPage() {
                     name="alternativePhone"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-700 dark:text-gray-300">Alternative Phone</FormLabel>
+                        <FormLabel className="text-gray-200 dark:text-gray-300">Alternative Phone</FormLabel>
                         <FormControl>
-                          <Input type="tel" placeholder="0722333444" className="bg-white dark:bg-gray-800 border-blue-200 focus:border-blue-500" {...field} />
+                          <Input type="tel" placeholder="0722333444" className="bg-[#0a1628] border-blue-500/50 focus:border-blue-400 text-white" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -1033,9 +1033,9 @@ export default function NewCarRentalAdminPage() {
                     name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-700 dark:text-gray-300">Email Address *</FormLabel>
+                        <FormLabel className="text-gray-200 dark:text-gray-300">Email Address *</FormLabel>
                         <FormControl>
-                          <Input type="email" placeholder="john@email.com" className="bg-white dark:bg-gray-800 border-blue-200 focus:border-blue-500" {...field} />
+                          <Input type="email" placeholder="john@email.com" className="bg-[#0a1628] border-blue-500/50 focus:border-blue-400 text-white" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -1045,7 +1045,7 @@ export default function NewCarRentalAdminPage() {
               </div>
 
               {/* ID Documents Block */}
-              <div className="rounded-lg border-2 border-emerald-300 dark:border-emerald-700 bg-white dark:bg-gray-900 p-4 shadow-sm">
+              <div className="rounded-lg border-2 border-emerald-300 dark:border-emerald-700 bg-[#0f1d32] p-4 shadow-sm">
                 <h4 className="font-semibold text-emerald-800 dark:text-emerald-300 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
                   <FileText className="h-4 w-4" />
                   ID / Passport Documents
@@ -1056,9 +1056,9 @@ export default function NewCarRentalAdminPage() {
                     name="idNumber"
                     render={({ field }) => (
                       <FormItem className="max-w-sm">
-                        <FormLabel className="text-gray-700 dark:text-gray-300">ID/Passport Number *</FormLabel>
+                        <FormLabel className="text-gray-200 dark:text-gray-300">ID/Passport Number *</FormLabel>
                         <FormControl>
-                          <Input placeholder="12345678" className="bg-white dark:bg-gray-800 border-emerald-200 focus:border-emerald-500 font-mono text-lg" {...field} />
+                          <Input placeholder="12345678" className="bg-[#0a1628] border-emerald-500/50 focus:border-emerald-400 text-white font-mono text-lg" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -1106,7 +1106,7 @@ export default function NewCarRentalAdminPage() {
               </div>
 
               {/* Driving License Block */}
-              <div className="rounded-lg border-2 border-amber-300 dark:border-amber-700 bg-white dark:bg-gray-900 p-4 shadow-sm">
+              <div className="rounded-lg border-2 border-amber-300 dark:border-amber-700 bg-[#0f1d32] p-4 shadow-sm">
                 <h4 className="font-semibold text-amber-800 dark:text-amber-300 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
                   <Car className="h-4 w-4" />
                   Driving License
@@ -1117,9 +1117,9 @@ export default function NewCarRentalAdminPage() {
                     name="drivingLicenseNumber"
                     render={({ field }) => (
                       <FormItem className="max-w-sm">
-                        <FormLabel className="text-gray-700 dark:text-gray-300">Driving License Number *</FormLabel>
+                        <FormLabel className="text-gray-200 dark:text-gray-300">Driving License Number *</FormLabel>
                         <FormControl>
-                          <Input placeholder="DL123456" className="bg-white dark:bg-gray-800 border-amber-200 focus:border-amber-500 font-mono text-lg" {...field} />
+                          <Input placeholder="DL123456" className="bg-[#0a1628] border-amber-500/50 focus:border-amber-400 text-white font-mono text-lg" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -1167,7 +1167,7 @@ export default function NewCarRentalAdminPage() {
               </div>
 
               {/* Work & Residence Block */}
-              <div className="rounded-lg border-2 border-violet-300 dark:border-violet-700 bg-white dark:bg-gray-900 p-4 shadow-sm">
+              <div className="rounded-lg border-2 border-violet-300 dark:border-violet-700 bg-[#0f1d32] p-4 shadow-sm">
                 <h4 className="font-semibold text-violet-800 dark:text-violet-300 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
                   <Building className="h-4 w-4" />
                   Work & Residence
@@ -1178,7 +1178,7 @@ export default function NewCarRentalAdminPage() {
                     name="placeOfWork"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-700 dark:text-gray-300">Place of Work *</FormLabel>
+                        <FormLabel className="text-gray-200 dark:text-gray-300">Place of Work *</FormLabel>
                         <FormControl>
                           <Input placeholder="Company Name, Location" {...field} />
                         </FormControl>
@@ -1191,9 +1191,9 @@ export default function NewCarRentalAdminPage() {
                     name="residence"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-700 dark:text-gray-300">Residence/Address *</FormLabel>
+                        <FormLabel className="text-gray-200 dark:text-gray-300">Residence/Address *</FormLabel>
                         <FormControl>
-                          <Input placeholder="Estate, Building, Area" className="bg-white dark:bg-gray-800 border-violet-200 focus:border-violet-500" {...field} />
+                          <Input placeholder="Estate, Building, Area" className="bg-[#0a1628] border-violet-500/50 focus:border-violet-400 text-white" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -1204,10 +1204,10 @@ export default function NewCarRentalAdminPage() {
                     name="kraPin"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-700 dark:text-gray-300">KRA PIN *</FormLabel>
+                        <FormLabel className="text-gray-200 dark:text-gray-300">KRA PIN *</FormLabel>
                         <div className="flex gap-2">
                           <FormControl>
-                            <Input placeholder="A012345678A" className="bg-white dark:bg-gray-800 border-violet-200 focus:border-violet-500 font-mono" {...field} />
+                            <Input placeholder="A012345678A" className="bg-[#0a1628] border-violet-500/50 focus:border-violet-400 text-white font-mono" {...field} />
                           </FormControl>
                           <Button type="button" variant="outline" onClick={verifyKraPin} className="border-violet-300 text-violet-600 hover:bg-violet-50">
                             Verify
@@ -1302,7 +1302,7 @@ export default function NewCarRentalAdminPage() {
               </div>
             </CardHeader>
             <CardContent className="pt-6">
-              <div className="rounded-lg border-2 border-purple-300 dark:border-purple-700 bg-white dark:bg-gray-900 p-4 shadow-sm">
+              <div className="rounded-lg border-2 border-purple-300 dark:border-purple-700 bg-[#0f1d32] p-4 shadow-sm">
                 <div className="grid gap-6 sm:grid-cols-3">
                   {/* Left Thumb Fingerprint Scanner */}
                   <div className="space-y-3">
@@ -1340,7 +1340,7 @@ export default function NewCarRentalAdminPage() {
                           </div>
                           <p className="text-sm font-medium text-purple-700 dark:text-purple-400">Scanning...</p>
                           <p className="text-xs text-purple-600 dark:text-purple-500">Place left thumb on scanner</p>
-                          <div className="mt-2 h-2 w-full max-w-[120px] rounded-full bg-purple-200 overflow-hidden">
+                          <div className="mt-2 h-2 w-full max-w-[120px] rounded-full bg-purple-900 overflow-hidden">
                             <div className="h-full bg-purple-500 animate-[scan_2s_ease-in-out_infinite]" style={{width: '100%'}} />
                           </div>
                         </>
@@ -1398,7 +1398,7 @@ export default function NewCarRentalAdminPage() {
                           </div>
                           <p className="text-sm font-medium text-purple-700 dark:text-purple-400">Scanning...</p>
                           <p className="text-xs text-purple-600 dark:text-purple-500">Place right thumb on scanner</p>
-                          <div className="mt-2 h-2 w-full max-w-[120px] rounded-full bg-purple-200 overflow-hidden">
+                          <div className="mt-2 h-2 w-full max-w-[120px] rounded-full bg-purple-900 overflow-hidden">
                             <div className="h-full bg-purple-500 animate-[scan_2s_ease-in-out_infinite]" style={{width: '100%'}} />
                           </div>
                         </>
@@ -1474,7 +1474,7 @@ export default function NewCarRentalAdminPage() {
                           defaultValue={field.value}
                           className="grid gap-4 sm:grid-cols-2"
                         >
-                          <div className="relative flex cursor-pointer items-start gap-4 rounded-lg border-2 border-teal-200 bg-white dark:bg-gray-800 p-4 hover:border-teal-400 has-[[data-state=checked]]:border-teal-500 has-[[data-state=checked]]:bg-teal-50 dark:has-[[data-state=checked]]:bg-teal-950/50">
+                          <div className="relative flex cursor-pointer items-start gap-4 rounded-lg border-2 border-teal-200 bg-[#0f1d32] p-4 hover:border-teal-400 has-[[data-state=checked]]:border-teal-500 has-[[data-state=checked]]:bg-teal-900/30">
                             <RadioGroupItem value="self-drive" id="admin-self-drive" className="mt-1" />
                             <div className="flex-1">
                               <label htmlFor="admin-self-drive" className="block cursor-pointer font-medium text-teal-800 dark:text-teal-200">
@@ -1485,7 +1485,7 @@ export default function NewCarRentalAdminPage() {
                               </p>
                             </div>
                           </div>
-                          <div className="relative flex cursor-pointer items-start gap-4 rounded-lg border-2 border-teal-200 bg-white dark:bg-gray-800 p-4 hover:border-teal-400 has-[[data-state=checked]]:border-teal-500 has-[[data-state=checked]]:bg-teal-50 dark:has-[[data-state=checked]]:bg-teal-950/50">
+                          <div className="relative flex cursor-pointer items-start gap-4 rounded-lg border-2 border-teal-200 bg-[#0f1d32] p-4 hover:border-teal-400 has-[[data-state=checked]]:border-teal-500 has-[[data-state=checked]]:bg-teal-900/30">
                             <RadioGroupItem value="chauffeured" id="admin-chauffeured" className="mt-1" />
                             <div className="flex-1">
                               <label htmlFor="admin-chauffeured" className="block cursor-pointer font-medium text-teal-800 dark:text-teal-200">
@@ -1525,7 +1525,7 @@ export default function NewCarRentalAdminPage() {
             </CardHeader>
             <CardContent className="pt-6 space-y-6">
               {/* Vehicle Selection Block */}
-              <div className="rounded-lg border-2 border-orange-300 dark:border-orange-700 bg-white dark:bg-gray-900 p-4 shadow-sm">
+              <div className="rounded-lg border-2 border-orange-300 dark:border-orange-700 bg-[#0f1d32] p-4 shadow-sm">
                 <h4 className="font-semibold text-orange-800 dark:text-orange-300 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
                   <Car className="h-4 w-4" />
                   Vehicle Selection
@@ -1536,7 +1536,7 @@ export default function NewCarRentalAdminPage() {
                     name="carMake"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-700 dark:text-gray-300">Make *</FormLabel>
+                        <FormLabel className="text-gray-200 dark:text-gray-300">Make *</FormLabel>
                         <Select 
                           onValueChange={(value) => {
                             field.onChange(value);
@@ -1546,7 +1546,7 @@ export default function NewCarRentalAdminPage() {
                           defaultValue={field.value}
                         >
                           <FormControl>
-                            <SelectTrigger className="bg-white dark:bg-gray-800 border-orange-200 focus:border-orange-500">
+                            <SelectTrigger className="bg-[#0a1628] border-orange-500/50 focus:border-orange-400 text-white">
                               <SelectValue placeholder="Select make" />
                             </SelectTrigger>
                           </FormControl>
@@ -1567,10 +1567,10 @@ export default function NewCarRentalAdminPage() {
                     name="carModel"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-700 dark:text-gray-300">Model *</FormLabel>
+                        <FormLabel className="text-gray-200 dark:text-gray-300">Model *</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
-                            <SelectTrigger className="bg-white dark:bg-gray-800 border-orange-200 focus:border-orange-500">
+                            <SelectTrigger className="bg-[#0a1628] border-orange-500/50 focus:border-orange-400 text-white">
                               <SelectValue placeholder="Select model" />
                             </SelectTrigger>
                           </FormControl>
@@ -1593,9 +1593,9 @@ export default function NewCarRentalAdminPage() {
                   name="numberPlate"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-gray-700 dark:text-gray-300">Number Plate *</FormLabel>
+                      <FormLabel className="text-gray-200 dark:text-gray-300">Number Plate *</FormLabel>
                       <FormControl>
-                        <Input placeholder="KBX 123A" className="bg-white dark:bg-gray-800 border-orange-200 focus:border-orange-500 font-mono text-lg uppercase" {...field} />
+                        <Input placeholder="KBX 123A" className="bg-[#0a1628] border-orange-500/50 focus:border-orange-400 text-white font-mono text-lg uppercase" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -1605,7 +1605,7 @@ export default function NewCarRentalAdminPage() {
               </div>
 
               {/* Vehicle Status Block */}
-              <div className="rounded-lg border-2 border-cyan-300 dark:border-cyan-700 bg-white dark:bg-gray-900 p-4 shadow-sm">
+              <div className="rounded-lg border-2 border-cyan-300 dark:border-cyan-700 bg-[#0f1d32] p-4 shadow-sm">
                 <h4 className="font-semibold text-cyan-800 dark:text-cyan-300 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
                   <Gauge className="h-4 w-4" />
                   Vehicle Status
@@ -1616,7 +1616,7 @@ export default function NewCarRentalAdminPage() {
                     name="currentMileage"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-700 dark:text-gray-300">Current Mileage (km) *</FormLabel>
+                        <FormLabel className="text-gray-200 dark:text-gray-300">Current Mileage (km) *</FormLabel>
                         <FormControl>
                           <Input type="number" placeholder="45000" className="bg-white dark:bg-gray-800 border-cyan-200 focus:border-cyan-500 font-mono" {...field} />
                         </FormControl>
@@ -1629,7 +1629,7 @@ export default function NewCarRentalAdminPage() {
                     name="fuelLevel"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-700 dark:text-gray-300 flex items-center gap-1">
+                        <FormLabel className="text-gray-200 dark:text-gray-300 flex items-center gap-1">
                           <Fuel className="h-3 w-3" />
                           Fuel Level *
                         </FormLabel>
@@ -1656,7 +1656,7 @@ export default function NewCarRentalAdminPage() {
                     name="etcAmount"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-700 dark:text-gray-300">ETC Amount (KES)</FormLabel>
+                        <FormLabel className="text-gray-200 dark:text-gray-300">ETC Amount (KES)</FormLabel>
                         <FormControl>
                           <Input type="number" placeholder="500" className="bg-white dark:bg-gray-800 border-cyan-200 focus:border-cyan-500 font-mono" {...field} />
                         </FormControl>
@@ -1670,7 +1670,7 @@ export default function NewCarRentalAdminPage() {
                     name="destination"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-700 dark:text-gray-300 flex items-center gap-1">
+                        <FormLabel className="text-gray-200 dark:text-gray-300 flex items-center gap-1">
                           <MapPin className="h-3 w-3" />
                           Destination *
                         </FormLabel>
@@ -1705,7 +1705,7 @@ export default function NewCarRentalAdminPage() {
             </CardHeader>
             <CardContent className="pt-6 space-y-4">
               {/* Rental Dates Block */}
-              <div className="rounded-lg border-2 border-indigo-300 dark:border-indigo-700 bg-white dark:bg-gray-900 p-4 shadow-sm">
+              <div className="rounded-lg border-2 border-indigo-300 dark:border-indigo-700 bg-[#0f1d32] p-4 shadow-sm">
                 <h4 className="font-semibold text-indigo-800 dark:text-indigo-300 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
                   <Calendar className="h-4 w-4" />
                   Rental Period
@@ -1716,7 +1716,7 @@ export default function NewCarRentalAdminPage() {
                     name="pickupDate"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-700 dark:text-gray-300">Pickup Date *</FormLabel>
+                        <FormLabel className="text-gray-200 dark:text-gray-300">Pickup Date *</FormLabel>
                         <FormControl>
                           <DatePicker
                             value={field.value}
@@ -1743,7 +1743,7 @@ export default function NewCarRentalAdminPage() {
                     name="pickupTime"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-700 dark:text-gray-300">Pickup Time *</FormLabel>
+                        <FormLabel className="text-gray-200 dark:text-gray-300">Pickup Time *</FormLabel>
                         <FormControl>
                           <TimePicker
                             value={field.value}
@@ -1760,7 +1760,7 @@ export default function NewCarRentalAdminPage() {
                     name="numberOfDays"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-700 dark:text-gray-300">Number of Days *</FormLabel>
+                        <FormLabel className="text-gray-200 dark:text-gray-300">Number of Days *</FormLabel>
                         <FormControl>
                           <Input 
                             type="number" 
@@ -1789,7 +1789,7 @@ export default function NewCarRentalAdminPage() {
                     name="returnDate"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-700 dark:text-gray-300">Return Date (Auto)</FormLabel>
+                        <FormLabel className="text-gray-200 dark:text-gray-300">Return Date (Auto)</FormLabel>
                         <FormControl>
                           <DatePicker
                             value={field.value}
@@ -1811,7 +1811,7 @@ export default function NewCarRentalAdminPage() {
               </div>
 
               {/* Pricing Details Block */}
-              <div className="rounded-lg border-2 border-indigo-300 dark:border-indigo-700 bg-white dark:bg-gray-900 p-4 shadow-sm">
+              <div className="rounded-lg border-2 border-indigo-300 dark:border-indigo-700 bg-[#0f1d32] p-4 shadow-sm">
                 <h4 className="font-semibold text-indigo-800 dark:text-indigo-300 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
                   <CreditCard className="h-4 w-4" />
                   Pricing Details
@@ -2347,7 +2347,7 @@ export default function NewCarRentalAdminPage() {
                   <AlertTriangle className="h-4 w-4 text-red-500" />
                   Reason for Flag:
                 </h5>
-                <p className="text-gray-700 dark:text-gray-300 text-sm">
+                <p className="text-gray-200 dark:text-gray-300 text-sm">
                   {rogueClientAlert.reason}
                 </p>
               </div>
@@ -2372,11 +2372,11 @@ export default function NewCarRentalAdminPage() {
                           }`}>
                             {incident.type.toUpperCase().replace("-", " ")}
                           </span>
-                          <span className="text-xs text-gray-500">
+                          <span className="text-xs text-gray-300">
                             {new Date(incident.date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
                           </span>
                         </div>
-                        <p className="text-sm text-gray-700 dark:text-gray-300">{incident.description}</p>
+                        <p className="text-sm text-gray-200 dark:text-gray-300">{incident.description}</p>
                         {incident.amountOwed && incident.amountOwed > 0 && (
                           <p className="text-sm font-bold text-red-600 mt-1">
                             Amount Owed: KES {incident.amountOwed.toLocaleString()}
