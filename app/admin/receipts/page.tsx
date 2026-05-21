@@ -167,9 +167,9 @@ type ReceiptFormData = z.infer<typeof receiptFormSchema>;
 
 // Status configuration
 const statusConfig: Record<string, { label: string; color: string; icon: React.ElementType }> = {
-  draft: { label: "Draft", color: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30", icon: Clock },
-  issued: { label: "Issued", color: "bg-green-500/20 text-green-400 border-green-500/30", icon: CheckCircle },
-  voided: { label: "Voided", color: "bg-red-500/20 text-red-400 border-red-500/30", icon: XCircle },
+  draft: { label: "Draft", color: "bg-yellow-900/300/20 text-yellow-400 border-yellow-500/30", icon: Clock },
+  issued: { label: "Issued", color: "bg-green-900/300/20 text-green-400 border-green-500/30", icon: CheckCircle },
+  voided: { label: "Voided", color: "bg-red-900/300/20 text-red-400 border-red-500/30", icon: XCircle },
 };
 
 // Payment method config
@@ -593,8 +593,8 @@ export default function ReceiptsPage() {
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 {/* Customer Details */}
-                <div className="rounded-lg border border-blue-200 dark:border-blue-800 bg-blue-50/50 dark:bg-blue-950/20 p-4">
-                  <h4 className="font-semibold text-blue-700 dark:text-blue-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
+                <div className="rounded-lg border border-blue-500/50 dark:border-blue-800 bg-blue-900/30/50 dark:bg-blue-950/20 p-4">
+                  <h4 className="font-semibold text-blue-300 dark:text-blue-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
                     <User className="h-4 w-4" />
                     Customer Details
                   </h4>
@@ -671,8 +671,8 @@ export default function ReceiptsPage() {
                 </div>
 
                 {/* Payment Details */}
-                <div className="rounded-lg border border-green-200 dark:border-green-800 bg-green-50/50 dark:bg-green-950/20 p-4">
-                  <h4 className="font-semibold text-green-700 dark:text-green-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
+                <div className="rounded-lg border border-green-500/50 dark:border-green-800 bg-green-900/30/50 dark:bg-green-950/20 p-4">
+                  <h4 className="font-semibold text-green-300 dark:text-green-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
                     <CreditCard className="h-4 w-4" />
                     Payment Details
                   </h4>
@@ -789,8 +789,8 @@ export default function ReceiptsPage() {
                 </div>
 
                 {/* Service Details */}
-                <div className="rounded-lg border border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/20 p-4">
-                  <h4 className="font-semibold text-amber-700 dark:text-amber-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
+                <div className="rounded-lg border border-amber-500/50 dark:border-amber-800 bg-amber-900/30/50 dark:bg-amber-950/20 p-4">
+                  <h4 className="font-semibold text-amber-300 dark:text-amber-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
                     <FileText className="h-4 w-4" />
                     Service Details
                   </h4>
@@ -916,11 +916,11 @@ export default function ReceiptsPage() {
                 </div>
 
                 {/* eTIMS Compliance Notice */}
-                <div className="rounded-lg border border-emerald-200 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-950/20 p-4">
+                <div className="rounded-lg border border-emerald-200 dark:border-emerald-800 bg-emerald-900/30/50 dark:bg-emerald-950/20 p-4">
                   <div className="flex items-start gap-3">
                     <BadgeCheck className="h-5 w-5 text-emerald-500 mt-0.5" />
                     <div>
-                      <h4 className="font-semibold text-emerald-700 dark:text-emerald-400 text-sm">
+                      <h4 className="font-semibold text-emerald-300 dark:text-emerald-400 text-sm">
                         eTIMS Compliance
                       </h4>
                       <p className="text-xs text-emerald-600 dark:text-emerald-300 mt-1">
@@ -1130,7 +1130,7 @@ export default function ReceiptsPage() {
                             <Button 
                               variant="ghost" 
                               size="icon"
-                              className="text-blue-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950"
+                              className="text-blue-500 hover:text-blue-600 hover:bg-blue-900/30 dark:hover:bg-blue-950"
                               onClick={() => sendReceiptEmail(receipt)}
                               disabled={!receipt.customerEmail || isSendingEmail}
                               title={receipt.customerEmail ? `Send to ${receipt.customerEmail}` : "No email address"}
@@ -1140,7 +1140,7 @@ export default function ReceiptsPage() {
                             <Button 
                               variant="ghost" 
                               size="icon"
-                              className="text-green-500 hover:text-green-600 hover:bg-green-50 dark:hover:bg-green-950"
+                              className="text-green-500 hover:text-green-600 hover:bg-green-900/30 dark:hover:bg-green-950"
                               onClick={() => sendReceiptSms(receipt)}
                               disabled={!receipt.customerPhone || isSendingSms}
                               title={receipt.customerPhone ? `Send to ${receipt.customerPhone}` : "No phone number"}
@@ -1211,7 +1211,7 @@ export default function ReceiptsPage() {
               </DialogHeader>
 
               {/* Professional Print Template - Savanna Brand Colors */}
-              <div style={{backgroundColor:"white",color:"#111827"}} className="p-6 rounded-lg border border-gray-200">
+              <div style={{backgroundColor:"white",color:"#111827"}} className="p-6 rounded-lg border border-gray-600">
                 {/* Company Header */}
                 <div className="print-header border-b-4 border-[#0a1628] pb-5 mb-5">
                   <div className="flex items-start justify-between gap-6">
@@ -1268,7 +1268,7 @@ export default function ReceiptsPage() {
                 {/* Two Column Layout - Customer & Payment Info */}
                 <div className="grid grid-cols-2 gap-6 mb-5">
                   {/* Customer Details */}
-                  <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                  <div className="bg-gray-50 rounded-lg p-4 border border-gray-600">
                     <h3 className="font-bold text-[#0a1628] mb-3 pb-2 border-b border-gray-300 flex items-center gap-2 uppercase text-sm tracking-wide">
                       <User className="h-4 w-4 text-[#e67e22]" />
                       Received From
@@ -1286,7 +1286,7 @@ export default function ReceiptsPage() {
                   </div>
 
                   {/* Payment Details */}
-                  <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                  <div className="bg-gray-50 rounded-lg p-4 border border-gray-600">
                     <h3 className="font-bold text-[#0a1628] mb-3 pb-2 border-b border-gray-300 flex items-center gap-2 uppercase text-sm tracking-wide">
                       <CreditCard className="h-4 w-4 text-[#e67e22]" />
                       Payment Information
@@ -1321,7 +1321,7 @@ export default function ReceiptsPage() {
                 {/* Items Table */}
                 <div className="mb-5">
                   <h3 className="font-bold text-[#0a1628] mb-3 uppercase text-sm tracking-wide">Description of Services/Items</h3>
-                  <div className="border-2 border-gray-200 rounded-lg overflow-hidden">
+                  <div className="border-2 border-gray-600 rounded-lg overflow-hidden">
                     <table className="w-full">
                       <thead>
                         <tr className="bg-[#0a1628] text-white">
@@ -1347,7 +1347,7 @@ export default function ReceiptsPage() {
 
                 {/* Totals Section */}
                 <div className="flex justify-end mb-5">
-                  <div className="w-80 bg-gray-50 rounded-lg border-2 border-[#e67e22] p-4">
+                  <div className="w-80 bg-[#0a1628] rounded-lg border-2 border-[#e67e22] p-4">
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm text-[#0a1628]">
                         <span>Subtotal:</span>
@@ -1368,7 +1368,7 @@ export default function ReceiptsPage() {
                 </div>
 
                 {/* Amount in Words */}
-                <div className="bg-orange-50 border border-[#e67e22] rounded-lg p-3 mb-5">
+                <div className="bg-orange-900/30 border border-[#e67e22] rounded-lg p-3 mb-5">
                   <p className="text-sm text-[#0a1628]">
                     <span className="font-semibold text-[#e67e22]">Amount in Words:</span>{" "}
                     <span className="italic">Kenya Shillings {numberToWords(selectedReceipt.totalAmount)} Only</span>
@@ -1416,8 +1416,8 @@ export default function ReceiptsPage() {
               </div>
 
               {/* Send Options - Screen Only */}
-              <div className="print:hidden bg-blue-50 dark:bg-blue-950/30 rounded-lg p-4 mt-4">
-                <h4 className="font-semibold text-blue-700 dark:text-blue-400 mb-3 flex items-center gap-2">
+              <div className="print:hidden bg-blue-900/30 dark:bg-blue-950/30 rounded-lg p-4 mt-4">
+                <h4 className="font-semibold text-blue-300 dark:text-blue-400 mb-3 flex items-center gap-2">
                   <Send className="h-4 w-4" />
                   Send Receipt to Customer
                 </h4>
@@ -1425,7 +1425,7 @@ export default function ReceiptsPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="gap-2 border-blue-300 text-blue-700 hover:bg-blue-100 dark:border-blue-700 dark:text-blue-400 dark:hover:bg-blue-900"
+                    className="gap-2 border-blue-300 text-blue-300 hover:bg-blue-100 dark:border-blue-700 dark:text-blue-400 dark:hover:bg-blue-900"
                     onClick={() => selectedReceipt && sendReceiptEmail(selectedReceipt)}
                     disabled={!selectedReceipt?.customerEmail || isSendingEmail}
                   >
@@ -1438,7 +1438,7 @@ export default function ReceiptsPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="gap-2 border-green-300 text-green-700 hover:bg-green-100 dark:border-green-700 dark:text-green-400 dark:hover:bg-green-900"
+                    className="gap-2 border-green-300 text-green-300 hover:bg-green-100 dark:border-green-700 dark:text-green-400 dark:hover:bg-green-900"
                     onClick={() => selectedReceipt && sendReceiptSms(selectedReceipt)}
                     disabled={!selectedReceipt?.customerPhone || isSendingSms}
                   >

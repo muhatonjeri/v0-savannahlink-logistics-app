@@ -638,9 +638,9 @@ export default function AccountsPage() {
 
       {/* Summary Cards */}
       <div className="grid gap-4 md:grid-cols-4">
-        <Card className="border-green-200 dark:border-green-800 bg-green-50/50 dark:bg-green-950/20">
+        <Card className="border-green-500/50 dark:border-green-800 bg-green-900/30/50 dark:bg-green-950/20">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-green-700 dark:text-green-400">Total Income</CardTitle>
+            <CardTitle className="text-sm font-medium text-green-300 dark:text-green-400">Total Income</CardTitle>
             <ArrowDownLeft className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
@@ -651,9 +651,9 @@ export default function AccountsPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-red-200 dark:border-red-800 bg-red-50/50 dark:bg-red-950/20">
+        <Card className="border-red-500/50 dark:border-red-800 bg-red-900/30/50 dark:bg-red-950/20">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-red-700 dark:text-red-400">Total Expenses</CardTitle>
+            <CardTitle className="text-sm font-medium text-red-300 dark:text-red-400">Total Expenses</CardTitle>
             <ArrowUpRight className="h-4 w-4 text-red-600" />
           </CardHeader>
           <CardContent>
@@ -667,13 +667,13 @@ export default function AccountsPage() {
         <Card className={cn(
           "border-2",
           totals.profit >= 0 
-            ? "border-emerald-200 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-950/20"
-            : "border-orange-200 dark:border-orange-800 bg-orange-50/50 dark:bg-orange-950/20"
+            ? "border-emerald-200 dark:border-emerald-800 bg-emerald-900/30/50 dark:bg-emerald-950/20"
+            : "border-orange-500/50 dark:border-orange-800 bg-orange-900/30/50 dark:bg-orange-950/20"
         )}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className={cn(
               "text-sm font-medium",
-              totals.profit >= 0 ? "text-emerald-700 dark:text-emerald-400" : "text-orange-700 dark:text-orange-400"
+              totals.profit >= 0 ? "text-emerald-300 dark:text-emerald-400" : "text-orange-300 dark:text-orange-400"
             )}>Net Profit/Loss</CardTitle>
             {totals.profit >= 0 ? (
               <TrendingUp className="h-4 w-4 text-emerald-600" />
@@ -846,8 +846,8 @@ export default function AccountsPage() {
                               variant="outline" 
                               className={cn(
                                 transaction.type === "income"
-                                  ? "bg-green-100 text-green-700 border-green-300 dark:bg-green-900/30 dark:text-green-400"
-                                  : "bg-red-100 text-red-700 border-red-300 dark:bg-red-900/30 dark:text-red-400"
+                                  ? "bg-green-100 text-green-300 border-green-300 dark:bg-green-900/30 dark:text-green-400"
+                                  : "bg-red-100 text-red-300 border-red-300 dark:bg-red-900/30 dark:text-red-400"
                               )}
                             >
                               {transaction.type === "income" ? (
@@ -1028,7 +1028,7 @@ export default function AccountsPage() {
                         </div>
                         <div className="h-2 bg-muted rounded-full overflow-hidden">
                           <div 
-                            className="h-full bg-green-500 rounded-full transition-all"
+                            className="h-full bg-green-900/300 rounded-full transition-all"
                             style={{ width: `${percentage}%` }}
                           />
                         </div>
@@ -1073,7 +1073,7 @@ export default function AccountsPage() {
                         </div>
                         <div className="h-2 bg-muted rounded-full overflow-hidden">
                           <div 
-                            className="h-full bg-red-500 rounded-full transition-all"
+                            className="h-full bg-red-900/300 rounded-full transition-all"
                             style={{ width: `${percentage}%` }}
                           />
                         </div>

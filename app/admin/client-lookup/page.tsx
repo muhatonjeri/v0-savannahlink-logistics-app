@@ -117,49 +117,49 @@ const recordTypeConfig: Record<string, { label: string; icon: LucideIcon; color:
   theft: { 
     label: "Theft", 
     icon: Skull, 
-    color: "text-red-700 dark:text-red-400",
+    color: "text-red-300 dark:text-red-400",
     bgColor: "bg-red-100 dark:bg-red-950/50 border-red-300 dark:border-red-800"
   },
   fraud: { 
     label: "Fraud", 
     icon: Banknote, 
-    color: "text-orange-700 dark:text-orange-400",
+    color: "text-orange-300 dark:text-orange-400",
     bgColor: "bg-orange-100 dark:bg-orange-950/50 border-orange-300 dark:border-orange-800"
   },
   damage: { 
     label: "Vehicle Damage", 
     icon: Hammer, 
-    color: "text-yellow-700 dark:text-yellow-400",
+    color: "text-yellow-300 dark:text-yellow-400",
     bgColor: "bg-yellow-100 dark:bg-yellow-950/50 border-yellow-300 dark:border-yellow-800"
   },
   "non-payment": { 
     label: "Non-Payment", 
     icon: CreditCard, 
-    color: "text-purple-700 dark:text-purple-400",
+    color: "text-purple-300 dark:text-purple-400",
     bgColor: "bg-purple-100 dark:bg-purple-950/50 border-purple-300 dark:border-purple-800"
   },
   accident: { 
     label: "Accident", 
     icon: Car, 
-    color: "text-blue-700 dark:text-blue-400",
+    color: "text-blue-300 dark:text-blue-400",
     bgColor: "bg-blue-100 dark:bg-blue-950/50 border-blue-300 dark:border-blue-800"
   },
   "drug-related": { 
     label: "Drug Related", 
     icon: Syringe, 
-    color: "text-emerald-700 dark:text-emerald-400",
+    color: "text-emerald-300 dark:text-emerald-400",
     bgColor: "bg-emerald-100 dark:bg-emerald-950/50 border-emerald-300 dark:border-emerald-800"
   },
   "violent-dangerous": { 
     label: "Violent / Dangerous", 
     icon: Sword, 
-    color: "text-rose-700 dark:text-rose-400",
+    color: "text-rose-300 dark:text-rose-400",
     bgColor: "bg-rose-100 dark:bg-rose-950/50 border-rose-300 dark:border-rose-800"
   },
   suspicious: { 
     label: "Suspicious Activity", 
     icon: CircleAlert, 
-    color: "text-amber-700 dark:text-amber-400",
+    color: "text-amber-300 dark:text-amber-400",
     bgColor: "bg-amber-100 dark:bg-amber-950/50 border-amber-300 dark:border-amber-800"
   },
   other: { 
@@ -306,10 +306,10 @@ const blacklistData: BlacklistEntry[] = [
 
 // Severity configuration
 const severityConfig: Record<string, { label: string; color: string }> = {
-  low: { label: "Low", color: "bg-green-500/20 text-green-400 border-green-500/30" },
-  medium: { label: "Medium", color: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30" },
-  high: { label: "High", color: "bg-orange-500/20 text-orange-400 border-orange-500/30" },
-  critical: { label: "Critical", color: "bg-red-500/20 text-red-400 border-red-500/30" },
+  low: { label: "Low", color: "bg-green-900/300/20 text-green-400 border-green-500/30" },
+  medium: { label: "Medium", color: "bg-yellow-900/300/20 text-yellow-400 border-yellow-500/30" },
+  high: { label: "High", color: "bg-orange-900/300/20 text-orange-400 border-orange-500/30" },
+  critical: { label: "Critical", color: "bg-red-900/300/20 text-red-400 border-red-500/30" },
 };
 
 // Sample clients data
@@ -764,7 +764,7 @@ function ClientLookupContent() {
       </div>
 
       {/* Search Section */}
-      <Card className="border-indigo-200 dark:border-indigo-800">
+      <Card className="border-indigo-500/50 dark:border-indigo-800">
         <CardHeader className="pb-4">
           <CardTitle className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
             <Search className="h-5 w-5" />
@@ -869,14 +869,14 @@ function ClientLookupContent() {
             <div 
               className={`relative w-16 h-16 rounded-xl border-2 flex items-center justify-center cursor-pointer transition-all duration-300 shrink-0 ${
                 fingerprintStatus === "idle" 
-                  ? "border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/50 hover:border-emerald-400 hover:bg-emerald-100"
+                  ? "border-emerald-300 dark:border-emerald-700 bg-emerald-900/30 dark:bg-emerald-900/50 hover:border-emerald-400 hover:bg-emerald-100"
                   : fingerprintStatus === "scanning"
-                  ? "border-blue-400 bg-blue-50 dark:bg-blue-900/50 animate-pulse"
+                  ? "border-blue-400 bg-blue-900/30 dark:bg-blue-900/50 animate-pulse"
                   : fingerprintStatus === "success"
-                  ? "border-green-500 bg-green-50 dark:bg-green-900/50"
+                  ? "border-green-500 bg-green-900/30 dark:bg-green-900/50"
                   : fingerprintStatus === "failed"
-                  ? "border-red-500 bg-red-50 dark:bg-red-900/50"
-                  : "border-yellow-500 bg-yellow-50 dark:bg-yellow-900/50"
+                  ? "border-red-500 bg-red-900/30 dark:bg-red-900/50"
+                  : "border-yellow-500 bg-yellow-900/30 dark:bg-yellow-900/50"
               }`}
               onClick={!isFingerprintScanning ? handleFingerprintScan : undefined}
             >
@@ -893,12 +893,12 @@ function ClientLookupContent() {
                 }`} 
               />
               {fingerprintStatus === "success" && (
-                <div className="absolute -bottom-1 -right-1 bg-green-500 rounded-full p-0.5">
+                <div className="absolute -bottom-1 -right-1 bg-green-900/300 rounded-full p-0.5">
                   <CheckCircle2 className="h-3 w-3 text-white" />
                 </div>
               )}
               {fingerprintStatus === "failed" && (
-                <div className="absolute -bottom-1 -right-1 bg-red-500 rounded-full p-0.5">
+                <div className="absolute -bottom-1 -right-1 bg-red-900/300 rounded-full p-0.5">
                   <X className="h-3 w-3 text-white" />
                 </div>
               )}
@@ -906,7 +906,7 @@ function ClientLookupContent() {
 
             {/* Info and Status */}
             <div className="flex-1 min-w-0">
-              <h4 className="font-semibold text-emerald-700 dark:text-emerald-300 text-sm">Biometric Verification</h4>
+              <h4 className="font-semibold text-emerald-300 dark:text-emerald-300 text-sm">Biometric Verification</h4>
               <p className="text-xs text-muted-foreground">
                 {fingerprintStatus === "idle" && "Click scanner or place finger on device"}
                 {fingerprintStatus === "scanning" && "Scanning fingerprint..."}
@@ -939,10 +939,10 @@ function ClientLookupContent() {
         <div className="space-y-6">
           {/* Blacklist Alert */}
           {searchResults.isBlacklisted && (
-            <Card className="border-red-500 bg-red-500/10">
+            <Card className="border-red-500 bg-red-900/300/10">
               <CardContent className="pt-6">
                 <div className="flex items-start gap-4">
-                  <div className="rounded-full bg-red-500 p-3">
+                  <div className="rounded-full bg-red-900/300 p-3">
                     <Skull className="h-8 w-8 text-white" />
                   </div>
                   <div className="flex-1">
@@ -974,11 +974,11 @@ function ClientLookupContent() {
 
           {/* No Results - New Client Option */}
           {!searchResults.client && searchResults.blacklistEntries.length === 0 && (
-            <Card className="border-green-500/50 bg-green-500/10">
+            <Card className="border-green-500/50 bg-green-900/300/10">
               <CardContent className="pt-6">
                 <div className="space-y-6">
                   <div className="flex items-center gap-4">
-                    <div className="rounded-full bg-green-500/20 p-3">
+                    <div className="rounded-full bg-green-900/300/20 p-3">
                       <CheckCircle2 className="h-8 w-8 text-green-500" />
                     </div>
                     <div className="flex-1">
@@ -998,7 +998,7 @@ function ClientLookupContent() {
                   
                   {/* Selected Service - Prominent CTA */}
                   {currentService && (
-                    <div className={`border-t border-green-200 dark:border-green-800 pt-4`}>
+                    <div className={`border-t border-green-500/50 dark:border-green-800 pt-4`}>
                       <Link href={`${currentService.href}?clientId=${searchResults.client?.id || ""}`}>
                         <Button 
                           size="lg" 
@@ -1014,53 +1014,53 @@ function ClientLookupContent() {
                   
                   {/* All Services - Only show if no specific service selected */}
                   {!currentService && (
-                    <div className="border-t border-green-200 dark:border-green-800 pt-4">
+                    <div className="border-t border-green-500/50 dark:border-green-800 pt-4">
                       <h4 className="text-sm font-medium text-muted-foreground mb-3">Quick Service Access - Select a service to proceed:</h4>
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                         <Link href={`/admin/car-rental/new?clientId=${searchResults.client?.id || ""}`}>
-                          <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-indigo-200 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950 group">
+                          <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-indigo-500/50 hover:border-indigo-400 hover:bg-indigo-900/30 dark:hover:bg-indigo-950 group">
                             <Car className="h-6 w-6 text-indigo-500 group-hover:scale-110 transition-transform" />
                             <span className="text-xs font-medium">Car Rental</span>
                           </Button>
                         </Link>
                         <Link href="/admin/safari-tours">
-                          <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-amber-200 hover:border-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950 group">
+                          <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-amber-500/50 hover:border-amber-400 hover:bg-amber-900/30 dark:hover:bg-amber-950 group">
                             <Compass className="h-6 w-6 text-amber-500 group-hover:scale-110 transition-transform" />
                             <span className="text-xs font-medium">Safari Tours</span>
                           </Button>
                         </Link>
                         <Link href="/admin/transfers">
-                          <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-sky-200 hover:border-sky-400 hover:bg-sky-50 dark:hover:bg-sky-950 group">
+                          <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-sky-200 hover:border-sky-400 hover:bg-sky-900/30 dark:hover:bg-sky-950 group">
                             <Plane className="h-6 w-6 text-sky-500 group-hover:scale-110 transition-transform" />
                             <span className="text-xs font-medium">Airport Transfers</span>
                           </Button>
                         </Link>
                         <Link href="/admin/cargo-handling">
-                          <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-orange-200 hover:border-orange-400 hover:bg-orange-50 dark:hover:bg-orange-950 group">
+                          <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-orange-500/50 hover:border-orange-400 hover:bg-orange-900/30 dark:hover:bg-orange-950 group">
                             <Package className="h-6 w-6 text-orange-500 group-hover:scale-110 transition-transform" />
                             <span className="text-xs font-medium">Cargo Handling</span>
                           </Button>
                         </Link>
                         <Link href="/admin/movers">
-                          <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-violet-200 hover:border-violet-400 hover:bg-violet-50 dark:hover:bg-violet-950 group">
+                          <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-violet-200 hover:border-violet-400 hover:bg-violet-900/30 dark:hover:bg-violet-950 group">
                             <Truck className="h-6 w-6 text-violet-500 group-hover:scale-110 transition-transform" />
                             <span className="text-xs font-medium">Movers</span>
                           </Button>
                         </Link>
                         <Link href="/admin/construction-equipment">
-                          <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-yellow-200 hover:border-yellow-400 hover:bg-yellow-50 dark:hover:bg-yellow-950 group">
+                          <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-yellow-500/50 hover:border-yellow-400 hover:bg-yellow-900/30 dark:hover:bg-yellow-950 group">
                             <HardHat className="h-6 w-6 text-yellow-500 group-hover:scale-110 transition-transform" />
                             <span className="text-xs font-medium">Construction Equipment</span>
                           </Button>
                         </Link>
                         <Link href="/admin/shipment-imports">
-                          <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-blue-200 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950 group">
+                          <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-blue-500/50 hover:border-blue-400 hover:bg-blue-900/30 dark:hover:bg-blue-950 group">
                             <Ship className="h-6 w-6 text-blue-500 group-hover:scale-110 transition-transform" />
                             <span className="text-xs font-medium">Shipment Imports</span>
                           </Button>
                         </Link>
                         <Link href="/admin/road-recovery">
-                          <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-rose-200 hover:border-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950 group">
+                          <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-rose-200 hover:border-rose-400 hover:bg-rose-900/30 dark:hover:bg-rose-950 group">
                             <Wrench className="h-6 w-6 text-rose-500 group-hover:scale-110 transition-transform" />
                             <span className="text-xs font-medium">Road Recovery</span>
                           </Button>
@@ -1075,11 +1075,11 @@ function ClientLookupContent() {
 
           {/* Clear Status (Not Blacklisted) */}
           {!searchResults.isBlacklisted && (searchResults.client || searchResults.blacklistEntries.length > 0) && (
-            <Card className="border-green-500/50 bg-green-500/10">
+            <Card className="border-green-500/50 bg-green-900/300/10">
               <CardContent className="pt-6">
                 <div className="space-y-6">
                   <div className="flex items-center gap-4">
-                    <div className="rounded-full bg-green-500/20 p-3">
+                    <div className="rounded-full bg-green-900/300/20 p-3">
                       <CheckCircle2 className="h-8 w-8 text-green-500" />
                     </div>
                     <div>
@@ -1092,7 +1092,7 @@ function ClientLookupContent() {
                   
                   {/* Selected Service - Prominent CTA */}
                   {currentService && (
-                    <div className={`border-t border-green-200 dark:border-green-800 pt-4`}>
+                    <div className={`border-t border-green-500/50 dark:border-green-800 pt-4`}>
                       <Link href={`${currentService.href}?clientId=${searchResults.client?.id || ""}`}>
                         <Button 
                           size="lg" 
@@ -1108,53 +1108,53 @@ function ClientLookupContent() {
                   
                   {/* All Services - Only show if no specific service selected */}
                   {!currentService && (
-                    <div className="border-t border-green-200 dark:border-green-800 pt-4">
+                    <div className="border-t border-green-500/50 dark:border-green-800 pt-4">
                       <h4 className="text-sm font-medium text-muted-foreground mb-3">Proceed with Service:</h4>
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                         <Link href={`/admin/car-rental/new?clientId=${searchResults.client?.id || ""}`}>
-                          <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-indigo-200 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950 group">
+                          <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-indigo-500/50 hover:border-indigo-400 hover:bg-indigo-900/30 dark:hover:bg-indigo-950 group">
                             <Car className="h-6 w-6 text-indigo-500 group-hover:scale-110 transition-transform" />
                             <span className="text-xs font-medium">Car Rental</span>
                           </Button>
                         </Link>
                         <Link href="/admin/safari-tours">
-                          <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-amber-200 hover:border-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950 group">
+                          <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-amber-500/50 hover:border-amber-400 hover:bg-amber-900/30 dark:hover:bg-amber-950 group">
                             <Compass className="h-6 w-6 text-amber-500 group-hover:scale-110 transition-transform" />
                             <span className="text-xs font-medium">Safari Tours</span>
                           </Button>
                         </Link>
                         <Link href="/admin/transfers">
-                          <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-sky-200 hover:border-sky-400 hover:bg-sky-50 dark:hover:bg-sky-950 group">
+                          <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-sky-200 hover:border-sky-400 hover:bg-sky-900/30 dark:hover:bg-sky-950 group">
                             <Plane className="h-6 w-6 text-sky-500 group-hover:scale-110 transition-transform" />
                             <span className="text-xs font-medium">Airport Transfers</span>
                           </Button>
                         </Link>
                         <Link href="/admin/cargo-handling">
-                          <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-orange-200 hover:border-orange-400 hover:bg-orange-50 dark:hover:bg-orange-950 group">
+                          <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-orange-500/50 hover:border-orange-400 hover:bg-orange-900/30 dark:hover:bg-orange-950 group">
                             <Package className="h-6 w-6 text-orange-500 group-hover:scale-110 transition-transform" />
                             <span className="text-xs font-medium">Cargo Handling</span>
                           </Button>
                         </Link>
                         <Link href="/admin/movers">
-                          <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-violet-200 hover:border-violet-400 hover:bg-violet-50 dark:hover:bg-violet-950 group">
+                          <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-violet-200 hover:border-violet-400 hover:bg-violet-900/30 dark:hover:bg-violet-950 group">
                             <Truck className="h-6 w-6 text-violet-500 group-hover:scale-110 transition-transform" />
                             <span className="text-xs font-medium">Movers</span>
                           </Button>
                         </Link>
                         <Link href="/admin/construction-equipment">
-                          <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-yellow-200 hover:border-yellow-400 hover:bg-yellow-50 dark:hover:bg-yellow-950 group">
+                          <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-yellow-500/50 hover:border-yellow-400 hover:bg-yellow-900/30 dark:hover:bg-yellow-950 group">
                             <HardHat className="h-6 w-6 text-yellow-500 group-hover:scale-110 transition-transform" />
                             <span className="text-xs font-medium">Construction Equipment</span>
                           </Button>
                         </Link>
                         <Link href="/admin/shipment-imports">
-                          <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-blue-200 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950 group">
+                          <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-blue-500/50 hover:border-blue-400 hover:bg-blue-900/30 dark:hover:bg-blue-950 group">
                             <Ship className="h-6 w-6 text-blue-500 group-hover:scale-110 transition-transform" />
                             <span className="text-xs font-medium">Shipment Imports</span>
                           </Button>
                         </Link>
                         <Link href="/admin/road-recovery">
-                          <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-rose-200 hover:border-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950 group">
+                          <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-rose-200 hover:border-rose-400 hover:bg-rose-900/30 dark:hover:bg-rose-950 group">
                             <Wrench className="h-6 w-6 text-rose-500 group-hover:scale-110 transition-transform" />
                             <span className="text-xs font-medium">Road Recovery</span>
                           </Button>
@@ -1182,10 +1182,10 @@ function ClientLookupContent() {
                         searchResults.client.riskLevel === "blocked" 
                           ? "bg-red-600 text-white" 
                           : searchResults.client.riskLevel === "high"
-                          ? "bg-orange-500 text-white"
+                          ? "bg-orange-900/300 text-white"
                           : searchResults.client.riskLevel === "medium"
-                          ? "bg-yellow-500 text-black"
-                          : "bg-green-500 text-white"
+                          ? "bg-yellow-900/300 text-black"
+                          : "bg-green-900/300 text-white"
                       }`}>
                         {searchResults.client.riskLevel === "blocked" ? "BLOCKED" : `${searchResults.client.riskLevel.toUpperCase()} RISK`}
                       </Badge>
@@ -1224,7 +1224,7 @@ function ClientLookupContent() {
                         )}
                       </div>
                       {searchResults.client.riskLevel !== "blocked" && (
-                        <div className="absolute -bottom-2 -right-2 bg-green-500 rounded-full p-1.5">
+                        <div className="absolute -bottom-2 -right-2 bg-green-900/300 rounded-full p-1.5">
                           <CheckCircle2 className="h-5 w-5 text-white" />
                         </div>
                       )}
@@ -1243,19 +1243,19 @@ function ClientLookupContent() {
 
                     {/* Client Stats - Horizontal */}
                     <div className="grid grid-cols-4 gap-3">
-                      <div className="rounded-lg bg-blue-500/10 p-3 text-center">
+                      <div className="rounded-lg bg-blue-900/300/10 p-3 text-center">
                         <p className="text-xl font-bold text-blue-500">{searchResults.client.totalBookings}</p>
                         <p className="text-xs text-muted-foreground">Bookings</p>
                       </div>
-                      <div className="rounded-lg bg-green-500/10 p-3 text-center">
+                      <div className="rounded-lg bg-green-900/300/10 p-3 text-center">
                         <p className="text-lg font-bold text-green-500">{formatCurrency((searchResults.client as typeof searchResults.client & { totalSpent?: number }).totalSpent || 0)}</p>
                         <p className="text-xs text-muted-foreground">Total Spent</p>
                       </div>
-                      <div className="rounded-lg bg-amber-500/10 p-3 text-center">
+                      <div className="rounded-lg bg-amber-900/300/10 p-3 text-center">
                         <p className="text-sm font-bold text-amber-500">{searchResults.client.lastBookingDate || "N/A"}</p>
                         <p className="text-xs text-muted-foreground">Last Booking</p>
                       </div>
-                      <div className="rounded-lg bg-purple-500/10 p-3 text-center">
+                      <div className="rounded-lg bg-purple-900/300/10 p-3 text-center">
                         <p className="text-lg font-bold text-purple-500">{formatCurrency(searchResults.client.totalDebt || 0)}</p>
                         <p className="text-xs text-muted-foreground">Outstanding</p>
                       </div>
@@ -1422,7 +1422,7 @@ function ClientLookupContent() {
                             className="w-full h-full object-contain bg-white dark:bg-gray-800 p-2"
                           />
                         ) : searchResults.client.leftFingerprint ? (
-                          <div className="w-full h-full flex flex-col items-center justify-center bg-green-500/10">
+                          <div className="w-full h-full flex flex-col items-center justify-center bg-green-900/300/10">
                             <Fingerprint className="h-12 w-12 text-green-500" />
                             <span className="text-xs text-green-600 dark:text-green-400 mt-1">Captured</span>
                           </div>
@@ -1446,7 +1446,7 @@ function ClientLookupContent() {
                             className="w-full h-full object-contain bg-white dark:bg-gray-800 p-2"
                           />
                         ) : searchResults.client.rightFingerprint ? (
-                          <div className="w-full h-full flex flex-col items-center justify-center bg-green-500/10">
+                          <div className="w-full h-full flex flex-col items-center justify-center bg-green-900/300/10">
                             <Fingerprint className="h-12 w-12 text-green-500" />
                             <span className="text-xs text-green-600 dark:text-green-400 mt-1">Captured</span>
                           </div>
@@ -1471,7 +1471,7 @@ function ClientLookupContent() {
                         <FileText className="h-4 w-4" />
                         Notes
                       </h3>
-                      <div className="bg-amber-500/10 rounded-lg p-4 border border-amber-500/30">
+                      <div className="bg-amber-900/300/10 rounded-lg p-4 border border-amber-500/30">
                         <p className="text-sm text-foreground">{searchResults.client.notes}</p>
                       </div>
                     </div>
@@ -1502,7 +1502,7 @@ function ClientLookupContent() {
                         <div
                           key={entry.id}
                           className={`rounded-lg border p-4 cursor-pointer hover:bg-accent/50 transition-colors ${
-                            entry.status === "active" ? "border-red-500/50 bg-red-500/5" : "border-muted"
+                            entry.status === "active" ? "border-red-500/50 bg-red-900/300/5" : "border-muted"
                           }`}
                           onClick={() => {
                             setSelectedBlacklistEntry(entry);
@@ -1545,7 +1545,7 @@ function ClientLookupContent() {
                               <Button 
                                 variant="ghost" 
                                 size="icon" 
-                                className="h-8 w-8 text-blue-400 hover:text-blue-300 hover:bg-blue-500/10"
+                                className="h-8 w-8 text-blue-400 hover:text-blue-300 hover:bg-blue-900/300/10"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   handleEditEntry(entry);
@@ -1608,10 +1608,10 @@ function ClientLookupContent() {
                             variant="outline"
                             className={
                               txn.status === "completed"
-                                ? "bg-green-500/20 text-green-400 border-green-500/30"
+                                ? "bg-green-900/300/20 text-green-400 border-green-500/30"
                                 : txn.status === "pending"
-                                ? "bg-yellow-500/20 text-yellow-400 border-yellow-500/30"
-                                : "bg-red-500/20 text-red-400 border-red-500/30"
+                                ? "bg-yellow-900/300/20 text-yellow-400 border-yellow-500/30"
+                                : "bg-red-900/300/20 text-red-400 border-red-500/30"
                             }
                           >
                             {txn.status}
@@ -1641,7 +1641,7 @@ function ClientLookupContent() {
           </DialogHeader>
           {selectedBlacklistEntry && (
             <div className="space-y-4">
-              <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-4">
+              <div className="rounded-lg border border-red-500/30 bg-red-900/300/10 p-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-bold">{selectedBlacklistEntry.fullName}</h3>
                   <Badge
@@ -1742,8 +1742,8 @@ function ClientLookupContent() {
 
       {/* Edit Blacklist Entry Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700">
-          <DialogHeader className="border-b border-gray-200 dark:border-gray-700 pb-4">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900 border-gray-600 dark:border-gray-700">
+          <DialogHeader className="border-b border-gray-600 dark:border-gray-700 pb-4">
             <DialogTitle className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
               <Edit className="h-5 w-5" />
               Edit Blacklist Record
@@ -1756,7 +1756,7 @@ function ClientLookupContent() {
             <Form {...editForm}>
               <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-6">
                 {/* Personal Information */}
-                <div className="rounded-lg border border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-950/50 p-4 shadow-sm">
+                <div className="rounded-lg border border-red-300 dark:border-red-700 bg-red-900/30 dark:bg-red-950/50 p-4 shadow-sm">
                   <h4 className="font-semibold text-red-800 dark:text-red-300 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
                     <User className="h-4 w-4" />
                     Personal Information
@@ -1821,7 +1821,7 @@ function ClientLookupContent() {
                 </div>
 
                 {/* Incident Details */}
-                <div className="rounded-lg border border-orange-300 dark:border-orange-700 bg-orange-50 dark:bg-orange-950/50 p-4 shadow-sm">
+                <div className="rounded-lg border border-orange-300 dark:border-orange-700 bg-orange-900/30 dark:bg-orange-950/50 p-4 shadow-sm">
                   <h4 className="font-semibold text-orange-800 dark:text-orange-300 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
                     <AlertTriangle className="h-4 w-4" />
                     Incident Details
@@ -1947,8 +1947,8 @@ function ClientLookupContent() {
 
       {/* Register New Client Dialog */}
       <Dialog open={isRegisterDialogOpen} onOpenChange={setIsRegisterDialogOpen}>
-        <DialogContent className="max-w-2xl bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700">
-          <DialogHeader className="border-b border-gray-200 dark:border-gray-700 pb-4">
+        <DialogContent className="max-w-2xl bg-white dark:bg-gray-900 border-gray-600 dark:border-gray-700">
+          <DialogHeader className="border-b border-gray-600 dark:border-gray-700 pb-4">
             <DialogTitle className="flex items-center gap-2 text-green-600 dark:text-green-400">
               <UserPlus className="h-5 w-5" />
               Register New Client
@@ -1960,7 +1960,7 @@ function ClientLookupContent() {
           
           <Form {...registerForm}>
             <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-6">
-              <div className="rounded-lg border border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-950/50 p-4 shadow-sm">
+              <div className="rounded-lg border border-green-300 dark:border-green-700 bg-green-900/30 dark:bg-green-950/50 p-4 shadow-sm">
                 <h4 className="font-semibold text-green-800 dark:text-green-300 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
                   <User className="h-4 w-4" />
                   Personal Information

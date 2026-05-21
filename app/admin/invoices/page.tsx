@@ -136,11 +136,11 @@ const serviceTypes = [
 // Status configuration
 const statusConfig: Record<Invoice["status"], { label: string; color: string; icon: React.ElementType }> = {
   draft: { label: "Draft", color: "bg-gray-500/20 text-gray-400 border-gray-500/30", icon: Clock },
-  sent: { label: "Sent", color: "bg-blue-500/20 text-blue-400 border-blue-500/30", icon: Send },
-  paid: { label: "Paid", color: "bg-green-500/20 text-green-400 border-green-500/30", icon: CheckCircle2 },
-  partial: { label: "Partial", color: "bg-amber-500/20 text-amber-400 border-amber-500/30", icon: AlertCircle },
-  overdue: { label: "Overdue", color: "bg-red-500/20 text-red-400 border-red-500/30", icon: AlertCircle },
-  cancelled: { label: "Cancelled", color: "bg-orange-500/20 text-orange-400 border-orange-500/30", icon: XCircle },
+  sent: { label: "Sent", color: "bg-blue-900/300/20 text-blue-400 border-blue-500/30", icon: Send },
+  paid: { label: "Paid", color: "bg-green-900/300/20 text-green-400 border-green-500/30", icon: CheckCircle2 },
+  partial: { label: "Partial", color: "bg-amber-900/300/20 text-amber-400 border-amber-500/30", icon: AlertCircle },
+  overdue: { label: "Overdue", color: "bg-red-900/300/20 text-red-400 border-red-500/30", icon: AlertCircle },
+  cancelled: { label: "Cancelled", color: "bg-orange-900/300/20 text-orange-400 border-orange-500/30", icon: XCircle },
 };
 
 // Sample data
@@ -473,7 +473,7 @@ export default function InvoicesPage() {
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="border-cyan-500/20 bg-cyan-500/5">
+        <Card className="border-cyan-500/20 bg-cyan-900/300/5">
           <CardHeader className="pb-2">
             <CardDescription>Total Invoices</CardDescription>
             <CardTitle className="text-3xl text-cyan-600">{stats.total}</CardTitle>
@@ -484,7 +484,7 @@ export default function InvoicesPage() {
             </p>
           </CardContent>
         </Card>
-        <Card className="border-green-500/20 bg-green-500/5">
+        <Card className="border-green-500/20 bg-green-900/300/5">
           <CardHeader className="pb-2">
             <CardDescription>Total Revenue (Paid)</CardDescription>
             <CardTitle className="text-3xl text-green-600">
@@ -495,7 +495,7 @@ export default function InvoicesPage() {
             <p className="text-xs text-muted-foreground">{stats.paid} paid invoices</p>
           </CardContent>
         </Card>
-        <Card className="border-amber-500/20 bg-amber-500/5">
+        <Card className="border-amber-500/20 bg-amber-900/300/5">
           <CardHeader className="pb-2">
             <CardDescription>Pending Revenue</CardDescription>
             <CardTitle className="text-3xl text-amber-600">
@@ -506,7 +506,7 @@ export default function InvoicesPage() {
             <p className="text-xs text-muted-foreground">{stats.sent + stats.overdue} pending invoices</p>
           </CardContent>
         </Card>
-        <Card className="border-red-500/20 bg-red-500/5">
+        <Card className="border-red-500/20 bg-red-900/300/5">
           <CardHeader className="pb-2">
             <CardDescription>Overdue</CardDescription>
             <CardTitle className="text-3xl text-red-600">{stats.overdue}</CardTitle>
@@ -845,7 +845,7 @@ export default function InvoicesPage() {
                           type="button"
                           variant="ghost"
                           size="icon"
-                          className="h-9 w-9 text-red-500 hover:text-red-600 hover:bg-red-500/10"
+                          className="h-9 w-9 text-red-500 hover:text-red-600 hover:bg-red-900/300/10"
                           onClick={() => removeItem(index)}
                           disabled={invoiceItems.length === 1}
                         >
@@ -969,7 +969,7 @@ export default function InvoicesPage() {
           </div>
 
           {selectedInvoice && (
-            <div ref={printRef} className="print-receipt bg-white rounded-lg border border-gray-200 text-[#0a1628]" data-print-area="true" style={{backgroundColor:"white",color:"#0a1628"}}>
+            <div ref={printRef} className="print-receipt bg-white rounded-lg border border-gray-600 text-[#0a1628]" data-print-area="true" style={{backgroundColor:"white",color:"#0a1628"}}>
               {/* Professional Invoice Template - Savanna Brand Colors */}
               <div className="p-8 text-[#0a1628]">
                 {/* Header with Logo and Invoice Info */}
@@ -1039,7 +1039,7 @@ export default function InvoicesPage() {
 
                 {/* Bill To & Service Info */}
                 <div className="grid grid-cols-2 gap-8 mb-6">
-                  <div className="bg-gray-50 rounded-lg p-5 border border-gray-200">
+                  <div className="bg-gray-50 rounded-lg p-5 border border-gray-600">
                     <h3 className="text-sm font-bold text-[#0a1628] uppercase mb-3 pb-2 border-b border-gray-300 flex items-center gap-2 tracking-wide">
                       <User className="h-4 w-4 text-[#e67e22]" />
                       Bill To
@@ -1066,7 +1066,7 @@ export default function InvoicesPage() {
                       )}
                     </div>
                   </div>
-                  <div className="bg-gray-50 rounded-lg p-5 border border-gray-200">
+                  <div className="bg-gray-50 rounded-lg p-5 border border-gray-600">
                     <h3 className="text-sm font-bold text-[#0a1628] uppercase mb-3 pb-2 border-b border-gray-300 tracking-wide">
                       Invoice Details
                     </h3>
@@ -1091,7 +1091,7 @@ export default function InvoicesPage() {
                 {/* Items Table */}
                 <div className="mb-6">
                   <h3 className="font-bold text-[#0a1628] mb-3 uppercase text-sm tracking-wide">Description of Services</h3>
-                  <div className="border-2 border-gray-200 rounded-lg overflow-hidden">
+                  <div className="border-2 border-gray-600 rounded-lg overflow-hidden">
                     <table className="w-full">
                       <thead>
                         <tr className="bg-[#0a1628] text-white">
@@ -1135,7 +1135,7 @@ export default function InvoicesPage() {
                       </div>
                       {selectedInvoice.amountPaid > 0 && (
                         <>
-                          <div className="flex justify-between text-sm text-green-700 font-medium">
+                          <div className="flex justify-between text-sm text-green-300 font-medium">
                             <span>Amount Paid:</span>
                             <span>KES {selectedInvoice.amountPaid.toLocaleString()}</span>
                           </div>
@@ -1153,7 +1153,7 @@ export default function InvoicesPage() {
                 {selectedInvoice.payments.length > 0 && (
                   <div className="mb-6">
                     <h3 className="font-bold text-[#0a1628] mb-3 uppercase text-sm tracking-wide">Payment History</h3>
-                    <div className="border-2 border-gray-200 rounded-lg overflow-hidden">
+                    <div className="border-2 border-gray-600 rounded-lg overflow-hidden">
                       <table className="w-full text-sm">
                         <thead>
                           <tr className="bg-gray-100 text-[#0a1628]">
@@ -1171,7 +1171,7 @@ export default function InvoicesPage() {
                               <td className="py-3 px-4 capitalize">{p.method === "mpesa" ? "M-Pesa" : p.method}</td>
                               <td className="py-3 px-4 font-mono text-xs">{p.reference}</td>
                               <td className="py-3 px-4 text-gray-500">{p.note || "—"}</td>
-                              <td className="py-3 px-4 text-right font-semibold text-green-700">{p.amount.toLocaleString()}</td>
+                              <td className="py-3 px-4 text-right font-semibold text-green-300">{p.amount.toLocaleString()}</td>
                             </tr>
                           ))}
                         </tbody>
@@ -1202,7 +1202,7 @@ export default function InvoicesPage() {
                       </p>
                     </div>
                   </div>
-                  <div className="bg-orange-50 rounded-lg p-5 border border-[#e67e22]">
+                  <div className="bg-orange-900/30 rounded-lg p-5 border border-[#e67e22]">
                     <h3 className="text-sm font-bold text-[#0a1628] uppercase mb-3 flex items-center gap-2 tracking-wide">
                       <Smartphone className="h-4 w-4 text-[#e67e22]" />
                       M-Pesa Payment
@@ -1225,14 +1225,14 @@ export default function InvoicesPage() {
 
                 {/* Notes */}
                 {selectedInvoice.notes && (
-                  <div className="p-5 bg-orange-50 rounded-lg border border-[#e67e22] mb-6">
+                  <div className="p-5 bg-orange-900/30 rounded-lg border border-[#e67e22] mb-6">
                     <h3 className="text-sm font-bold text-[#0a1628] mb-2 uppercase tracking-wide">Notes</h3>
                     <p className="text-sm text-[#0a1628]">{selectedInvoice.notes}</p>
                   </div>
                 )}
 
                 {/* Terms */}
-                <div className="p-5 bg-gray-100 rounded-lg border border-gray-200 mb-6">
+                <div className="p-5 bg-gray-100 rounded-lg border border-gray-600 mb-6">
                   <h3 className="text-sm font-bold text-[#0a1628] mb-2 uppercase tracking-wide">Terms & Conditions</h3>
                   <ul className="text-xs text-gray-600 space-y-1 list-disc list-inside">
                     <li>Payment is due by the date indicated above</li>

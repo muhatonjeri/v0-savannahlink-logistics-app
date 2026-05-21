@@ -547,7 +547,7 @@ export default function FleetManagementPage() {
       case "assigned":
         return <Badge className="bg-blue-600 text-white font-semibold"><Car className="h-3 w-3 mr-1" />Assigned</Badge>;
       case "maintenance":
-        return <Badge className="bg-amber-500 text-white font-semibold"><Wrench className="h-3 w-3 mr-1" />Maintenance</Badge>;
+        return <Badge className="bg-amber-900/300 text-white font-semibold"><Wrench className="h-3 w-3 mr-1" />Maintenance</Badge>;
       case "out-of-service":
         return <Badge className="bg-red-600 text-white font-semibold"><XCircle className="h-3 w-3 mr-1" />Out of Service</Badge>;
     }
@@ -913,7 +913,7 @@ export default function FleetManagementPage() {
             <Bell className="h-4 w-4" />
             <span className="font-semibold">Notifications</span>
             {notifications.length > 0 && (
-              <Badge className="ml-1 bg-red-500 text-white text-xs px-1.5 py-0.5">{notifications.length}</Badge>
+              <Badge className="ml-1 bg-red-900/300 text-white text-xs px-1.5 py-0.5">{notifications.length}</Badge>
             )}
           </TabsTrigger>
         </TabsList>
@@ -1123,9 +1123,9 @@ export default function FleetManagementPage() {
                             <span className="font-semibold text-sm text-white">{notification.vehicleName}</span>
                             <Badge variant="outline" className="font-mono text-xs">{notification.registrationNo}</Badge>
                             <Badge className={`text-xs ${
-                              notification.priority === "critical" ? "bg-red-500" :
-                              notification.priority === "high" ? "bg-orange-500" :
-                              notification.priority === "medium" ? "bg-amber-500" : "bg-blue-500"
+                              notification.priority === "critical" ? "bg-red-900/300" :
+                              notification.priority === "high" ? "bg-orange-900/300" :
+                              notification.priority === "medium" ? "bg-amber-900/300" : "bg-blue-900/300"
                             } text-white`}>
                               {notification.priority.toUpperCase()}
                             </Badge>
@@ -1163,9 +1163,9 @@ export default function FleetManagementPage() {
 
       {/* Assign Vehicle Dialog */}
       <Dialog open={isAssignDialogOpen} onOpenChange={setIsAssignDialogOpen}>
-        <DialogContent className="max-w-md bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700">
-          <DialogHeader className="border-b border-gray-200 dark:border-gray-700 pb-4">
-            <DialogTitle className="flex items-center gap-2 text-blue-700 dark:text-blue-400">
+        <DialogContent className="max-w-md bg-white dark:bg-gray-900 border-gray-600 dark:border-gray-700">
+          <DialogHeader className="border-b border-gray-600 dark:border-gray-700 pb-4">
+            <DialogTitle className="flex items-center gap-2 text-blue-300 dark:text-blue-400">
               <User className="h-5 w-5" />
               Assign Vehicle
             </DialogTitle>
@@ -1177,7 +1177,7 @@ export default function FleetManagementPage() {
             <form onSubmit={assignmentForm.handleSubmit(onSubmitAssignment)} className="space-y-4">
               {/* Staff Details Section */}
               <div className="rounded-lg border-2 border-blue-400 dark:border-blue-600 bg-white dark:bg-gray-900 p-4 shadow-sm">
-                <h4 className="font-semibold text-blue-700 dark:text-blue-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
+                <h4 className="font-semibold text-blue-300 dark:text-blue-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
                   <User className="h-4 w-4" />
                   Staff Details
                 </h4>
@@ -1201,7 +1201,7 @@ export default function FleetManagementPage() {
 
               {/* Assignment Details Section */}
               <div className="rounded-lg border-2 border-amber-400 dark:border-amber-600 bg-white dark:bg-gray-900 p-4 shadow-sm">
-                <h4 className="font-semibold text-amber-700 dark:text-amber-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
+                <h4 className="font-semibold text-amber-300 dark:text-amber-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
                   <Calendar className="h-4 w-4" />
                   Assignment Details
                 </h4>
@@ -1366,8 +1366,8 @@ export default function FleetManagementPage() {
 
               {/* Assignment Info (if assigned) */}
               {selectedVehicle.status === "assigned" && selectedVehicle.assignedStaffName && (
-                <div className="rounded-lg border border-blue-200 dark:border-blue-800 bg-blue-50/50 dark:bg-blue-950/20 p-4">
-                  <h4 className="font-semibold mb-3 flex items-center gap-2 text-sm text-blue-700 dark:text-blue-400">
+                <div className="rounded-lg border border-blue-500/50 dark:border-blue-800 bg-blue-900/30/50 dark:bg-blue-950/20 p-4">
+                  <h4 className="font-semibold mb-3 flex items-center gap-2 text-sm text-blue-300 dark:text-blue-400">
                     <User className="h-4 w-4" />
                     Current Assignment
                   </h4>
@@ -1393,7 +1393,7 @@ export default function FleetManagementPage() {
                       <p className="font-medium flex items-center gap-2">
                         {selectedVehicle.expectedDateIn ? format(new Date(selectedVehicle.expectedDateIn), "MMM dd, yyyy") : "-"}
                         {selectedVehicle.expectedDateIn && isPast(new Date(selectedVehicle.expectedDateIn)) && (
-                          <Badge className="bg-red-500 text-white text-xs">OVERDUE</Badge>
+                          <Badge className="bg-red-900/300 text-white text-xs">OVERDUE</Badge>
                         )}
                       </p>
                     </div>

@@ -99,13 +99,13 @@ const recordTypeConfig: Record<string, { label: string; icon: LucideIcon; color:
     label: "Fraud", 
     icon: Banknote, 
     color: "text-white",
-    bgColor: "bg-orange-500 border-orange-600"
+    bgColor: "bg-orange-900/300 border-orange-600"
   },
   damage: { 
     label: "Vehicle Damage", 
     icon: Hammer, 
     color: "text-white",
-    bgColor: "bg-yellow-500 border-yellow-600"
+    bgColor: "bg-yellow-900/300 border-yellow-600"
   },
   "non-payment": { 
     label: "Non-Payment", 
@@ -134,7 +134,7 @@ const recordTypeConfig: Record<string, { label: string; icon: LucideIcon; color:
   suspicious: { 
     label: "Suspicious Activity", 
     icon: CircleAlert, 
-    color: "text-amber-700 dark:text-amber-400",
+    color: "text-amber-300 dark:text-amber-400",
     bgColor: "bg-amber-100 dark:bg-amber-950/50 border-amber-300 dark:border-amber-800"
   },
   other: { 
@@ -202,15 +202,15 @@ type BlacklistFormValues = z.infer<typeof blacklistFormSchema>;
 
 const severityConfig: Record<string, { label: string; color: string }> = {
   low: { label: "Low", color: "bg-green-600 text-white" },
-  medium: { label: "Medium", color: "bg-yellow-500 text-white" },
-  high: { label: "High", color: "bg-orange-500 text-white" },
+  medium: { label: "Medium", color: "bg-yellow-900/300 text-white" },
+  high: { label: "High", color: "bg-orange-900/300 text-white" },
   critical: { label: "Critical", color: "bg-red-600 text-white" },
 };
 
 const statusConfig: Record<string, { label: string; color: string }> = {
   active: { label: "Active", color: "bg-red-600 text-white" },
   resolved: { label: "Resolved", color: "bg-green-600 text-white" },
-  "under-review": { label: "Under Review", color: "bg-yellow-500 text-white" },
+  "under-review": { label: "Under Review", color: "bg-yellow-900/300 text-white" },
 };
 
 // Blacklist data
@@ -479,8 +479,8 @@ export default function BlacklistPage() {
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 {/* Personal Information */}
-                <div className="rounded-lg border border-red-200 dark:border-red-800 bg-red-50/50 dark:bg-red-950/20 p-4">
-                  <h4 className="font-semibold text-red-700 dark:text-red-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
+                <div className="rounded-lg border border-red-500/50 dark:border-red-800 bg-red-900/30/50 dark:bg-red-950/20 p-4">
+                  <h4 className="font-semibold text-red-300 dark:text-red-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
                     <User className="h-4 w-4" />
                     Personal Information
                   </h4>
@@ -580,8 +580,8 @@ export default function BlacklistPage() {
                 </div>
 
                 {/* Incident Details */}
-                <div className="rounded-lg border border-orange-200 dark:border-orange-800 bg-orange-50/50 dark:bg-orange-950/20 p-4">
-                  <h4 className="font-semibold text-orange-700 dark:text-orange-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
+                <div className="rounded-lg border border-orange-500/50 dark:border-orange-800 bg-orange-900/30/50 dark:bg-orange-950/20 p-4">
+                  <h4 className="font-semibold text-orange-300 dark:text-orange-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
                     <AlertTriangle className="h-4 w-4" />
                     Incident Details
                   </h4>
@@ -717,8 +717,8 @@ export default function BlacklistPage() {
                 </div>
 
                 {/* Supporting Documents */}
-                <div className="rounded-lg border border-blue-200 dark:border-blue-800 bg-blue-50/50 dark:bg-blue-950/20 p-4">
-                  <h4 className="font-semibold text-blue-700 dark:text-blue-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
+                <div className="rounded-lg border border-blue-500/50 dark:border-blue-800 bg-blue-900/30/50 dark:bg-blue-950/20 p-4">
+                  <h4 className="font-semibold text-blue-300 dark:text-blue-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
                     <Upload className="h-4 w-4" />
                     Supporting Documents
                   </h4>
@@ -1004,7 +1004,7 @@ export default function BlacklistPage() {
                       <TableRow key={entry.id} className="hover:bg-muted/30">
                         <TableCell>
                           <div className="flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-500/10">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-900/300/10">
                               <User className="h-5 w-5 text-red-400" />
                             </div>
                             <div>
@@ -1072,7 +1072,7 @@ export default function BlacklistPage() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-8 w-8 text-blue-400 hover:text-blue-300 hover:bg-blue-500/10"
+                              className="h-8 w-8 text-blue-400 hover:text-blue-300 hover:bg-blue-900/300/10"
                               onClick={() => handleEdit(entry)}
                             >
                               <Edit className="h-4 w-4" />
@@ -1082,7 +1082,7 @@ export default function BlacklistPage() {
                                 <Button
                                   variant="ghost"
                                   size="icon"
-                                  className="h-8 w-8 text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                                  className="h-8 w-8 text-red-400 hover:text-red-300 hover:bg-red-900/300/10"
                                 >
                                   <Trash2 className="h-4 w-4" />
                                 </Button>
@@ -1257,8 +1257,8 @@ export default function BlacklistPage() {
 
       {/* Edit Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700">
-          <DialogHeader className="border-b border-gray-200 dark:border-gray-700 pb-4">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900 border-gray-600 dark:border-gray-700">
+          <DialogHeader className="border-b border-gray-600 dark:border-gray-700 pb-4">
             <DialogTitle className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
               <Edit className="h-5 w-5" />
               Edit Blacklist Entry
@@ -1271,7 +1271,7 @@ export default function BlacklistPage() {
             <Form {...editForm}>
               <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-6">
                 {/* Personal Information */}
-                <div className="rounded-lg border border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-950/50 p-4 shadow-sm">
+                <div className="rounded-lg border border-red-300 dark:border-red-700 bg-red-900/30 dark:bg-red-950/50 p-4 shadow-sm">
                   <h4 className="font-semibold text-red-800 dark:text-red-300 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
                     <User className="h-4 w-4" />
                     Personal Information
@@ -1336,7 +1336,7 @@ export default function BlacklistPage() {
                 </div>
 
                 {/* Incident Details */}
-                <div className="rounded-lg border border-orange-300 dark:border-orange-700 bg-orange-50 dark:bg-orange-950/50 p-4 shadow-sm">
+                <div className="rounded-lg border border-orange-300 dark:border-orange-700 bg-orange-900/30 dark:bg-orange-950/50 p-4 shadow-sm">
                   <h4 className="font-semibold text-orange-800 dark:text-orange-300 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
                     <AlertTriangle className="h-4 w-4" />
                     Incident Details
@@ -1439,7 +1439,7 @@ export default function BlacklistPage() {
                 </div>
 
                 {/* Document Uploads */}
-                <div className="rounded-lg border border-blue-300 dark:border-blue-700 bg-blue-50 dark:bg-blue-950/50 p-4 shadow-sm">
+                <div className="rounded-lg border border-blue-300 dark:border-blue-700 bg-blue-900/30 dark:bg-blue-950/50 p-4 shadow-sm">
                   <h4 className="font-semibold text-blue-800 dark:text-blue-300 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
                     <Upload className="h-4 w-4" />
                     Supporting Documents

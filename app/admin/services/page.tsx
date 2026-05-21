@@ -103,15 +103,15 @@ const serviceIcons: Record<string, LucideIcon> = {
 };
 
 const serviceColors: Record<string, { bg: string; text: string; border: string }> = {
-  "car-rental": { bg: "bg-emerald-100 dark:bg-emerald-950", text: "text-emerald-700 dark:text-emerald-400", border: "border-emerald-300 dark:border-emerald-700" },
-  "safari-tours": { bg: "bg-amber-100 dark:bg-amber-950", text: "text-amber-700 dark:text-amber-400", border: "border-amber-300 dark:border-amber-700" },
-  "hotel-airport-transfers": { bg: "bg-sky-100 dark:bg-sky-950", text: "text-sky-700 dark:text-sky-400", border: "border-sky-300 dark:border-sky-700" },
-  "movers": { bg: "bg-violet-100 dark:bg-violet-950", text: "text-violet-700 dark:text-violet-400", border: "border-violet-300 dark:border-violet-700" },
-  "corporate-rental": { bg: "bg-indigo-100 dark:bg-indigo-950", text: "text-indigo-700 dark:text-indigo-400", border: "border-indigo-300 dark:border-indigo-700" },
-  "road-recovery": { bg: "bg-rose-100 dark:bg-rose-950", text: "text-rose-700 dark:text-rose-400", border: "border-rose-300 dark:border-rose-700" },
-  "cargo-handling": { bg: "bg-orange-100 dark:bg-orange-950", text: "text-orange-700 dark:text-orange-400", border: "border-orange-300 dark:border-orange-700" },
-  "shipment-imports": { bg: "bg-cyan-100 dark:bg-cyan-950", text: "text-cyan-700 dark:text-cyan-400", border: "border-cyan-300 dark:border-cyan-700" },
-  "construction-equipment": { bg: "bg-yellow-100 dark:bg-yellow-950", text: "text-yellow-700 dark:text-yellow-400", border: "border-yellow-300 dark:border-yellow-700" },
+  "car-rental": { bg: "bg-emerald-100 dark:bg-emerald-950", text: "text-emerald-300 dark:text-emerald-400", border: "border-emerald-300 dark:border-emerald-700" },
+  "safari-tours": { bg: "bg-amber-100 dark:bg-amber-950", text: "text-amber-300 dark:text-amber-400", border: "border-amber-300 dark:border-amber-700" },
+  "hotel-airport-transfers": { bg: "bg-sky-100 dark:bg-sky-950", text: "text-sky-300 dark:text-sky-400", border: "border-sky-300 dark:border-sky-700" },
+  "movers": { bg: "bg-violet-100 dark:bg-violet-950", text: "text-violet-300 dark:text-violet-400", border: "border-violet-300 dark:border-violet-700" },
+  "corporate-rental": { bg: "bg-indigo-100 dark:bg-indigo-950", text: "text-indigo-300 dark:text-indigo-400", border: "border-indigo-300 dark:border-indigo-700" },
+  "road-recovery": { bg: "bg-rose-100 dark:bg-rose-950", text: "text-rose-300 dark:text-rose-400", border: "border-rose-300 dark:border-rose-700" },
+  "cargo-handling": { bg: "bg-orange-100 dark:bg-orange-950", text: "text-orange-300 dark:text-orange-400", border: "border-orange-300 dark:border-orange-700" },
+  "shipment-imports": { bg: "bg-cyan-100 dark:bg-cyan-950", text: "text-cyan-300 dark:text-cyan-400", border: "border-cyan-300 dark:border-cyan-700" },
+  "construction-equipment": { bg: "bg-yellow-100 dark:bg-yellow-950", text: "text-yellow-300 dark:text-yellow-400", border: "border-yellow-300 dark:border-yellow-700" },
 };
 
 // Types
@@ -670,9 +670,9 @@ export default function ServicesManagementPage() {
 
   const bookingStatusConfig = {
     pending: { label: "Pending", color: "bg-gray-500/20 text-gray-400 border-gray-500/30" },
-    partial: { label: "Partial", color: "bg-amber-500/20 text-amber-500 border-amber-500/30" },
-    paid: { label: "Paid", color: "bg-green-500/20 text-green-500 border-green-500/30" },
-    cancelled: { label: "Cancelled", color: "bg-red-500/20 text-red-400 border-red-500/30" },
+    partial: { label: "Partial", color: "bg-amber-900/300/20 text-amber-500 border-amber-500/30" },
+    paid: { label: "Paid", color: "bg-green-900/300/20 text-green-500 border-green-500/30" },
+    cancelled: { label: "Cancelled", color: "bg-red-900/300/20 text-red-400 border-red-500/30" },
   };
 
   return (
@@ -686,10 +686,10 @@ export default function ServicesManagementPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Badge variant="outline" className="bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400">
+          <Badge variant="outline" className="bg-emerald-900/30 text-emerald-300 dark:bg-emerald-950 dark:text-emerald-400">
             {services.filter(s => s.isActive).length} Active Services
           </Badge>
-          <Badge variant="outline" className="bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-400">
+          <Badge variant="outline" className="bg-blue-900/30 text-blue-300 dark:bg-blue-950 dark:text-blue-400">
             {services.reduce((acc, s) => acc + s.items.length, 0)} Total Items
           </Badge>
         </div>
@@ -719,7 +719,7 @@ export default function ServicesManagementPage() {
                   <div className="flex items-center gap-2">
                     <Badge
                       variant="outline"
-                      className={service.isActive ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300" : "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400"}
+                      className={service.isActive ? "bg-emerald-900/30 text-emerald-300 dark:bg-emerald-900/50 dark:text-emerald-300" : "bg-gray-700 text-gray-300"}
                     >
                       {service.isActive ? "Active" : "Inactive"}
                     </Badge>
@@ -825,7 +825,7 @@ export default function ServicesManagementPage() {
                 <TabsTrigger value="bookings">
                   Bookings
                   {serviceBookings.length > 0 && (
-                    <span className="ml-2 bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300 text-xs px-1.5 py-0.5 rounded-full">
+                    <span className="ml-2 bg-emerald-100 text-emerald-300 dark:bg-emerald-900 dark:text-emerald-300 text-xs px-1.5 py-0.5 rounded-full">
                       {serviceBookings.length}
                     </span>
                   )}
@@ -906,7 +906,7 @@ export default function ServicesManagementPage() {
                                     <Button
                                       variant="ghost"
                                       size="sm"
-                                      className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
+                                      className="text-red-600 hover:text-red-300 hover:bg-red-900/30 dark:hover:bg-red-950"
                                       onClick={() => deleteItem(selectedService.id, item.id)}
                                     >
                                       <Trash2 className="h-4 w-4" />
@@ -958,11 +958,11 @@ export default function ServicesManagementPage() {
                         <p className="text-xs text-muted-foreground">Total Billed</p>
                         <p className="font-bold text-lg">KES {serviceBookings.reduce((s, b) => s + b.totalAmount, 0).toLocaleString()}</p>
                       </div>
-                      <div className="rounded-lg border bg-green-500/10 p-3 text-center">
+                      <div className="rounded-lg border bg-green-900/300/10 p-3 text-center">
                         <p className="text-xs text-muted-foreground">Collected</p>
                         <p className="font-bold text-lg text-green-600">KES {serviceBookings.reduce((s, b) => s + b.amountPaid, 0).toLocaleString()}</p>
                       </div>
-                      <div className="rounded-lg border bg-red-500/10 p-3 text-center">
+                      <div className="rounded-lg border bg-red-900/300/10 p-3 text-center">
                         <p className="text-xs text-muted-foreground">Outstanding</p>
                         <p className="font-bold text-lg text-red-500">KES {serviceBookings.reduce((s, b) => s + (b.totalAmount - b.amountPaid), 0).toLocaleString()}</p>
                       </div>
