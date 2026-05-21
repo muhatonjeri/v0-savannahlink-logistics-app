@@ -92,44 +92,44 @@ const recordTypeConfig: Record<string, { label: string; icon: LucideIcon; color:
   theft: { 
     label: "Theft", 
     icon: Skull, 
-    color: "text-red-700 dark:text-red-400",
-    bgColor: "bg-red-100 dark:bg-red-950/50 border-red-300 dark:border-red-800"
+    color: "text-white",
+    bgColor: "bg-red-600 border-red-700"
   },
   fraud: { 
     label: "Fraud", 
     icon: Banknote, 
-    color: "text-orange-700 dark:text-orange-400",
-    bgColor: "bg-orange-100 dark:bg-orange-950/50 border-orange-300 dark:border-orange-800"
+    color: "text-white",
+    bgColor: "bg-orange-500 border-orange-600"
   },
   damage: { 
     label: "Vehicle Damage", 
     icon: Hammer, 
-    color: "text-yellow-700 dark:text-yellow-400",
-    bgColor: "bg-yellow-100 dark:bg-yellow-950/50 border-yellow-300 dark:border-yellow-800"
+    color: "text-white",
+    bgColor: "bg-yellow-500 border-yellow-600"
   },
   "non-payment": { 
     label: "Non-Payment", 
     icon: CreditCard, 
-    color: "text-purple-700 dark:text-purple-400",
-    bgColor: "bg-purple-100 dark:bg-purple-950/50 border-purple-300 dark:border-purple-800"
+    color: "text-white",
+    bgColor: "bg-purple-600 border-purple-700"
   },
   accident: { 
     label: "Accident", 
     icon: Car, 
-    color: "text-blue-700 dark:text-blue-400",
-    bgColor: "bg-blue-100 dark:bg-blue-950/50 border-blue-300 dark:border-blue-800"
+    color: "text-white",
+    bgColor: "bg-blue-600 border-blue-700"
   },
   "drug-related": { 
     label: "Drug Related", 
     icon: Syringe, 
-    color: "text-emerald-700 dark:text-emerald-400",
-    bgColor: "bg-emerald-100 dark:bg-emerald-950/50 border-emerald-300 dark:border-emerald-800"
+    color: "text-white",
+    bgColor: "bg-emerald-600 border-emerald-700"
   },
   "violent-dangerous": { 
     label: "Violent / Dangerous", 
     icon: Sword, 
-    color: "text-rose-700 dark:text-rose-400",
-    bgColor: "bg-rose-100 dark:bg-rose-950/50 border-rose-300 dark:border-rose-800"
+    color: "text-white",
+    bgColor: "bg-rose-600 border-rose-700"
   },
   suspicious: { 
     label: "Suspicious Activity", 
@@ -201,16 +201,16 @@ const blacklistFormSchema = z.object({
 type BlacklistFormValues = z.infer<typeof blacklistFormSchema>;
 
 const severityConfig: Record<string, { label: string; color: string }> = {
-  low: { label: "Low", color: "bg-green-500/20 text-green-400 border-green-500/30" },
-  medium: { label: "Medium", color: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30" },
-  high: { label: "High", color: "bg-orange-500/20 text-orange-400 border-orange-500/30" },
-  critical: { label: "Critical", color: "bg-red-500/20 text-red-400 border-red-500/30" },
+  low: { label: "Low", color: "bg-green-600 text-white" },
+  medium: { label: "Medium", color: "bg-yellow-500 text-white" },
+  high: { label: "High", color: "bg-orange-500 text-white" },
+  critical: { label: "Critical", color: "bg-red-600 text-white" },
 };
 
 const statusConfig: Record<string, { label: string; color: string }> = {
-  active: { label: "Active", color: "bg-red-500/20 text-red-400 border-red-500/30" },
-  resolved: { label: "Resolved", color: "bg-green-500/20 text-green-400 border-green-500/30" },
-  "under-review": { label: "Under Review", color: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30" },
+  active: { label: "Active", color: "bg-red-600 text-white" },
+  resolved: { label: "Resolved", color: "bg-green-600 text-white" },
+  "under-review": { label: "Under Review", color: "bg-yellow-500 text-white" },
 };
 
 // Blacklist data
