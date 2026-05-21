@@ -131,14 +131,7 @@ export function Footer() {
                   All Services
                 </Link>
               </li>
-              <li>
-                <Link
-                  href="/admin"
-                  className="text-sm text-muted-foreground transition-colors hover:text-primary"
-                >
-                  Admin Portal
-                </Link>
-              </li>
+
             </ul>
           </div>
 
