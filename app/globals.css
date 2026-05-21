@@ -809,3 +809,51 @@ input, textarea, select {
     color: black !important;
   }
 }
+
+/* ── Sidebar fixes - restore colored icons and proper text ── */
+[data-slot="sidebar-menu-button"] svg,
+[data-sidebar="menu-button"] svg {
+  color: inherit !important;
+}
+
+/* Nav item icons keep their assigned colors */
+.text-blue-500 { color: rgb(59 130 246) !important; }
+.text-green-500 { color: rgb(34 197 94) !important; }
+.text-indigo-500 { color: rgb(99 102 241) !important; }
+.text-red-500 { color: rgb(239 68 68) !important; }
+.text-purple-500 { color: rgb(168 85 247) !important; }
+.text-emerald-500 { color: rgb(16 185 129) !important; }
+.text-amber-500 { color: rgb(245 158 11) !important; }
+.text-cyan-500 { color: rgb(6 182 212) !important; }
+.text-gray-500 { color: rgb(107 114 128) !important; }
+.text-sky-500 { color: rgb(14 165 233) !important; }
+.text-violet-500 { color: rgb(139 92 246) !important; }
+.text-rose-500 { color: rgb(244 63 94) !important; }
+.text-orange-500 { color: rgb(249 115 22) !important; }
+.text-yellow-500 { color: rgb(234 179 8) !important; }
+
+/* Sidebar group labels */
+[data-slot="sidebar-group-label"] {
+  color: rgb(245 158 11) !important;
+  font-weight: 700 !important;
+  font-size: 0.7rem !important;
+  letter-spacing: 0.1em !important;
+  text-transform: uppercase !important;
+}
+
+/* Sidebar menu item text */
+[data-slot="sidebar-menu-button"] span {
+  color: rgb(226 232 240) !important;
+  font-size: 0.875rem !important;
+}
+
+/* Active sidebar item */
+[data-slot="sidebar-menu-button"][data-active="true"] {
+  background-color: rgba(230 115 0 / 0.15) !important;
+  border-left: 2px solid rgb(230 115 0) !important;
+}
+
+[data-slot="sidebar-menu-button"][data-active="true"] span {
+  color: rgb(251 191 36) !important;
+  font-weight: 600 !important;
+}
