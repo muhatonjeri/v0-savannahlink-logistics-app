@@ -846,8 +846,8 @@ export default function AccountsPage() {
                               variant="outline" 
                               className={cn(
                                 transaction.type === "income"
-                                  ? "bg-green-100 text-green-300 border-green-300 dark:bg-green-900/30 dark:text-green-400"
-                                  : "bg-red-100 text-red-300 border-red-300 dark:bg-red-900/30 dark:text-red-400"
+                                  ? "bg-green-600 text-white border-green-700"
+                                  : "bg-red-600 text-white border-red-700"
                               )}
                             >
                               {transaction.type === "income" ? (
