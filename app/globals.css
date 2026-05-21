@@ -923,3 +923,22 @@ a .text-yellow-500, button .text-yellow-500 { color: #eab308 !important; }
 /* Sidebar group labels - keep their assigned colors */
 [data-slot="sidebar-group-label"].text-blue-400 { color: rgb(96 165 250) !important; }
 [data-slot="sidebar-group-label"].text-\[\#e67e22\] { color: #e67e22 !important; }
+
+/* Additional sidebar icon colors */
+.text-sky-400    { color: rgb(56 189 248)   !important; }
+.text-lime-400   { color: rgb(163 230 53)   !important; }
+.text-violet-400 { color: rgb(167 139 250)  !important; }
+.text-rose-500   { color: rgb(244 63 94)    !important; }
+.text-fuchsia-400 { color: rgb(232 121 249) !important; }
+.text-teal-400   { color: rgb(45 212 191)   !important; }
+.text-yellow-400 { color: rgb(250 204 21)   !important; }
+.text-orange-400 { color: rgb(251 146 60)   !important; }
+.text-pink-400   { color: rgb(244 114 182)  !important; }
+[data-slot="sidebar-menu-button"] .text-sky-400    { color: rgb(56 189 248)   !important; }
+[data-slot="sidebar-menu-button"] .text-lime-400   { color: rgb(163 230 53)   !important; }
+[data-slot="sidebar-menu-button"] .text-violet-400 { color: rgb(167 139 250)  !important; }
+[data-slot="sidebar-menu-button"] .text-fuchsia-400 { color: rgb(232 121 249) !important; }
+[data-slot="sidebar-menu-button"] .text-teal-400   { color: rgb(45 212 191)   !important; }
+[data-slot="sidebar-menu-button"] .text-yellow-400 { color: rgb(250 204 21)   !important; }
+[data-slot="sidebar-menu-button"] .text-orange-400 { color: rgb(251 146 60)   !important; }
+[data-slot="sidebar-menu-button"] .text-pink-400   { color: rgb(244 114 182)  !important; }
