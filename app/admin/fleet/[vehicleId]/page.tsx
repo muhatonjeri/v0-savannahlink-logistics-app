@@ -771,51 +771,25 @@ export default function VehicleProfilePage() {
                   Vehicle Details
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="text-[#e67e22] font-medium text-xs uppercase tracking-wide">Make & Model</span>
-                    <p className="font-medium text-white">{vehicle.vehicleMake} {vehicle.vehicleModel}</p>
-                  </div>
-                  <div>
-                    <span className="text-[#e67e22] font-medium text-xs uppercase tracking-wide">Year</span>
-                    <p className="font-medium text-white">{vehicle.year}</p>
-                  </div>
-                  <div>
-                    <span className="text-[#e67e22] font-medium text-xs uppercase tracking-wide">Registration</span>
-                    <p className="font-mono font-medium text-white">{vehicle.registrationNo}</p>
-                  </div>
-                  <div>
-                    <span className="text-[#e67e22] font-medium text-xs uppercase tracking-wide">Color</span>
-                    <p className="font-medium text-white">{vehicle.color}</p>
-                  </div>
-                  <div>
-                    <span className="text-[#e67e22] font-medium text-xs uppercase tracking-wide">Current Mileage</span>
-                    <p className="font-medium text-white">{vehicle.currentMileage.toLocaleString()} km</p>
-                  </div>
-                  <div>
-                    <span className="text-[#e67e22] font-medium text-xs uppercase tracking-wide">Fuel Type</span>
-                    <p className="font-medium text-white capitalize">{vehicle.fuelType}</p>
-                  </div>
-                  <div>
-                    <span className="text-[#e67e22] font-medium text-xs uppercase tracking-wide">Chassis Number</span>
-                    <p className="font-mono text-xs text-white">{vehicle.chassisNumber}</p>
-                  </div>
-                  <div>
-                    <span className="text-[#e67e22] font-medium text-xs uppercase tracking-wide">Engine Number</span>
-                    <p className="font-mono text-xs text-white">{vehicle.engineNumber}</p>
-                  </div>
-                </div>
-                <Separator />
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="text-[#e67e22] font-medium text-xs uppercase tracking-wide">Purchase Price</span>
-                    <p className="font-semibold text-white">KES {vehicle.purchasePrice.toLocaleString()}</p>
-                  </div>
-                  <div>
-                    <span className="text-[#e67e22] font-medium text-xs uppercase tracking-wide">Current Value</span>
-                    <p className="font-semibold text-white">KES {vehicle.currentValue.toLocaleString()}</p>
-                  </div>
+              <CardContent className="space-y-2">
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  {[
+                    { label: "Make & Model", value: `${vehicle.vehicleMake} ${vehicle.vehicleModel}` },
+                    { label: "Year", value: vehicle.year },
+                    { label: "Registration", value: vehicle.registrationNo, mono: true },
+                    { label: "Color", value: vehicle.color },
+                    { label: "Current Mileage", value: `${vehicle.currentMileage.toLocaleString()} km` },
+                    { label: "Fuel Type", value: vehicle.fuelType, capitalize: true },
+                    { label: "Chassis Number", value: vehicle.chassisNumber, mono: true },
+                    { label: "Engine Number", value: vehicle.engineNumber, mono: true },
+                    { label: "Purchase Price", value: `KES ${vehicle.purchasePrice.toLocaleString()}` },
+                    { label: "Current Value", value: `KES ${vehicle.currentValue.toLocaleString()}` },
+                  ].map(({ label, value, mono, capitalize }) => (
+                    <div key={label} className="rounded-lg bg-[#0a1628] border border-[#e67e22]/20 p-3">
+                      <span className="block text-[#e67e22] font-semibold text-xs uppercase tracking-wider mb-1">{label}</span>
+                      <span className={`block text-white font-medium text-sm ${mono ? "font-mono" : ""} ${capitalize ? "capitalize" : ""}`}>{value}</span>
+                    </div>
+                  ))}
                 </div>
               </CardContent>
             </Card>
