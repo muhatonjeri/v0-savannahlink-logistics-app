@@ -34,6 +34,7 @@ import {
   Loader2,
   Copy,
   type LucideIcon,
+  Sliders,
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -680,7 +681,7 @@ export default function ServicesManagementPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white">Services Management</h1>
+          <h1 className="text-2xl font-bold text-white flex items-center gap-2"><Sliders className="h-6 w-6 text-pink-400" />Services Management</h1>
           <p className="text-gray-600 dark:text-gray-400">
             Configure service rates, items, and settings for all Moventra Safaris & Logistics Ltd services
           </p>

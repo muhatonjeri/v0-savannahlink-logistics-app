@@ -31,6 +31,7 @@ import {
   CarFront,
   BadgeCheck,
   XCircle,
+  Truck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -583,7 +584,7 @@ export default function FleetManagementPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-<h1 className="text-2xl font-bold tracking-tight text-[#e67e22]">Fleet Management</h1>
+<h1 className="text-2xl font-bold tracking-tight text-[#e67e22] flex items-center gap-2"><Truck className="h-6 w-6 text-fuchsia-400" />Fleet Management</h1>
             <p className="text-gray-300">Manage your vehicle fleet, assignments, and maintenance schedules</p>
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>

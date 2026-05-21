@@ -20,6 +20,7 @@ import {
   CheckCircle2,
   AlertCircle,
   XCircle,
+  Gauge,
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -112,7 +113,7 @@ export default function AdminDashboard() {
     <div className="space-y-8">
       {/* Header */}
       <div className="flex flex-col gap-1">
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">Dashboard</h1>
+        <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-2"><Gauge className="h-7 w-7 text-sky-400" />Dashboard</h1>
         <p className="text-muted-foreground">Overview of your business operations</p>
       </div>
 

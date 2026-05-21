@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, Pencil, Trash2, User, Shield, UserCog } from "lucide-react";
+import { Plus, Pencil, Trash2, User, Shield, UserCog   UsersRound,
+} from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -97,7 +98,7 @@ export default function UsersPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Users</h1>
+          <h1 className="text-2xl font-bold text-foreground flex items-center gap-2"><UsersRound className="h-6 w-6 text-lime-400" />Users</h1>
           <p className="text-muted-foreground">Manage admin and staff accounts</p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={handleDialogClose}>
