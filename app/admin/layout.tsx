@@ -3,9 +3,9 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname, useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
-import type { User } from "@supabase/supabase-js";
+import { usePathname } from "next/navigation";
+
+
 import {
   Car,
   Compass,
@@ -170,87 +170,16 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
-  const [mockAuth, setMockAuth] = useState<MockAuth | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    // Check for mock auth first
-    const mockAuthData = localStorage.getItem('mockAuth');
-    if (mockAuthData) {
-      try {
-        const parsed = JSON.parse(mockAuthData) as MockAuth;
-        if (parsed.isAuthenticated) {
-          setMockAuth(parsed);
-          setIsLoading(false);
-          return;
-        }
-      } catch {
-        localStorage.removeItem('mockAuth');
-      }
-    }
-
-    // Fall back to Supabase auth
-    const supabase = createClient();
-    
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      setUser(user);
-      setIsLoading(false);
-      
-      // If no user and no mock auth, redirect to login
-      if (!user && !mockAuthData) {
-        router.push('/auth/login?redirect=' + encodeURIComponent(pathname));
-      }
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    });
-
-    return () => subscription.unsubscribe();
-  }, [pathname, router]);
-
-  const handleSignOut = async () => {
-    // Clear mock auth cookie and localStorage
-    document.cookie = 'mock_auth=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+  const handleSignOut = () => {
     localStorage.removeItem('mockAuth');
-    setMockAuth(null);
-    
-    // Also sign out from Supabase
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    
-    router.push("/");
-    router.refresh();
+    document.cookie = 'mock_auth=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    window.location.href = '/';
   };
 
-  const getCurrentEmail = () => {
-    if (mockAuth) return mockAuth.user.email;
-    return user?.email || "User";
-  };
-
-  const getUserInitials = () => {
-    const email = getCurrentEmail();
-    return email.substring(0, 2).toUpperCase();
-  };
-
-  const getUserRole = () => {
-    if (mockAuth) {
-      return mockAuth.user.role === "admin" ? "Admin" : "Staff";
-    }
-    const role = user?.user_metadata?.role;
-    if (role === "admin") return "Admin";
-    return "Staff";
-  };
-
-  if (isLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <div className="animate-pulse text-muted-foreground">Loading...</div>
-      </div>
-    );
-  }
+  const getCurrentEmail = () => "admin@moventrasafarislogisticsltd.com";
+  const getUserInitials = () => "AD";
+  const getUserRole = () => "Admin";
 
   return (
     <SidebarProvider defaultOpen={true}>
