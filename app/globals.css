@@ -554,3 +554,46 @@
     color: inherit;
   }
 }
+
+/* ========================================
+   GLOBAL DARK BACKGROUND READABILITY FIX
+   Ensures any dark bg always has white text
+   ======================================== */
+
+/* Any element with a dark inline background */
+[style*="background: #0a1628"],
+[style*="background:#0a1628"],
+[style*="background: #1a2744"],
+[style*="background:#1a2744"] {
+  color: #f9fafb !important;
+}
+
+/* Tailwind dark bg classes - force white text on all children */
+.bg-\[\#0a1628\],
+.bg-\[\#0f1d32\],
+.bg-\[\#1a2744\] {
+  color: #f9fafb !important;
+}
+
+.bg-\[\#0a1628\] *:not(button):not(.text-\[\#e67e22\]):not([class*="text-emerald"]):not([class*="text-green"]):not([class*="text-red"]):not([class*="text-amber"]):not([class*="text-blue"]),
+.bg-\[\#0f1d32\] *:not(button):not(.text-\[\#e67e22\]):not([class*="text-emerald"]):not([class*="text-green"]):not([class*="text-red"]):not([class*="text-amber"]):not([class*="text-blue"]),
+.bg-\[\#1a2744\] *:not(button):not(.text-\[\#e67e22\]):not([class*="text-emerald"]):not([class*="text-green"]):not([class*="text-red"]):not([class*="text-amber"]):not([class*="text-blue"]) {
+  color: #f9fafb !important;
+}
+
+/* Table headers with dark backgrounds */
+th[class*="bg-"] {
+  color: #f9fafb !important;
+}
+
+/* SelectContent, DropdownMenu, Dialog - always readable */
+[data-radix-select-content],
+[data-radix-dropdown-menu-content],
+[role="dialog"] {
+  color: var(--foreground) !important;
+}
+
+[data-radix-select-item],
+[data-radix-dropdown-menu-item] {
+  color: var(--foreground) !important;
+}
