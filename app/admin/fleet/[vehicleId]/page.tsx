@@ -293,18 +293,18 @@ const generateDemoAlerts = (): Alert[] => [
 
 // Reason labels
 const idleReasonLabels: Record<string, { label: string; color: string }> = {
-  "no-bookings": { label: "No Bookings", color: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300" },
-  "maintenance": { label: "Maintenance", color: "bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300" },
-  "repairs": { label: "Repairs", color: "bg-orange-100 text-orange-700 dark:bg-orange-900/50 dark:text-orange-300" },
-  "inspection": { label: "Inspection", color: "bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300" },
+  "no-bookings": { label: "No Bookings", color: "bg-slate-600 text-white" },
+  "maintenance": { label: "Maintenance", color: "bg-blue-600 text-white" },
+  "repairs": { label: "Repairs", color: "bg-orange-500 text-white" },
+  "inspection": { label: "Inspection", color: "bg-purple-600 text-white" },
   "documentation": { label: "Documentation", color: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-300" },
   "other": { label: "Other", color: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300" },
 };
 
 const expenseCategoryLabels: Record<string, { label: string; icon: React.ReactNode; color: string }> = {
   "fuel": { label: "Fuel", icon: <Fuel className="h-4 w-4" />, color: "bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300" },
-  "maintenance": { label: "Maintenance", icon: <Wrench className="h-4 w-4" />, color: "bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300" },
-  "repairs": { label: "Repairs", icon: <Wrench className="h-4 w-4" />, color: "bg-orange-100 text-orange-700 dark:bg-orange-900/50 dark:text-orange-300" },
+  "maintenance": { label: "Maintenance", icon: <Wrench className="h-4 w-4" />, color: "bg-blue-600 text-white" },
+  "repairs": { label: "Repairs", icon: <Wrench className="h-4 w-4" />, color: "bg-orange-500 text-white" },
   "parking": { label: "Parking", icon: <MapPin className="h-4 w-4" />, color: "bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300" },
   "toll": { label: "Toll", icon: <CreditCard className="h-4 w-4" />, color: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300" },
   "cleaning": { label: "Cleaning", icon: <RefreshCw className="h-4 w-4" />, color: "bg-cyan-100 text-cyan-700 dark:bg-cyan-900/50 dark:text-cyan-300" },
