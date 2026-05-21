@@ -101,15 +101,15 @@ import type { Client as StoreClient } from "@/types";
 
 // Service configuration - hrefs match actual page paths
 const serviceConfig: Record<string, { title: string; icon: LucideIcon; href: string; color: string; bgColor: string; hoverColor: string }> = {
-  "car-rental": { title: "Car Rental", icon: Car, href: "/admin/car-rental/new", color: "text-indigo-600", bgColor: "bg-indigo-100 dark:bg-indigo-950", hoverColor: "hover:bg-indigo-200 dark:hover:bg-indigo-900" },
-  "safari-tours": { title: "Safari Tours", icon: Compass, href: "/admin/safari-tours", color: "text-amber-600", bgColor: "bg-amber-100 dark:bg-amber-950", hoverColor: "hover:bg-amber-200 dark:hover:bg-amber-900" },
-  "transfers": { title: "Airport Transfers", icon: Plane, href: "/admin/transfers", color: "text-sky-600", bgColor: "bg-sky-100 dark:bg-sky-950", hoverColor: "hover:bg-sky-200 dark:hover:bg-sky-900" },
-  "movers": { title: "Movers", icon: Truck, href: "/admin/movers", color: "text-violet-600", bgColor: "bg-violet-100 dark:bg-violet-950", hoverColor: "hover:bg-violet-200 dark:hover:bg-violet-900" },
-  "corporate-rental": { title: "Corporate Rental", icon: Bus, href: "/admin/car-rental/new", color: "text-purple-600", bgColor: "bg-purple-100 dark:bg-purple-950", hoverColor: "hover:bg-purple-200 dark:hover:bg-purple-900" },
-  "road-recovery": { title: "Road Recovery", icon: Wrench, href: "/admin/road-recovery", color: "text-rose-600", bgColor: "bg-rose-100 dark:bg-rose-950", hoverColor: "hover:bg-rose-200 dark:hover:bg-rose-900" },
-  "cargo-handling": { title: "Cargo Handling", icon: Package, href: "/admin/cargo-handling", color: "text-orange-600", bgColor: "bg-orange-100 dark:bg-orange-950", hoverColor: "hover:bg-orange-200 dark:hover:bg-orange-900" },
-  "shipment-imports": { title: "Shipment Imports", icon: Ship, href: "/admin/shipment-imports", color: "text-blue-600", bgColor: "bg-blue-100 dark:bg-blue-950", hoverColor: "hover:bg-blue-200 dark:hover:bg-blue-900" },
-  "construction-equipment": { title: "Construction Equipment", icon: HardHat, href: "/admin/construction-equipment", color: "text-yellow-600", bgColor: "bg-yellow-100 dark:bg-yellow-950", hoverColor: "hover:bg-yellow-200 dark:hover:bg-yellow-900" },
+  "car-rental": { title: "Car Rental", icon: Car, href: "/admin/car-rental/new", color: "text-indigo-400", bgColor: "bg-indigo-900/40 border-indigo-500", hoverColor: "hover:bg-indigo-900/60" },
+  "safari-tours": { title: "Safari Tours", icon: Compass, href: "/admin/safari-tours", color: "text-amber-400", bgColor: "bg-amber-900/40 border-amber-500", hoverColor: "hover:bg-amber-900/60" },
+  "transfers": { title: "Airport Transfers", icon: Plane, href: "/admin/transfers", color: "text-sky-400", bgColor: "bg-sky-900/40 border-sky-500", hoverColor: "hover:bg-sky-900/60" },
+  "movers": { title: "Movers", icon: Truck, href: "/admin/movers", color: "text-violet-400", bgColor: "bg-violet-900/40 border-violet-500", hoverColor: "hover:bg-violet-900/60" },
+  "corporate-rental": { title: "Corporate Rental", icon: Bus, href: "/admin/car-rental/new", color: "text-purple-400", bgColor: "bg-purple-900/40 border-purple-500", hoverColor: "hover:bg-purple-900/60" },
+  "road-recovery": { title: "Road Recovery", icon: Wrench, href: "/admin/road-recovery", color: "text-rose-400", bgColor: "bg-rose-900/40 border-rose-500", hoverColor: "hover:bg-rose-900/60" },
+  "cargo-handling": { title: "Cargo Handling", icon: Package, href: "/admin/cargo-handling", color: "text-orange-400", bgColor: "bg-orange-900/40 border-orange-500", hoverColor: "hover:bg-orange-900/60" },
+  "shipment-imports": { title: "Shipment Imports", icon: Ship, href: "/admin/shipment-imports", color: "text-blue-400", bgColor: "bg-blue-900/40 border-blue-500", hoverColor: "hover:bg-blue-900/60" },
+  "construction-equipment": { title: "Construction Equipment", icon: HardHat, href: "/admin/construction-equipment", color: "text-yellow-400", bgColor: "bg-yellow-900/40 border-yellow-500", hoverColor: "hover:bg-yellow-900/60" },
 };
 
 // Record type configuration with icons
@@ -730,14 +730,14 @@ function ClientLookupContent() {
       {/* Service Banner - Show when accessing via service */}
       {currentService && (
         <div className={`rounded-lg border-2 ${currentService.bgColor} p-4 flex items-center gap-4`}>
-          <div className={`rounded-full p-3 bg-white dark:bg-gray-800 shadow-sm`}>
+          <div className={`rounded-full p-3 bg-[#0a1628] shadow-sm border border-white/10`}>
             <currentService.icon className={`h-6 w-6 ${currentService.color}`} />
           </div>
           <div className="flex-1">
             <h2 className={`font-semibold ${currentService.color}`}>
               {currentService.title} - Client Verification Required
             </h2>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-gray-300">
               Please verify the client against the blacklist before proceeding with {currentService.title.toLowerCase()} service.
             </p>
           </div>
