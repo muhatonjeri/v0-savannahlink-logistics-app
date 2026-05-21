@@ -22,7 +22,7 @@ export async function middleware(request: NextRequest) {
       || request.cookies.get('supabase-auth-token')?.value
 
     if (!supabaseSession && !mockAuth) {
-      const loginUrl = new URL('/auth/login', request.url)
+      const loginUrl = new URL('/moventra-access', request.url)
       loginUrl.searchParams.set('redirect', pathname)
       return NextResponse.redirect(loginUrl)
     }

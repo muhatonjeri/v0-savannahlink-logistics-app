@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
 
 export default function ManagePage() {
-  redirect("/auth/login");
+  redirect("/moventra-access");
 }
