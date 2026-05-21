@@ -785,9 +785,9 @@ export default function VehicleProfilePage() {
                     { label: "Purchase Price", value: `KES ${vehicle.purchasePrice.toLocaleString()}` },
                     { label: "Current Value", value: `KES ${vehicle.currentValue.toLocaleString()}` },
                   ].map(({ label, value, mono, capitalize }) => (
-                    <div key={label} className="rounded-lg bg-[#0a1628] border border-[#e67e22]/20 p-3">
-                      <span className="block text-[#e67e22] font-bold text-xs uppercase tracking-wider mb-1">{label}</span>
-                      <span className={`block text-gray-300 font-medium text-sm ${mono ? "font-mono" : ""} ${capitalize ? "capitalize" : ""}`}>{value}</span>
+                    <div key={label} className="rounded-lg bg-[#0a1628] border border-[#e67e22]/20 p-3 flex flex-col gap-1">
+                      <p className="text-[#e67e22] font-bold text-xs uppercase tracking-wider leading-none">{label}</p>
+                      <p className={`text-white font-medium text-sm leading-snug ${mono ? "font-mono" : ""} ${capitalize ? "capitalize" : ""}`}>{value}</p>
                     </div>
                   ))}
                 </div>
