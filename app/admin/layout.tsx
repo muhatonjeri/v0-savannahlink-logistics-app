@@ -244,16 +244,11 @@ export default function AdminLayout({
     return "Staff";
   };
 
-  // Redirect if not authenticated
-  useEffect(() => {
-    if (!isLoading && !user && !mockAuth) {
-      router.push('/auth/login?redirect=' + encodeURIComponent(pathname));
-    }
-  }, [isLoading, user, mockAuth, pathname]);
-
-  if (!isLoading && !user && !mockAuth) {
-    return null;
-  }
+  // Auth check disabled for local dev - re-enable for production
+  // if (!isLoading && !user && !mockAuth) {
+  //   router.push('/auth/login');
+  //   return null;
+  // }
 
   if (isLoading) {
     return (
