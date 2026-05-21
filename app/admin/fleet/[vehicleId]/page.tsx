@@ -951,7 +951,7 @@ export default function VehicleProfilePage() {
                           <p className="text-xs text-gray-500">{assignment.clientPhone}</p>
                         </div>
                       </TableCell>
-                      <TableCell className="max-w-[200px] truncate text-gray-700 dark:text-gray-300">
+                      <TableCell className="max-w-[200px] truncate text-white">
                         {assignment.purpose}
                       </TableCell>
                       <TableCell className="font-semibold text-emerald-600 dark:text-emerald-400">
@@ -1102,27 +1102,27 @@ export default function VehicleProfilePage() {
                     <div className="space-y-4">
                       <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
-                          <span className="text-gray-500 dark:text-gray-400">Lender</span>
+                          <span className="text-gray-300">Lender</span>
                           <p className="font-semibold text-gray-900 dark:text-white">{vehicle.loan.lender}</p>
                         </div>
                         <div>
-                          <span className="text-gray-500 dark:text-gray-400">Monthly Payment</span>
+                          <span className="text-gray-300">Monthly Payment</span>
                           <p className="font-semibold text-gray-900 dark:text-white">KES {vehicle.loan.monthlyPayment.toLocaleString()}</p>
                         </div>
                         <div>
-                          <span className="text-gray-500 dark:text-gray-400">Start Date</span>
+                          <span className="text-gray-300">Start Date</span>
                           <p className="font-medium text-gray-900 dark:text-white">{format(parseISO(vehicle.loan.startDate), "dd MMM yyyy")}</p>
                         </div>
                         <div>
-                          <span className="text-gray-500 dark:text-gray-400">End Date</span>
+                          <span className="text-gray-300">End Date</span>
                           <p className="font-medium text-gray-900 dark:text-white">{format(parseISO(vehicle.loan.endDate), "dd MMM yyyy")}</p>
                         </div>
                         <div>
-                          <span className="text-gray-500 dark:text-gray-400">Next Payment</span>
+                          <span className="text-gray-300">Next Payment</span>
                           <p className="font-medium text-gray-900 dark:text-white">{format(parseISO(vehicle.loan.nextPaymentDate), "dd MMM yyyy")}</p>
                         </div>
                         <div>
-                          <span className="text-gray-500 dark:text-gray-400">Status</span>
+                          <span className="text-gray-300">Status</span>
                           <Badge className={
                             vehicle.loan.status === "active" 
                               ? "bg-emerald-100 text-emerald-700" 
@@ -1258,29 +1258,29 @@ export default function VehicleProfilePage() {
                     <div className="space-y-4">
                       <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
-                          <span className="text-gray-500 dark:text-gray-400">Provider</span>
+                          <span className="text-gray-300">Provider</span>
                           <p className="font-semibold text-gray-900 dark:text-white">{vehicle.insurance.provider}</p>
                         </div>
                         <div>
-                          <span className="text-gray-500 dark:text-gray-400">Policy Number</span>
+                          <span className="text-gray-300">Policy Number</span>
                           <p className="font-mono text-gray-900 dark:text-white">{vehicle.insurance.policyNumber}</p>
                         </div>
                         <div>
-                          <span className="text-gray-500 dark:text-gray-400">Coverage Type</span>
+                          <span className="text-gray-300">Coverage Type</span>
                           <Badge className="bg-blue-100 text-blue-700 capitalize">
                             {vehicle.insurance.type.replace("-", " ")}
                           </Badge>
                         </div>
                         <div>
-                          <span className="text-gray-500 dark:text-gray-400">Payment Plan</span>
+                          <span className="text-gray-300">Payment Plan</span>
                           <p className="font-medium text-gray-900 dark:text-white capitalize">{vehicle.insurance.paymentPlan}</p>
                         </div>
                         <div>
-                          <span className="text-gray-500 dark:text-gray-400">Start Date</span>
+                          <span className="text-gray-300">Start Date</span>
                           <p className="font-medium text-gray-900 dark:text-white">{format(parseISO(vehicle.insurance.startDate), "dd MMM yyyy")}</p>
                         </div>
                         <div>
-                          <span className="text-gray-500 dark:text-gray-400">End Date</span>
+                          <span className="text-gray-300">End Date</span>
                           <p className="font-medium text-gray-900 dark:text-white">{format(parseISO(vehicle.insurance.endDate), "dd MMM yyyy")}</p>
                         </div>
                       </div>
@@ -1545,7 +1545,7 @@ export default function VehicleProfilePage() {
                           {receipt.type.charAt(0).toUpperCase() + receipt.type.slice(1)}
                         </Badge>
                       </TableCell>
-                      <TableCell className="max-w-[200px] truncate text-gray-700 dark:text-gray-300">
+                      <TableCell className="max-w-[200px] truncate text-white">
                         {receipt.description}
                       </TableCell>
                       <TableCell className="font-semibold text-emerald-600 dark:text-emerald-400">
@@ -1631,24 +1631,24 @@ export default function VehicleProfilePage() {
                 <div className="space-y-2 text-sm mb-4">
                   {selectedReceipt.clientName && (
                     <div className="flex justify-between py-1 border-b border-dashed border-gray-200 dark:border-gray-700">
-                      <span className="text-gray-500 dark:text-gray-400">Customer</span>
+                      <span className="text-gray-300">Customer</span>
                       <span className="font-medium text-gray-900 dark:text-white">{selectedReceipt.clientName}</span>
                     </div>
                   )}
                   <div className="flex justify-between py-1 border-b border-dashed border-gray-200 dark:border-gray-700">
-                    <span className="text-gray-500 dark:text-gray-400">Description</span>
+                    <span className="text-gray-300">Description</span>
                     <span className="font-medium text-gray-900 dark:text-white text-right max-w-[60%]">{selectedReceipt.description}</span>
                   </div>
                   <div className="flex justify-between py-1 border-b border-dashed border-gray-200 dark:border-gray-700">
-                    <span className="text-gray-500 dark:text-gray-400">Vehicle</span>
+                    <span className="text-gray-300">Vehicle</span>
                     <span className="font-medium text-gray-900 dark:text-white">{vehicle.registrationNo}</span>
                   </div>
                   <div className="flex justify-between py-1 border-b border-dashed border-gray-200 dark:border-gray-700">
-                    <span className="text-gray-500 dark:text-gray-400">Payment</span>
+                    <span className="text-gray-300">Payment</span>
                     <span className="font-medium text-gray-900 dark:text-white uppercase">{selectedReceipt.paymentMethod}</span>
                   </div>
                   <div className="flex justify-between py-1">
-                    <span className="text-gray-500 dark:text-gray-400">Reference</span>
+                    <span className="text-gray-300">Reference</span>
                     <span className="font-mono text-gray-900 dark:text-white">{selectedReceipt.reference}</span>
                   </div>
                 </div>
