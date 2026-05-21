@@ -1192,12 +1192,12 @@ export default function VehicleProfilePage() {
                   <CardContent>
                     <Badge className={
                       vehicle.insurance.status === "active"
-                        ? "bg-emerald-100 text-emerald-700 text-lg px-4 py-1"
-                        : "bg-red-100 text-red-700 text-lg px-4 py-1"
+                        ? "bg-emerald-600 text-white text-lg px-4 py-1"
+                        : "bg-red-600 text-white text-lg px-4 py-1"
                     }>
                       {vehicle.insurance.status === "active" ? "ACTIVE" : vehicle.insurance.status.toUpperCase()}
                     </Badge>
-                    <p className="text-sm text-gray-500 mt-2">
+                    <p className="text-sm text-gray-300 mt-2">
                       Valid until {format(parseISO(vehicle.insurance.endDate), "dd MMM yyyy")}
                     </p>
                   </CardContent>
@@ -1208,10 +1208,10 @@ export default function VehicleProfilePage() {
                     <CardDescription>Annual Premium</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                    <p className="text-2xl font-bold text-white">
                       KES {vehicle.insurance.premium.toLocaleString()}
                     </p>
-                    <p className="text-sm text-gray-500 capitalize">{vehicle.insurance.paymentPlan} payments</p>
+                    <p className="text-sm text-gray-300 capitalize">{vehicle.insurance.paymentPlan} payments</p>
                   </CardContent>
                 </Card>
 
@@ -1235,10 +1235,10 @@ export default function VehicleProfilePage() {
                     <CardDescription>Balance Due</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                    <p className="text-2xl font-bold text-white">
                       KES {vehicle.insurance.balance.toLocaleString()}
                     </p>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-gray-300">
                       Next: {format(parseISO(vehicle.insurance.nextPaymentDate), "dd MMM yyyy")}
                     </p>
                   </CardContent>
@@ -1248,8 +1248,8 @@ export default function VehicleProfilePage() {
               {/* Insurance Details */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-white">
-                    <Shield className="h-5 w-5 text-emerald-600" />
+                  <CardTitle className="flex items-center gap-2 text-white">
+                    <Shield className="h-5 w-5 text-emerald-400" />
                     Insurance Policy Details
                   </CardTitle>
                 </CardHeader>
@@ -1259,46 +1259,46 @@ export default function VehicleProfilePage() {
                       <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
                           <span className="text-gray-300">Provider</span>
-                          <p className="font-semibold text-gray-900 dark:text-white">{vehicle.insurance.provider}</p>
+                          <p className="font-semibold text-white">{vehicle.insurance.provider}</p>
                         </div>
                         <div>
                           <span className="text-gray-300">Policy Number</span>
-                          <p className="font-mono text-gray-900 dark:text-white">{vehicle.insurance.policyNumber}</p>
+                          <p className="font-mono text-white">{vehicle.insurance.policyNumber}</p>
                         </div>
                         <div>
                           <span className="text-gray-300">Coverage Type</span>
-                          <Badge className="bg-blue-100 text-blue-700 capitalize">
+                          <Badge className="bg-blue-600 text-white capitalize">
                             {vehicle.insurance.type.replace("-", " ")}
                           </Badge>
                         </div>
                         <div>
                           <span className="text-gray-300">Payment Plan</span>
-                          <p className="font-medium text-gray-900 dark:text-white capitalize">{vehicle.insurance.paymentPlan}</p>
+                          <p className="font-medium text-white capitalize">{vehicle.insurance.paymentPlan}</p>
                         </div>
                         <div>
                           <span className="text-gray-300">Start Date</span>
-                          <p className="font-medium text-gray-900 dark:text-white">{format(parseISO(vehicle.insurance.startDate), "dd MMM yyyy")}</p>
+                          <p className="font-medium text-white">{format(parseISO(vehicle.insurance.startDate), "dd MMM yyyy")}</p>
                         </div>
                         <div>
                           <span className="text-gray-300">End Date</span>
-                          <p className="font-medium text-gray-900 dark:text-white">{format(parseISO(vehicle.insurance.endDate), "dd MMM yyyy")}</p>
+                          <p className="font-medium text-white">{format(parseISO(vehicle.insurance.endDate), "dd MMM yyyy")}</p>
                         </div>
                       </div>
                     </div>
                     <div>
-                      <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Coverage Details</h4>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                      <h4 className="font-semibold text-white mb-2">Coverage Details</h4>
+                      <p className="text-sm text-gray-200 p-3 bg-[#0a1628] rounded-lg border border-[#e67e22]/20">
                         {vehicle.insurance.coverageDetails}
                       </p>
-                      <div className="mt-4 p-4 bg-yellow-50 dark:bg-yellow-950/30 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                      <div className="mt-4 p-4 bg-amber-500/20 rounded-lg border border-amber-500/50">
                         <div className="flex items-center gap-2 mb-2">
                           <CalendarDays className="h-4 w-4 text-yellow-600" />
-                          <span className="font-semibold text-yellow-800 dark:text-yellow-200">Next Payment Due</span>
+                          <span className="font-semibold text-amber-300">Next Payment Due</span>
                         </div>
-                        <p className="text-lg font-bold text-yellow-900 dark:text-yellow-100">
+                        <p className="text-lg font-bold text-white">
                           KES {vehicle.insurance.nextPaymentAmount.toLocaleString()}
                         </p>
-                        <p className="text-sm text-yellow-700 dark:text-yellow-300">
+                        <p className="text-sm text-amber-300">
                           Due on {format(parseISO(vehicle.insurance.nextPaymentDate), "dd MMMM yyyy")}
                         </p>
                       </div>
