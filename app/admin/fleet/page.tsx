@@ -993,7 +993,7 @@ export default function FleetManagementPage() {
                     </TableRow>
                   ) : (
                     filteredFleet.map((vehicle) => (
-                      <TableRow key={vehicle.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                      <TableRow key={vehicle.id} className="hover:bg-[#0f1d32]/50 dark:hover:bg-[#0f1d32]/80 cursor-pointer">
                         <TableCell>
                           <div className="flex flex-col">
                             <span className="font-medium">{vehicle.vehicleName}</span>
