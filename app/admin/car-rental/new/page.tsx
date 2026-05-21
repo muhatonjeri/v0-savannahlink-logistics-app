@@ -862,7 +862,7 @@ export default function NewCarRentalAdminPage() {
                   <User className="h-5 w-5" />
                 </div>
                 <div>
-                  <CardTitle className="text-blue-800 dark:text-blue-300 flex items-center gap-2">
+                  <CardTitle className="text-blue-400 flex items-center gap-2">
                     1. Customer Registration
                     {selectedClient && (
                       <span className="ml-2 text-xs font-normal text-green-600 bg-green-500/10 px-2 py-1 rounded-full">
@@ -970,11 +970,11 @@ export default function NewCarRentalAdminPage() {
                     </div>
                   )}
                   {selectedClient.totalDebt && selectedClient.totalDebt > 0 && (
-                    <div className="mt-4 p-3 bg-orange-100 dark:bg-orange-900/50 border border-orange-300 dark:border-orange-700 rounded-lg flex items-center gap-3">
+                    <div className="mt-4 p-3 bg-orange-900/40 border border-orange-500 rounded-lg flex items-center gap-3">
                       <DollarSign className="h-5 w-5 text-orange-600 flex-shrink-0" />
                       <div>
-                        <p className="font-semibold text-orange-800 dark:text-orange-300">Outstanding Debt: KES {selectedClient.totalDebt.toLocaleString()}</p>
-                        <p className="text-sm text-orange-700 dark:text-orange-400">Client must clear balance before new rental</p>
+                        <p className="font-semibold text-orange-400">Outstanding Debt: KES {selectedClient.totalDebt.toLocaleString()}</p>
+                        <p className="text-sm text-orange-400">Client must clear balance before new rental</p>
                       </div>
                     </div>
                   )}
@@ -983,7 +983,7 @@ export default function NewCarRentalAdminPage() {
 
               {/* Contact Information Block */}
               <div className="rounded-lg border-2 border-blue-300 dark:border-blue-700 bg-[#0f1d32] p-4 shadow-sm">
-                <h4 className="font-semibold text-blue-800 dark:text-blue-300 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
+                <h4 className="font-semibold text-blue-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
                   <Phone className="h-4 w-4" />
                   Contact Information
                 </h4>
@@ -993,7 +993,7 @@ export default function NewCarRentalAdminPage() {
                     name="fullName"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-200 dark:text-gray-300">Full Name *</FormLabel>
+                        <FormLabel className="text-gray-200">Full Name *</FormLabel>
                         <FormControl>
                           <Input placeholder="John Kamau Mwangi" className="bg-[#0a1628] border-blue-500/50 focus:border-blue-400 text-white" {...field} />
                         </FormControl>
@@ -1006,7 +1006,7 @@ export default function NewCarRentalAdminPage() {
                     name="phone"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-200 dark:text-gray-300">Phone Number (M-Pesa) *</FormLabel>
+                        <FormLabel className="text-gray-200">Phone Number (M-Pesa) *</FormLabel>
                         <FormControl>
                           <Input type="tel" placeholder="0712345678" className="bg-[#0a1628] border-blue-500/50 focus:border-blue-400 text-white" {...field} />
                         </FormControl>
@@ -1020,7 +1020,7 @@ export default function NewCarRentalAdminPage() {
                     name="alternativePhone"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-200 dark:text-gray-300">Alternative Phone</FormLabel>
+                        <FormLabel className="text-gray-200">Alternative Phone</FormLabel>
                         <FormControl>
                           <Input type="tel" placeholder="0722333444" className="bg-[#0a1628] border-blue-500/50 focus:border-blue-400 text-white" {...field} />
                         </FormControl>
@@ -1033,7 +1033,7 @@ export default function NewCarRentalAdminPage() {
                     name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-200 dark:text-gray-300">Email Address *</FormLabel>
+                        <FormLabel className="text-gray-200">Email Address *</FormLabel>
                         <FormControl>
                           <Input type="email" placeholder="john@email.com" className="bg-[#0a1628] border-blue-500/50 focus:border-blue-400 text-white" {...field} />
                         </FormControl>
@@ -1046,7 +1046,7 @@ export default function NewCarRentalAdminPage() {
 
               {/* ID Documents Block */}
               <div className="rounded-lg border-2 border-emerald-300 dark:border-emerald-700 bg-[#0f1d32] p-4 shadow-sm">
-                <h4 className="font-semibold text-emerald-800 dark:text-emerald-300 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
+                <h4 className="font-semibold text-emerald-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
                   <FileText className="h-4 w-4" />
                   ID / Passport Documents
                 </h4>
@@ -1056,7 +1056,7 @@ export default function NewCarRentalAdminPage() {
                     name="idNumber"
                     render={({ field }) => (
                       <FormItem className="max-w-sm">
-                        <FormLabel className="text-gray-200 dark:text-gray-300">ID/Passport Number *</FormLabel>
+                        <FormLabel className="text-gray-200">ID/Passport Number *</FormLabel>
                         <FormControl>
                           <Input placeholder="12345678" className="bg-[#0a1628] border-emerald-500/50 focus:border-emerald-400 text-white font-mono text-lg" {...field} />
                         </FormControl>
@@ -1107,7 +1107,7 @@ export default function NewCarRentalAdminPage() {
 
               {/* Driving License Block */}
               <div className="rounded-lg border-2 border-amber-300 dark:border-amber-700 bg-[#0f1d32] p-4 shadow-sm">
-                <h4 className="font-semibold text-amber-800 dark:text-amber-300 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
+                <h4 className="font-semibold text-amber-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
                   <Car className="h-4 w-4" />
                   Driving License
                 </h4>
@@ -1117,7 +1117,7 @@ export default function NewCarRentalAdminPage() {
                     name="drivingLicenseNumber"
                     render={({ field }) => (
                       <FormItem className="max-w-sm">
-                        <FormLabel className="text-gray-200 dark:text-gray-300">Driving License Number *</FormLabel>
+                        <FormLabel className="text-gray-200">Driving License Number *</FormLabel>
                         <FormControl>
                           <Input placeholder="DL123456" className="bg-[#0a1628] border-amber-500/50 focus:border-amber-400 text-white font-mono text-lg" {...field} />
                         </FormControl>
@@ -1168,7 +1168,7 @@ export default function NewCarRentalAdminPage() {
 
               {/* Work & Residence Block */}
               <div className="rounded-lg border-2 border-violet-300 dark:border-violet-700 bg-[#0f1d32] p-4 shadow-sm">
-                <h4 className="font-semibold text-violet-800 dark:text-violet-300 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
+                <h4 className="font-semibold text-violet-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
                   <Building className="h-4 w-4" />
                   Work & Residence
                 </h4>
@@ -1178,7 +1178,7 @@ export default function NewCarRentalAdminPage() {
                     name="placeOfWork"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-200 dark:text-gray-300">Place of Work *</FormLabel>
+                        <FormLabel className="text-gray-200">Place of Work *</FormLabel>
                         <FormControl>
                           <Input placeholder="Company Name, Location" {...field} />
                         </FormControl>
@@ -1191,7 +1191,7 @@ export default function NewCarRentalAdminPage() {
                     name="residence"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-200 dark:text-gray-300">Residence/Address *</FormLabel>
+                        <FormLabel className="text-gray-200">Residence/Address *</FormLabel>
                         <FormControl>
                           <Input placeholder="Estate, Building, Area" className="bg-[#0a1628] border-violet-500/50 focus:border-violet-400 text-white" {...field} />
                         </FormControl>
@@ -1204,12 +1204,12 @@ export default function NewCarRentalAdminPage() {
                     name="kraPin"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-200 dark:text-gray-300">KRA PIN *</FormLabel>
+                        <FormLabel className="text-gray-200">KRA PIN *</FormLabel>
                         <div className="flex gap-2">
                           <FormControl>
                             <Input placeholder="A012345678A" className="bg-[#0a1628] border-violet-500/50 focus:border-violet-400 text-white font-mono" {...field} />
                           </FormControl>
-                          <Button type="button" variant="outline" onClick={verifyKraPin} className="border-violet-300 text-violet-600 hover:bg-violet-50">
+                          <Button type="button" variant="outline" onClick={verifyKraPin} className="border-violet-500 text-violet-400 hover:bg-violet-900/30">
                             Verify
                           </Button>
                         </div>
@@ -1292,7 +1292,7 @@ export default function NewCarRentalAdminPage() {
                   <Fingerprint className="h-5 w-5" />
                 </div>
                 <div>
-                  <CardTitle className="text-purple-800 dark:text-purple-300">
+                  <CardTitle className="text-purple-400">
                     2. Biometric & Photo Verification
                   </CardTitle>
                   <CardDescription>
@@ -1311,8 +1311,8 @@ export default function NewCarRentalAdminPage() {
                       leftThumbCaptured 
                         ? "border-green-500 bg-green-50 dark:bg-green-950/30" 
                         : leftThumbScanning
-                        ? "border-purple-500 bg-purple-50 dark:bg-purple-950/30 animate-pulse"
-                        : "border-dashed border-gray-300 bg-gray-50 dark:bg-gray-900 hover:border-purple-400 hover:bg-purple-50/50"
+                        ? "border-purple-500 bg-purple-900/20 animate-pulse"
+                        : "border-dashed border-gray-600 bg-[#0a1628] hover:border-purple-400"
                     }`}>
                       {leftThumbCaptured ? (
                         <>
@@ -1346,7 +1346,7 @@ export default function NewCarRentalAdminPage() {
                         </>
                       ) : (
                         <>
-                          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700 text-gray-500 mb-3">
+                          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#0f1d32] text-gray-400 mb-3">
                             <Fingerprint className="h-8 w-8" />
                           </div>
                           <Button
@@ -1369,8 +1369,8 @@ export default function NewCarRentalAdminPage() {
                       rightThumbCaptured 
                         ? "border-green-500 bg-green-50 dark:bg-green-950/30" 
                         : rightThumbScanning
-                        ? "border-purple-500 bg-purple-50 dark:bg-purple-950/30 animate-pulse"
-                        : "border-dashed border-gray-300 bg-gray-50 dark:bg-gray-900 hover:border-purple-400 hover:bg-purple-50/50"
+                        ? "border-purple-500 bg-purple-900/20 animate-pulse"
+                        : "border-dashed border-gray-600 bg-[#0a1628] hover:border-purple-400"
                     }`}>
                       {rightThumbCaptured ? (
                         <>
@@ -1404,7 +1404,7 @@ export default function NewCarRentalAdminPage() {
                         </>
                       ) : (
                         <>
-                          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700 text-gray-500 mb-3">
+                          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#0f1d32] text-gray-400 mb-3">
                             <Fingerprint className="h-8 w-8" />
                           </div>
                           <Button
@@ -1452,7 +1452,7 @@ export default function NewCarRentalAdminPage() {
                   <Car className="h-5 w-5" />
                 </div>
                 <div>
-                  <CardTitle className="text-teal-800 dark:text-teal-300">
+                  <CardTitle className="text-teal-400">
                     3. Rental Type
                   </CardTitle>
                   <CardDescription>
@@ -1462,7 +1462,7 @@ export default function NewCarRentalAdminPage() {
               </div>
             </CardHeader>
             <CardContent className="pt-6">
-              <div className="rounded-lg border border-teal-200 dark:border-teal-800 bg-teal-50/50 dark:bg-teal-950/20 p-4">
+              <div className="rounded-lg border border-teal-200 dark:border-teal-800 bg-teal-900/20 p-4">
                 <FormField
                   control={form.control}
                   name="rentalType"
@@ -1514,7 +1514,7 @@ export default function NewCarRentalAdminPage() {
                   <FileText className="h-5 w-5" />
                 </div>
                 <div>
-                  <CardTitle className="text-orange-800 dark:text-orange-300">
+                  <CardTitle className="text-orange-400">
                     4. Car Details
                   </CardTitle>
                   <CardDescription>
@@ -1526,7 +1526,7 @@ export default function NewCarRentalAdminPage() {
             <CardContent className="pt-6 space-y-6">
               {/* Vehicle Selection Block */}
               <div className="rounded-lg border-2 border-orange-300 dark:border-orange-700 bg-[#0f1d32] p-4 shadow-sm">
-                <h4 className="font-semibold text-orange-800 dark:text-orange-300 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
+                <h4 className="font-semibold text-orange-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
                   <Car className="h-4 w-4" />
                   Vehicle Selection
                 </h4>
@@ -1536,7 +1536,7 @@ export default function NewCarRentalAdminPage() {
                     name="carMake"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-200 dark:text-gray-300">Make *</FormLabel>
+                        <FormLabel className="text-gray-200">Make *</FormLabel>
                         <Select 
                           onValueChange={(value) => {
                             field.onChange(value);
@@ -1567,7 +1567,7 @@ export default function NewCarRentalAdminPage() {
                     name="carModel"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-200 dark:text-gray-300">Model *</FormLabel>
+                        <FormLabel className="text-gray-200">Model *</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger className="bg-[#0a1628] border-orange-500/50 focus:border-orange-400 text-white">
@@ -1593,7 +1593,7 @@ export default function NewCarRentalAdminPage() {
                   name="numberPlate"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-gray-200 dark:text-gray-300">Number Plate *</FormLabel>
+                      <FormLabel className="text-gray-200">Number Plate *</FormLabel>
                       <FormControl>
                         <Input placeholder="KBX 123A" className="bg-[#0a1628] border-orange-500/50 focus:border-orange-400 text-white font-mono text-lg uppercase" {...field} />
                       </FormControl>
@@ -1606,7 +1606,7 @@ export default function NewCarRentalAdminPage() {
 
               {/* Vehicle Status Block */}
               <div className="rounded-lg border-2 border-cyan-300 dark:border-cyan-700 bg-[#0f1d32] p-4 shadow-sm">
-                <h4 className="font-semibold text-cyan-800 dark:text-cyan-300 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
+                <h4 className="font-semibold text-cyan-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
                   <Gauge className="h-4 w-4" />
                   Vehicle Status
                 </h4>
@@ -1616,9 +1616,9 @@ export default function NewCarRentalAdminPage() {
                     name="currentMileage"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-200 dark:text-gray-300">Current Mileage (km) *</FormLabel>
+                        <FormLabel className="text-gray-200">Current Mileage (km) *</FormLabel>
                         <FormControl>
-                          <Input type="number" placeholder="45000" className="bg-white dark:bg-gray-800 border-cyan-200 focus:border-cyan-500 font-mono" {...field} />
+                          <Input type="number" placeholder="45000" className="bg-[#0a1628] border-cyan-500/50 focus:border-cyan-400 text-white font-mono" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -1635,7 +1635,7 @@ export default function NewCarRentalAdminPage() {
                         </FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
-                            <SelectTrigger className="bg-white dark:bg-gray-800 border-cyan-200 focus:border-cyan-500">
+                            <SelectTrigger className="bg-[#0a1628] border-cyan-500/50 focus:border-cyan-400 text-white">
                               <SelectValue placeholder="Select" />
                             </SelectTrigger>
                           </FormControl>
@@ -1656,9 +1656,9 @@ export default function NewCarRentalAdminPage() {
                     name="etcAmount"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-200 dark:text-gray-300">ETC Amount (KES)</FormLabel>
+                        <FormLabel className="text-gray-200">ETC Amount (KES)</FormLabel>
                         <FormControl>
-                          <Input type="number" placeholder="500" className="bg-white dark:bg-gray-800 border-cyan-200 focus:border-cyan-500 font-mono" {...field} />
+                          <Input type="number" placeholder="500" className="bg-[#0a1628] border-cyan-500/50 focus:border-cyan-400 text-white font-mono" {...field} />
                         </FormControl>
                         <FormDescription className="text-cyan-600 text-xs">Electronic toll amount</FormDescription>
                         <FormMessage />
@@ -1675,7 +1675,7 @@ export default function NewCarRentalAdminPage() {
                           Destination *
                         </FormLabel>
                         <FormControl>
-                          <Input placeholder="Mombasa / Local" className="bg-white dark:bg-gray-800 border-cyan-200 focus:border-cyan-500" {...field} />
+                          <Input placeholder="Mombasa / Local" className="bg-[#0a1628] border-cyan-500/50 focus:border-cyan-400 text-white" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -1694,7 +1694,7 @@ export default function NewCarRentalAdminPage() {
                   <Calendar className="h-5 w-5" />
                 </div>
                 <div>
-                  <CardTitle className="text-indigo-800 dark:text-indigo-300">
+                  <CardTitle className="text-indigo-400">
                     5. Rental Period & Pricing
                   </CardTitle>
                   <CardDescription>
@@ -1706,7 +1706,7 @@ export default function NewCarRentalAdminPage() {
             <CardContent className="pt-6 space-y-4">
               {/* Rental Dates Block */}
               <div className="rounded-lg border-2 border-indigo-300 dark:border-indigo-700 bg-[#0f1d32] p-4 shadow-sm">
-                <h4 className="font-semibold text-indigo-800 dark:text-indigo-300 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
+                <h4 className="font-semibold text-indigo-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
                   <Calendar className="h-4 w-4" />
                   Rental Period
                 </h4>
@@ -1716,7 +1716,7 @@ export default function NewCarRentalAdminPage() {
                     name="pickupDate"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-200 dark:text-gray-300">Pickup Date *</FormLabel>
+                        <FormLabel className="text-gray-200">Pickup Date *</FormLabel>
                         <FormControl>
                           <DatePicker
                             value={field.value}
@@ -1743,7 +1743,7 @@ export default function NewCarRentalAdminPage() {
                     name="pickupTime"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-200 dark:text-gray-300">Pickup Time *</FormLabel>
+                        <FormLabel className="text-gray-200">Pickup Time *</FormLabel>
                         <FormControl>
                           <TimePicker
                             value={field.value}
@@ -1760,13 +1760,13 @@ export default function NewCarRentalAdminPage() {
                     name="numberOfDays"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-200 dark:text-gray-300">Number of Days *</FormLabel>
+                        <FormLabel className="text-gray-200">Number of Days *</FormLabel>
                         <FormControl>
                           <Input 
                             type="number" 
                             min="1" 
                             placeholder="3"
-                            className="bg-white dark:bg-gray-800 border-indigo-200 focus:border-indigo-500 font-bold text-lg text-center"
+                            className="bg-[#0a1628] border-indigo-500/50 focus:border-indigo-400 text-white font-bold text-lg text-center"
                             {...field}
                             onChange={(e) => {
                               field.onChange(e);
@@ -1789,7 +1789,7 @@ export default function NewCarRentalAdminPage() {
                     name="returnDate"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-200 dark:text-gray-300">Return Date (Auto)</FormLabel>
+                        <FormLabel className="text-gray-200">Return Date (Auto)</FormLabel>
                         <FormControl>
                           <DatePicker
                             value={field.value}
@@ -1812,7 +1812,7 @@ export default function NewCarRentalAdminPage() {
 
               {/* Pricing Details Block */}
               <div className="rounded-lg border-2 border-indigo-300 dark:border-indigo-700 bg-[#0f1d32] p-4 shadow-sm">
-                <h4 className="font-semibold text-indigo-800 dark:text-indigo-300 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
+                <h4 className="font-semibold text-indigo-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
                   <CreditCard className="h-4 w-4" />
                   Pricing Details
                 </h4>
@@ -1960,7 +1960,7 @@ export default function NewCarRentalAdminPage() {
                   <CreditCard className="h-5 w-5" />
                 </div>
                 <div>
-                  <CardTitle className="text-green-800 dark:text-green-300">
+                  <CardTitle className="text-green-400">
                     6. Payment Method
                   </CardTitle>
                   <CardDescription>
@@ -1982,7 +1982,7 @@ export default function NewCarRentalAdminPage() {
                           defaultValue={field.value}
                           className="grid gap-4 sm:grid-cols-2"
                         >
-                          <div className="relative flex cursor-pointer items-start gap-4 rounded-lg border-2 border-green-200 bg-white dark:bg-gray-800 p-4 hover:border-green-400 has-[[data-state=checked]]:border-green-500 has-[[data-state=checked]]:bg-green-50 dark:has-[[data-state=checked]]:bg-green-950/50">
+                          <div className="relative flex cursor-pointer items-start gap-4 rounded-lg border-2 border-green-800 bg-[#0f1d32] p-4 hover:border-green-500 has-[[data-state=checked]]:border-green-500 has-[[data-state=checked]]:bg-green-900/30">
                             <RadioGroupItem value="mpesa" id="payment-mpesa" className="mt-1" />
                             <div className="flex-1">
                               <label htmlFor="payment-mpesa" className="block cursor-pointer font-medium text-green-800 dark:text-green-200">
@@ -1993,7 +1993,7 @@ export default function NewCarRentalAdminPage() {
                               </p>
                             </div>
                           </div>
-                          <div className="relative flex cursor-pointer items-start gap-4 rounded-lg border-2 border-green-200 bg-white dark:bg-gray-800 p-4 hover:border-green-400 has-[[data-state=checked]]:border-green-500 has-[[data-state=checked]]:bg-green-50 dark:has-[[data-state=checked]]:bg-green-950/50">
+                          <div className="relative flex cursor-pointer items-start gap-4 rounded-lg border-2 border-green-800 bg-[#0f1d32] p-4 hover:border-green-500 has-[[data-state=checked]]:border-green-500 has-[[data-state=checked]]:bg-green-900/30">
                             <RadioGroupItem value="bank" id="payment-bank" className="mt-1" />
                             <div className="flex-1">
                               <label htmlFor="payment-bank" className="block cursor-pointer font-medium text-green-800 dark:text-green-200">
