@@ -253,7 +253,7 @@ export default function AdminLayout({
   }
 
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={true}>
       <Sidebar>
         <SidebarHeader className="border-b border-sidebar-border p-4">
           <Link href="/admin" className="flex items-center gap-2">
