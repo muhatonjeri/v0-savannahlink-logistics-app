@@ -1196,7 +1196,7 @@ export default function ReceiptsPage() {
             <div ref={printRef} className="print-receipt" data-print-area="true">
               {/* Screen-only header */}
               <DialogHeader className="print:hidden mb-4">
-                <DialogTitle className="flex items-center justify-between text-gray-900 dark:text-white">
+                <DialogTitle className="flex items-center justify-between text-white">
                   <span className="flex items-center gap-2">
                     <Receipt className="h-5 w-5 text-emerald-500" />
                     Receipt Details

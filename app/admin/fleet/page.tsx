@@ -755,7 +755,7 @@ export default function FleetManagementPage() {
                           <Input 
                             type="number" 
                             placeholder="e.g., 45000" 
-                            className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                            className="bg-white dark:bg-gray-800 text-white"
                             {...field}
                             onChange={(e) => {
                               field.onChange(e.target.value);
@@ -778,7 +778,7 @@ export default function FleetManagementPage() {
                           <Input 
                             type="number" 
                             placeholder="e.g., 10000" 
-                            className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                            className="bg-white dark:bg-gray-800 text-white"
                             {...field}
                             onChange={(e) => {
                               field.onChange(e.target.value);
@@ -791,7 +791,7 @@ export default function FleetManagementPage() {
                             }}
                           />
                         </FormControl>
-                        <FormDescription className="text-gray-500 dark:text-gray-400 text-xs">
+                        <FormDescription className="text-[#e67e22] text-xs">
                           Default: 10,000 KM
                         </FormDescription>
                         <FormMessage />
@@ -804,11 +804,11 @@ export default function FleetManagementPage() {
                           <Input 
                             type="number" 
                             placeholder="Auto-calculated" 
-                            className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                            className="bg-white dark:bg-gray-800 text-white"
                             {...field}
                           />
                         </FormControl>
-                        <FormDescription className="text-gray-500 dark:text-gray-400 text-xs">
+                        <FormDescription className="text-[#e67e22] text-xs">
                           Auto-calculated or edit manually
                         </FormDescription>
                         <FormMessage />
@@ -1104,7 +1104,7 @@ export default function FleetManagementPage() {
               {notifications.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12 text-center">
                   <CheckCircle2 className="h-12 w-12 text-green-500 mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">All Clear!</h3>
+                  <h3 className="text-lg font-semibold text-white">All Clear!</h3>
                   <p className="text-muted-foreground">No pending notifications or alerts</p>
                 </div>
               ) : (
@@ -1120,7 +1120,7 @@ export default function FleetManagementPage() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
-                            <span className="font-semibold text-sm text-gray-900 dark:text-white">{notification.vehicleName}</span>
+                            <span className="font-semibold text-sm text-white">{notification.vehicleName}</span>
                             <Badge variant="outline" className="font-mono text-xs">{notification.registrationNo}</Badge>
                             <Badge className={`text-xs ${
                               notification.priority === "critical" ? "bg-red-500" :
@@ -1242,7 +1242,7 @@ export default function FleetManagementPage() {
                           <Input 
                             type="number" 
                             placeholder="e.g., 3" 
-                            className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                            className="bg-white dark:bg-gray-800 text-white"
                             {...field}
                             onChange={(e) => {
                               field.onChange(e.target.value);

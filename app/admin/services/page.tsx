@@ -680,7 +680,7 @@ export default function ServicesManagementPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Services Management</h1>
+          <h1 className="text-2xl font-bold text-white">Services Management</h1>
           <p className="text-gray-600 dark:text-gray-400">
             Configure service rates, items, and settings for all Moventra Safaris & Logistics Ltd services
           </p>
@@ -745,10 +745,10 @@ export default function ServicesManagementPage() {
               </CardHeader>
               <CardContent className="pt-0">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-500 dark:text-gray-400">
+                  <span className="text-[#e67e22]">
                     {service.items.length} items
                   </span>
-                  <span className="text-gray-500 dark:text-gray-400">
+                  <span className="text-[#e67e22]">
                     VAT: {service.vatRate}%
                   </span>
                 </div>
@@ -788,7 +788,7 @@ export default function ServicesManagementPage() {
               </div>
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-500 dark:text-gray-400">VAT Rate:</span>
+                  <span className="text-sm text-[#e67e22]">VAT Rate:</span>
                   <Select
                     value={selectedService.vatRate.toString()}
                     onValueChange={(v) => updateVatRate(selectedService.id, parseInt(v))}
@@ -851,7 +851,7 @@ export default function ServicesManagementPage() {
                     <AccordionItem key={category} value={category} className="border rounded-lg px-4">
                       <AccordionTrigger className="hover:no-underline py-3">
                         <div className="flex items-center gap-3">
-                          <span className="font-semibold text-gray-900 dark:text-white">{category}</span>
+                          <span className="font-semibold text-white">{category}</span>
                           <Badge variant="secondary">{items.length} items</Badge>
                         </div>
                       </AccordionTrigger>
@@ -885,7 +885,7 @@ export default function ServicesManagementPage() {
                                   </Button>
                                 </TableCell>
                                 <TableCell className="font-medium">{item.name}</TableCell>
-                                <TableCell className="hidden md:table-cell text-gray-500 dark:text-gray-400 max-w-[200px] truncate">
+                                <TableCell className="hidden md:table-cell text-[#e67e22] max-w-[200px] truncate">
                                   {item.description}
                                 </TableCell>
                                 <TableCell className="text-right font-mono font-semibold text-emerald-600 dark:text-emerald-400">
@@ -893,7 +893,7 @@ export default function ServicesManagementPage() {
                                     ? `${item.basePrice}%`
                                     : formatCurrency(item.basePrice)}
                                 </TableCell>
-                                <TableCell className="text-gray-500 dark:text-gray-400">{item.unit}</TableCell>
+                                <TableCell className="text-[#e67e22]">{item.unit}</TableCell>
                                 <TableCell className="text-right">
                                   <div className="flex items-center justify-end gap-1">
                                     <Button
@@ -923,7 +923,7 @@ export default function ServicesManagementPage() {
                 </Accordion>
 
                 <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-                  <h4 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                  <h4 className="font-semibold text-white mb-3 flex items-center gap-2">
                     <Settings className="h-4 w-4" />
                     Service Settings
                   </h4>
@@ -933,7 +933,7 @@ export default function ServicesManagementPage() {
                         <span className="text-sm text-gray-600 dark:text-gray-400 capitalize">
                           {key.replace(/([A-Z])/g, " $1").trim()}
                         </span>
-                        <span className="font-medium text-gray-900 dark:text-white">
+                        <span className="font-medium text-white">
                           {typeof value === "boolean" ? (value ? "Yes" : "No") : String(value)}
                         </span>
                       </div>

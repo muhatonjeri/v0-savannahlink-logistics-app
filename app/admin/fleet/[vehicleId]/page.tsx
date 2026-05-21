@@ -766,55 +766,55 @@ export default function VehicleProfilePage() {
           <div className="grid gap-6 lg:grid-cols-2">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-white">
-                  <Car className="h-5 w-5 text-emerald-600" />
+                <CardTitle className="flex items-center gap-2 text-[#e67e22]">
+                  <Car className="h-5 w-5 text-[#e67e22]" />
                   Vehicle Details
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
-                    <span className="text-gray-500 dark:text-gray-400">Make & Model</span>
-                    <p className="font-medium text-gray-900 dark:text-white">{vehicle.vehicleMake} {vehicle.vehicleModel}</p>
+                    <span className="text-[#e67e22] font-medium text-xs uppercase tracking-wide">Make & Model</span>
+                    <p className="font-medium text-white">{vehicle.vehicleMake} {vehicle.vehicleModel}</p>
                   </div>
                   <div>
-                    <span className="text-gray-500 dark:text-gray-400">Year</span>
-                    <p className="font-medium text-gray-900 dark:text-white">{vehicle.year}</p>
+                    <span className="text-[#e67e22] font-medium text-xs uppercase tracking-wide">Year</span>
+                    <p className="font-medium text-white">{vehicle.year}</p>
                   </div>
                   <div>
-                    <span className="text-gray-500 dark:text-gray-400">Registration</span>
-                    <p className="font-mono font-medium text-gray-900 dark:text-white">{vehicle.registrationNo}</p>
+                    <span className="text-[#e67e22] font-medium text-xs uppercase tracking-wide">Registration</span>
+                    <p className="font-mono font-medium text-white">{vehicle.registrationNo}</p>
                   </div>
                   <div>
-                    <span className="text-gray-500 dark:text-gray-400">Color</span>
-                    <p className="font-medium text-gray-900 dark:text-white">{vehicle.color}</p>
+                    <span className="text-[#e67e22] font-medium text-xs uppercase tracking-wide">Color</span>
+                    <p className="font-medium text-white">{vehicle.color}</p>
                   </div>
                   <div>
-                    <span className="text-gray-500 dark:text-gray-400">Current Mileage</span>
-                    <p className="font-medium text-gray-900 dark:text-white">{vehicle.currentMileage.toLocaleString()} km</p>
+                    <span className="text-[#e67e22] font-medium text-xs uppercase tracking-wide">Current Mileage</span>
+                    <p className="font-medium text-white">{vehicle.currentMileage.toLocaleString()} km</p>
                   </div>
                   <div>
-                    <span className="text-gray-500 dark:text-gray-400">Fuel Type</span>
-                    <p className="font-medium text-gray-900 dark:text-white capitalize">{vehicle.fuelType}</p>
+                    <span className="text-[#e67e22] font-medium text-xs uppercase tracking-wide">Fuel Type</span>
+                    <p className="font-medium text-white capitalize">{vehicle.fuelType}</p>
                   </div>
                   <div>
-                    <span className="text-gray-500 dark:text-gray-400">Chassis Number</span>
-                    <p className="font-mono text-xs text-gray-900 dark:text-white">{vehicle.chassisNumber}</p>
+                    <span className="text-[#e67e22] font-medium text-xs uppercase tracking-wide">Chassis Number</span>
+                    <p className="font-mono text-xs text-white">{vehicle.chassisNumber}</p>
                   </div>
                   <div>
-                    <span className="text-gray-500 dark:text-gray-400">Engine Number</span>
-                    <p className="font-mono text-xs text-gray-900 dark:text-white">{vehicle.engineNumber}</p>
+                    <span className="text-[#e67e22] font-medium text-xs uppercase tracking-wide">Engine Number</span>
+                    <p className="font-mono text-xs text-white">{vehicle.engineNumber}</p>
                   </div>
                 </div>
                 <Separator />
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
-                    <span className="text-gray-500 dark:text-gray-400">Purchase Price</span>
-                    <p className="font-semibold text-gray-900 dark:text-white">KES {vehicle.purchasePrice.toLocaleString()}</p>
+                    <span className="text-[#e67e22] font-medium text-xs uppercase tracking-wide">Purchase Price</span>
+                    <p className="font-semibold text-white">KES {vehicle.purchasePrice.toLocaleString()}</p>
                   </div>
                   <div>
-                    <span className="text-gray-500 dark:text-gray-400">Current Value</span>
-                    <p className="font-semibold text-gray-900 dark:text-white">KES {vehicle.currentValue.toLocaleString()}</p>
+                    <span className="text-[#e67e22] font-medium text-xs uppercase tracking-wide">Current Value</span>
+                    <p className="font-semibold text-white">KES {vehicle.currentValue.toLocaleString()}</p>
                   </div>
                 </div>
               </CardContent>
@@ -822,8 +822,8 @@ export default function VehicleProfilePage() {
 
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-white">
-                  <PieChart className="h-5 w-5 text-emerald-600" />
+                <CardTitle className="flex items-center gap-2 text-[#e67e22]">
+                  <PieChart className="h-5 w-5 text-[#e67e22]" />
                   Assignment Summary
                 </CardTitle>
               </CardHeader>
