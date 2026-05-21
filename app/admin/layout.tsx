@@ -198,7 +198,7 @@ export default function AdminLayout({
 
         <SidebarContent>
           <SidebarGroup>
-            <SidebarGroupLabel>Main</SidebarGroupLabel>
+            <SidebarGroupLabel className="text-blue-400 font-bold uppercase tracking-widest text-xs">Main</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 {navItems.map((item) => (
@@ -220,7 +220,7 @@ export default function AdminLayout({
           </SidebarGroup>
 
           <SidebarGroup>
-            <SidebarGroupLabel>Services</SidebarGroupLabel>
+            <SidebarGroupLabel className="text-[#e67e22] font-bold uppercase tracking-widest text-xs">Services</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 {serviceItems.map((item) => (
