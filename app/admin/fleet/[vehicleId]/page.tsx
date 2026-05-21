@@ -614,10 +614,10 @@ export default function VehicleProfilePage() {
                 {vehicle.vehicleName}
               </h1>
               <Badge className={
-                vehicle.status === "available" ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300" :
-                vehicle.status === "assigned" ? "bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300" :
+                vehicle.status === "available" ? "bg-emerald-600 text-white" :
+                vehicle.status === "assigned" ? "bg-blue-600 text-white" :
                 vehicle.status === "maintenance" ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-300" :
-                "bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300"
+                "bg-red-600 text-white"
               }>
                 {vehicle.status.charAt(0).toUpperCase() + vehicle.status.slice(1).replace("-", " ")}
               </Badge>
@@ -911,7 +911,7 @@ export default function VehicleProfilePage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
-                <CardTitle className="text-gray-900 dark:text-white">Assignment History</CardTitle>
+                <CardTitle className="text-white">Assignment History</CardTitle>
                 <CardDescription>Track all vehicle assignments and rental periods</CardDescription>
               </div>
               <Button>
@@ -937,7 +937,7 @@ export default function VehicleProfilePage() {
                     <TableRow key={assignment.id}>
                       <TableCell>
                         <div className="text-sm">
-                          <p className="font-medium text-gray-900 dark:text-white">
+                          <p className="font-medium text-white">
                             {format(parseISO(assignment.startDate), "dd MMM")} - {format(parseISO(assignment.endDate), "dd MMM yyyy")}
                           </p>
                         </div>
@@ -947,8 +947,8 @@ export default function VehicleProfilePage() {
                       </TableCell>
                       <TableCell>
                         <div>
-                          <p className="font-medium text-gray-900 dark:text-white">{assignment.clientName}</p>
-                          <p className="text-xs text-gray-500">{assignment.clientPhone}</p>
+                          <p className="font-medium text-white">{assignment.clientName}</p>
+                          <p className="text-xs text-gray-300">{assignment.clientPhone}</p>
                         </div>
                       </TableCell>
                       <TableCell className="max-w-[200px] truncate text-white">
@@ -960,10 +960,10 @@ export default function VehicleProfilePage() {
                       <TableCell>
                         <Badge className={
                           assignment.status === "completed" 
-                            ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300"
+                            ? "bg-emerald-600 text-white"
                             : assignment.status === "in-progress"
-                            ? "bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300"
-                            : "bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300"
+                            ? "bg-blue-600 text-white"
+                            : "bg-red-600 text-white"
                         }>
                           {assignment.status === "in-progress" ? "In Progress" : assignment.status.charAt(0).toUpperCase() + assignment.status.slice(1)}
                         </Badge>
@@ -983,7 +983,7 @@ export default function VehicleProfilePage() {
           {/* Idle Periods */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-gray-900 dark:text-white">Idle Periods</CardTitle>
+              <CardTitle className="text-white">Idle Periods</CardTitle>
               <CardDescription>Periods when the vehicle was not on assignment</CardDescription>
             </CardHeader>
             <CardContent>
@@ -1000,7 +1000,7 @@ export default function VehicleProfilePage() {
                   {idlePeriods.map((period) => (
                     <TableRow key={period.id}>
                       <TableCell>
-                        <p className="font-medium text-gray-900 dark:text-white">
+                        <p className="font-medium text-white">
                           {format(parseISO(period.startDate), "dd MMM")} - {format(parseISO(period.endDate), "dd MMM yyyy")}
                         </p>
                       </TableCell>
@@ -1012,7 +1012,7 @@ export default function VehicleProfilePage() {
                           {idleReasonLabels[period.reason].label}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-gray-600 dark:text-gray-400 max-w-[300px] truncate">
+                      <TableCell className="text-gray-300 max-w-[300px] truncate">
                         {period.notes || "-"}
                       </TableCell>
                     </TableRow>
@@ -1034,10 +1034,10 @@ export default function VehicleProfilePage() {
                     <CardDescription>Loan Amount</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                    <p className="text-2xl font-bold text-white">
                       KES {vehicle.loan.loanAmount.toLocaleString()}
                     </p>
-                    <p className="text-sm text-gray-500">{vehicle.loan.interestRate}% interest</p>
+                    <p className="text-sm text-gray-300">{vehicle.loan.interestRate}% interest</p>
                   </CardContent>
                 </Card>
 
@@ -1061,10 +1061,10 @@ export default function VehicleProfilePage() {
                     <CardDescription>Balance</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                    <p className="text-2xl font-bold text-white">
                       KES {vehicle.loan.balance.toLocaleString()}
                     </p>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-gray-300">
                       {Math.round((vehicle.loan.balance / vehicle.loan.loanAmount) * 100)}% remaining
                     </p>
                   </CardContent>
@@ -1092,7 +1092,7 @@ export default function VehicleProfilePage() {
               {/* Loan Details Card */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-white">
+                  <CardTitle className="flex items-center gap-2 text-white">
                     <CreditCard className="h-5 w-5 text-emerald-600" />
                     Loan Details
                   </CardTitle>
@@ -1103,32 +1103,32 @@ export default function VehicleProfilePage() {
                       <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
                           <span className="text-gray-300">Lender</span>
-                          <p className="font-semibold text-gray-900 dark:text-white">{vehicle.loan.lender}</p>
+                          <p className="font-semibold text-white">{vehicle.loan.lender}</p>
                         </div>
                         <div>
                           <span className="text-gray-300">Monthly Payment</span>
-                          <p className="font-semibold text-gray-900 dark:text-white">KES {vehicle.loan.monthlyPayment.toLocaleString()}</p>
+                          <p className="font-semibold text-white">KES {vehicle.loan.monthlyPayment.toLocaleString()}</p>
                         </div>
                         <div>
                           <span className="text-gray-300">Start Date</span>
-                          <p className="font-medium text-gray-900 dark:text-white">{format(parseISO(vehicle.loan.startDate), "dd MMM yyyy")}</p>
+                          <p className="font-medium text-white">{format(parseISO(vehicle.loan.startDate), "dd MMM yyyy")}</p>
                         </div>
                         <div>
                           <span className="text-gray-300">End Date</span>
-                          <p className="font-medium text-gray-900 dark:text-white">{format(parseISO(vehicle.loan.endDate), "dd MMM yyyy")}</p>
+                          <p className="font-medium text-white">{format(parseISO(vehicle.loan.endDate), "dd MMM yyyy")}</p>
                         </div>
                         <div>
                           <span className="text-gray-300">Next Payment</span>
-                          <p className="font-medium text-gray-900 dark:text-white">{format(parseISO(vehicle.loan.nextPaymentDate), "dd MMM yyyy")}</p>
+                          <p className="font-medium text-white">{format(parseISO(vehicle.loan.nextPaymentDate), "dd MMM yyyy")}</p>
                         </div>
                         <div>
                           <span className="text-gray-300">Status</span>
                           <Badge className={
                             vehicle.loan.status === "active" 
-                              ? "bg-emerald-100 text-emerald-700" 
+                              ? "bg-emerald-600 text-white" 
                               : vehicle.loan.status === "completed"
-                              ? "bg-blue-100 text-blue-700"
-                              : "bg-red-100 text-red-700"
+                              ? "bg-blue-600 text-white"
+                              : "bg-red-600 text-white"
                           }>
                             {vehicle.loan.status.charAt(0).toUpperCase() + vehicle.loan.status.slice(1)}
                           </Badge>
@@ -1136,15 +1136,15 @@ export default function VehicleProfilePage() {
                       </div>
                     </div>
                     <div>
-                      <h4 className="font-semibold text-gray-900 dark:text-white mb-3">Recent Payments</h4>
+                      <h4 className="font-semibold text-white mb-3">Recent Payments</h4>
                       <div className="space-y-2">
                         {vehicle.loan.paymentHistory.slice(0, 5).map((payment) => (
-                          <div key={payment.id} className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-800/50 rounded">
+                          <div key={payment.id} className="flex items-center justify-between p-2 bg-[#0a1628] rounded border border-[#e67e22]/20">
                             <div>
-                              <p className="text-sm font-medium text-gray-900 dark:text-white">
+                              <p className="text-sm font-medium text-white">
                                 {format(parseISO(payment.date), "dd MMM yyyy")}
                               </p>
-                              <p className="text-xs text-gray-500">{payment.reference}</p>
+                              <p className="text-xs text-gray-300">{payment.reference}</p>
                             </div>
                             <div className="text-right">
                               <p className="font-semibold text-emerald-600 dark:text-emerald-400">
@@ -1329,7 +1329,7 @@ export default function VehicleProfilePage() {
                 <CardDescription>Total Expenses (YTD)</CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                <p className="text-2xl font-bold text-white">
                   KES {expenses.reduce((sum, e) => sum + e.amount, 0).toLocaleString()}
                 </p>
               </CardContent>
@@ -1370,7 +1370,7 @@ export default function VehicleProfilePage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
-                <CardTitle className="text-gray-900 dark:text-white">Expenses</CardTitle>
+                <CardTitle className="text-white">Expenses</CardTitle>
                 <CardDescription>Track all vehicle-related expenses</CardDescription>
               </div>
               <Button>
@@ -1393,7 +1393,7 @@ export default function VehicleProfilePage() {
                 <TableBody>
                   {expenses.map((expense) => (
                     <TableRow key={expense.id}>
-                      <TableCell className="font-medium text-gray-900 dark:text-white">
+                      <TableCell className="font-medium text-white">
                         {format(parseISO(expense.date), "dd MMM yyyy")}
                       </TableCell>
                       <TableCell>
@@ -1401,18 +1401,18 @@ export default function VehicleProfilePage() {
                           {expenseCategoryLabels[expense.category].label}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-gray-700 dark:text-gray-300 max-w-[200px] truncate">
+                      <TableCell className="text-gray-300 max-w-[200px] truncate">
                         {expense.description}
                       </TableCell>
-                      <TableCell className="font-semibold text-gray-900 dark:text-white">
+                      <TableCell className="font-semibold text-white">
                         KES {expense.amount.toLocaleString()}
                       </TableCell>
-                      <TableCell className="text-gray-600 dark:text-gray-400">{expense.paidBy}</TableCell>
+                      <TableCell className="text-gray-300">{expense.paidBy}</TableCell>
                       <TableCell>
                         <Badge className={
                           expense.status === "paid" 
-                            ? "bg-emerald-100 text-emerald-700" 
-                            : "bg-yellow-100 text-yellow-700"
+                            ? "bg-emerald-600 text-white" 
+                            : "bg-yellow-500 text-white"
                         }>
                           {expense.status.charAt(0).toUpperCase() + expense.status.slice(1)}
                         </Badge>
@@ -1428,7 +1428,7 @@ export default function VehicleProfilePage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
-                <CardTitle className="text-gray-900 dark:text-white">Traffic Fines</CardTitle>
+                <CardTitle className="text-white">Traffic Fines</CardTitle>
                 <CardDescription>Track all traffic violations and fines</CardDescription>
               </div>
               <Button variant="outline">
@@ -1451,8 +1451,8 @@ export default function VehicleProfilePage() {
                 </TableHeader>
                 <TableBody>
                   {fines.map((fine) => (
-                    <TableRow key={fine.id} className={fine.status === "overdue" ? "bg-red-50 dark:bg-red-950/20" : ""}>
-                      <TableCell className="font-medium text-gray-900 dark:text-white">
+                    <TableRow key={fine.id} className={fine.status === "overdue" ? "bg-red-900/20" : ""}>
+                      <TableCell className="font-medium text-white">
                         {format(parseISO(fine.date), "dd MMM yyyy")}
                       </TableCell>
                       <TableCell>
@@ -1460,24 +1460,24 @@ export default function VehicleProfilePage() {
                           {fineTypeLabels[fine.type].label}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-gray-700 dark:text-gray-300 max-w-[150px] truncate">
+                      <TableCell className="text-gray-300 max-w-[150px] truncate">
                         {fine.location}
                       </TableCell>
-                      <TableCell className="font-mono text-xs text-gray-600 dark:text-gray-400">
+                      <TableCell className="font-mono text-xs text-gray-300">
                         {fine.reference}
                       </TableCell>
-                      <TableCell className="font-semibold text-gray-900 dark:text-white">
+                      <TableCell className="font-semibold text-white">
                         KES {fine.amount.toLocaleString()}
                       </TableCell>
-                      <TableCell className="text-gray-600 dark:text-gray-400">
+                      <TableCell className="text-gray-300">
                         {format(parseISO(fine.dueDate), "dd MMM yyyy")}
                       </TableCell>
                       <TableCell>
                         <Badge className={
                           fine.status === "paid" 
-                            ? "bg-emerald-100 text-emerald-700" 
+                            ? "bg-emerald-600 text-white" 
                             : fine.status === "overdue"
-                            ? "bg-red-100 text-red-700"
+                            ? "bg-red-600 text-white"
                             : "bg-yellow-100 text-yellow-700"
                         }>
                           {fine.status.toUpperCase()}
