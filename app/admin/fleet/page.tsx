@@ -593,7 +593,7 @@ export default function FleetManagementPage() {
               Add Vehicle
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-[#0a1628] border-2 border-[#e67e22]/50">
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-[#0a1628] text-white border-2 border-[#e67e22]/50">
             <DialogHeader className="border-b border-[#e67e22]/30 pb-4">
               <DialogTitle className="flex items-center gap-2 text-[#e67e22]">
                 <Car className="h-5 w-5" />
@@ -604,7 +604,7 @@ export default function FleetManagementPage() {
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmitVehicle)} className="space-y-6">
                 {/* Vehicle Details */}
-                <div className="rounded-lg border-2 border-[#e67e22]/50 bg-[#0f1d32] p-4 shadow-sm">
+                <div className="rounded-lg border-2 border-[#e67e22]/50 bg-[#0f1d32] text-white p-4 shadow-sm">
                   <h4 className="font-semibold text-[#e67e22] mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
                     <CarFront className="h-4 w-4" />
                     Vehicle Information
@@ -742,7 +742,7 @@ export default function FleetManagementPage() {
                 </div>
 
                 {/* Service & Mileage */}
-                <div className="rounded-lg border-2 border-blue-500/50 bg-[#0f1d32] p-4 shadow-sm">
+                <div className="rounded-lg border-2 border-blue-500/50 bg-[#0f1d32] text-white p-4 shadow-sm">
                   <h4 className="font-semibold text-blue-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
                     <Wrench className="h-4 w-4" />
                     Service & Mileage
@@ -904,7 +904,7 @@ export default function FleetManagementPage() {
 
       {/* Tabs for Fleet and Notifications */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="bg-[#0a1628] border border-[#e67e22]/50">
+        <TabsList className="bg-[#0a1628] text-white border border-[#e67e22]/50">
           <TabsTrigger value="fleet" className="flex items-center gap-2 text-white data-[state=active]:bg-[#e67e22] data-[state=active]:text-white">
             <Car className="h-4 w-4" />
             <span className="font-semibold">Fleet Inventory</span>
@@ -970,7 +970,7 @@ export default function FleetManagementPage() {
             <CardContent className="p-0">
               <Table>
                 <TableHeader>
-                  <TableRow className="bg-[#0a1628] border-b-2 border-[#e67e22]">
+                  <TableRow className="bg-[#0a1628] text-white border-b-2 border-[#e67e22]">
                     <TableHead className="text-[#e67e22]">Vehicle</TableHead>
                     <TableHead className="text-[#e67e22]">Registration</TableHead>
                     <TableHead className="text-[#e67e22]">Status</TableHead>
