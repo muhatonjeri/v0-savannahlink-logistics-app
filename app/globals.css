@@ -655,3 +655,48 @@ tr.dark-header th {
 .bg-\[\#0f1d32\] .text-muted-foreground {
   color: oklch(0.75 0 0) !important;
 }
+
+/* ── Force white text everywhere on dark backgrounds ── */
+* {
+  color: inherit;
+}
+
+body {
+  color: white;
+}
+
+/* Any element with a dark background gets white text */
+[class*="bg-[#0a1628]"],
+[class*="bg-[#0f1d32]"],
+[class*="bg-[#1a2744]"],
+[class*="bg-gray-800"],
+[class*="bg-gray-900"],
+[class*="bg-slate-800"],
+[class*="bg-slate-900"] {
+  color: white !important;
+}
+
+[class*="bg-[#0a1628]"] *,
+[class*="bg-[#0f1d32]"] *,
+[class*="bg-[#1a2744]"] *,
+[class*="bg-gray-800"] *,
+[class*="bg-gray-900"] *,
+[class*="bg-slate-800"] *,
+[class*="bg-slate-900"] * {
+  color: white !important;
+}
+
+/* Table rows and cells always inherit */
+td, th, tr, thead, tbody {
+  color: inherit;
+}
+
+/* Muted text stays visible but slightly dimmed */
+.text-muted-foreground {
+  color: oklch(0.78 0 0) !important;
+}
+
+/* Placeholder text */
+::placeholder {
+  color: oklch(0.55 0 0) !important;
+}
