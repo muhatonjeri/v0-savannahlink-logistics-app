@@ -244,12 +244,6 @@ export default function AdminLayout({
     return "Staff";
   };
 
-  // Auth check disabled for local dev - re-enable for production
-  // if (!isLoading && !user && !mockAuth) {
-  //   router.push('/auth/login');
-  //   return null;
-  // }
-
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">

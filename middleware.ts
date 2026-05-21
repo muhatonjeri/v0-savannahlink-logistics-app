@@ -1,19 +1,38 @@
+import { type NextRequest, NextResponse } from 'next/server'
 import { updateSession } from '@/lib/supabase/middleware'
-import { type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl
+
+  // Protect all /admin routes
+  if (pathname.startsWith('/admin')) {
+    // Check mock auth cookie
+    const mockAuth = request.cookies.get('mock_auth')?.value
+    if (mockAuth) {
+      try {
+        const parsed = JSON.parse(decodeURIComponent(mockAuth))
+        if (parsed.isAuthenticated) {
+          return NextResponse.next()
+        }
+      } catch {}
+    }
+
+    // Check Supabase session cookie
+    const supabaseSession = request.cookies.get('sb-access-token')?.value
+      || request.cookies.get('supabase-auth-token')?.value
+
+    if (!supabaseSession && !mockAuth) {
+      const loginUrl = new URL('/auth/login', request.url)
+      loginUrl.searchParams.set('redirect', pathname)
+      return NextResponse.redirect(loginUrl)
+    }
+  }
+
   return await updateSession(request)
 }
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - images - .svg, .png, .jpg, .jpeg, .gif, .webp
-     */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|.*\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }
