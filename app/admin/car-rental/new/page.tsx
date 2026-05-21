@@ -840,13 +840,13 @@ export default function NewCarRentalAdminPage() {
         <div>
           <Link
             href="/admin/car-rental"
-            className="mb-2 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+            className="mb-2 inline-flex items-center gap-2 text-sm text-gray-400 hover:text-white"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Car Rental
           </Link>
-          <h1 className="text-2xl font-bold text-foreground">New Car Rental Booking</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl font-bold text-white">New Car Rental Booking</h1>
+          <p className="text-gray-300">
             Complete customer registration and vehicle assignment
           </p>
         </div>
@@ -856,7 +856,7 @@ export default function NewCarRentalAdminPage() {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           {/* Section 1: Personal Details */}
           <Card className="border-l-4 border-l-blue-500 shadow-md">
-            <CardHeader className="bg-gradient-to-r from-blue-50 to-transparent dark:from-blue-950/30">
+            <CardHeader className="bg-gradient-to-r from-blue-900/40 to-transparent">
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500 text-white">
                   <User className="h-5 w-5" />
@@ -870,7 +870,7 @@ export default function NewCarRentalAdminPage() {
                       </span>
                     )}
                   </CardTitle>
-                  <CardDescription>
+                  <CardDescription className="text-gray-400">
                     Customer identification and contact information
                   </CardDescription>
                 </div>
@@ -1286,7 +1286,7 @@ export default function NewCarRentalAdminPage() {
 
           {/* Section 2: Biometric & Photo */}
           <Card className="border-l-4 border-l-purple-500 shadow-md">
-            <CardHeader className="bg-gradient-to-r from-purple-50 to-transparent dark:from-purple-950/30">
+            <CardHeader className="bg-gradient-to-r from-purple-900/40 to-transparent">
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-500 text-white">
                   <Fingerprint className="h-5 w-5" />
@@ -1446,7 +1446,7 @@ export default function NewCarRentalAdminPage() {
 
           {/* Section 3: Rental Type */}
           <Card className="border-l-4 border-l-teal-500 shadow-md">
-            <CardHeader className="bg-gradient-to-r from-teal-50 to-transparent dark:from-teal-950/30">
+            <CardHeader className="bg-gradient-to-r from-teal-900/40 to-transparent">
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-teal-500 text-white">
                   <Car className="h-5 w-5" />
@@ -1508,7 +1508,7 @@ export default function NewCarRentalAdminPage() {
 
           {/* Section 4: Car Details */}
           <Card className="border-l-4 border-l-orange-500 shadow-md">
-            <CardHeader className="bg-gradient-to-r from-orange-50 to-transparent dark:from-orange-950/30">
+            <CardHeader className="bg-gradient-to-r from-orange-900/40 to-transparent">
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-orange-500 text-white">
                   <FileText className="h-5 w-5" />
@@ -1688,7 +1688,7 @@ export default function NewCarRentalAdminPage() {
 
           {/* Section 5: Rental Period & Rate */}
           <Card className="border-l-4 border-l-indigo-500 shadow-md">
-            <CardHeader className="bg-gradient-to-r from-indigo-50 to-transparent dark:from-indigo-950/30">
+            <CardHeader className="bg-gradient-to-r from-indigo-900/40 to-transparent">
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-500 text-white">
                   <Calendar className="h-5 w-5" />
@@ -1954,7 +1954,7 @@ export default function NewCarRentalAdminPage() {
 
           {/* Section 6: Payment Method */}
           <Card className="border-l-4 border-l-green-500 shadow-md">
-            <CardHeader className="bg-gradient-to-r from-green-50 to-transparent dark:from-green-950/30">
+            <CardHeader className="bg-gradient-to-r from-green-900/40 to-transparent">
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-500 text-white">
                   <CreditCard className="h-5 w-5" />
