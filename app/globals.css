@@ -855,3 +855,46 @@ input, textarea, select {
   color: rgb(251 191 36) !important;
   font-weight: 600 !important;
 }
+
+/* ── Sidebar icon colors - must override global white ── */
+[data-slot="sidebar-menu-button"] .text-blue-500,
+a .text-blue-500, button .text-blue-500 { color: #3b82f6 !important; }
+
+[data-slot="sidebar-menu-button"] .text-green-500,
+a .text-green-500, button .text-green-500 { color: #22c55e !important; }
+
+[data-slot="sidebar-menu-button"] .text-indigo-500,
+a .text-indigo-500, button .text-indigo-500 { color: #6366f1 !important; }
+
+[data-slot="sidebar-menu-button"] .text-red-500,
+a .text-red-500, button .text-red-500 { color: #ef4444 !important; }
+
+[data-slot="sidebar-menu-button"] .text-purple-500,
+a .text-purple-500, button .text-purple-500 { color: #a855f7 !important; }
+
+[data-slot="sidebar-menu-button"] .text-emerald-500,
+a .text-emerald-500, button .text-emerald-500 { color: #10b981 !important; }
+
+[data-slot="sidebar-menu-button"] .text-amber-500,
+a .text-amber-500, button .text-amber-500 { color: #f59e0b !important; }
+
+[data-slot="sidebar-menu-button"] .text-cyan-500,
+a .text-cyan-500, button .text-cyan-500 { color: #06b6d4 !important; }
+
+[data-slot="sidebar-menu-button"] .text-gray-500,
+a .text-gray-500, button .text-gray-500 { color: #6b7280 !important; }
+
+[data-slot="sidebar-menu-button"] .text-sky-500,
+a .text-sky-500, button .text-sky-500 { color: #0ea5e9 !important; }
+
+[data-slot="sidebar-menu-button"] .text-violet-500,
+a .text-violet-500, button .text-violet-500 { color: #8b5cf6 !important; }
+
+[data-slot="sidebar-menu-button"] .text-rose-500,
+a .text-rose-500, button .text-rose-500 { color: #f43f5e !important; }
+
+[data-slot="sidebar-menu-button"] .text-orange-500,
+a .text-orange-500, button .text-orange-500 { color: #f97316 !important; }
+
+[data-slot="sidebar-menu-button"] .text-yellow-500,
+a .text-yellow-500, button .text-yellow-500 { color: #eab308 !important; }
