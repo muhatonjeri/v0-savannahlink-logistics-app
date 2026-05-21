@@ -763,17 +763,15 @@ select.bg-white {
 }
 
 /* ── Replace white backgrounds with dark navy across admin ── */
-.bg-white {
+/* Exempt print areas from dark override */
+.bg-white:not(.print-receipt):not(.print-receipt *):not([data-print-area]):not([data-print-area] *) {
   background-color: oklch(0.17 0.02 250) !important;
   color: white !important;
 }
 
-.bg-white * {
-  color: white !important;
-}
-
-/* Stripe rows in tables */
-.bg-gray-50 {
+/* Stripe rows in tables - only outside print areas */
+:not([data-print-area]) .bg-gray-50,
+:not(.print-receipt) .bg-gray-50 {
   background-color: oklch(0.20 0.02 250) !important;
   color: white !important;
 }

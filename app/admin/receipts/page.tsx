@@ -1193,7 +1193,7 @@ export default function ReceiptsPage() {
       <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900">
           {selectedReceipt && (
-            <div ref={printRef} className="print-receipt" data-print-area="true">
+            <div ref={printRef} className="print-receipt" data-print-area="true" style={{backgroundColor:"white",color:"#0a1628"}}>
               {/* Screen-only header */}
               <DialogHeader className="print:hidden mb-4">
                 <DialogTitle className="flex items-center justify-between text-white">
@@ -1211,7 +1211,7 @@ export default function ReceiptsPage() {
               </DialogHeader>
 
               {/* Professional Print Template - Savanna Brand Colors */}
-              <div className="bg-white text-gray-900 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
+              <div style={{backgroundColor:"white",color:"#111827"}} className="p-6 rounded-lg border border-gray-200">
                 {/* Company Header */}
                 <div className="print-header border-b-4 border-[#0a1628] pb-5 mb-5">
                   <div className="flex items-start justify-between gap-6">
@@ -1333,7 +1333,7 @@ export default function ReceiptsPage() {
                       </thead>
                       <tbody>
                         {selectedReceipt.items.map((item, index) => (
-                          <tr key={index} className={index % 2 === 0 ? "bg-white text-[#0a1628]" : "bg-gray-50 text-[#0a1628]"}>
+                          <tr key={index} style={{backgroundColor: index % 2 === 0 ? "white" : "#f9fafb", color: "#0a1628"}}>
                             <td className="py-3 px-4">{item.description}</td>
                             <td className="py-3 px-4 text-center">{item.quantity}</td>
                             <td className="py-3 px-4 text-right">{formatCurrency(item.unitPrice)}</td>

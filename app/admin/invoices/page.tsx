@@ -969,7 +969,7 @@ export default function InvoicesPage() {
           </div>
 
           {selectedInvoice && (
-            <div ref={printRef} className="print-receipt bg-white rounded-lg border border-gray-200" data-print-area="true">
+            <div ref={printRef} className="print-receipt bg-white rounded-lg border border-gray-200 text-[#0a1628]" data-print-area="true" style={{backgroundColor:"white",color:"#0a1628"}}>
               {/* Professional Invoice Template - Savanna Brand Colors */}
               <div className="p-8 text-[#0a1628]">
                 {/* Header with Logo and Invoice Info */}
@@ -1103,7 +1103,7 @@ export default function InvoicesPage() {
                       </thead>
                       <tbody>
                         {selectedInvoice.items.map((item, index) => (
-                          <tr key={item.id} className={index % 2 === 0 ? "bg-white text-[#0a1628]" : "bg-gray-50 text-[#0a1628]"}>
+                          <tr key={item.id} style={{backgroundColor: index % 2 === 0 ? "white" : "#f9fafb", color: "#0a1628"}}>
                             <td className="py-4 px-5">{item.description}</td>
                             <td className="py-4 px-5 text-center">{item.quantity}</td>
                             <td className="py-4 px-5 text-right">{item.unitPrice.toLocaleString()}</td>
