@@ -814,7 +814,7 @@ export default function NewCarRentalAdminPage() {
         setKraVerified(true);
         toast.info("KRA PIN format valid. No pre-existing record found - please fill details manually.");
       }
-    } catch {
+    } catch (err) {
       toast.error("KRA lookup failed. Please fill details manually.");
     } finally {
       setKraLookupLoading(false);
