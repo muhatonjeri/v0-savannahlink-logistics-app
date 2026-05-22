@@ -9,6 +9,7 @@ import { usePathname } from "next/navigation";
 import {
   Car,
   Building2,
+  ArrowUpRight,
   Compass,
   Plane,
   Truck,
@@ -130,6 +131,12 @@ const navItems = [
     href: "/admin/car-rental/sublets",
     icon: Building2,
     color: "text-cyan-400",
+  },
+  {
+    title: "Fleet Out",
+    href: "/admin/car-rental/fleet-out",
+    icon: ArrowUpRight,
+    color: "text-violet-400",
   },
   {
     title: "Services Config",
