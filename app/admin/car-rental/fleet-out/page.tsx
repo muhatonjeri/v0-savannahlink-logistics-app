@@ -36,6 +36,8 @@ interface FleetOutRecord {
   amountPaid: number;
   // Status
   status: "active" | "completed" | "cancelled";
+  returnCondition: string;
+  followUpNotes: string;
   notes: string;
   createdAt: string;
 }
@@ -54,7 +56,7 @@ const INITIAL: FleetOutRecord[] = [
     ourDailyRate: 7000, receiverChargesClient: 9000,
     startDate: "2024-03-08", endDate: "2024-03-12", numberOfDays: 4,
     paymentMethod: "bank", paymentReference: "EQB-TXN-00789", amountPaid: 28000,
-    status: "completed", notes: "Picked up on time, returned in good condition", createdAt: "2024-03-08",
+    status: "completed", returnCondition: "Good", followUpNotes: "", notes: "Picked up on time, returned in good condition", createdAt: "2024-03-08",
   },
 ];
 
@@ -118,7 +120,7 @@ export default function FleetOutPage() {
       startDate: form.startDate, endDate: form.endDate, numberOfDays: days,
       paymentMethod: form.paymentMethod, paymentReference: form.paymentReference,
       amountPaid: parseFloat(form.amountPaid) || 0,
-      status: form.status, notes: form.notes,
+      status: form.status, returnCondition: form.returnCondition, followUpNotes: form.followUpNotes, notes: form.notes,
       createdAt: new Date().toISOString().split("T")[0],
     };
     setRecords([r, ...records]);
@@ -184,6 +186,7 @@ export default function FleetOutPage() {
                 <TableHead>Paid</TableHead>
                 <TableHead>Balance</TableHead>
                 <TableHead>Payment</TableHead>
+                <TableHead>Follow-up</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead />
               </TableRow>
@@ -216,6 +219,13 @@ export default function FleetOutPage() {
                     <TableCell>
                       <p className="text-white text-sm capitalize">{r.paymentMethod === "mpesa" ? "M-Pesa" : r.paymentMethod.charAt(0).toUpperCase() + r.paymentMethod.slice(1)}</p>
                       <p className="text-gray-400 text-xs font-mono">{r.paymentReference || "-"}</p>
+                    </TableCell>
+                    <TableCell>
+                      {r.followUpNotes
+                        ? <p className="text-amber-300 text-xs max-w-[140px] truncate">{r.followUpNotes}</p>
+                        : <span className="text-gray-500 text-xs">-</span>
+                      }
+                      {r.returnCondition && <p className="text-xs text-gray-400 mt-0.5">{r.returnCondition}</p>}
                     </TableCell>
                     <TableCell>
                       <Badge className={r.status === "active" ? "bg-blue-600 text-white" : r.status === "completed" ? "bg-green-600 text-white" : "bg-gray-600 text-white"}>
@@ -436,6 +446,30 @@ export default function FleetOutPage() {
               )}
             </div>
 
+            {/* Follow-up / Return Info */}
+            <div className="rounded-lg border border-rose-500/30 bg-rose-500/5 p-4 space-y-3">
+              <h4 className="text-rose-400 font-semibold text-xs uppercase tracking-wide">Follow-up / Return Info</h4>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label className="text-gray-200">Return Condition</Label>
+                  <select className="w-full mt-1 rounded-lg bg-[#0a1628] border border-white/20 text-white p-2 text-sm"
+                    value={form.returnCondition} onChange={e => setForm({ ...form, returnCondition: e.target.value })}>
+                    <option value="">Not yet returned</option>
+                    <option value="Excellent">Excellent</option>
+                    <option value="Good">Good</option>
+                    <option value="Fair">Fair - minor issues</option>
+                    <option value="Damaged">Damaged - needs repair</option>
+                  </select>
+                </div>
+                <div>
+                  <Label className="text-gray-200">Follow-up Notes</Label>
+                  <Input className="mt-1 bg-[#0a1628] border-white/20 text-white"
+                    placeholder="e.g. Called 3 times, awaiting payment..."
+                    value={form.followUpNotes} onChange={e => setForm({ ...form, followUpNotes: e.target.value })} />
+                </div>
+              </div>
+            </div>
+
             {/* Status & Notes */}
             <div className="grid grid-cols-2 gap-3">
               <div>
@@ -503,9 +537,12 @@ export default function FleetOutPage() {
                     </span>
                   </div>
                 </div>
-                {viewRecord.notes && (
-                  <div className="rounded-lg bg-[#0a1628] border border-white/10 p-3">
-                    <p className="text-gray-400 text-xs">Notes: <span className="text-gray-300">{viewRecord.notes}</span></p>
+                {(viewRecord.returnCondition || viewRecord.followUpNotes || viewRecord.notes) && (
+                  <div className="rounded-lg bg-[#0a1628] border border-rose-500/20 p-3 space-y-1.5">
+                    <p className="text-rose-400 font-semibold text-xs uppercase tracking-wide mb-1">Follow-up / Return</p>
+                    {viewRecord.returnCondition && <div className="flex justify-between text-sm"><span className="text-gray-400">Return condition:</span><span className="text-white">{viewRecord.returnCondition}</span></div>}
+                    {viewRecord.followUpNotes && <p className="text-amber-300 text-xs">{viewRecord.followUpNotes}</p>}
+                    {viewRecord.notes && <p className="text-gray-400 text-xs">Notes: <span className="text-gray-300">{viewRecord.notes}</span></p>}
                   </div>
                 )}
               </div>

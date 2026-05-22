@@ -14,6 +14,7 @@ import { toast } from "sonner";
 
 interface SubletVehicle {
   id: string;
+  serviceType: string;
   supplierName: string;
   supplierPhone: string;
   supplierEmail: string;
@@ -32,6 +33,7 @@ interface SubletVehicle {
 interface SubletBooking {
   id: string;
   vehicleId: string;
+  serviceType: string;
   clientName: string;
   clientPhone: string;
   startDate: string;
@@ -53,12 +55,14 @@ const INITIAL_VEHICLES: SubletVehicle[] = [
   {
     id: "sv-001", supplierName: "Quickride Rentals Ltd", supplierPhone: "+254 722 100 200",
     supplierEmail: "fleet@quickride.co.ke", supplierType: "company",
+    serviceType: "Car Rental",
     make: "Nissan", model: "X-Trail", registration: "KDD 123A", color: "Black", year: "2021",
     supplierDailyRate: 5000, ourDailyRate: 6500, status: "available", createdAt: "2024-03-01",
   },
   {
     id: "sv-002", supplierName: "James Mwangi", supplierPhone: "+254 733 300 400",
     supplierEmail: "", supplierType: "individual",
+    serviceType: "Car Rental",
     make: "Toyota", model: "Prado", registration: "KCX 456B", color: "White", year: "2020",
     supplierDailyRate: 8000, ourDailyRate: 10000, status: "active", createdAt: "2024-03-05",
   },
@@ -70,12 +74,15 @@ const INITIAL_BOOKINGS: SubletBooking[] = [
     startDate: "2024-03-10", endDate: "2024-03-14", numberOfDays: 4,
     supplierDailyRate: 8000, ourDailyRate: 10000,
     totalSupplierCost: 32000, totalClientCharge: 40000, totalProfit: 8000,
+    serviceType: "Car Rental",
     status: "active", paymentMethod: "bank", paymentReference: "EQB-TXN-00123", notes: "", createdAt: "2024-03-10",
   },
 ];
 
-const emptyVForm = { supplierName: "", supplierPhone: "", supplierEmail: "", supplierType: "company" as "company" | "individual", make: "", model: "", registration: "", color: "", year: "", supplierDailyRate: "", ourDailyRate: "" };
-const emptyBForm = { vehicleId: "", clientName: "", clientPhone: "", startDate: "", endDate: "", numberOfDays: "", paymentMethod: "mpesa" as "mpesa" | "bank" | "cash" | "cheque", paymentReference: "", notes: "" };
+const SERVICES = ["Car Rental", "Safari Tours", "Transfers", "Movers", "Corporate Rental", "Road Recovery", "Cargo Handling", "Shipment Imports", "Construction Equipment"];
+
+const emptyVForm = { serviceType: "Car Rental", supplierName: "", supplierPhone: "", supplierEmail: "", supplierType: "company" as "company" | "individual", make: "", model: "", registration: "", color: "", year: "", supplierDailyRate: "", ourDailyRate: "" };
+const emptyBForm = { serviceType: "Car Rental", vehicleId: "", clientName: "", clientPhone: "", startDate: "", endDate: "", numberOfDays: "", paymentMethod: "mpesa" as "mpesa" | "bank" | "cash" | "cheque", paymentReference: "", notes: "" };
 
 export default function SubletsPage() {
   const [vehicles, setVehicles] = useState<SubletVehicle[]>(INITIAL_VEHICLES);
@@ -98,7 +105,7 @@ export default function SubletsPage() {
       toast.error("Fill all required fields"); return;
     }
     const v: SubletVehicle = {
-      id: "sv-" + Date.now(), supplierName: vForm.supplierName, supplierPhone: vForm.supplierPhone,
+      id: "sv-" + Date.now(), serviceType: vForm.serviceType, supplierName: vForm.supplierName, supplierPhone: vForm.supplierPhone,
       supplierEmail: vForm.supplierEmail, supplierType: vForm.supplierType,
       make: vForm.make, model: vForm.model, registration: vForm.registration.toUpperCase(),
       color: vForm.color, year: vForm.year,
@@ -117,7 +124,7 @@ export default function SubletsPage() {
     if (!bForm.clientName || !bForm.startDate || !bForm.endDate) { toast.error("Fill all required fields"); return; }
     const days = parseInt(bForm.numberOfDays) || Math.round((new Date(bForm.endDate).getTime() - new Date(bForm.startDate).getTime()) / 86400000);
     const b: SubletBooking = {
-      id: "sb-" + Date.now(), vehicleId: v.id, clientName: bForm.clientName, clientPhone: bForm.clientPhone,
+      id: "sb-" + Date.now(), vehicleId: v.id, serviceType: bForm.serviceType, clientName: bForm.clientName, clientPhone: bForm.clientPhone,
       startDate: bForm.startDate, endDate: bForm.endDate, numberOfDays: days,
       supplierDailyRate: v.supplierDailyRate, ourDailyRate: v.ourDailyRate,
       totalSupplierCost: v.supplierDailyRate * days, totalClientCharge: v.ourDailyRate * days,
@@ -140,9 +147,9 @@ export default function SubletsPage() {
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-3">
             <Building2 className="h-7 w-7 text-cyan-400" />
-            Sublet Vehicles
+            Sublet Assets
           </h1>
-          <p className="text-gray-400 mt-1 text-sm">Track vehicles subleted from other companies — monitor supplier cost, client charge and profit</p>
+          <p className="text-gray-400 mt-1 text-sm">Track assets subleted from other companies across all services — cars, buses, equipment and more</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" className="border-cyan-500/40 text-cyan-400 hover:bg-cyan-500/10 gap-2" onClick={() => setShowBookingDialog(true)}>
@@ -176,13 +183,14 @@ export default function SubletsPage() {
 
       <Card className="border-white/10 bg-white/5">
         <CardHeader className="pb-3">
-          <CardTitle className="text-base text-white">Sublet Fleet</CardTitle>
-          <CardDescription className="text-gray-500 text-xs">Vehicles sourced from external suppliers</CardDescription>
+          <CardTitle className="text-base text-white">Sublet Assets</CardTitle>
+          <CardDescription className="text-gray-500 text-xs">Assets sourced from external suppliers across all services</CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead>Service</TableHead>
                 <TableHead>Vehicle</TableHead>
                 <TableHead>Reg</TableHead>
                 <TableHead>Supplier</TableHead>
@@ -228,6 +236,7 @@ export default function SubletsPage() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead>Service</TableHead>
                 <TableHead>Vehicle</TableHead>
                 <TableHead>Client</TableHead>
                 <TableHead>Period</TableHead>
@@ -247,6 +256,7 @@ export default function SubletsPage() {
                 const v = vehicles.find(x => x.id === b.vehicleId);
                 return (
                   <TableRow key={b.id}>
+                    <TableCell><Badge className="bg-violet-600/20 text-violet-300 border border-violet-500/30 text-xs">{b.serviceType}</Badge></TableCell>
                     <TableCell className="text-white font-medium">{v ? v.make + " " + v.model : "Unknown"}<br /><span className="text-xs font-mono text-cyan-400">{v?.registration}</span></TableCell>
                     <TableCell><p className="text-white text-sm">{b.clientName}</p><p className="text-gray-400 text-xs">{b.clientPhone}</p></TableCell>
                     <TableCell className="text-gray-300 text-sm">{b.startDate}<br />to {b.endDate}</TableCell>
@@ -282,6 +292,13 @@ export default function SubletsPage() {
             <div className="rounded-lg border border-cyan-500/30 bg-cyan-500/5 p-4 space-y-3">
               <h4 className="text-cyan-400 font-semibold text-xs uppercase tracking-wide flex items-center gap-2"><Building2 className="h-4 w-4" />Supplier Details</h4>
               <div>
+                <Label className="text-gray-200">Service Type *</Label>
+                <select className="w-full mt-1 rounded-lg bg-[#0a1628] border border-cyan-500/30 text-white p-2 text-sm"
+                  value={vForm.serviceType} onChange={e => setVForm({ ...vForm, serviceType: e.target.value })}>
+                  {SERVICES.map(s => <option key={s} value={s}>{s}</option>)}
+                </select>
+              </div>
+              <div>
                 <Label className="text-gray-200">Supplier Type</Label>
                 <div className="flex gap-2 mt-1">
                   {(["company", "individual"] as const).map(t => (
@@ -309,10 +326,10 @@ export default function SubletsPage() {
             </div>
 
             <div className="rounded-lg border border-blue-500/30 bg-blue-500/5 p-4 space-y-3">
-              <h4 className="text-blue-400 font-semibold text-xs uppercase tracking-wide flex items-center gap-2"><Car className="h-4 w-4" />Vehicle Details</h4>
+              <h4 className="text-blue-400 font-semibold text-xs uppercase tracking-wide flex items-center gap-2"><Car className="h-4 w-4" />Asset / Vehicle Details</h4>
               <div className="grid grid-cols-2 gap-3">
-                <div><Label className="text-gray-200">Make *</Label><Input className="mt-1 bg-[#0a1628] border-white/20 text-white" placeholder="Nissan" value={vForm.make} onChange={e => setVForm({ ...vForm, make: e.target.value })} /></div>
-                <div><Label className="text-gray-200">Model *</Label><Input className="mt-1 bg-[#0a1628] border-white/20 text-white" placeholder="X-Trail" value={vForm.model} onChange={e => setVForm({ ...vForm, model: e.target.value })} /></div>
+                <div><Label className="text-gray-200">Make / Type *</Label><Input className="mt-1 bg-[#0a1628] border-white/20 text-white" placeholder="e.g. Nissan, Bus, Crane" value={vForm.make} onChange={e => setVForm({ ...vForm, make: e.target.value })} /></div>
+                <div><Label className="text-gray-200">Model / Description *</Label><Input className="mt-1 bg-[#0a1628] border-white/20 text-white" placeholder="e.g. X-Trail, 32-Seater, 50T Crane" value={vForm.model} onChange={e => setVForm({ ...vForm, model: e.target.value })} /></div>
                 <div><Label className="text-gray-200">Registration *</Label><Input className="mt-1 bg-[#0a1628] border-white/20 text-white font-mono uppercase" placeholder="KDD 123A" value={vForm.registration} onChange={e => setVForm({ ...vForm, registration: e.target.value.toUpperCase() })} /></div>
                 <div><Label className="text-gray-200">Color</Label><Input className="mt-1 bg-[#0a1628] border-white/20 text-white" placeholder="Black" value={vForm.color} onChange={e => setVForm({ ...vForm, color: e.target.value })} /></div>
                 <div><Label className="text-gray-200">Year</Label><Input className="mt-1 bg-[#0a1628] border-white/20 text-white" placeholder="2022" value={vForm.year} onChange={e => setVForm({ ...vForm, year: e.target.value })} /></div>
@@ -355,6 +372,13 @@ export default function SubletsPage() {
             <DialogDescription>Assign a subleted vehicle to a client and auto-calculate profit</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
+            <div>
+              <Label className="text-gray-200">Service Type *</Label>
+              <select className="w-full mt-1 rounded-lg bg-[#0a1628] border border-violet-500/30 text-white p-2 text-sm"
+                value={bForm.serviceType} onChange={e => setBForm({ ...bForm, serviceType: e.target.value })}>
+                {SERVICES.map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
+            </div>
             <div>
               <Label className="text-gray-200">Select Vehicle *</Label>
               <select className="w-full mt-1 rounded-lg bg-[#0a1628] border border-white/20 text-white p-2 text-sm"

@@ -128,7 +128,7 @@ const navItems = [
   },
   {
     title: "Sublet Vehicles",
-    href: "/admin/car-rental/sublets",
+    href: "/admin/sublets",
     icon: Building2,
     color: "text-cyan-400",
   },
