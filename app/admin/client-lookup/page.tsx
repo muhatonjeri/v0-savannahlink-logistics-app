@@ -730,54 +730,52 @@ function ClientLookupContent() {
     <div className="space-y-6">
       {/* Service Banner - Show when accessing via service */}
       {currentService && (
-        <div className={`rounded-lg border-2 ${currentService.bgColor} p-4 flex items-center gap-4`}>
-          <div className={`rounded-full p-3 bg-[#0a1628] shadow-sm border border-white/10`}>
-            <currentService.icon className={`h-6 w-6 ${currentService.color}`} />
+        <div className={`rounded-xl border ${currentService.bgColor} p-4 flex items-center gap-4`}>
+          <div className={`rounded-xl p-2.5 bg-[#0a1628] border border-white/10 shrink-0`}>
+            <currentService.icon className={`h-5 w-5 ${currentService.color}`} />
           </div>
-          <div className="flex-1">
-            <h2 className={`font-semibold ${currentService.color}`}>
-              {currentService.title} - Client Verification Required
+          <div className="flex-1 min-w-0">
+            <h2 className={`font-semibold text-sm ${currentService.color}`}>
+              {currentService.title} — Verify Client First
             </h2>
-            <p className="text-sm text-gray-300">
-              Please verify the client against the blacklist before proceeding with {currentService.title.toLowerCase()} service.
+            <p className="text-xs text-gray-400 mt-0.5 truncate">
+              Blacklist check required before proceeding with this service.
             </p>
           </div>
-          <Badge variant="outline" className={`${currentService.color} border-current`}>
+          <Badge variant="outline" className={`${currentService.color} border-current shrink-0 text-xs`}>
             Step 1 of 2
           </Badge>
         </div>
       )}
 
       {/* Header */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600 shadow-lg">
-              <ScanSearch className="h-5 w-5 text-white" />
-            </div>
+            <Fingerprint className="h-7 w-7 text-violet-400" />
             Client Lookup
           </h1>
-          <p className="text-gray-400 mt-1 ml-13 pl-1">
-            Search clients by name, ID number, or phone number. Automatically checks against blacklist.
+          <p className="text-gray-400 mt-1 text-sm">
+            Search, verify and manage clients. Automatically checks against the blacklist.
           </p>
         </div>
         <Link href="/admin/blacklist">
-          <Button variant="outline" className="gap-2">
-            <ShieldAlert className="h-4 w-4 text-red-500" />
-            View Full Blacklist
+          <Button variant="outline" size="sm" className="gap-2 border-red-500/40 text-red-400 hover:bg-red-500/10">
+            <ShieldAlert className="h-4 w-4" />
+            Blacklist
           </Button>
         </Link>
       </div>
 
       {/* Search Section */}
-      <Card className="border-indigo-500/50 dark:border-indigo-800">
-        <CardHeader className="pb-4">
-          <CardTitle className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
-            <Search className="h-5 w-5" />
+      <Card className="border-violet-500/30 bg-white/5">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-violet-400 text-base">
+            <Search className="h-4 w-4" />
             Search Client
           </CardTitle>
-          <CardDescription>
-            Enter client details to search. The system will automatically check against the blacklist database.
+          <CardDescription className="text-gray-500 text-xs">
+            Enter client details below. System checks blacklist automatically.
           </CardDescription>
         </CardHeader>
         <CardContent>
