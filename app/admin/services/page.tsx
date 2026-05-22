@@ -671,95 +671,75 @@ export default function ServicesManagementPage() {
 
   const bookingStatusConfig = {
     pending: { label: "Pending", color: "bg-gray-500/20 text-gray-400 border-gray-500/30" },
-    partial: { label: "Partial", color: "bg-amber-900/300/20 text-amber-500 border-amber-500/30" },
-    paid: { label: "Paid", color: "bg-green-900/300/20 text-green-500 border-green-500/30" },
-    cancelled: { label: "Cancelled", color: "bg-red-900/300/20 text-red-400 border-red-500/30" },
+    partial: { label: "Partial", color: "bg-amber-500/20 text-amber-400 border-amber-500/30" },
+    paid: { label: "Paid", color: "bg-green-500/20 text-green-400 border-green-500/30" },
+    cancelled: { label: "Cancelled", color: "bg-red-500/20 text-red-400 border-red-500/30" },
   };
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-2"><Sliders className="h-6 w-6 text-pink-400" />Services Management</h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Configure service rates, items, and settings for all Moventra Safaris & Logistics Ltd services
-          </p>
+          <h1 className="text-2xl font-bold text-white flex items-center gap-3">
+            <Sliders className="h-7 w-7 text-pink-400" />
+            Services Management
+          </h1>
+          <p className="text-gray-400 mt-1 text-sm">Configure rates, items and settings for all services</p>
         </div>
         <div className="flex items-center gap-2">
-          <Badge variant="outline" className="bg-emerald-900/30 text-emerald-300 dark:bg-emerald-950 dark:text-emerald-400">
-            {services.filter(s => s.isActive).length} Active Services
+          <Badge className="bg-emerald-600 text-white text-xs">
+            {services.filter(s => s.isActive).length} Active
           </Badge>
-          <Badge variant="outline" className="bg-blue-900/30 text-blue-300 dark:bg-blue-950 dark:text-blue-400">
-            {services.reduce((acc, s) => acc + s.items.length, 0)} Total Items
+          <Badge className="bg-blue-600 text-white text-xs">
+            {services.reduce((acc, s) => acc + s.items.length, 0)} Items
           </Badge>
         </div>
       </div>
 
       {/* Services Grid */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {services.map(service => {
           const Icon = serviceIcons[service.id] || Package;
-          const colors = serviceColors[service.id] || { bg: "bg-gray-100", text: "text-gray-700", border: "border-gray-300" };
+          const colors = serviceColors[service.id] || { bg: "bg-gray-500/10", text: "text-gray-400", border: "border-gray-500/30" };
+          const isSelected = selectedService?.id === service.id;
 
           return (
             <Card
               key={service.id}
-              className={`cursor-pointer transition-all hover:shadow-lg ${
-                selectedService?.id === service.id
-                  ? `ring-2 ring-emerald-500 ${colors.bg}`
-                  : "hover:border-emerald-300 dark:hover:border-emerald-700"
-              } ${!service.isActive ? "opacity-60" : ""}`}
+              className={`cursor-pointer transition-all border ${
+                isSelected
+                  ? "border-emerald-500 bg-emerald-500/10 shadow-lg shadow-emerald-500/10"
+                  : "border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/10"
+              } ${!service.isActive ? "opacity-50" : ""}`}
               onClick={() => setSelectedService(service)}
             >
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
+              <CardContent className="p-4">
+                <div className="flex items-start justify-between mb-3">
                   <div className={`p-2 rounded-lg ${colors.bg}`}>
                     <Icon className={`h-5 w-5 ${colors.text}`} />
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Badge
-                      variant="outline"
-                      className={service.isActive ? "bg-emerald-900/30 text-emerald-300 dark:bg-emerald-900/50 dark:text-emerald-300" : "bg-gray-700 text-gray-300"}
-                    >
-                      {service.isActive ? "Active" : "Inactive"}
+                  <div className="flex items-center gap-1.5">
+                    <Badge className={`text-xs px-1.5 py-0 ${service.isActive ? "bg-emerald-600 text-white" : "bg-gray-600 text-gray-300"}`}>
+                      {service.isActive ? "Active" : "Off"}
                     </Badge>
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-8 w-8 p-0"
-                      onClick={e => {
-                        e.stopPropagation();
-                        toggleServiceActive(service.id);
-                      }}
+                      className="h-6 w-6 p-0"
+                      onClick={e => { e.stopPropagation(); toggleServiceActive(service.id); }}
                     >
-                      {service.isActive ? (
-                        <ToggleRight className="h-5 w-5 text-emerald-600" />
-                      ) : (
-                        <ToggleLeft className="h-5 w-5 text-gray-400" />
-                      )}
+                      {service.isActive
+                        ? <ToggleRight className="h-4 w-4 text-emerald-500" />
+                        : <ToggleLeft className="h-4 w-4 text-gray-500" />}
                     </Button>
                   </div>
                 </div>
-                <CardTitle className="text-lg mt-2">{service.name}</CardTitle>
-                <CardDescription className="line-clamp-1">{service.description}</CardDescription>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-[#e67e22]">
-                    {service.items.length} items
-                  </span>
-                  <span className="text-[#e67e22]">
-                    VAT: {service.vatRate}%
-                  </span>
-                </div>
-                <div className="mt-2 flex items-center gap-2">
-                  <Badge variant="secondary" className="text-xs">
-                    {service.items.filter(i => i.isActive).length} active
-                  </Badge>
-                  <Badge variant="outline" className="text-xs text-orange-600">
-                    {service.items.filter(i => !i.isActive).length} inactive
-                  </Badge>
+                <h3 className={`font-semibold text-sm mb-0.5 ${isSelected ? "text-emerald-300" : "text-white"}`}>{service.name}</h3>
+                <p className="text-xs text-gray-500 line-clamp-1 mb-3">{service.description}</p>
+                <div className="flex items-center justify-between text-xs border-t border-white/10 pt-2">
+                  <span className="text-gray-400">{service.items.filter(i => i.isActive).length}/{service.items.length} items active</span>
+                  <span className="text-[#e67e22] font-medium">VAT {service.vatRate}%</span>
                 </div>
               </CardContent>
             </Card>
@@ -769,7 +749,7 @@ export default function ServicesManagementPage() {
 
       {/* Selected Service Details */}
       {selectedService && (
-        <Card className="border-2 border-emerald-200 dark:border-emerald-800">
+        <Card className="border border-emerald-500/40 bg-white/5">
           <CardHeader>
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div className="flex items-center gap-3">
