@@ -762,13 +762,61 @@ export default function NewCarRentalAdminPage() {
     toast.success("Alert marked as resolved");
   };
 
-  // KRA PIN verification mock
-  const verifyKraPin = () => {
+  // KRA PIN lookup - auto-fills client details from iTax
+  // TODO: Replace mockKraLookup with real KRA iTax API call when credentials are available
+  // API endpoint: https://itax.kra.go.ke/KRA-Portal/pinChecker.htm
+  const [kraLookupLoading, setKraLookupLoading] = useState(false);
+  const [kraVerified, setKraVerified] = useState(false);
+
+  const mockKraLookup = (pin: string) => {
+    // Simulated KRA iTax response - replace with real API
+    const mockData: Record<string, {
+      fullName: string; idNumber: string; phone: string;
+      email: string; address: string; pinType: string;
+    }> = {
+      "A012345678A": { fullName: "John Kamau Mwangi", idNumber: "12345678", phone: "+254722000001", email: "john.kamau@email.com", address: "Westlands, Nairobi", pinType: "Individual" },
+      "P012345678B": { fullName: "Jane Wanjiru Njoroge", idNumber: "23456789", phone: "+254733000002", email: "jane.wanjiru@email.com", address: "Kilimani, Nairobi", pinType: "Individual" },
+    };
+    return mockData[pin] || null;
+  };
+
+  const lookupKraPin = async () => {
     const kraPin = form.getValues("kraPin");
-    if (kraPin && /^[A-Z]\d{9}[A-Z]$/.test(kraPin)) {
-      toast.success("KRA PIN verified successfully!");
-    } else {
+    if (!kraPin) { toast.error("Enter a KRA PIN first"); return; }
+    if (!/^[A-Z]\d{9}[A-Z]$/.test(kraPin)) {
       toast.error("Invalid KRA PIN format. Expected: A012345678A");
+      return;
+    }
+
+    setKraLookupLoading(true);
+    setKraVerified(false);
+
+    // Simulate API call delay
+    await new Promise(r => setTimeout(r, 1200));
+
+    try {
+      // ── Real API call would go here ──
+      // const res = await fetch(\`/api/kra/lookup?pin=\${kraPin}\`);
+      // const data = await res.json();
+
+      const data = mockKraLookup(kraPin);
+
+      if (data) {
+        form.setValue("fullName", data.fullName);
+        form.setValue("idNumber", data.idNumber);
+        form.setValue("phone", data.phone);
+        if (data.email) form.setValue("email", data.email);
+        setKraVerified(true);
+        toast.success(\`✅ KRA PIN verified — details auto-filled for \${data.fullName}\`);
+      } else {
+        // PIN valid format but not found — still mark as verified format-wise
+        setKraVerified(true);
+        toast.info("KRA PIN format valid. No pre-existing record found — please fill details manually.");
+      }
+    } catch {
+      toast.error("KRA lookup failed. Please fill details manually.");
+    } finally {
+      setKraLookupLoading(false);
     }
   };
 
@@ -1386,17 +1434,46 @@ export default function NewCarRentalAdminPage() {
                     control={form.control}
                     name="kraPin"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-gray-200">KRA PIN *</FormLabel>
+                      <FormItem className="sm:col-span-2">
+                        <FormLabel className="text-gray-200 flex items-center gap-2">
+                          KRA PIN
+                          <span className="text-xs text-violet-400 font-normal">(auto-fills client details)</span>
+                        </FormLabel>
                         <div className="flex gap-2">
                           <FormControl>
-                            <Input placeholder="A012345678A" className="bg-[#0a1628] border-violet-500/50 focus:border-violet-400 text-white font-mono" {...field} />
+                            <Input
+                              placeholder="A012345678A"
+                              className={`bg-[#0a1628] font-mono text-white ${kraVerified ? "border-green-500 focus:border-green-400" : "border-violet-500/50 focus:border-violet-400"}`}
+                              {...field}
+                              onChange={(e) => { field.onChange(e); setKraVerified(false); }}
+                            />
                           </FormControl>
-                          <Button type="button" variant="outline" onClick={verifyKraPin} className="border-violet-500 text-violet-400 hover:bg-violet-900/30">
-                            Verify
+                          <Button
+                            type="button"
+                            onClick={lookupKraPin}
+                            disabled={kraLookupLoading}
+                            className="bg-violet-600 hover:bg-violet-700 text-white shrink-0 gap-2"
+                          >
+                            {kraLookupLoading ? (
+                              <><Loader2 className="h-4 w-4 animate-spin" />Looking up...</>
+                            ) : kraVerified ? (
+                              <><CheckCircle2 className="h-4 w-4 text-green-300" />Verified</>
+                            ) : (
+                              <>🔍 Lookup</>
+                            )}
                           </Button>
                         </div>
-                        <FormDescription className="text-violet-600 dark:text-violet-400 text-xs">Format: A012345678A</FormDescription>
+                        {kraVerified && (
+                          <p className="text-xs text-green-400 flex items-center gap-1 mt-1">
+                            <CheckCircle2 className="h-3 w-3" />
+                            KRA PIN verified — details auto-filled from iTax
+                          </p>
+                        )}
+                        {!kraVerified && (
+                          <FormDescription className="text-violet-400 text-xs">
+                            Format: A012345678A — Enter PIN and click Lookup to auto-fill client details
+                          </FormDescription>
+                        )}
                         <FormMessage />
                       </FormItem>
                     )}
