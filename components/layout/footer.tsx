@@ -150,10 +150,10 @@ export function Footer() {
               <li className="flex items-center gap-2">
                 <Mail className="h-4 w-4 shrink-0 text-primary" />
                 <a
-                  href="mailto:info@Moventra Safaris & Logistics Ltd.com"
-                  className="text-sm text-muted-foreground transition-colors hover:text-primary"
+                  href="mailto:info@moventrasafarislogisticsltd.com"
+                  className="text-sm text-muted-foreground transition-colors hover:text-primary break-all"
                 >
-                  info@Moventra Safaris & Logistics Ltd.com
+                  info@moventrasafarislogisticsltd.com
                 </a>
               </li>
               <li className="flex items-center gap-2">
@@ -168,12 +168,12 @@ export function Footer() {
               <li className="flex items-center gap-2">
                 <Globe className="h-4 w-4 shrink-0 text-primary" />
                 <a
-                  href="https://www.Moventra Safaris & Logistics Ltd.com"
+                  href="https://www.moventrasafarislogisticsltd.com"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-sm text-muted-foreground transition-colors hover:text-primary"
                 >
-                  www.Moventra Safaris & Logistics Ltd.com
+                  www.moventrasafarislogisticsltd.com
                 </a>
               </li>
             </ul>
