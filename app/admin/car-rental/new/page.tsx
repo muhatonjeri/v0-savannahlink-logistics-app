@@ -811,7 +811,7 @@ export default function NewCarRentalAdminPage() {
         form.setValue("phone", data.phone);
         if (data.email) form.setValue("email", data.email);
         setKraVerified(true);
-        toast.success(\`✅ KRA PIN verified — details auto-filled for \${data.fullName}\`);
+        toast.success("✅ KRA PIN verified — details auto-filled for " + data.fullName);
       } else {
         // PIN valid format but not found — still mark as verified format-wise
         setKraVerified(true);
