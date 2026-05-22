@@ -797,7 +797,7 @@ export default function NewCarRentalAdminPage() {
 
     try {
       // -- Real API call would go here --
-      // const res = await fetch("/api/kra/lookup?pin=\" + kraPin + "");
+      // const res = await fetch("/api/kra/lookup?pin=" + kraPin);
       // const data = await res.json();
 
       const data = mockKraLookup(kraPin);
