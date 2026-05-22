@@ -987,13 +987,7 @@ function ClientLookupContent() {
                         This person has no blacklist records. Safe to register as a new client or proceed with services.
                       </p>
                     </div>
-                    <Button 
-                      onClick={openRegisterDialog}
-                      className="bg-green-600 hover:bg-green-700 gap-2"
-                    >
-                      <UserPlus className="h-4 w-4" />
-                      Register New Client
-                    </Button>
+
                   </div>
                   
                   {/* Selected Service - Prominent CTA */}

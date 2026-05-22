@@ -132,8 +132,13 @@ const adminCarRentalSchema = z.object({
   endDate: z.string().min(1, "End date is required"),
   endTime: z.string().min(1, "End time is required"),
   
+  // Client Type
+  clientType: z.enum(["citizen", "foreigner"]).default("citizen"),
+  // Payment Type
+  paymentType: z.enum(["full", "partial"]).default("full"),
+  depositAmount: z.string().optional(),
   // Payment Method
-  paymentMethod: z.enum(["mpesa", "bank"]),
+  paymentMethod: z.enum(["mpesa", "bank", "cash"]),
 });
 
 type AdminCarRentalFormData = z.infer<typeof adminCarRentalSchema>;
@@ -281,6 +286,9 @@ export default function NewCarRentalAdminPage() {
       startTime: "",
       endDate: "",
       endTime: "",
+      clientType: "citizen",
+      paymentType: "full",
+      depositAmount: "",
       paymentMethod: "mpesa",
     },
   });
@@ -987,6 +995,35 @@ export default function NewCarRentalAdminPage() {
                   <Phone className="h-4 w-4" />
                   Contact Information
                 </h4>
+                {/* Citizen / Foreigner Toggle */}
+                <FormField
+                  control={form.control}
+                  name="clientType"
+                  render={({ field }) => (
+                    <FormItem className="mb-4">
+                      <FormLabel className="text-gray-200">Client Type *</FormLabel>
+                      <FormControl>
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            onClick={() => field.onChange("citizen")}
+                            className={`flex-1 py-2 rounded-lg border-2 font-semibold text-sm transition-all ${field.value === "citizen" ? "border-blue-500 bg-blue-500/20 text-blue-300" : "border-white/10 bg-white/5 text-gray-400 hover:border-white/20"}`}
+                          >
+                            🇰🇪 Citizen
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => field.onChange("foreigner")}
+                            className={`flex-1 py-2 rounded-lg border-2 font-semibold text-sm transition-all ${field.value === "foreigner" ? "border-amber-500 bg-amber-500/20 text-amber-300" : "border-white/10 bg-white/5 text-gray-400 hover:border-white/20"}`}
+                          >
+                            🌍 Foreigner
+                          </button>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <div className="grid gap-4 sm:grid-cols-2">
                   <FormField
                     control={form.control}
@@ -1952,7 +1989,7 @@ export default function NewCarRentalAdminPage() {
             </CardContent>
           </Card>
 
-          {/* Section 6: Payment Method */}
+          {/* Section 6: Payment */}
           <Card className="border-l-4 border-l-green-500 shadow-md">
             <CardHeader className="bg-gradient-to-r from-green-900/40 to-transparent">
               <div className="flex items-center gap-3">
@@ -1960,57 +1997,83 @@ export default function NewCarRentalAdminPage() {
                   <CreditCard className="h-5 w-5" />
                 </div>
                 <div>
-                  <CardTitle className="text-green-400">
-                    6. Payment Method
-                  </CardTitle>
-                  <CardDescription>
-                    Select how the customer will pay
-                  </CardDescription>
+                  <CardTitle className="text-green-400">6. Payment</CardTitle>
+                  <CardDescription>Choose payment type and method</CardDescription>
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="pt-6">
-              <div className="rounded-lg border border-green-200 dark:border-green-800 bg-green-50/50 dark:bg-green-950/20 p-4">
+            <CardContent className="pt-6 space-y-4">
+
+              {/* Full / Partial toggle */}
+              <FormField
+                control={form.control}
+                name="paymentType"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-gray-200">Payment Type *</FormLabel>
+                    <FormControl>
+                      <div className="flex gap-2">
+                        <button type="button" onClick={() => field.onChange("full")}
+                          className={`flex-1 py-2.5 rounded-lg border-2 font-semibold text-sm transition-all ${field.value === "full" ? "border-green-500 bg-green-500/20 text-green-300" : "border-white/10 bg-white/5 text-gray-400 hover:border-white/20"}`}>
+                          ✅ Full Payment
+                        </button>
+                        <button type="button" onClick={() => field.onChange("partial")}
+                          className={`flex-1 py-2.5 rounded-lg border-2 font-semibold text-sm transition-all ${field.value === "partial" ? "border-amber-500 bg-amber-500/20 text-amber-300" : "border-white/10 bg-white/5 text-gray-400 hover:border-white/20"}`}>
+                          💰 Partial / Deposit
+                        </button>
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Deposit amount - shown when partial */}
+              {form.watch("paymentType") === "partial" && (
                 <FormField
                   control={form.control}
-                  name="paymentMethod"
+                  name="depositAmount"
                   render={({ field }) => (
                     <FormItem>
+                      <FormLabel className="text-gray-200">Deposit Amount (KES) *</FormLabel>
                       <FormControl>
-                        <RadioGroup
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                          className="grid gap-4 sm:grid-cols-2"
-                        >
-                          <div className="relative flex cursor-pointer items-start gap-4 rounded-lg border-2 border-green-800 bg-[#0f1d32] p-4 hover:border-green-500 has-[[data-state=checked]]:border-green-500 has-[[data-state=checked]]:bg-green-900/30">
-                            <RadioGroupItem value="mpesa" id="payment-mpesa" className="mt-1" />
-                            <div className="flex-1">
-                              <label htmlFor="payment-mpesa" className="block cursor-pointer font-medium text-green-800 dark:text-green-200">
-                                M-Pesa
-                              </label>
-                              <p className="text-sm text-green-600 dark:text-green-400">
-                                Pay via Lipa Na M-Pesa
-                              </p>
-                            </div>
-                          </div>
-                          <div className="relative flex cursor-pointer items-start gap-4 rounded-lg border-2 border-green-800 bg-[#0f1d32] p-4 hover:border-green-500 has-[[data-state=checked]]:border-green-500 has-[[data-state=checked]]:bg-green-900/30">
-                            <RadioGroupItem value="bank" id="payment-bank" className="mt-1" />
-                            <div className="flex-1">
-                              <label htmlFor="payment-bank" className="block cursor-pointer font-medium text-green-800 dark:text-green-200">
-                                Bank Transfer
-                              </label>
-                              <p className="text-sm text-green-600 dark:text-green-400">
-                                Direct bank deposit/transfer
-                              </p>
-                            </div>
-                          </div>
-                        </RadioGroup>
+                        <Input type="number" placeholder="e.g. 10000" className="bg-[#0a1628] border-amber-500/50 text-white" {...field} />
                       </FormControl>
+                      <p className="text-xs text-amber-400 mt-1">Balance will be collected before service completion</p>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-              </div>
+              )}
+
+              {/* Payment Method */}
+              <FormField
+                control={form.control}
+                name="paymentMethod"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-gray-200">Payment Method *</FormLabel>
+                    <FormControl>
+                      <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="grid gap-3 sm:grid-cols-3">
+                        {[
+                          { value: "mpesa", label: "M-Pesa", desc: "Lipa Na M-Pesa" },
+                          { value: "bank",  label: "Bank Transfer", desc: "Bank deposit" },
+                          { value: "cash",  label: "Cash", desc: "Cash payment" },
+                        ].map(({ value, label, desc }) => (
+                          <div key={value} className="relative flex cursor-pointer items-start gap-3 rounded-lg border-2 border-green-800 bg-[#0f1d32] p-3 hover:border-green-500 has-[[data-state=checked]]:border-green-500 has-[[data-state=checked]]:bg-green-900/30">
+                            <RadioGroupItem value={value} id={`pay-${value}`} className="mt-0.5" />
+                            <div>
+                              <label htmlFor={`pay-${value}`} className="block cursor-pointer font-medium text-green-200 text-sm">{label}</label>
+                              <p className="text-xs text-green-400">{desc}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </RadioGroup>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </CardContent>
           </Card>
 
