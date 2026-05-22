@@ -185,26 +185,26 @@ const vehicleData = [
 
 // Country list with phone codes
 const COUNTRIES = [
-  { name: "Kenya", code: "+254", flag: "🇰🇪" },
-  { name: "Uganda", code: "+256", flag: "🇺🇬" },
-  { name: "Tanzania", code: "+255", flag: "🇹🇿" },
-  { name: "Rwanda", code: "+250", flag: "🇷🇼" },
-  { name: "Ethiopia", code: "+251", flag: "🇪🇹" },
-  { name: "Nigeria", code: "+234", flag: "🇳🇬" },
-  { name: "South Africa", code: "+27", flag: "🇿🇦" },
-  { name: "United Kingdom", code: "+44", flag: "🇬🇧" },
-  { name: "United States", code: "+1", flag: "🇺🇸" },
-  { name: "Germany", code: "+49", flag: "🇩🇪" },
-  { name: "France", code: "+33", flag: "🇫🇷" },
-  { name: "China", code: "+86", flag: "🇨🇳" },
-  { name: "India", code: "+91", flag: "🇮🇳" },
-  { name: "UAE", code: "+971", flag: "🇦🇪" },
-  { name: "Saudi Arabia", code: "+966", flag: "🇸🇦" },
-  { name: "Canada", code: "+1", flag: "🇨🇦" },
-  { name: "Australia", code: "+61", flag: "🇦🇺" },
-  { name: "Japan", code: "+81", flag: "🇯🇵" },
-  { name: "Italy", code: "+39", flag: "🇮🇹" },
-  { name: "Netherlands", code: "+31", flag: "🇳🇱" },
+  { name: "Kenya", code: "+254", flag: "" },
+  { name: "Uganda", code: "+256", flag: "" },
+  { name: "Tanzania", code: "+255", flag: "" },
+  { name: "Rwanda", code: "+250", flag: "" },
+  { name: "Ethiopia", code: "+251", flag: "" },
+  { name: "Nigeria", code: "+234", flag: "" },
+  { name: "South Africa", code: "+27", flag: "" },
+  { name: "United Kingdom", code: "+44", flag: "" },
+  { name: "United States", code: "+1", flag: "" },
+  { name: "Germany", code: "+49", flag: "" },
+  { name: "France", code: "+33", flag: "" },
+  { name: "China", code: "+86", flag: "" },
+  { name: "India", code: "+91", flag: "" },
+  { name: "UAE", code: "+971", flag: "" },
+  { name: "Saudi Arabia", code: "+966", flag: "" },
+  { name: "Canada", code: "+1", flag: "" },
+  { name: "Australia", code: "+61", flag: "" },
+  { name: "Japan", code: "+81", flag: "" },
+  { name: "Italy", code: "+39", flag: "" },
+  { name: "Netherlands", code: "+31", flag: "" },
 ];
 
 export default function NewCarRentalAdminPage() {
@@ -799,7 +799,7 @@ export default function NewCarRentalAdminPage() {
     await new Promise(r => setTimeout(r, 1200));
 
     try {
-      // ── Real API call would go here ──
+      // -- Real API call would go here --
       // const res = await fetch("/api/kra/lookup?pin=" + kraPin);
       // const data = await res.json();
 
@@ -811,11 +811,11 @@ export default function NewCarRentalAdminPage() {
         form.setValue("phone", data.phone);
         if (data.email) form.setValue("email", data.email);
         setKraVerified(true);
-        toast.success("✅ KRA PIN verified — details auto-filled for " + data.fullName);
+        toast.success("KRA PIN verified - details auto-filled for " + data.fullName);
       } else {
-        // PIN valid format but not found — still mark as verified format-wise
+        // PIN valid format but not found - still mark as verified format-wise
         setKraVerified(true);
-        toast.info("KRA PIN format valid. No pre-existing record found — please fill details manually.");
+        toast.info("KRA PIN format valid. No pre-existing record found - please fill details manually.");
       }
     } catch {
       toast.error("KRA lookup failed. Please fill details manually.");
@@ -1090,12 +1090,12 @@ export default function NewCarRentalAdminPage() {
                           <button type="button"
                             onClick={() => { field.onChange("citizen"); form.setValue("countryCode", "+254"); form.setValue("countryName", "Kenya"); form.setValue("idType", "national_id"); }}
                             className={`flex-1 py-2 rounded-lg border-2 font-semibold text-sm transition-all ${field.value === "citizen" ? "border-blue-500 bg-blue-500/20 text-blue-300" : "border-white/10 bg-white/5 text-gray-400 hover:border-white/20"}`}>
-                            🇰🇪 Kenyan Citizen
+                            KE Kenyan Citizen
                           </button>
                           <button type="button"
                             onClick={() => { field.onChange("foreigner"); form.setValue("idType", "passport"); }}
                             className={`flex-1 py-2 rounded-lg border-2 font-semibold text-sm transition-all ${field.value === "foreigner" ? "border-amber-500 bg-amber-500/20 text-amber-300" : "border-white/10 bg-white/5 text-gray-400 hover:border-white/20"}`}>
-                            🌍 Foreign National
+                            Intl Foreign National
                           </button>
                         </div>
                       </FormControl>
@@ -1152,14 +1152,14 @@ export default function NewCarRentalAdminPage() {
                       <FormControl>
                         <div className="flex flex-wrap gap-2">
                           {isCitizen && (
-                            <button type="button" onClick={() => field.onChange("national_id")} className={btnClass("national_id")}>🪪 National ID</button>
+                            <button type="button" onClick={() => field.onChange("national_id")} className={btnClass("national_id")}>ID National ID</button>
                           )}
-                          <button type="button" onClick={() => field.onChange("passport")} className={btnClass("passport")}>📕 Passport</button>
+                          <button type="button" onClick={() => field.onChange("passport")} className={btnClass("passport")}>PP Passport</button>
                           {isCitizen && (
-                            <button type="button" onClick={() => field.onChange("military_id")} className={btnClass("military_id")}>🎖️ Military ID</button>
+                            <button type="button" onClick={() => field.onChange("military_id")} className={btnClass("military_id")}>MIL Military ID</button>
                           )}
                           {!isCitizen && (
-                            <button type="button" onClick={() => field.onChange("alien_id")} className={btnClass("alien_id")}>🪪 Alien ID</button>
+                            <button type="button" onClick={() => field.onChange("alien_id")} className={btnClass("alien_id")}>ID Alien ID</button>
                           )}
                         </div>
                       </FormControl>
@@ -1302,7 +1302,7 @@ export default function NewCarRentalAdminPage() {
                   {/* Passport photo for foreigners */}
                   {form.watch("clientType") === "foreigner" && (
                     <div className="mt-4 rounded-lg border border-amber-500/30 bg-amber-500/5 p-3">
-                      <p className="text-xs text-amber-400 font-semibold uppercase tracking-wider mb-3">📸 Foreign National — Additional Documents</p>
+                      <p className="text-xs text-amber-400 font-semibold uppercase tracking-wider mb-3">Foreign National - Additional Documents</p>
                       <div className="grid gap-4 sm:grid-cols-2">
                         <FormField control={form.control} name="passportPhotoUrl" render={({ field }) => (
                           <FormItem>
@@ -1320,10 +1320,10 @@ export default function NewCarRentalAdminPage() {
                         )} />
                         <div className="rounded-lg border border-amber-500/20 bg-[#0a1628] p-3 text-xs text-gray-400 space-y-1.5">
                           <p className="text-amber-300 font-semibold">Required for foreign nationals:</p>
-                          <p>✓ Valid passport (not expired)</p>
-                          <p>✓ Valid visa / entry permit</p>
-                          <p>✓ Alien ID (if applicable)</p>
-                          <p>✓ International driving permit</p>
+                          <p>+ Valid passport (not expired)</p>
+                          <p>+ Valid visa / entry permit</p>
+                          <p>+ Alien ID (if applicable)</p>
+                          <p>+ International driving permit</p>
                           <p className="text-amber-400 mt-2">Phone: {form.watch("countryCode")} ({form.watch("countryName")})</p>
                         </div>
                       </div>
@@ -1455,19 +1455,19 @@ export default function NewCarRentalAdminPage() {
                             ) : kraVerified ? (
                               <><CheckCircle2 className="h-4 w-4 text-green-300" />Verified</>
                             ) : (
-                              <>🔍 Lookup</>
+                              <>Lookup</>
                             )}
                           </Button>
                         </div>
                         {kraVerified && (
                           <p className="text-xs text-green-400 flex items-center gap-1 mt-1">
                             <CheckCircle2 className="h-3 w-3" />
-                            KRA PIN verified — details auto-filled from iTax
+                            KRA PIN verified - details auto-filled from iTax
                           </p>
                         )}
                         {!kraVerified && (
                           <FormDescription className="text-violet-400 text-xs">
-                            Format: A012345678A — Enter PIN and click Lookup to auto-fill client details
+                            Format: A012345678A - Enter PIN and click Lookup to auto-fill client details
                           </FormDescription>
                         )}
                         <FormMessage />
@@ -2234,11 +2234,11 @@ export default function NewCarRentalAdminPage() {
                       <div className="flex gap-2">
                         <button type="button" onClick={() => field.onChange("full")}
                           className={`flex-1 py-2.5 rounded-lg border-2 font-semibold text-sm transition-all ${field.value === "full" ? "border-green-500 bg-green-500/20 text-green-300" : "border-white/10 bg-white/5 text-gray-400 hover:border-white/20"}`}>
-                          ✅ Full Payment
+                          Full Payment
                         </button>
                         <button type="button" onClick={() => field.onChange("partial")}
                           className={`flex-1 py-2.5 rounded-lg border-2 font-semibold text-sm transition-all ${field.value === "partial" ? "border-amber-500 bg-amber-500/20 text-amber-300" : "border-white/10 bg-white/5 text-gray-400 hover:border-white/20"}`}>
-                          💰 Partial / Deposit
+                          Partial / Deposit
                         </button>
                       </div>
                     </FormControl>
