@@ -134,6 +134,9 @@ const adminCarRentalSchema = z.object({
   
   // Client Type
   clientType: z.enum(["citizen", "foreigner"]).default("citizen"),
+  countryCode: z.string().default("+254"),
+  countryName: z.string().default("Kenya"),
+  idType: z.enum(["national_id", "passport", "alien_id", "military_id"]).default("national_id"),
   // Payment Type
   paymentType: z.enum(["full", "partial"]).default("full"),
   depositAmount: z.string().optional(),
@@ -177,6 +180,31 @@ const vehicleData = [
   { make: "Kia", models: ["Sportage", "Sorento", "Seltos", "Carnival", "Picanto", "Rio", "Cerato"] },
   { make: "Peugeot", models: ["3008", "5008", "2008", "508", "308", "Partner"] },
   { make: "Porsche", models: ["Cayenne", "Macan", "Panamera", "911", "Taycan"] },
+];
+
+
+// Country list with phone codes
+const COUNTRIES = [
+  { name: "Kenya", code: "+254", flag: "🇰🇪" },
+  { name: "Uganda", code: "+256", flag: "🇺🇬" },
+  { name: "Tanzania", code: "+255", flag: "🇹🇿" },
+  { name: "Rwanda", code: "+250", flag: "🇷🇼" },
+  { name: "Ethiopia", code: "+251", flag: "🇪🇹" },
+  { name: "Nigeria", code: "+234", flag: "🇳🇬" },
+  { name: "South Africa", code: "+27", flag: "🇿🇦" },
+  { name: "United Kingdom", code: "+44", flag: "🇬🇧" },
+  { name: "United States", code: "+1", flag: "🇺🇸" },
+  { name: "Germany", code: "+49", flag: "🇩🇪" },
+  { name: "France", code: "+33", flag: "🇫🇷" },
+  { name: "China", code: "+86", flag: "🇨🇳" },
+  { name: "India", code: "+91", flag: "🇮🇳" },
+  { name: "UAE", code: "+971", flag: "🇦🇪" },
+  { name: "Saudi Arabia", code: "+966", flag: "🇸🇦" },
+  { name: "Canada", code: "+1", flag: "🇨🇦" },
+  { name: "Australia", code: "+61", flag: "🇦🇺" },
+  { name: "Japan", code: "+81", flag: "🇯🇵" },
+  { name: "Italy", code: "+39", flag: "🇮🇹" },
+  { name: "Netherlands", code: "+31", flag: "🇳🇱" },
 ];
 
 export default function NewCarRentalAdminPage() {
@@ -287,6 +315,9 @@ export default function NewCarRentalAdminPage() {
       endDate: "",
       endTime: "",
       clientType: "citizen",
+      countryCode: "+254",
+      countryName: "Kenya",
+      idType: "national_id",
       paymentType: "full",
       depositAmount: "",
       paymentMethod: "mpesa",
@@ -1004,19 +1035,15 @@ export default function NewCarRentalAdminPage() {
                       <FormLabel className="text-gray-200">Client Type *</FormLabel>
                       <FormControl>
                         <div className="flex gap-2">
-                          <button
-                            type="button"
-                            onClick={() => field.onChange("citizen")}
-                            className={`flex-1 py-2 rounded-lg border-2 font-semibold text-sm transition-all ${field.value === "citizen" ? "border-blue-500 bg-blue-500/20 text-blue-300" : "border-white/10 bg-white/5 text-gray-400 hover:border-white/20"}`}
-                          >
-                            🇰🇪 Citizen
+                          <button type="button"
+                            onClick={() => { field.onChange("citizen"); form.setValue("countryCode", "+254"); form.setValue("countryName", "Kenya"); form.setValue("idType", "national_id"); }}
+                            className={`flex-1 py-2 rounded-lg border-2 font-semibold text-sm transition-all ${field.value === "citizen" ? "border-blue-500 bg-blue-500/20 text-blue-300" : "border-white/10 bg-white/5 text-gray-400 hover:border-white/20"}`}>
+                            🇰🇪 Kenyan Citizen
                           </button>
-                          <button
-                            type="button"
-                            onClick={() => field.onChange("foreigner")}
-                            className={`flex-1 py-2 rounded-lg border-2 font-semibold text-sm transition-all ${field.value === "foreigner" ? "border-amber-500 bg-amber-500/20 text-amber-300" : "border-white/10 bg-white/5 text-gray-400 hover:border-white/20"}`}
-                          >
-                            🌍 Foreigner
+                          <button type="button"
+                            onClick={() => { field.onChange("foreigner"); form.setValue("idType", "passport"); }}
+                            className={`flex-1 py-2 rounded-lg border-2 font-semibold text-sm transition-all ${field.value === "foreigner" ? "border-amber-500 bg-amber-500/20 text-amber-300" : "border-white/10 bg-white/5 text-gray-400 hover:border-white/20"}`}>
+                            🌍 Foreign National
                           </button>
                         </div>
                       </FormControl>
@@ -1024,6 +1051,73 @@ export default function NewCarRentalAdminPage() {
                     </FormItem>
                   )}
                 />
+
+                {/* Country selector - shown for foreigners */}
+                {form.watch("clientType") === "foreigner" && (
+                  <div className="grid gap-4 sm:grid-cols-2 mb-4">
+                    <FormField control={form.control} name="countryName" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-gray-200">Country of Origin *</FormLabel>
+                        <FormControl>
+                          <select
+                            className="w-full rounded-lg bg-[#0a1628] border border-amber-500/50 text-white p-2 text-sm"
+                            value={field.value}
+                            onChange={(e) => {
+                              field.onChange(e.target.value);
+                              const country = COUNTRIES.find(c => c.name === e.target.value);
+                              if (country) form.setValue("countryCode", country.code);
+                            }}
+                          >
+                            {COUNTRIES.filter(c => c.name !== "Kenya").map(c => (
+                              <option key={c.name} value={c.name}>{c.flag} {c.name}</option>
+                            ))}
+                          </select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={form.control} name="countryCode" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-gray-200">Phone Country Code</FormLabel>
+                        <FormControl>
+                          <div className="flex items-center gap-2 rounded-lg bg-[#0a1628] border border-amber-500/50 px-3 py-2">
+                            <span className="text-amber-400 font-mono font-bold">{field.value}</span>
+                            <span className="text-gray-500 text-xs">{form.watch("countryName")}</span>
+                          </div>
+                        </FormControl>
+                      </FormItem>
+                    )} />
+                  </div>
+                )}
+
+                {/* Document Type selector */}
+                <FormField control={form.control} name="idType" render={({ field }) => (
+                  <FormItem className="mb-4">
+                    <FormLabel className="text-gray-200">Document Type *</FormLabel>
+                    <FormControl>
+                      <div className="flex flex-wrap gap-2">
+                        {(form.watch("clientType") === "citizen"
+                          ? [
+                              { value: "national_id", label: "🪪 National ID" },
+                              { value: "passport", label: "📕 Passport" },
+                              { value: "military_id", label: "🎖️ Military ID" },
+                            ]
+                          : [
+                              { value: "passport", label: "📕 Passport" },
+                              { value: "alien_id", label: "🪪 Alien ID" },
+                            ]
+                        ).map(({ value, label }) => (
+                          <button key={value} type="button"
+                            onClick={() => field.onChange(value)}
+                            className={`px-4 py-2 rounded-lg border-2 text-sm font-medium transition-all ${field.value === value ? "border-emerald-500 bg-emerald-500/20 text-emerald-300" : "border-white/10 bg-white/5 text-gray-400 hover:border-white/20"}`}>
+                            {label}
+                          </button>
+                        ))}
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
                 <div className="grid gap-4 sm:grid-cols-2">
                   <FormField
                     control={form.control}
@@ -1093,9 +1187,29 @@ export default function NewCarRentalAdminPage() {
                     name="idNumber"
                     render={({ field }) => (
                       <FormItem className="max-w-sm">
-                        <FormLabel className="text-gray-200">ID/Passport Number *</FormLabel>
-                        <FormControl>
-                          <Input placeholder="12345678" className="bg-[#0a1628] border-emerald-500/50 focus:border-emerald-400 text-white font-mono text-lg" {...field} />
+                        {(() => {
+                          const idType = form.watch("idType");
+                          const placeholders: Record<string, string> = {
+                            national_id: "e.g. 12345678",
+                            passport: "e.g. A12345678",
+                            alien_id: "e.g. 0012345",
+                            military_id: "e.g. KE-MIL-001",
+                          };
+                          const labels: Record<string, string> = {
+                            national_id: "National ID Number *",
+                            passport: "Passport Number *",
+                            alien_id: "Alien ID Number *",
+                            military_id: "Military ID Number *",
+                          };
+                          return (
+                            <>
+                              <FormLabel className="text-gray-200">{labels[idType] || "Document Number *"}</FormLabel>
+                              <FormControl>
+                                <Input placeholder={placeholders[idType] || "Enter number"} className="bg-[#0a1628] border-emerald-500/50 focus:border-emerald-400 text-white font-mono text-lg" {...field} />
+                              </FormControl>
+                            </>
+                          );
+                        })()}
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -1109,7 +1223,7 @@ export default function NewCarRentalAdminPage() {
                         <FormItem>
                           <FileUpload
                             id="id-photo-front"
-                            label="ID/Passport - Front Side"
+                            label={form.watch("idType") === "passport" ? "Passport - Photo Page" : "ID - Front Side"}
                             accept="image/*"
                             maxSize={5}
                             value={field.value}
@@ -1127,7 +1241,7 @@ export default function NewCarRentalAdminPage() {
                         <FormItem>
                           <FileUpload
                             id="id-photo-back"
-                            label="ID/Passport - Back Side"
+                            label={form.watch("idType") === "passport" ? "Passport - Visa/Entry Page" : "ID - Back Side"}
                             accept="image/*"
                             maxSize={5}
                             value={field.value}
@@ -1139,6 +1253,38 @@ export default function NewCarRentalAdminPage() {
                       )}
                     />
                   </div>
+                </div>
+
+                  {/* Passport photo for foreigners */}
+                  {form.watch("clientType") === "foreigner" && (
+                    <div className="mt-4 rounded-lg border border-amber-500/30 bg-amber-500/5 p-3">
+                      <p className="text-xs text-amber-400 font-semibold uppercase tracking-wider mb-3">📸 Foreign National — Additional Documents</p>
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        <FormField control={form.control} name="passportPhotoUrl" render={({ field }) => (
+                          <FormItem>
+                            <FileUpload
+                              id="passport-photo-foreign"
+                              label="Passport Photo (Face)"
+                              accept="image/*"
+                              maxSize={5}
+                              value={field.value}
+                              onChange={field.onChange}
+                              showCamera
+                            />
+                            <FormMessage />
+                          </FormItem>
+                        )} />
+                        <div className="rounded-lg border border-amber-500/20 bg-[#0a1628] p-3 text-xs text-gray-400 space-y-1.5">
+                          <p className="text-amber-300 font-semibold">Required for foreign nationals:</p>
+                          <p>✓ Valid passport (not expired)</p>
+                          <p>✓ Valid visa / entry permit</p>
+                          <p>✓ Alien ID (if applicable)</p>
+                          <p>✓ International driving permit</p>
+                          <p className="text-amber-400 mt-2">Phone: {form.watch("countryCode")} ({form.watch("countryName")})</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
