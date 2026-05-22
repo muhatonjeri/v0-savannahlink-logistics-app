@@ -359,37 +359,41 @@ export default function NewCarRentalAdminPage() {
   }, [selectedClient, isNewClient, form]);
 
   // Auto-populate start date/time to current date/time on mount
+  // and set end date/time to exactly 24 hours later
   useEffect(() => {
     const now = new Date();
     const currentDate = now.toISOString().split("T")[0];
     const currentTime = now.toTimeString().slice(0, 5);
-    
-    // Only set if not already set
-    if (!form.getValues("startDate")) {
-      form.setValue("startDate", currentDate);
-    }
-    if (!form.getValues("startTime")) {
-      form.setValue("startTime", currentTime);
+
+    if (!form.getValues("startDate")) form.setValue("startDate", currentDate);
+    if (!form.getValues("startTime")) form.setValue("startTime", currentTime);
+
+    // Default end = 24hrs later
+    if (!form.getValues("endDate")) {
+      const end = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+      form.setValue("endDate", end.toISOString().split("T")[0]);
+      form.setValue("endTime", end.toTimeString().slice(0, 5));
     }
   }, [form]);
 
-  // Auto-calculate end date when start date or number of days changes
+  // Auto-calculate end date/time whenever start date, start time, or number of days changes
   useEffect(() => {
     const startDate = form.getValues("startDate");
+    const startTime = form.getValues("startTime") || "00:00";
     const numberOfDays = parseInt(form.getValues("numberOfDays") || "0");
-    const startTime = form.getValues("startTime");
-    
-    if (startDate && numberOfDays > 0) {
-      const start = new Date(startDate);
-      start.setDate(start.getDate() + numberOfDays);
-      const endDate = start.toISOString().split("T")[0];
-      form.setValue("endDate", endDate);
-      
-      // Keep the same time for return
-      if (startTime) {
-        form.setValue("endTime", startTime);
-      }
-    }
+
+    if (!startDate) return;
+
+    // Build a full Date from start date + time
+    const start = new Date(`${startDate}T${startTime}:00`);
+    if (isNaN(start.getTime())) return;
+
+    // If numberOfDays is set use it, otherwise default to 24 hrs
+    const hoursToAdd = numberOfDays > 0 ? numberOfDays * 24 : 24;
+    const end = new Date(start.getTime() + hoursToAdd * 60 * 60 * 1000);
+
+    form.setValue("endDate", end.toISOString().split("T")[0]);
+    form.setValue("endTime", end.toTimeString().slice(0, 5));
   }, [watchStartDate, watchNumberOfDays, watchStartTime, form]);
 
   // Helper function to calculate days between dates
