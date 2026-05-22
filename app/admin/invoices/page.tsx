@@ -457,13 +457,13 @@ export default function InvoicesPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-            <FileText className="h-6 w-6 text-cyan-500" />
+          <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-3">
+            <FileText className="h-7 w-7 text-orange-400" />
             Invoice Management
           </h1>
-          <p className="text-muted-foreground">Create and manage invoices for all services</p>
+          <p className="text-gray-400 mt-1 text-sm">Create and manage invoices for all services</p>
         </div>
         <Button onClick={() => setIsCreateDialogOpen(true)} className="bg-cyan-600 hover:bg-cyan-700">
           <Plus className="h-4 w-4 mr-2" />

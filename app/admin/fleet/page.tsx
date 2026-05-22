@@ -582,10 +582,13 @@ export default function FleetManagementPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex items-center justify-between">
         <div>
-<h1 className="text-2xl font-bold tracking-tight text-[#e67e22] flex items-center gap-2"><Truck className="h-6 w-6 text-fuchsia-400" />Fleet Management</h1>
-            <p className="text-gray-300">Manage your vehicle fleet, assignments, and maintenance schedules</p>
+          <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-3">
+            <Truck className="h-7 w-7 text-fuchsia-400" />
+            Fleet Management
+          </h1>
+          <p className="text-gray-400 mt-1 text-sm">Manage vehicles, assignments and maintenance schedules</p>
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
@@ -874,25 +877,25 @@ export default function FleetManagementPage() {
         <Card className="border-l-4 border-l-green-500">
           <CardHeader className="pb-2">
             <CardDescription className="text-xs">Available</CardDescription>
-            <CardTitle className="text-2xl font-bold text-green-600">{stats.available}</CardTitle>
+            <CardTitle className="text-2xl font-bold text-emerald-400">{stats.available}</CardTitle>
           </CardHeader>
         </Card>
         <Card className="border-l-4 border-l-blue-500">
           <CardHeader className="pb-2">
             <CardDescription className="text-xs">Assigned</CardDescription>
-            <CardTitle className="text-2xl font-bold text-blue-600">{stats.assigned}</CardTitle>
+            <CardTitle className="text-2xl font-bold text-blue-400">{stats.assigned}</CardTitle>
           </CardHeader>
         </Card>
         <Card className="border-l-4 border-l-amber-500">
           <CardHeader className="pb-2">
             <CardDescription className="text-xs">Maintenance</CardDescription>
-            <CardTitle className="text-2xl font-bold text-amber-600">{stats.maintenance}</CardTitle>
+            <CardTitle className="text-2xl font-bold text-amber-400">{stats.maintenance}</CardTitle>
           </CardHeader>
         </Card>
         <Card className="border-l-4 border-l-red-500">
           <CardHeader className="pb-2">
             <CardDescription className="text-xs">Out of Service</CardDescription>
-            <CardTitle className="text-2xl font-bold text-red-600">{stats.outOfService}</CardTitle>
+            <CardTitle className="text-2xl font-bold text-red-400">{stats.outOfService}</CardTitle>
           </CardHeader>
         </Card>
         <Card className="border-l-4 border-l-rose-500">

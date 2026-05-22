@@ -562,15 +562,13 @@ export default function ReceiptsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-            <Receipt className="h-6 w-6 text-emerald-500" />
+          <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-3">
+            <Receipt className="h-7 w-7 text-teal-400" />
             Receipt Management
           </h1>
-          <p className="text-muted-foreground">
-            Issue eTIMS compliant receipts with M-Pesa and bank transaction references
-          </p>
+          <p className="text-gray-400 mt-1 text-sm">Issue eTIMS compliant receipts with M-Pesa and bank references</p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
@@ -954,7 +952,7 @@ export default function ReceiptsPage() {
             <Receipt className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.total}</div>
+            <div className="text-2xl font-bold text-white">{stats.total}</div>
             <p className="text-xs text-muted-foreground">All time receipts issued</p>
           </CardContent>
         </Card>
@@ -964,7 +962,7 @@ export default function ReceiptsPage() {
             <CheckCircle className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{stats.issued}</div>
+            <div className="text-2xl font-bold text-emerald-400">{stats.issued}</div>
             <p className="text-xs text-muted-foreground">Active receipts</p>
           </CardContent>
         </Card>

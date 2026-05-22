@@ -412,15 +412,13 @@ export default function AccountsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-            <Wallet className="h-6 w-6 text-amber-500" />
+          <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-3">
+            <Wallet className="h-7 w-7 text-yellow-400" />
             Accounts
           </h1>
-          <p className="text-muted-foreground text-sm">
-            Track income and expenses across all services
-          </p>
+          <p className="text-gray-400 mt-1 text-sm">Track income and expenses across all services</p>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm">
@@ -657,7 +655,7 @@ export default function AccountsPage() {
             <ArrowUpRight className="h-4 w-4 text-red-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">{formatCurrency(totals.expense)}</div>
+            <div className="text-2xl font-bold text-red-400">{formatCurrency(totals.expense)}</div>
             <p className="text-xs text-muted-foreground mt-1">
               {filteredTransactions.filter(t => t.type === "expense").length} transactions
             </p>

@@ -448,14 +448,14 @@ export default function BlacklistPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-3">
-            <ShieldAlert className="h-8 w-8 text-red-500" />
+          <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-3">
+            <ShieldAlert className="h-7 w-7 text-rose-500" />
             Client Blacklist
           </h1>
-          <p className="text-muted-foreground mt-1">
-            Track and manage clients with negative records to prevent future issues
+          <p className="text-gray-400 mt-1 text-sm">
+            Track and manage flagged clients to prevent future incidents
           </p>
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
@@ -875,7 +875,7 @@ export default function BlacklistPage() {
             <ShieldAlert className="h-5 w-5 text-red-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-red-100">{stats.total}</div>
+            <div className="text-2xl font-bold text-white">{stats.total}</div>
           </CardContent>
         </Card>
 
@@ -885,7 +885,7 @@ export default function BlacklistPage() {
             <AlertTriangle className="h-5 w-5 text-orange-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-orange-100">{stats.active}</div>
+            <div className="text-2xl font-bold text-white">{stats.active}</div>
           </CardContent>
         </Card>
 
@@ -895,7 +895,7 @@ export default function BlacklistPage() {
             <AlertOctagon className="h-5 w-5 text-red-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-red-100">{stats.critical}</div>
+            <div className="text-2xl font-bold text-white">{stats.critical}</div>
           </CardContent>
         </Card>
 
@@ -905,7 +905,7 @@ export default function BlacklistPage() {
             <CreditCard className="h-5 w-5 text-purple-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-purple-100">
+            <div className="text-2xl font-bold text-white">
               KES {stats.totalOwed.toLocaleString()}
             </div>
           </CardContent>
