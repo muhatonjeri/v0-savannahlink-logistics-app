@@ -869,7 +869,7 @@ export default function NewCarRentalAdminPage() {
                 </div>
                 <div className="flex justify-between">
                   <dt className="text-muted-foreground">Duration</dt>
-                  <dd>{currentBooking.rentalPeriod.numberOfDays} day(s)</dd>
+                  <dd>{currentBooking.rentalPeriod.numberOfDays} days</dd>
                 </div>
                 <div className="flex justify-between">
                   <dt className="text-muted-foreground">Pickup</dt>
@@ -904,7 +904,7 @@ export default function NewCarRentalAdminPage() {
                   <p className="text-sm text-muted-foreground">
                     Bank: KCB Bank
                     <br />
-                    Account: Moventra Safaris & Logistics Ltd Ltd
+                    Account: Moventra Safaris &amp; Logistics Ltd
                     <br />
                     A/C No: 1234567890
                     <br />
@@ -1393,11 +1393,11 @@ export default function NewCarRentalAdminPage() {
                 </div>
               </div>
 
-              {/* Work & Residence Block */}
+              {/* Work &amp; Residence Block */}
               <div className="rounded-lg border-2 border-violet-300 dark:border-violet-700 bg-[#0f1d32] p-4 shadow-sm">
                 <h4 className="font-semibold text-violet-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
                   <Building className="h-4 w-4" />
-                  Work & Residence
+                  Work &amp; Residence
                 </h4>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <FormField
@@ -1549,7 +1549,7 @@ export default function NewCarRentalAdminPage() {
                 </div>
                 <div>
                   <CardTitle className="text-purple-400">
-                    2. Biometric & Photo Verification
+                    2. Biometric &amp; Photo Verification
                   </CardTitle>
                   <CardDescription>
                     Scan fingerprints and capture passport photo for verification
@@ -1951,7 +1951,7 @@ export default function NewCarRentalAdminPage() {
                 </div>
                 <div>
                   <CardTitle className="text-indigo-400">
-                    5. Rental Period & Pricing
+                    5. Rental Period &amp; Pricing
                   </CardTitle>
                   <CardDescription>
                     Set duration and daily rate for this booking
@@ -2704,7 +2704,7 @@ export default function NewCarRentalAdminPage() {
               onClick={() => setShowRogueAlert(false)}
               className="flex-1"
             >
-              Close & Continue Checking
+              Close &amp; Continue Checking
             </Button>
             <Button
               type="button"
