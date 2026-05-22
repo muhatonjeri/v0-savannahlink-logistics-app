@@ -132,8 +132,10 @@ const adminCarRentalSchema = z.object({
   endDate: z.string().min(1, "End date is required"),
   endTime: z.string().min(1, "End time is required"),
   
-  // Client Type
   clientType: z.enum(["citizen", "foreigner"]).default("citizen"),
+  countryCode: z.string().default("+254"),
+  countryName: z.string().default("Kenya"),
+  idType: z.enum(["national_id", "passport", "alien_id", "military_id"]).default("national_id"),
   countryCode: z.string().default("+254"),
   countryName: z.string().default("Kenya"),
   idType: z.enum(["national_id", "passport", "alien_id", "military_id"]).default("national_id"),
@@ -318,6 +320,11 @@ export default function NewCarRentalAdminPage() {
       countryCode: "+254",
       countryName: "Kenya",
       idType: "national_id",
+      countryCode: "+254",
+      countryName: "Kenya",
+      idType: "national_id",
+      paymentType: "full",
+      depositAmount: "",
       paymentType: "full",
       depositAmount: "",
       paymentMethod: "mpesa",
@@ -358,17 +365,13 @@ export default function NewCarRentalAdminPage() {
     }
   }, [selectedClient, isNewClient, form]);
 
-  // Auto-populate start date/time to current date/time on mount
-  // and set end date/time to exactly 24 hours later
+  // Auto-populate start date/time and set end to 24hrs later
   useEffect(() => {
     const now = new Date();
     const currentDate = now.toISOString().split("T")[0];
     const currentTime = now.toTimeString().slice(0, 5);
-
     if (!form.getValues("startDate")) form.setValue("startDate", currentDate);
     if (!form.getValues("startTime")) form.setValue("startTime", currentTime);
-
-    // Default end = 24hrs later
     if (!form.getValues("endDate")) {
       const end = new Date(now.getTime() + 24 * 60 * 60 * 1000);
       form.setValue("endDate", end.toISOString().split("T")[0]);
@@ -376,22 +379,16 @@ export default function NewCarRentalAdminPage() {
     }
   }, [form]);
 
-  // Auto-calculate end date/time whenever start date, start time, or number of days changes
+  // Auto-calculate end date/time from start + days (default 24hrs)
   useEffect(() => {
     const startDate = form.getValues("startDate");
     const startTime = form.getValues("startTime") || "00:00";
     const numberOfDays = parseInt(form.getValues("numberOfDays") || "0");
-
     if (!startDate) return;
-
-    // Build a full Date from start date + time
-    const start = new Date(`${startDate}T${startTime}:00`);
+    const start = new Date(startDate + "T" + startTime + ":00");
     if (isNaN(start.getTime())) return;
-
-    // If numberOfDays is set use it, otherwise default to 24 hrs
-    const hoursToAdd = numberOfDays > 0 ? numberOfDays * 24 : 24;
-    const end = new Date(start.getTime() + hoursToAdd * 60 * 60 * 1000);
-
+    const hrs = numberOfDays > 0 ? numberOfDays * 24 : 24;
+    const end = new Date(start.getTime() + hrs * 60 * 60 * 1000);
     form.setValue("endDate", end.toISOString().split("T")[0]);
     form.setValue("endTime", end.toTimeString().slice(0, 5));
   }, [watchStartDate, watchNumberOfDays, watchStartTime, form]);
@@ -800,7 +797,7 @@ export default function NewCarRentalAdminPage() {
 
     try {
       // -- Real API call would go here --
-      // const res = await fetch("/api/kra/lookup?pin=" + kraPin);
+      // const res = await fetch(\`/api/kra/lookup?pin=\${kraPin}\`);
       // const data = await res.json();
 
       const data = mockKraLookup(kraPin);
@@ -811,7 +808,7 @@ export default function NewCarRentalAdminPage() {
         form.setValue("phone", data.phone);
         if (data.email) form.setValue("email", data.email);
         setKraVerified(true);
-        toast.success("KRA PIN verified - details auto-filled for " + data.fullName);
+        toast.success(\` KRA PIN verified - details auto-filled for \${data.fullName}\`);
       } else {
         // PIN valid format but not found - still mark as verified format-wise
         setKraVerified(true);
@@ -869,7 +866,7 @@ export default function NewCarRentalAdminPage() {
                 </div>
                 <div className="flex justify-between">
                   <dt className="text-muted-foreground">Duration</dt>
-                  <dd>{currentBooking.rentalPeriod.numberOfDays} days</dd>
+                  <dd>{currentBooking.rentalPeriod.numberOfDays} day(s)</dd>
                 </div>
                 <div className="flex justify-between">
                   <dt className="text-muted-foreground">Pickup</dt>
@@ -904,7 +901,7 @@ export default function NewCarRentalAdminPage() {
                   <p className="text-sm text-muted-foreground">
                     Bank: KCB Bank
                     <br />
-                    Account: Moventra Safaris &amp; Logistics Ltd
+                    Account: Moventra Safaris & Logistics Ltd Ltd
                     <br />
                     A/C No: 1234567890
                     <br />
@@ -1090,12 +1087,12 @@ export default function NewCarRentalAdminPage() {
                           <button type="button"
                             onClick={() => { field.onChange("citizen"); form.setValue("countryCode", "+254"); form.setValue("countryName", "Kenya"); form.setValue("idType", "national_id"); }}
                             className={`flex-1 py-2 rounded-lg border-2 font-semibold text-sm transition-all ${field.value === "citizen" ? "border-blue-500 bg-blue-500/20 text-blue-300" : "border-white/10 bg-white/5 text-gray-400 hover:border-white/20"}`}>
-                            KE Kenyan Citizen
+                             Kenyan Citizen
                           </button>
                           <button type="button"
                             onClick={() => { field.onChange("foreigner"); form.setValue("idType", "passport"); }}
                             className={`flex-1 py-2 rounded-lg border-2 font-semibold text-sm transition-all ${field.value === "foreigner" ? "border-amber-500 bg-amber-500/20 text-amber-300" : "border-white/10 bg-white/5 text-gray-400 hover:border-white/20"}`}>
-                            Intl Foreign National
+                             Foreign National
                           </button>
                         </div>
                       </FormControl>
@@ -1143,30 +1140,115 @@ export default function NewCarRentalAdminPage() {
                 )}
 
                 {/* Document Type selector */}
-                <FormField control={form.control} name="idType" render={({ field }) => {
-                  const isCitizen = form.watch("clientType") === "citizen";
-                  const btnClass = (val: string) => `px-4 py-2 rounded-lg border-2 text-sm font-medium transition-all ${field.value === val ? "border-emerald-500 bg-emerald-500/20 text-emerald-300" : "border-white/10 bg-white/5 text-gray-400 hover:border-white/20"}`;
-                  return (
-                    <FormItem className="mb-4">
-                      <FormLabel className="text-gray-200">Document Type *</FormLabel>
-                      <FormControl>
-                        <div className="flex flex-wrap gap-2">
-                          {isCitizen && (
-                            <button type="button" onClick={() => field.onChange("national_id")} className={btnClass("national_id")}>ID National ID</button>
-                          )}
-                          <button type="button" onClick={() => field.onChange("passport")} className={btnClass("passport")}>PP Passport</button>
-                          {isCitizen && (
-                            <button type="button" onClick={() => field.onChange("military_id")} className={btnClass("military_id")}>MIL Military ID</button>
-                          )}
-                          {!isCitizen && (
-                            <button type="button" onClick={() => field.onChange("alien_id")} className={btnClass("alien_id")}>ID Alien ID</button>
-                          )}
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  );
-                }} />
+                <FormField control={form.control} name="idType" render={({ field }) => (
+                  <FormItem className="mb-4">
+                    <FormLabel className="text-gray-200">Document Type *</FormLabel>
+                    <FormControl>
+                      <div className="flex flex-wrap gap-2">
+                        {(form.watch("clientType") === "citizen"
+                          ? [
+                              { value: "national_id", label: " National ID" },
+                              { value: "passport", label: " Passport" },
+                              { value: "military_id", label: " Military ID" },
+                            ]
+                          : [
+                              { value: "passport", label: " Passport" },
+                              { value: "alien_id", label: " Alien ID" },
+                            ]
+                        ).map(({ value, label }) => (
+                          <button key={value} type="button"
+                            onClick={() => field.onChange(value)}
+                            className={`px-4 py-2 rounded-lg border-2 text-sm font-medium transition-all ${field.value === value ? "border-emerald-500 bg-emerald-500/20 text-emerald-300" : "border-white/10 bg-white/5 text-gray-400 hover:border-white/20"}`}>
+                            {label}
+                          </button>
+                        ))}
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+                {/* Client Type */}
+                <div className="mb-4">
+                  <p className="text-sm text-gray-200 mb-2 font-medium">Client Type</p>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => { form.setValue("clientType", "citizen"); form.setValue("countryCode", "+254"); form.setValue("countryName", "Kenya"); form.setValue("idType", "national_id"); }}
+                      className={form.watch("clientType") === "citizen" ? "flex-1 py-2 rounded-lg border-2 border-blue-500 bg-blue-500/20 text-blue-300 text-sm font-semibold" : "flex-1 py-2 rounded-lg border-2 border-white/10 bg-white/5 text-gray-400 text-sm font-semibold"}
+                    >
+                      Kenyan Citizen
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { form.setValue("clientType", "foreigner"); form.setValue("idType", "passport"); }}
+                      className={form.watch("clientType") === "foreigner" ? "flex-1 py-2 rounded-lg border-2 border-amber-500 bg-amber-500/20 text-amber-300 text-sm font-semibold" : "flex-1 py-2 rounded-lg border-2 border-white/10 bg-white/5 text-gray-400 text-sm font-semibold"}
+                    >
+                      Foreign National
+                    </button>
+                  </div>
+                </div>
+
+                {/* Country selector for foreigners */}
+                {form.watch("clientType") === "foreigner" && (
+                  <div className="grid gap-4 sm:grid-cols-2 mb-4">
+                    <div>
+                      <p className="text-sm text-gray-200 mb-2 font-medium">Country of Origin</p>
+                      <select
+                        className="w-full rounded-lg bg-[#0a1628] border border-amber-500/50 text-white p-2 text-sm"
+                        value={form.watch("countryName")}
+                        onChange={(e) => {
+                          const name = e.target.value;
+                          form.setValue("countryName", name);
+                          const codes: Record<string, string> = { Uganda: "+256", Tanzania: "+255", Rwanda: "+250", Ethiopia: "+251", Nigeria: "+234", "South Africa": "+27", "United Kingdom": "+44", "United States": "+1", Germany: "+49", France: "+33", China: "+86", India: "+91", UAE: "+971", "Saudi Arabia": "+966", Canada: "+1", Australia: "+61", Japan: "+81" };
+                          form.setValue("countryCode", codes[name] || "+000");
+                        }}
+                      >
+                        <option value="Uganda">Uganda</option>
+                        <option value="Tanzania">Tanzania</option>
+                        <option value="Rwanda">Rwanda</option>
+                        <option value="Ethiopia">Ethiopia</option>
+                        <option value="Nigeria">Nigeria</option>
+                        <option value="South Africa">South Africa</option>
+                        <option value="United Kingdom">United Kingdom</option>
+                        <option value="United States">United States</option>
+                        <option value="Germany">Germany</option>
+                        <option value="France">France</option>
+                        <option value="China">China</option>
+                        <option value="India">India</option>
+                        <option value="UAE">UAE</option>
+                        <option value="Saudi Arabia">Saudi Arabia</option>
+                        <option value="Canada">Canada</option>
+                        <option value="Australia">Australia</option>
+                        <option value="Japan">Japan</option>
+                      </select>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-200 mb-2 font-medium">Phone Country Code</p>
+                      <div className="flex items-center gap-2 rounded-lg bg-[#0a1628] border border-amber-500/50 px-3 py-2">
+                        <span className="text-amber-400 font-mono font-bold">{form.watch("countryCode")}</span>
+                        <span className="text-gray-500 text-xs">{form.watch("countryName")}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Document Type */}
+                <div className="mb-4">
+                  <p className="text-sm text-gray-200 mb-2 font-medium">Document Type</p>
+                  <div className="flex flex-wrap gap-2">
+                    {form.watch("clientType") === "citizen" && (
+                      <button type="button" onClick={() => form.setValue("idType", "national_id")} className={form.watch("idType") === "national_id" ? "px-3 py-1.5 rounded-lg border-2 border-emerald-500 bg-emerald-500/20 text-emerald-300 text-sm font-medium" : "px-3 py-1.5 rounded-lg border-2 border-white/10 bg-white/5 text-gray-400 text-sm font-medium"}>National ID</button>
+                    )}
+                    <button type="button" onClick={() => form.setValue("idType", "passport")} className={form.watch("idType") === "passport" ? "px-3 py-1.5 rounded-lg border-2 border-emerald-500 bg-emerald-500/20 text-emerald-300 text-sm font-medium" : "px-3 py-1.5 rounded-lg border-2 border-white/10 bg-white/5 text-gray-400 text-sm font-medium"}>Passport</button>
+                    {form.watch("clientType") === "citizen" && (
+                      <button type="button" onClick={() => form.setValue("idType", "military_id")} className={form.watch("idType") === "military_id" ? "px-3 py-1.5 rounded-lg border-2 border-emerald-500 bg-emerald-500/20 text-emerald-300 text-sm font-medium" : "px-3 py-1.5 rounded-lg border-2 border-white/10 bg-white/5 text-gray-400 text-sm font-medium"}>Military ID</button>
+                    )}
+                    {form.watch("clientType") === "foreigner" && (
+                      <button type="button" onClick={() => form.setValue("idType", "alien_id")} className={form.watch("idType") === "alien_id" ? "px-3 py-1.5 rounded-lg border-2 border-emerald-500 bg-emerald-500/20 text-emerald-300 text-sm font-medium" : "px-3 py-1.5 rounded-lg border-2 border-white/10 bg-white/5 text-gray-400 text-sm font-medium"}>Alien ID</button>
+                    )}
+                  </div>
+                </div>
+
                 <div className="grid gap-4 sm:grid-cols-2">
                   <FormField
                     control={form.control}
@@ -1234,30 +1316,35 @@ export default function NewCarRentalAdminPage() {
                   <FormField
                     control={form.control}
                     name="idNumber"
-                    render={({ field }) => {
-                      const idType = form.watch("idType");
-                      const idPlaceholders: Record<string, string> = {
-                        national_id: "e.g. 12345678",
-                        passport: "e.g. A12345678",
-                        alien_id: "e.g. 0012345",
-                        military_id: "e.g. KE-MIL-001",
-                      };
-                      const idLabels: Record<string, string> = {
-                        national_id: "National ID Number *",
-                        passport: "Passport Number *",
-                        alien_id: "Alien ID Number *",
-                        military_id: "Military ID Number *",
-                      };
-                      return (
-                        <FormItem className="max-w-sm">
-                          <FormLabel className="text-gray-200">{idLabels[idType] || "Document Number *"}</FormLabel>
-                          <FormControl>
-                            <Input placeholder={idPlaceholders[idType] || "Enter number"} className="bg-[#0a1628] border-emerald-500/50 focus:border-emerald-400 text-white font-mono text-lg" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      );
-                    }}
+                    render={({ field }) => (
+                      <FormItem className="max-w-sm">
+                        {(() => {
+                          const idType = form.watch("idType");
+                          const placeholders: Record<string, string> = {
+                            national_id: "e.g. 12345678",
+                            passport: "e.g. A12345678",
+                            alien_id: "e.g. 0012345",
+                            military_id: "e.g. KE-MIL-001",
+                          };
+                          const labels: Record<string, string> = {
+                            national_id: "National ID Number *",
+                            passport: "Passport Number *",
+                            alien_id: "Alien ID Number *",
+                            military_id: "Military ID Number *",
+                          };
+                          return (
+                            <>
+                              <FormLabel className="text-gray-200">{labels[idType] || "Document Number *"}</FormLabel>
+                              <FormControl>
+                                <Input placeholder={placeholders[idType] || "Enter number"} className="bg-[#0a1628] border-emerald-500/50 focus:border-emerald-400 text-white font-mono text-lg" {...field} />
+                              </FormControl>
+                            </>
+                          );
+                        })()}
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
                   <div className="grid gap-4 sm:grid-cols-2">
                     <FormField
@@ -1297,7 +1384,6 @@ export default function NewCarRentalAdminPage() {
                       )}
                     />
                   </div>
-                </div>
 
                   {/* Passport photo for foreigners */}
                   {form.watch("clientType") === "foreigner" && (
@@ -1318,13 +1404,13 @@ export default function NewCarRentalAdminPage() {
                             <FormMessage />
                           </FormItem>
                         )} />
-                        <div className="rounded-lg border border-amber-500/20 bg-[#0a1628] p-3 text-xs text-gray-400 space-y-1.5">
+                        <div className="rounded-lg border border-amber-500/20 bg-[#0a1628] p-3 text-xs text-gray-400 space-y-1">
                           <p className="text-amber-300 font-semibold">Required for foreign nationals:</p>
                           <p>+ Valid passport (not expired)</p>
                           <p>+ Valid visa / entry permit</p>
                           <p>+ Alien ID (if applicable)</p>
                           <p>+ International driving permit</p>
-                          <p className="text-amber-400 mt-2">Phone: {form.watch("countryCode")} ({form.watch("countryName")})</p>
+                          <p className="text-amber-400 mt-2">Code: {form.watch("countryCode")} ({form.watch("countryName")})</p>
                         </div>
                       </div>
                     </div>
@@ -1393,11 +1479,11 @@ export default function NewCarRentalAdminPage() {
                 </div>
               </div>
 
-              {/* Work &amp; Residence Block */}
+              {/* Work & Residence Block */}
               <div className="rounded-lg border-2 border-violet-300 dark:border-violet-700 bg-[#0f1d32] p-4 shadow-sm">
                 <h4 className="font-semibold text-violet-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
                   <Building className="h-4 w-4" />
-                  Work &amp; Residence
+                  Work & Residence
                 </h4>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <FormField
@@ -1455,7 +1541,7 @@ export default function NewCarRentalAdminPage() {
                             ) : kraVerified ? (
                               <><CheckCircle2 className="h-4 w-4 text-green-300" />Verified</>
                             ) : (
-                              <>Lookup</>
+                              <> Lookup</>
                             )}
                           </Button>
                         </div>
@@ -1549,7 +1635,7 @@ export default function NewCarRentalAdminPage() {
                 </div>
                 <div>
                   <CardTitle className="text-purple-400">
-                    2. Biometric &amp; Photo Verification
+                    2. Biometric & Photo Verification
                   </CardTitle>
                   <CardDescription>
                     Scan fingerprints and capture passport photo for verification
@@ -1951,7 +2037,7 @@ export default function NewCarRentalAdminPage() {
                 </div>
                 <div>
                   <CardTitle className="text-indigo-400">
-                    5. Rental Period &amp; Pricing
+                    5. Rental Period & Pricing
                   </CardTitle>
                   <CardDescription>
                     Set duration and daily rate for this booking
@@ -2234,11 +2320,11 @@ export default function NewCarRentalAdminPage() {
                       <div className="flex gap-2">
                         <button type="button" onClick={() => field.onChange("full")}
                           className={`flex-1 py-2.5 rounded-lg border-2 font-semibold text-sm transition-all ${field.value === "full" ? "border-green-500 bg-green-500/20 text-green-300" : "border-white/10 bg-white/5 text-gray-400 hover:border-white/20"}`}>
-                          Full Payment
+                           Full Payment
                         </button>
                         <button type="button" onClick={() => field.onChange("partial")}
                           className={`flex-1 py-2.5 rounded-lg border-2 font-semibold text-sm transition-all ${field.value === "partial" ? "border-amber-500 bg-amber-500/20 text-amber-300" : "border-white/10 bg-white/5 text-gray-400 hover:border-white/20"}`}>
-                          Partial / Deposit
+                           Partial / Deposit
                         </button>
                       </div>
                     </FormControl>
@@ -2704,7 +2790,7 @@ export default function NewCarRentalAdminPage() {
               onClick={() => setShowRogueAlert(false)}
               className="flex-1"
             >
-              Close &amp; Continue Checking
+              Close & Continue Checking
             </Button>
             <Button
               type="button"
