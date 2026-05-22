@@ -8,6 +8,7 @@ import { usePathname } from "next/navigation";
 
 import {
   Car,
+  Building2,
   Compass,
   Plane,
   Truck,
@@ -123,6 +124,12 @@ const navItems = [
     href: "/admin/invoices",
     icon: FileBadge,
     color: "text-orange-400",
+  },
+  {
+    title: "Sublet Vehicles",
+    href: "/admin/car-rental/sublets",
+    icon: Building2,
+    color: "text-cyan-400",
   },
   {
     title: "Services Config",
