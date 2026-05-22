@@ -1341,7 +1341,6 @@ export default function NewCarRentalAdminPage() {
                             </>
                           );
                         })()}
-                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
