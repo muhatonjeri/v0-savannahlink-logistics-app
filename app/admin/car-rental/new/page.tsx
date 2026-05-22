@@ -1237,34 +1237,30 @@ export default function NewCarRentalAdminPage() {
                   <FormField
                     control={form.control}
                     name="idNumber"
-                    render={({ field }) => (
-                      <FormItem className="max-w-sm">
-                        {(() => {
-                          const idType = form.watch("idType");
-                          const placeholders: Record<string, string> = {
-                            national_id: "e.g. 12345678",
-                            passport: "e.g. A12345678",
-                            alien_id: "e.g. 0012345",
-                            military_id: "e.g. KE-MIL-001",
-                          };
-                          const labels: Record<string, string> = {
-                            national_id: "National ID Number *",
-                            passport: "Passport Number *",
-                            alien_id: "Alien ID Number *",
-                            military_id: "Military ID Number *",
-                          };
-                          return (
-                            <>
-                              <FormLabel className="text-gray-200">{labels[idType] || "Document Number *"}</FormLabel>
-                              <FormControl>
-                                <Input placeholder={placeholders[idType] || "Enter number"} className="bg-[#0a1628] border-emerald-500/50 focus:border-emerald-400 text-white font-mono text-lg" {...field} />
-                              </FormControl>
-                            </>
-                          );
-                        })()}
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                    render={({ field }) => {
+                      const idType = form.watch("idType");
+                      const idPlaceholders: Record<string, string> = {
+                        national_id: "e.g. 12345678",
+                        passport: "e.g. A12345678",
+                        alien_id: "e.g. 0012345",
+                        military_id: "e.g. KE-MIL-001",
+                      };
+                      const idLabels: Record<string, string> = {
+                        national_id: "National ID Number *",
+                        passport: "Passport Number *",
+                        alien_id: "Alien ID Number *",
+                        military_id: "Military ID Number *",
+                      };
+                      return (
+                        <FormItem className="max-w-sm">
+                          <FormLabel className="text-gray-200">{idLabels[idType] || "Document Number *"}</FormLabel>
+                          <FormControl>
+                            <Input placeholder={idPlaceholders[idType] || "Enter number"} className="bg-[#0a1628] border-emerald-500/50 focus:border-emerald-400 text-white font-mono text-lg" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      );
+                    }}
                   />
                   <div className="grid gap-4 sm:grid-cols-2">
                     <FormField
