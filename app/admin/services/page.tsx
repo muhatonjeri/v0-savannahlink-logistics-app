@@ -104,15 +104,15 @@ const serviceIcons: Record<string, LucideIcon> = {
 };
 
 const serviceColors: Record<string, { bg: string; text: string; border: string }> = {
-  "car-rental": { bg: "bg-emerald-100 dark:bg-emerald-950", text: "text-emerald-300 dark:text-emerald-400", border: "border-emerald-300 dark:border-emerald-700" },
-  "safari-tours": { bg: "bg-amber-100 dark:bg-amber-950", text: "text-amber-300 dark:text-amber-400", border: "border-amber-300 dark:border-amber-700" },
-  "hotel-airport-transfers": { bg: "bg-sky-100 dark:bg-sky-950", text: "text-sky-300 dark:text-sky-400", border: "border-sky-300 dark:border-sky-700" },
-  "movers": { bg: "bg-violet-100 dark:bg-violet-950", text: "text-violet-300 dark:text-violet-400", border: "border-violet-300 dark:border-violet-700" },
-  "corporate-rental": { bg: "bg-indigo-100 dark:bg-indigo-950", text: "text-indigo-300 dark:text-indigo-400", border: "border-indigo-300 dark:border-indigo-700" },
-  "road-recovery": { bg: "bg-rose-100 dark:bg-rose-950", text: "text-rose-300 dark:text-rose-400", border: "border-rose-300 dark:border-rose-700" },
-  "cargo-handling": { bg: "bg-orange-100 dark:bg-orange-950", text: "text-orange-300 dark:text-orange-400", border: "border-orange-300 dark:border-orange-700" },
-  "shipment-imports": { bg: "bg-cyan-100 dark:bg-cyan-950", text: "text-cyan-300 dark:text-cyan-400", border: "border-cyan-300 dark:border-cyan-700" },
-  "construction-equipment": { bg: "bg-yellow-100 dark:bg-yellow-950", text: "text-yellow-300 dark:text-yellow-400", border: "border-yellow-300 dark:border-yellow-700" },
+  "car-rental":             { bg: "bg-emerald-500/20", text: "text-emerald-400", border: "border-emerald-500/40" },
+  "safari-tours":           { bg: "bg-amber-500/20",   text: "text-amber-400",   border: "border-amber-500/40"   },
+  "hotel-airport-transfers":{ bg: "bg-sky-500/20",     text: "text-sky-400",     border: "border-sky-500/40"     },
+  "movers":                 { bg: "bg-violet-500/20",  text: "text-violet-400",  border: "border-violet-500/40"  },
+  "corporate-rental":       { bg: "bg-indigo-500/20",  text: "text-indigo-400",  border: "border-indigo-500/40"  },
+  "road-recovery":          { bg: "bg-rose-500/20",    text: "text-rose-400",    border: "border-rose-500/40"    },
+  "cargo-handling":         { bg: "bg-orange-500/20",  text: "text-orange-400",  border: "border-orange-500/40"  },
+  "shipment-imports":       { bg: "bg-cyan-500/20",    text: "text-cyan-400",    border: "border-cyan-500/40"    },
+  "construction-equipment": { bg: "bg-yellow-500/20",  text: "text-yellow-400",  border: "border-yellow-500/40"  },
 };
 
 // Types
