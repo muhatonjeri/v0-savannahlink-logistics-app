@@ -1143,33 +1143,30 @@ export default function NewCarRentalAdminPage() {
                 )}
 
                 {/* Document Type selector */}
-                <FormField control={form.control} name="idType" render={({ field }) => (
-                  <FormItem className="mb-4">
-                    <FormLabel className="text-gray-200">Document Type *</FormLabel>
-                    <FormControl>
-                      <div className="flex flex-wrap gap-2">
-                        {(form.watch("clientType") === "citizen"
-                          ? [
-                              { value: "national_id", label: "🪪 National ID" },
-                              { value: "passport", label: "📕 Passport" },
-                              { value: "military_id", label: "🎖️ Military ID" },
-                            ]
-                          : [
-                              { value: "passport", label: "📕 Passport" },
-                              { value: "alien_id", label: "🪪 Alien ID" },
-                            ]
-                        ).map(({ value, label }) => (
-                          <button key={value} type="button"
-                            onClick={() => field.onChange(value)}
-                            className={`px-4 py-2 rounded-lg border-2 text-sm font-medium transition-all ${field.value === value ? "border-emerald-500 bg-emerald-500/20 text-emerald-300" : "border-white/10 bg-white/5 text-gray-400 hover:border-white/20"}`}>
-                            {label}
-                          </button>
-                        ))}
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
+                <FormField control={form.control} name="idType" render={({ field }) => {
+                  const isCitizen = form.watch("clientType") === "citizen";
+                  const btnClass = (val: string) => `px-4 py-2 rounded-lg border-2 text-sm font-medium transition-all ${field.value === val ? "border-emerald-500 bg-emerald-500/20 text-emerald-300" : "border-white/10 bg-white/5 text-gray-400 hover:border-white/20"}`;
+                  return (
+                    <FormItem className="mb-4">
+                      <FormLabel className="text-gray-200">Document Type *</FormLabel>
+                      <FormControl>
+                        <div className="flex flex-wrap gap-2">
+                          {isCitizen && (
+                            <button type="button" onClick={() => field.onChange("national_id")} className={btnClass("national_id")}>🪪 National ID</button>
+                          )}
+                          <button type="button" onClick={() => field.onChange("passport")} className={btnClass("passport")}>📕 Passport</button>
+                          {isCitizen && (
+                            <button type="button" onClick={() => field.onChange("military_id")} className={btnClass("military_id")}>🎖️ Military ID</button>
+                          )}
+                          {!isCitizen && (
+                            <button type="button" onClick={() => field.onChange("alien_id")} className={btnClass("alien_id")}>🪪 Alien ID</button>
+                          )}
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  );
+                }} />
                 <div className="grid gap-4 sm:grid-cols-2">
                   <FormField
                     control={form.control}
