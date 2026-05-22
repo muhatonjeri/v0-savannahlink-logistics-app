@@ -43,6 +43,8 @@ interface SubletBooking {
   totalClientCharge: number;
   totalProfit: number;
   status: "active" | "completed" | "cancelled";
+  paymentMethod: "mpesa" | "bank" | "cash" | "cheque";
+  paymentReference: string;
   notes: string;
   createdAt: string;
 }
@@ -68,12 +70,12 @@ const INITIAL_BOOKINGS: SubletBooking[] = [
     startDate: "2024-03-10", endDate: "2024-03-14", numberOfDays: 4,
     supplierDailyRate: 8000, ourDailyRate: 10000,
     totalSupplierCost: 32000, totalClientCharge: 40000, totalProfit: 8000,
-    status: "active", notes: "", createdAt: "2024-03-10",
+    status: "active", paymentMethod: "bank", paymentReference: "EQB-TXN-00123", notes: "", createdAt: "2024-03-10",
   },
 ];
 
 const emptyVForm = { supplierName: "", supplierPhone: "", supplierEmail: "", supplierType: "company" as "company" | "individual", make: "", model: "", registration: "", color: "", year: "", supplierDailyRate: "", ourDailyRate: "" };
-const emptyBForm = { vehicleId: "", clientName: "", clientPhone: "", startDate: "", endDate: "", numberOfDays: "", notes: "" };
+const emptyBForm = { vehicleId: "", clientName: "", clientPhone: "", startDate: "", endDate: "", numberOfDays: "", paymentMethod: "mpesa" as "mpesa" | "bank" | "cash" | "cheque", paymentReference: "", notes: "" };
 
 export default function SubletsPage() {
   const [vehicles, setVehicles] = useState<SubletVehicle[]>(INITIAL_VEHICLES);
@@ -120,7 +122,7 @@ export default function SubletsPage() {
       supplierDailyRate: v.supplierDailyRate, ourDailyRate: v.ourDailyRate,
       totalSupplierCost: v.supplierDailyRate * days, totalClientCharge: v.ourDailyRate * days,
       totalProfit: (v.ourDailyRate - v.supplierDailyRate) * days,
-      status: "active", notes: bForm.notes, createdAt: new Date().toISOString().split("T")[0],
+      status: "active", paymentMethod: bForm.paymentMethod, paymentReference: bForm.paymentReference, notes: bForm.notes, createdAt: new Date().toISOString().split("T")[0],
     };
     setBookings([b, ...bookings]);
     setVehicles(vehicles.map(x => x.id === v.id ? { ...x, status: "active" as const } : x));
@@ -233,6 +235,7 @@ export default function SubletsPage() {
                 <TableHead>Supplier Cost</TableHead>
                 <TableHead>Client Charge</TableHead>
                 <TableHead>Profit</TableHead>
+                <TableHead>Payment</TableHead>
                 <TableHead>Status</TableHead>
               </TableRow>
             </TableHeader>
@@ -251,6 +254,10 @@ export default function SubletsPage() {
                     <TableCell className="text-red-400 font-semibold">KES {b.totalSupplierCost.toLocaleString()}</TableCell>
                     <TableCell className="text-emerald-400 font-semibold">KES {b.totalClientCharge.toLocaleString()}</TableCell>
                     <TableCell><span className="text-amber-400 font-bold">KES {b.totalProfit.toLocaleString()}</span><br /><span className="text-xs text-gray-500">{Math.round((b.totalProfit / b.totalClientCharge) * 100)}% margin</span></TableCell>
+                    <TableCell>
+                      <p className="text-white text-sm capitalize">{b.paymentMethod === "mpesa" ? "M-Pesa" : b.paymentMethod.charAt(0).toUpperCase() + b.paymentMethod.slice(1)}</p>
+                      <p className="text-gray-400 text-xs font-mono">{b.paymentReference || "-"}</p>
+                    </TableCell>
                     <TableCell>
                       <Badge className={b.status === "active" ? "bg-blue-600 text-white" : b.status === "completed" ? "bg-green-600 text-white" : "bg-gray-600 text-white"}>
                         {b.status.charAt(0).toUpperCase() + b.status.slice(1)}
@@ -415,6 +422,24 @@ export default function SubletsPage() {
               </div>
             )}
 
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label className="text-gray-200">Payment Method *</Label>
+                <select className="w-full mt-1 rounded-lg bg-[#0a1628] border border-white/20 text-white p-2 text-sm"
+                  value={bForm.paymentMethod} onChange={e => setBForm({ ...bForm, paymentMethod: e.target.value as "mpesa" | "bank" | "cash" | "cheque" })}>
+                  <option value="mpesa">M-Pesa</option>
+                  <option value="bank">Bank Transfer</option>
+                  <option value="cash">Cash</option>
+                  <option value="cheque">Cheque</option>
+                </select>
+              </div>
+              <div>
+                <Label className="text-gray-200">Payment Reference</Label>
+                <Input className="mt-1 bg-[#0a1628] border-white/20 text-white font-mono"
+                  placeholder={bForm.paymentMethod === "mpesa" ? "e.g. QGH7Y3K2P1" : "e.g. TXN-00123"}
+                  value={bForm.paymentReference} onChange={e => setBForm({ ...bForm, paymentReference: e.target.value })} />
+              </div>
+            </div>
             <div><Label className="text-gray-200">Notes</Label><Input className="mt-1 bg-[#0a1628] border-white/20 text-white" placeholder="Any notes..." value={bForm.notes} onChange={e => setBForm({ ...bForm, notes: e.target.value })} /></div>
           </div>
           <DialogFooter>
