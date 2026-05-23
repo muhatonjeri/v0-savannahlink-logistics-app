@@ -1493,6 +1493,99 @@ export default function NewCarRentalAdminPage() {
                     )}
                   />
                 </div>
+
+                {/* ID Document Photos */}
+                <div className="mt-5 border-t border-purple-500/20 pt-5">
+                  <p className="text-purple-400 font-semibold text-sm uppercase tracking-wide mb-4 flex items-center gap-2">
+                    <span className="inline-block w-2 h-2 rounded-full bg-purple-400" />
+                    ID / Passport Document Photos
+                  </p>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <FormField
+                      control={form.control}
+                      name="idPhotoFrontUrl"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FileUpload
+                            id="id-front"
+                            label={form.watch("idType") === "passport" ? "Passport — Photo Page (Front)" : "National ID — Front Side"}
+                            accept="image/*"
+                            maxSize={5}
+                            value={field.value}
+                            onChange={field.onChange}
+                            showCamera
+                          />
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="idPhotoBackUrl"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FileUpload
+                            id="id-back"
+                            label={form.watch("idType") === "passport" ? "Passport — Visa / Entry Page (Back)" : "National ID — Back Side"}
+                            accept="image/*"
+                            maxSize={5}
+                            value={field.value}
+                            onChange={field.onChange}
+                            showCamera
+                          />
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+
+                {/* Driving License Photos */}
+                <div className="mt-5 border-t border-purple-500/20 pt-5">
+                  <p className="text-purple-400 font-semibold text-sm uppercase tracking-wide mb-4 flex items-center gap-2">
+                    <span className="inline-block w-2 h-2 rounded-full bg-purple-400" />
+                    Driving License Photos
+                  </p>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <FormField
+                      control={form.control}
+                      name="drivingLicenseFrontUrl"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FileUpload
+                            id="dl-front"
+                            label="Driving License — Front"
+                            accept="image/*"
+                            maxSize={5}
+                            value={field.value}
+                            onChange={field.onChange}
+                            showCamera
+                          />
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="drivingLicenseBackUrl"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FileUpload
+                            id="dl-back"
+                            label="Driving License — Back"
+                            accept="image/*"
+                            maxSize={5}
+                            value={field.value}
+                            onChange={field.onChange}
+                            showCamera
+                          />
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+
               </div>
             </CardContent>
           </Card>
