@@ -328,9 +328,10 @@ export default function AdminLayout({
               left: "50%",
               transform: "translate(-40%, -50%)",
               zIndex: 0,
-              opacity: 0.04,
-              width: "520px",
-              height: "520px",
+              opacity: 0.06,
+              width: "600px",
+              height: "600px",
+              filter: "grayscale(30%)",
             }}
           >
             <Image
