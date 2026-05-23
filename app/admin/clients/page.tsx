@@ -4,8 +4,8 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Users, Search, Plus, Eye, Phone, Mail, MapPin,
-  ShieldCheck, ShieldAlert, ShieldX, Filter, Download,
-  Car, Calendar, DollarSign, Fingerprint, Trash2,
+  ShieldCheck, ShieldAlert, ShieldX, Download,
+  DollarSign, Fingerprint,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,7 +17,6 @@ import { getClients } from "@/lib/store";
 import type { Client } from "@/types";
 import { FileUpload } from "@/components/forms/file-upload";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 
 const riskConfig = {
   low:    { label: "Low Risk",    color: "bg-emerald-600 text-white", icon: ShieldCheck },
