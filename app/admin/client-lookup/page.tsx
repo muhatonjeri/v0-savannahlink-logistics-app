@@ -97,6 +97,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { DatePicker } from "@/components/ui/date-picker";
 import { toast } from "sonner";
+import { clientsApi } from "@/lib/api";
 import { getClients } from "@/lib/store";
 import type { Client as StoreClient } from "@/types";
 

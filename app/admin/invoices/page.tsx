@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { useReactToPrint } from "react-to-print";
 import { format } from "date-fns";
 import { toast } from "sonner";
+import { invoicesApi } from "@/lib/api";
 import {
   FileText,
   Plus,
@@ -248,7 +249,46 @@ const companyInfo = {
 };
 
 export default function InvoicesPage() {
-  const [invoices, setInvoices] = useState<Invoice[]>(initialInvoices);
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Load invoices from Supabase on mount
+  useEffect(() => {
+    invoicesApi.getAll()
+      .then(data => {
+        if (data && data.length > 0) {
+          // Map snake_case from DB to camelCase
+          const mapped = data.map((inv: Record<string, unknown>) => ({
+            id: inv.id,
+            invoiceNumber: inv.invoice_number,
+            customerName: inv.customer_name,
+            customerEmail: inv.customer_email,
+            customerPhone: inv.customer_phone,
+            customerAddress: inv.customer_address,
+            customerKraPin: inv.customer_kra_pin,
+            serviceType: inv.service_type,
+            items: inv.items,
+            subtotal: inv.subtotal,
+            vatRate: inv.vat_rate,
+            vatAmount: inv.vat_amount,
+            total: inv.total,
+            amountPaid: inv.amount_paid,
+            payments: inv.payments || [],
+            status: inv.status,
+            issueDate: inv.issue_date,
+            dueDate: inv.due_date,
+            paymentTerms: inv.payment_terms,
+            notes: inv.notes,
+            createdAt: inv.created_at,
+          }));
+          setInvoices(mapped);
+        } else {
+          setInvoices(initialInvoices);
+        }
+      })
+      .catch(() => setInvoices(initialInvoices))
+      .finally(() => setLoading(false));
+  }, []);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
@@ -368,6 +408,28 @@ export default function InvoicesPage() {
     };
 
     setInvoices([invoice, ...invoices]);
+    // Save to Supabase
+    invoicesApi.create({
+      invoiceNumber: invoice.invoiceNumber,
+      customerName: invoice.customerName,
+      customerEmail: invoice.customerEmail,
+      customerPhone: invoice.customerPhone,
+      customerAddress: invoice.customerAddress,
+      customerKraPin: invoice.customerKraPin,
+      serviceType: invoice.serviceType,
+      items: invoice.items,
+      subtotal: invoice.subtotal,
+      vatRate: invoice.vatRate,
+      vatAmount: invoice.vatAmount,
+      total: invoice.total,
+      amountPaid: 0,
+      payments: [],
+      status: invoice.status,
+      issueDate: invoice.issueDate,
+      dueDate: invoice.dueDate,
+      paymentTerms: invoice.paymentTerms,
+      notes: invoice.notes,
+    }).catch(() => {});
     setIsCreateDialogOpen(false);
     resetForm();
     toast.success(`Invoice ${invoiceNumber} created successfully`);
@@ -420,6 +482,11 @@ export default function InvoicesPage() {
 
     setInvoices(invoices.map((inv) => inv.id === selectedInvoice.id ? updatedInvoice : inv));
     setSelectedInvoice(updatedInvoice);
+    invoicesApi.update(selectedInvoice.id, {
+      amount_paid: updatedInvoice.amountPaid,
+      payments: updatedInvoice.payments,
+      status: updatedInvoice.status,
+    }).catch(() => {});
     setIsPaymentDialogOpen(false);
     setPaymentForm({ amount: "", method: "mpesa", reference: "", note: "" });
     toast.success(`Payment of KES ${amount.toLocaleString()} recorded successfully`);
@@ -428,6 +495,7 @@ export default function InvoicesPage() {
   // Update invoice status
   const updateInvoiceStatus = (id: string, status: Invoice["status"]) => {
     setInvoices(invoices.map((inv) => (inv.id === id ? { ...inv, status } : inv)));
+    invoicesApi.update(id, { status }).catch(() => {});
     toast.success(`Invoice status updated to ${statusConfig[status].label}`);
   };
 

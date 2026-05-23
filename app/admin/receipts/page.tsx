@@ -87,6 +87,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
+import { receiptsApi } from "@/lib/api";
 
 // Receipt interface
 interface ReceiptItem {
