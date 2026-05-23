@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 import { getClients, getBookings } from "@/lib/store";
 import { Plus, Car, Building2, TrendingUp, DollarSign, ArrowRight, Eye, Trash2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -442,6 +443,25 @@ export default function SubletsPage() {
   const [vForm, setVForm] = useState(emptyVForm);
   const [bForm, setBForm] = useState(emptyBForm);
   const [expenses, setExpenses] = useState<Expense[]>([]);
+
+  // Read URL params from client lookup
+  const searchParams = useSearchParams();
+  useEffect(() => {
+    const clientName = searchParams.get("clientName");
+    const clientPhone = searchParams.get("clientPhone");
+    const service = searchParams.get("service");
+    if (clientName || clientPhone || service) {
+      if (clientName) {
+        setBForm(prev => ({ ...prev, clientName: decodeURIComponent(clientName), clientPhone: decodeURIComponent(clientPhone || "") }));
+        setClientSearch(decodeURIComponent(clientName));
+      }
+      if (service) {
+        const matched = SERVICES.find(s => s.toLowerCase() === decodeURIComponent(service).toLowerCase());
+        if (matched) setBForm(prev => ({ ...prev, serviceType: matched }));
+      }
+      setShowBookingDialog(true);
+    }
+  }, [searchParams]);
 
   // Load vehicles registered from Fleet Management
   useEffect(() => {

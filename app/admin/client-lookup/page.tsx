@@ -393,6 +393,7 @@ function ClientLookupContent() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [localBlacklistData, setLocalBlacklistData] = useState<BlacklistEntry[]>(blacklistData);
   const [isRegisterDialogOpen, setIsRegisterDialogOpen] = useState(false);
+  const [vehicleSource, setVehicleSource] = useState<'own' | 'sublet' | null>(null);
   const [isRegistering, setIsRegistering] = useState(false);
   const [isFingerprintScanning, setIsFingerprintScanning] = useState(false);
   const [fingerprintStatus, setFingerprintStatus] = useState<"idle" | "scanning" | "success" | "failed" | "not-found">("idle");
@@ -992,17 +993,24 @@ function ClientLookupContent() {
                   
                   {/* Selected Service - Prominent CTA */}
                   {currentService && (
-                    <div className={`border-t border-green-500/50 dark:border-green-800 pt-4`}>
-                      <Link href={`${currentService.href}?clientId=${searchResults.client?.id || ""}`}>
-                        <Button 
-                          size="lg" 
-                          className={`w-full gap-3 ${currentService.bgColor} ${currentService.color} ${currentService.hoverColor} border-2 border-current h-16 text-lg font-semibold`}
-                        >
-                          <currentService.icon className="h-6 w-6" />
-                          Proceed to {currentService.title}
-                          <ArrowRight className="h-5 w-5 ml-auto" />
-                        </Button>
-                      </Link>
+                    <div className="border-t border-green-500/50 pt-4 space-y-3">
+                      <p className="text-sm text-gray-400 font-medium">Select vehicle source to proceed:</p>
+                      <div className="grid grid-cols-2 gap-3">
+                        <Link href={`${currentService.href}?clientId=${searchResults.client?.id || ""}`}>
+                          <div className="flex flex-col items-center gap-2 rounded-xl border-2 border-emerald-500 bg-emerald-500/10 p-4 hover:bg-emerald-500/20 transition-all cursor-pointer group">
+                            <currentService.icon className="h-7 w-7 text-emerald-400" />
+                            <span className="text-emerald-300 font-semibold text-sm text-center">Company Vehicle</span>
+                            <span className="text-gray-400 text-xs text-center">Use Moventra own fleet</span>
+                          </div>
+                        </Link>
+                        <Link href={`/admin/sublets?clientId=${searchResults.client?.id || ""}&service=${currentService.title}&clientName=${encodeURIComponent(searchResults.client?.fullName || "")}&clientPhone=${encodeURIComponent(searchResults.client?.phone || "")}`}>
+                          <div className="flex flex-col items-center gap-2 rounded-xl border-2 border-cyan-500 bg-cyan-500/10 p-4 hover:bg-cyan-500/20 transition-all cursor-pointer group">
+                            <Building2 className="h-7 w-7 text-cyan-400" />
+                            <span className="text-cyan-300 font-semibold text-sm text-center">Sublet Vehicle</span>
+                            <span className="text-gray-400 text-xs text-center">Source from another company</span>
+                          </div>
+                        </Link>
+                      </div>
                     </div>
                   )}
                   
@@ -1086,17 +1094,24 @@ function ClientLookupContent() {
                   
                   {/* Selected Service - Prominent CTA */}
                   {currentService && (
-                    <div className={`border-t border-green-500/50 dark:border-green-800 pt-4`}>
-                      <Link href={`${currentService.href}?clientId=${searchResults.client?.id || ""}`}>
-                        <Button 
-                          size="lg" 
-                          className={`w-full gap-3 ${currentService.bgColor} ${currentService.color} ${currentService.hoverColor} border-2 border-current h-16 text-lg font-semibold`}
-                        >
-                          <currentService.icon className="h-6 w-6" />
-                          Proceed to {currentService.title}
-                          <ArrowRight className="h-5 w-5 ml-auto" />
-                        </Button>
-                      </Link>
+                    <div className="border-t border-green-500/50 pt-4 space-y-3">
+                      <p className="text-sm text-gray-400 font-medium">Select vehicle source to proceed:</p>
+                      <div className="grid grid-cols-2 gap-3">
+                        <Link href={`${currentService.href}?clientId=${searchResults.client?.id || ""}`}>
+                          <div className="flex flex-col items-center gap-2 rounded-xl border-2 border-emerald-500 bg-emerald-500/10 p-4 hover:bg-emerald-500/20 transition-all cursor-pointer group">
+                            <currentService.icon className="h-7 w-7 text-emerald-400" />
+                            <span className="text-emerald-300 font-semibold text-sm text-center">Company Vehicle</span>
+                            <span className="text-gray-400 text-xs text-center">Use Moventra own fleet</span>
+                          </div>
+                        </Link>
+                        <Link href={`/admin/sublets?clientId=${searchResults.client?.id || ""}&service=${currentService.title}&clientName=${encodeURIComponent(searchResults.client?.fullName || "")}&clientPhone=${encodeURIComponent(searchResults.client?.phone || "")}`}>
+                          <div className="flex flex-col items-center gap-2 rounded-xl border-2 border-cyan-500 bg-cyan-500/10 p-4 hover:bg-cyan-500/20 transition-all cursor-pointer group">
+                            <Building2 className="h-7 w-7 text-cyan-400" />
+                            <span className="text-cyan-300 font-semibold text-sm text-center">Sublet Vehicle</span>
+                            <span className="text-gray-400 text-xs text-center">Source from another company</span>
+                          </div>
+                        </Link>
+                      </div>
                     </div>
                   )}
                   
