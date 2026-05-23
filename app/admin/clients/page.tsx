@@ -13,7 +13,6 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { getClients } from "@/lib/store";
 import type { Client } from "@/types";
 import { FileUpload } from "@/components/forms/file-upload";
 import { Label } from "@/components/ui/label";
@@ -93,10 +92,11 @@ export default function ClientsPage() {
         })));
       } else {
         // Fall back to local store
-        setClients(getClients());
+        setClients([]);
       }
-    } catch {
-      setClients(getClients());
+    } catch(e) {
+      console.error("Failed to load clients:", e);
+      setClients([]);
     }
   };
 
