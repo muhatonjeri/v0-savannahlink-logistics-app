@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { getClients, getBookings } from "@/lib/store";
-import { Plus, Car, Building2, TrendingUp, DollarSign, ArrowRight, Eye, Trash2 } from "lucide-react";
+import { Plus, Car, Building2, TrendingUp, DollarSign, ArrowRight, Eye, Trash2, Bell, AlertTriangle, Clock, CreditCard, CalendarClock, CheckCircle2, XCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -717,6 +717,77 @@ function SubletsPage() {
     toast.success("Sublet booking recorded and synced to Accounts");
   };
 
+  // ── NOTIFICATION ENGINE ──────────────────────────────
+  const today = new Date();
+  today.setHours(0,0,0,0);
+
+  interface Notification {
+    id: string;
+    type: "overdue" | "due_today" | "due_soon" | "balance" | "return_today" | "return_soon" | "returned_late";
+    title: string;
+    message: string;
+    severity: "critical" | "warning" | "info";
+    bookingId: string;
+    entityType: "sublet";
+  }
+
+  const notifications: Notification[] = [];
+
+  bookings.forEach(b => {
+    if (b.status === "cancelled" || b.status === "completed") return;
+    const end = new Date(b.endDate);
+    end.setHours(0,0,0,0);
+    const diffDays = Math.ceil((end.getTime() - today.getTime()) / 86400000);
+    const balance = b.totalClientCharge - b.amountPaid;
+
+    // Return date notifications
+    if (diffDays < 0) {
+      notifications.push({ id: b.id + "-late", type: "returned_late", severity: "critical",
+        title: "Overdue Return", bookingId: b.id, entityType: "sublet",
+        message: b.clientName + " — " + (b.make || "") + " " + (b.model || "") + " was due back " + Math.abs(diffDays) + " day(s) ago (" + b.endDate + ")" });
+    } else if (diffDays === 0) {
+      notifications.push({ id: b.id + "-today", type: "return_today", severity: "critical",
+        title: "Return Due Today", bookingId: b.id, entityType: "sublet",
+        message: b.clientName + " — " + (b.make || "") + " " + (b.model || "") + " must be returned today" });
+    } else if (diffDays <= 2) {
+      notifications.push({ id: b.id + "-soon", type: "return_soon", severity: "warning",
+        title: "Return Due Soon", bookingId: b.id, entityType: "sublet",
+        message: b.clientName + " — " + (b.make || "") + " " + (b.model || "") + " due in " + diffDays + " day(s) on " + b.endDate });
+    }
+
+    // Payment balance notifications
+    if (balance > 0) {
+      if (diffDays < 0) {
+        notifications.push({ id: b.id + "-bal-overdue", type: "overdue", severity: "critical",
+          title: "Overdue Payment", bookingId: b.id, entityType: "sublet",
+          message: b.clientName + " — KES " + balance.toLocaleString() + " outstanding (booking ended " + Math.abs(diffDays) + " day(s) ago)" });
+      } else if (diffDays === 0) {
+        notifications.push({ id: b.id + "-bal-today", type: "due_today", severity: "warning",
+          title: "Payment Due Today", bookingId: b.id, entityType: "sublet",
+          message: b.clientName + " — KES " + balance.toLocaleString() + " balance due today" });
+      } else if (diffDays <= 3) {
+        notifications.push({ id: b.id + "-bal-soon", type: "due_soon", severity: "info",
+          title: "Payment Due Soon", bookingId: b.id, entityType: "sublet",
+          message: b.clientName + " — KES " + balance.toLocaleString() + " due in " + diffDays + " day(s)" });
+      }
+    }
+  });
+
+  const criticalCount = notifications.filter(n => n.severity === "critical").length;
+  const warningCount  = notifications.filter(n => n.severity === "warning").length;
+
+  const severityStyles = {
+    critical: { border: "border-red-500/40",    bg: "bg-red-500/10",    icon: "text-red-400",    badge: "bg-red-600 text-white"    },
+    warning:  { border: "border-amber-500/40",  bg: "bg-amber-500/10",  icon: "text-amber-400",  badge: "bg-amber-500 text-white"  },
+    info:     { border: "border-blue-500/40",   bg: "bg-blue-500/10",   icon: "text-blue-400",   badge: "bg-blue-600 text-white"   },
+  };
+
+  const typeIcons: Record<string, React.ElementType> = {
+    overdue: AlertTriangle, due_today: CreditCard, due_soon: Clock,
+    return_today: CalendarClock, return_soon: CalendarClock, returned_late: XCircle, balance: CreditCard,
+  };
+  // ─────────────────────────────────────────────────────
+
   return (
     <div className="space-y-6">
 
@@ -759,6 +830,51 @@ function SubletsPage() {
           </Card>
         ))}
       </div>
+
+      {/* Notifications Panel */}
+      {notifications.length > 0 && (
+        <Card className="border-red-500/30 bg-red-500/5">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-base text-white flex items-center gap-2">
+                <Bell className="h-5 w-5 text-red-400" />
+                Alerts & Reminders
+                {criticalCount > 0 && <Badge className="bg-red-600 text-white ml-1">{criticalCount} Critical</Badge>}
+                {warningCount > 0 && <Badge className="bg-amber-500 text-white ml-1">{warningCount} Warning</Badge>}
+              </CardTitle>
+              <span className="text-xs text-gray-500">{notifications.length} active alert{notifications.length !== 1 ? "s" : ""}</span>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {notifications
+                .sort((a, b) => (a.severity === "critical" ? -1 : b.severity === "critical" ? 1 : 0))
+                .map(n => {
+                  const s = severityStyles[n.severity];
+                  const Icon = typeIcons[n.type] || Bell;
+                  return (
+                    <div key={n.id} className={"flex items-start gap-3 rounded-lg border p-3 " + s.border + " " + s.bg}>
+                      <Icon className={"h-4 w-4 mt-0.5 shrink-0 " + s.icon} />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-0.5">
+                          <Badge className={"text-xs px-1.5 py-0 " + s.badge}>{n.title}</Badge>
+                        </div>
+                        <p className="text-sm text-gray-200">{n.message}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {notifications.length === 0 && (
+        <div className="flex items-center gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/5 px-4 py-3">
+          <CheckCircle2 className="h-5 w-5 text-emerald-400 shrink-0" />
+          <p className="text-sm text-emerald-300 font-medium">All clear — no overdue returns or outstanding payments</p>
+        </div>
+      )}
 
       {/* Assets Table */}
       <Card className="border-white/10 bg-white/5">

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Car, Building2, TrendingUp, DollarSign, Eye, ArrowUpRight } from "lucide-react";
+import { Plus, Car, Building2, TrendingUp, DollarSign, Eye, ArrowUpRight, Bell, AlertTriangle, Clock, CreditCard, CalendarClock, CheckCircle2, XCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -127,6 +127,71 @@ export default function FleetOutPage() {
     toast.success("Fleet-out record added");
   };
 
+  // ── NOTIFICATION ENGINE ──────────────────────────────
+  const today = new Date();
+  today.setHours(0,0,0,0);
+
+  interface FleetNotification {
+    id: string;
+    type: string;
+    title: string;
+    message: string;
+    severity: "critical" | "warning" | "info";
+  }
+
+  const notifications: FleetNotification[] = [];
+
+  records.forEach(r => {
+    if (r.status === "cancelled" || r.status === "completed") return;
+    const end = new Date(r.endDate);
+    end.setHours(0,0,0,0);
+    const diffDays = Math.ceil((end.getTime() - today.getTime()) / 86400000);
+    const due = r.ourDailyRate * r.numberOfDays;
+    const balance = due - r.amountPaid;
+
+    if (diffDays < 0) {
+      notifications.push({ id: r.id + "-late", type: "returned_late", severity: "critical",
+        title: "Overdue Return",
+        message: r.vehicleMake + " " + r.vehicleModel + " (" + r.vehicleReg + ") given to " + r.receiverName + " was due back " + Math.abs(diffDays) + " day(s) ago (" + r.endDate + ")" });
+    } else if (diffDays === 0) {
+      notifications.push({ id: r.id + "-today", type: "return_today", severity: "critical",
+        title: "Return Due Today",
+        message: r.vehicleMake + " " + r.vehicleModel + " (" + r.vehicleReg + ") must be returned by " + r.receiverName + " today" });
+    } else if (diffDays <= 2) {
+      notifications.push({ id: r.id + "-soon", type: "return_soon", severity: "warning",
+        title: "Return Due in " + diffDays + " Day(s)",
+        message: r.vehicleMake + " " + r.vehicleModel + " (" + r.vehicleReg + ") due back from " + r.receiverName + " on " + r.endDate });
+    }
+
+    if (balance > 0) {
+      if (diffDays < 0) {
+        notifications.push({ id: r.id + "-bal", type: "overdue", severity: "critical",
+          title: "Overdue Payment",
+          message: r.receiverName + " owes KES " + balance.toLocaleString() + " — period ended " + Math.abs(diffDays) + " day(s) ago. " + (r.followUpNotes || "") });
+      } else if (diffDays <= 2) {
+        notifications.push({ id: r.id + "-bal-soon", type: "due_soon", severity: "warning",
+          title: "Payment Due Soon",
+          message: r.receiverName + " — KES " + balance.toLocaleString() + " balance due in " + diffDays + " day(s)" });
+      }
+    }
+
+    if (r.followUpNotes) {
+      notifications.push({ id: r.id + "-followup", type: "followup", severity: "info",
+        title: "Follow-up Note",
+        message: r.receiverName + " | " + r.vehicleReg + " — " + r.followUpNotes });
+    }
+  });
+
+  const criticalCount = notifications.filter(n => n.severity === "critical").length;
+  const warningCount  = notifications.filter(n => n.severity === "warning").length;
+
+  const severityStyles = {
+    critical: { border: "border-red-500/40",   bg: "bg-red-500/10",   icon: "text-red-400",   badge: "bg-red-600 text-white"   },
+    warning:  { border: "border-amber-500/40", bg: "bg-amber-500/10", icon: "text-amber-400", badge: "bg-amber-500 text-white" },
+    info:     { border: "border-blue-500/40",  bg: "bg-blue-500/10",  icon: "text-blue-400",  badge: "bg-blue-600 text-white"  },
+  };
+  // ─────────────────────────────────────────────────────
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -164,6 +229,52 @@ export default function FleetOutPage() {
           </Card>
         ))}
       </div>
+
+      {/* Notifications */}
+      {notifications.length > 0 && (
+        <Card className="border-red-500/30 bg-red-500/5">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-base text-white flex items-center gap-2">
+                <Bell className="h-5 w-5 text-red-400" />
+                Fleet Out Alerts
+                {criticalCount > 0 && <Badge className="bg-red-600 text-white ml-1">{criticalCount} Critical</Badge>}
+                {warningCount > 0 && <Badge className="bg-amber-500 text-white ml-1">{warningCount} Warning</Badge>}
+              </CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {notifications
+                .sort((a, b) => (a.severity === "critical" ? -1 : b.severity === "critical" ? 1 : 0))
+                .map(n => {
+                  const icons: Record<string, React.ElementType> = {
+                    returned_late: XCircle, return_today: CalendarClock, return_soon: Clock,
+                    overdue: AlertTriangle, due_soon: CreditCard, followup: Bell,
+                  };
+                  const Icon = icons[n.type] || Bell;
+                  const s = severityStyles[n.severity];
+                  return (
+                    <div key={n.id} className={"flex items-start gap-3 rounded-lg border p-3 " + s.border + " " + s.bg}>
+                      <Icon className={"h-4 w-4 mt-0.5 shrink-0 " + s.icon} />
+                      <div>
+                        <Badge className={"text-xs px-1.5 py-0 mb-1 " + s.badge}>{n.title}</Badge>
+                        <p className="text-sm text-gray-200">{n.message}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {notifications.length === 0 && (
+        <div className="flex items-center gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/5 px-4 py-3">
+          <CheckCircle2 className="h-5 w-5 text-emerald-400 shrink-0" />
+          <p className="text-sm text-emerald-300 font-medium">All clear — no overdue vehicles or outstanding payments</p>
+        </div>
+      )}
 
       {/* Records Table */}
       <Card className="border-white/10 bg-white/5">
