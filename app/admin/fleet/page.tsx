@@ -134,6 +134,11 @@ const colorOptions = ["White", "Black", "Silver", "Gray", "Blue", "Red", "Green"
 interface FleetVehicle {
   id: string;
   vehicleName: string;
+  ownershipType: "own" | "sublet";
+  supplierName?: string;
+  supplierPhone?: string;
+  supplierDailyRate?: number;
+  ourDailyRate?: number;
   vehicleMake: string;
   vehicleModel: string;
   registrationNo: string;
@@ -204,6 +209,7 @@ const assignmentFormSchema = z.object({
 const mockFleetData: FleetVehicle[] = [
   {
     id: "1",
+    ownershipType: "own" as const,
     vehicleName: "Safari Cruiser 1",
     vehicleMake: "Toyota",
     vehicleModel: "Land Cruiser V8",
@@ -227,6 +233,7 @@ const mockFleetData: FleetVehicle[] = [
   },
   {
     id: "2",
+    ownershipType: "own" as const,
     vehicleName: "Executive Sedan 1",
     vehicleMake: "Mercedes-Benz",
     vehicleModel: "E-Class",
@@ -245,6 +252,7 @@ const mockFleetData: FleetVehicle[] = [
   },
   {
     id: "3",
+    ownershipType: "own" as const,
     vehicleName: "Cargo Van 1",
     vehicleMake: "Isuzu",
     vehicleModel: "NQR",
@@ -392,6 +400,11 @@ export default function FleetManagementPage() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [ownershipType, setOwnershipType] = useState<"own" | "sublet">("own");
+  const [subletSupplierName, setSubletSupplierName] = useState("");
+  const [subletSupplierPhone, setSubletSupplierPhone] = useState("");
+  const [subletSupplierRate, setSubletSupplierRate] = useState("");
+  const [subletOurRate, setSubletOurRate] = useState("");
   const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -460,6 +473,11 @@ export default function FleetManagementPage() {
   function onSubmitVehicle(data: z.infer<typeof fleetFormSchema>) {
     const newVehicle: FleetVehicle = {
       id: Date.now().toString(),
+      ownershipType: ownershipType,
+      supplierName: ownershipType === "sublet" ? subletSupplierName : undefined,
+      supplierPhone: ownershipType === "sublet" ? subletSupplierPhone : undefined,
+      supplierDailyRate: ownershipType === "sublet" ? parseFloat(subletSupplierRate) || 0 : undefined,
+      ourDailyRate: ownershipType === "sublet" ? parseFloat(subletOurRate) || 0 : undefined,
       vehicleName: data.vehicleName,
       vehicleMake: data.vehicleMake,
       vehicleModel: data.vehicleModel,
@@ -479,9 +497,44 @@ export default function FleetManagementPage() {
     };
 
     setFleet([newVehicle, ...fleet]);
+
+    // If sublet vehicle, auto-register in Sublet Assets section
+    if (ownershipType === "sublet" && subletSupplierName) {
+      const subletEntry = {
+        id: "sv-fleet-" + Date.now(),
+        serviceType: "Car Rental",
+        supplierName: subletSupplierName,
+        supplierPhone: subletSupplierPhone,
+        supplierEmail: "",
+        supplierType: "company" as const,
+        make: data.vehicleMake,
+        model: data.vehicleModel,
+        registration: data.registrationNo.toUpperCase(),
+        color: data.color,
+        year: data.year,
+        supplierDailyRate: parseFloat(subletSupplierRate) || 0,
+        ourDailyRate: parseFloat(subletOurRate) || 0,
+        status: "available" as const,
+        createdAt: new Date().toISOString().split("T")[0],
+      };
+      // Store in sessionStorage so Sublet page can pick it up
+      try {
+        const existing = JSON.parse(sessionStorage.getItem("pendingSublets") || "[]");
+        existing.push(subletEntry);
+        sessionStorage.setItem("pendingSublets", JSON.stringify(existing));
+      } catch {}
+      toast.success("Sublet vehicle added to fleet and registered in Sublet Assets");
+    } else {
+      toast.success("Vehicle added to fleet successfully");
+    }
+
     setIsAddDialogOpen(false);
     form.reset();
-    toast.success("Vehicle added to fleet successfully");
+    setOwnershipType("own");
+    setSubletSupplierName("");
+    setSubletSupplierPhone("");
+    setSubletSupplierRate("");
+    setSubletOurRate("");
   }
 
   // Assign vehicle
@@ -607,6 +660,60 @@ export default function FleetManagementPage() {
             </DialogHeader>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmitVehicle)} className="space-y-6">
+                {/* Ownership Type */}
+                <div className="rounded-lg border-2 border-violet-500/50 bg-violet-500/5 p-4">
+                  <h4 className="font-semibold text-violet-400 mb-3 text-sm uppercase tracking-wide">Vehicle Ownership</h4>
+                  <div className="flex gap-3">
+                    <button type="button"
+                      onClick={() => setOwnershipType("own")}
+                      className={ownershipType === "own" ? "flex-1 py-3 rounded-lg border-2 border-emerald-500 bg-emerald-500/20 text-emerald-300 font-semibold text-sm" : "flex-1 py-3 rounded-lg border-2 border-white/10 bg-white/5 text-gray-400 font-semibold text-sm hover:border-emerald-500/40"}>
+                      Company Vehicle
+                      <span className="block text-xs font-normal mt-0.5 opacity-70">Owned by Moventra</span>
+                    </button>
+                    <button type="button"
+                      onClick={() => setOwnershipType("sublet")}
+                      className={ownershipType === "sublet" ? "flex-1 py-3 rounded-lg border-2 border-cyan-500 bg-cyan-500/20 text-cyan-300 font-semibold text-sm" : "flex-1 py-3 rounded-lg border-2 border-white/10 bg-white/5 text-gray-400 font-semibold text-sm hover:border-cyan-500/40"}>
+                      Sublet Vehicle
+                      <span className="block text-xs font-normal mt-0.5 opacity-70">From another company/individual</span>
+                    </button>
+                  </div>
+
+                  {/* Sublet supplier fields */}
+                  {ownershipType === "sublet" && (
+                    <div className="mt-4 grid grid-cols-2 gap-3">
+                      <div>
+                        <Label className="text-gray-200 text-sm">Supplier Name *</Label>
+                        <Input className="mt-1 bg-[#0a1628] border-cyan-500/30 text-white" placeholder="Company or individual name"
+                          value={subletSupplierName} onChange={e => setSubletSupplierName(e.target.value)} />
+                      </div>
+                      <div>
+                        <Label className="text-gray-200 text-sm">Supplier Phone *</Label>
+                        <Input className="mt-1 bg-[#0a1628] border-cyan-500/30 text-white" placeholder="+254 7XX XXX XXX"
+                          value={subletSupplierPhone} onChange={e => setSubletSupplierPhone(e.target.value)} />
+                      </div>
+                      <div>
+                        <Label className="text-red-300 text-sm">Their Daily Rate (KES — we pay)</Label>
+                        <Input type="number" className="mt-1 bg-[#0a1628] border-red-500/30 text-white" placeholder="e.g. 5000"
+                          value={subletSupplierRate} onChange={e => setSubletSupplierRate(e.target.value)} />
+                      </div>
+                      <div>
+                        <Label className="text-emerald-300 text-sm">Our Daily Rate (KES — we charge)</Label>
+                        <Input type="number" className="mt-1 bg-[#0a1628] border-emerald-500/30 text-white" placeholder="e.g. 6500"
+                          value={subletOurRate} onChange={e => setSubletOurRate(e.target.value)} />
+                      </div>
+                      {subletSupplierRate && subletOurRate && (
+                        <div className="col-span-2 rounded-lg bg-[#0a1628] border border-amber-500/30 p-3 flex justify-between text-sm">
+                          <span className="text-gray-400">Gross profit per day:</span>
+                          <span className="text-amber-400 font-bold">KES {(parseFloat(subletOurRate) - parseFloat(subletSupplierRate)).toLocaleString()} ({Math.round(((parseFloat(subletOurRate) - parseFloat(subletSupplierRate)) / parseFloat(subletSupplierRate)) * 100)}% margin)</span>
+                        </div>
+                      )}
+                      <p className="col-span-2 text-xs text-cyan-400 bg-cyan-500/10 rounded-lg p-2 border border-cyan-500/20">
+                        This vehicle will automatically appear in the Sublet Assets section for booking and profit tracking.
+                      </p>
+                    </div>
+                  )}
+                </div>
+
                 {/* Vehicle Details */}
                 <div className="rounded-lg border-2 border-[#e67e22]/50 bg-[#0f1d32] text-white p-4 shadow-sm">
                   <h4 className="font-semibold text-[#e67e22] mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">

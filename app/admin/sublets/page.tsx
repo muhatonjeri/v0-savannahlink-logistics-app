@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, Car, Building2, TrendingUp, DollarSign, ArrowRight, Eye, Trash2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -127,6 +127,15 @@ const INITIAL_BOOKINGS: SubletBooking[] = [
   },
 ];
 
+// Load any sublets registered from Fleet Management
+function loadPendingSublets(): SubletVehicle[] {
+  try {
+    const pending = JSON.parse(sessionStorage.getItem("pendingSublets") || "[]");
+    sessionStorage.removeItem("pendingSublets");
+    return pending;
+  } catch { return []; }
+}
+
 const emptyVForm = {
   serviceType: "Car Rental", supplierName: "", supplierPhone: "", supplierEmail: "",
   supplierType: "company" as "company" | "individual",
@@ -152,6 +161,19 @@ export default function SubletsPage() {
   const [vForm, setVForm] = useState(emptyVForm);
   const [bForm, setBForm] = useState(emptyBForm);
   const [expenses, setExpenses] = useState<Expense[]>([]);
+
+  // Load vehicles registered from Fleet Management
+  useEffect(() => {
+    const pending = loadPendingSublets();
+    if (pending.length > 0) {
+      setVehicles(prev => {
+        const existing = prev.map(v => v.registration);
+        const newOnes = pending.filter((p: SubletVehicle) => !existing.includes(p.registration));
+        return newOnes.length > 0 ? [...newOnes, ...prev] : prev;
+      });
+      toast.success(pending.length + " sublet vehicle(s) synced from Fleet Management");
+    }
+  }, []);
   const [expenseType, setExpenseType] = useState("Fuel");
   const [expenseAmount, setExpenseAmount] = useState("");
   const [expenseNote, setExpenseNote] = useState("");
