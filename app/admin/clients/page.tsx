@@ -15,6 +15,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getClients } from "@/lib/store";
 import type { Client } from "@/types";
+import { FileUpload } from "@/components/forms/file-upload";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 
 const riskConfig = {
   low:    { label: "Low Risk",    color: "bg-emerald-600 text-white", icon: ShieldCheck },
@@ -27,6 +30,41 @@ export default function ClientsPage() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<"all" | "low" | "medium" | "high">("all");
   const [viewClient, setViewClient] = useState<Client | null>(null);
+  const [showRegisterDialog, setShowRegisterDialog] = useState(false);
+  const [regForm, setRegForm] = useState({
+    fullName: "", phone: "", alternativePhone: "", email: "",
+    idNumber: "", idPhotoUrl: "", idPhotoBackUrl: "",
+    drivingLicenseNumber: "", drivingLicenseUrl: "", drivingLicenseBackUrl: "",
+    kraPin: "", residence: "", placeOfWork: "",
+    passportPhotoUrl: "", riskLevel: "low", notes: "",
+    clientType: "citizen", countryOfOrigin: "Kenya",
+  });
+  const [saving, setSaving] = useState(false);
+
+  const handleRegister = async () => {
+    if (!regForm.fullName || !regForm.phone) { return; }
+    setSaving(true);
+    try {
+      const res = await fetch("/api/clients", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fullName: regForm.fullName, phone: regForm.phone,
+          alternativePhone: regForm.alternativePhone, email: regForm.email,
+          idNumber: regForm.idNumber, residence: regForm.residence,
+          placeOfWork: regForm.placeOfWork, kraPin: regForm.kraPin,
+          drivingLicenseNumber: regForm.drivingLicenseNumber,
+          riskLevel: regForm.riskLevel, notes: regForm.notes,
+          clientType: regForm.clientType, countryOfOrigin: regForm.countryOfOrigin,
+        }),
+      });
+      if (res.ok) {
+        setShowRegisterDialog(false);
+        setRegForm({ fullName: "", phone: "", alternativePhone: "", email: "", idNumber: "", idPhotoUrl: "", idPhotoBackUrl: "", drivingLicenseNumber: "", drivingLicenseUrl: "", drivingLicenseBackUrl: "", kraPin: "", residence: "", placeOfWork: "", passportPhotoUrl: "", riskLevel: "low", notes: "", clientType: "citizen", countryOfOrigin: "Kenya" });
+        loadClients();
+      }
+    } finally { setSaving(false); }
+  };
 
   const loadClients = async () => {
     try {
@@ -113,10 +151,8 @@ export default function ClientsPage() {
           <Button variant="outline" size="sm" className="border-white/10 text-gray-400 gap-2" onClick={exportCSV}>
             <Download className="h-4 w-4" /> Export CSV
           </Button>
-          <Button className="bg-lime-600 hover:bg-lime-700 gap-2" asChild>
-            <Link href="/admin/client-lookup">
-              <Plus className="h-4 w-4" /> New Client
-            </Link>
+          <Button className="bg-lime-600 hover:bg-lime-700 gap-2" onClick={() => setShowRegisterDialog(true)}>
+            <Plus className="h-4 w-4" /> New Client
           </Button>
         </div>
       </div>
@@ -180,8 +216,8 @@ export default function ClientsPage() {
               <p className="text-gray-500 text-sm mt-1">
                 {search ? "Try a different search term" : "Register clients through Client Lookup"}
               </p>
-              <Button className="mt-4 bg-lime-600 hover:bg-lime-700" asChild>
-                <Link href="/admin/client-lookup"><Plus className="h-4 w-4 mr-2" />Register First Client</Link>
+              <Button className="mt-4 bg-lime-600 hover:bg-lime-700" onClick={() => setShowRegisterDialog(true)}>
+                <Plus className="h-4 w-4 mr-2" />Register First Client
               </Button>
             </div>
           ) : (
@@ -245,6 +281,175 @@ export default function ClientsPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Register New Client Dialog */}
+      <Dialog open={showRegisterDialog} onOpenChange={setShowRegisterDialog}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-lime-400 flex items-center gap-2">
+              <Plus className="h-5 w-5" />Register New Client
+            </DialogTitle>
+            <DialogDescription>Fill in client details and upload documents</DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+
+            {/* Client Type */}
+            <div>
+              <Label className="text-gray-200 mb-2 block">Client Type</Label>
+              <div className="flex gap-2">
+                {[["citizen","Kenyan Resident"],["foreigner","Foreign National"]].map(([val, label]) => (
+                  <button key={val} type="button"
+                    onClick={() => setRegForm({ ...regForm, clientType: val })}
+                    className={regForm.clientType === val
+                      ? "flex-1 py-2 rounded-lg border-2 border-lime-500 bg-lime-500/20 text-lime-300 text-sm font-semibold"
+                      : "flex-1 py-2 rounded-lg border-2 border-white/10 bg-white/5 text-gray-400 text-sm"}>
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Personal Info */}
+            <div className="rounded-lg border border-blue-500/30 bg-blue-500/5 p-4 space-y-3">
+              <h4 className="text-blue-400 font-semibold text-xs uppercase tracking-wide">Personal Information</h4>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="col-span-2">
+                  <Label className="text-gray-200">Full Name *</Label>
+                  <input className="mt-1 w-full rounded-lg bg-[#0a1628] border border-white/20 text-white px-3 py-2 text-sm" placeholder="Full legal name"
+                    value={regForm.fullName} onChange={e => setRegForm({ ...regForm, fullName: e.target.value })} />
+                </div>
+                <div>
+                  <Label className="text-gray-200">Phone *</Label>
+                  <input className="mt-1 w-full rounded-lg bg-[#0a1628] border border-white/20 text-white px-3 py-2 text-sm" placeholder="+254 7XX XXX XXX"
+                    value={regForm.phone} onChange={e => setRegForm({ ...regForm, phone: e.target.value })} />
+                </div>
+                <div>
+                  <Label className="text-gray-200">Alternative Phone</Label>
+                  <input className="mt-1 w-full rounded-lg bg-[#0a1628] border border-white/20 text-white px-3 py-2 text-sm" placeholder="+254 7XX XXX XXX"
+                    value={regForm.alternativePhone} onChange={e => setRegForm({ ...regForm, alternativePhone: e.target.value })} />
+                </div>
+                <div>
+                  <Label className="text-gray-200">Email</Label>
+                  <input className="mt-1 w-full rounded-lg bg-[#0a1628] border border-white/20 text-white px-3 py-2 text-sm" placeholder="email@example.com"
+                    value={regForm.email} onChange={e => setRegForm({ ...regForm, email: e.target.value })} />
+                </div>
+                <div>
+                  <Label className="text-gray-200">KRA PIN</Label>
+                  <input className="mt-1 w-full rounded-lg bg-[#0a1628] border border-white/20 text-white px-3 py-2 text-sm font-mono" placeholder="A012345678A"
+                    value={regForm.kraPin} onChange={e => setRegForm({ ...regForm, kraPin: e.target.value })} />
+                </div>
+                <div>
+                  <Label className="text-gray-200">Residence / Address</Label>
+                  <input className="mt-1 w-full rounded-lg bg-[#0a1628] border border-white/20 text-white px-3 py-2 text-sm" placeholder="Westlands, Nairobi"
+                    value={regForm.residence} onChange={e => setRegForm({ ...regForm, residence: e.target.value })} />
+                </div>
+                <div>
+                  <Label className="text-gray-200">Place of Work</Label>
+                  <input className="mt-1 w-full rounded-lg bg-[#0a1628] border border-white/20 text-white px-3 py-2 text-sm" placeholder="Company or employer"
+                    value={regForm.placeOfWork} onChange={e => setRegForm({ ...regForm, placeOfWork: e.target.value })} />
+                </div>
+              </div>
+            </div>
+
+            {/* ID Document */}
+            <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-4 space-y-3">
+              <h4 className="text-emerald-400 font-semibold text-xs uppercase tracking-wide">ID / Passport</h4>
+              <div>
+                <Label className="text-gray-200">ID / Passport Number</Label>
+                <input className="mt-1 w-full rounded-lg bg-[#0a1628] border border-white/20 text-white px-3 py-2 text-sm font-mono" placeholder="e.g. 12345678"
+                  value={regForm.idNumber} onChange={e => setRegForm({ ...regForm, idNumber: e.target.value })} />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <FileUpload
+                  id="id-front"
+                  label="ID / Passport — Front"
+                  accept="image/*"
+                  maxSize={5}
+                  value={regForm.idPhotoUrl}
+                  onChange={url => setRegForm({ ...regForm, idPhotoUrl: url || "" })}
+                  showCamera
+                />
+                <FileUpload
+                  id="id-back"
+                  label="ID — Back Side"
+                  accept="image/*"
+                  maxSize={5}
+                  value={regForm.idPhotoBackUrl}
+                  onChange={url => setRegForm({ ...regForm, idPhotoBackUrl: url || "" })}
+                  showCamera
+                />
+              </div>
+              {regForm.clientType === "foreigner" && (
+                <FileUpload
+                  id="passport-photo"
+                  label="Passport Photo (Face)"
+                  accept="image/*"
+                  maxSize={5}
+                  value={regForm.passportPhotoUrl}
+                  onChange={url => setRegForm({ ...regForm, passportPhotoUrl: url || "" })}
+                  showCamera
+                />
+              )}
+            </div>
+
+            {/* Driving License */}
+            <div className="rounded-lg border border-violet-500/30 bg-violet-500/5 p-4 space-y-3">
+              <h4 className="text-violet-400 font-semibold text-xs uppercase tracking-wide">Driving License</h4>
+              <div>
+                <Label className="text-gray-200">License Number</Label>
+                <input className="mt-1 w-full rounded-lg bg-[#0a1628] border border-white/20 text-white px-3 py-2 text-sm font-mono" placeholder="e.g. DL123456"
+                  value={regForm.drivingLicenseNumber} onChange={e => setRegForm({ ...regForm, drivingLicenseNumber: e.target.value })} />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <FileUpload
+                  id="dl-front"
+                  label="License — Front"
+                  accept="image/*"
+                  maxSize={5}
+                  value={regForm.drivingLicenseUrl}
+                  onChange={url => setRegForm({ ...regForm, drivingLicenseUrl: url || "" })}
+                  showCamera
+                />
+                <FileUpload
+                  id="dl-back"
+                  label="License — Back"
+                  accept="image/*"
+                  maxSize={5}
+                  value={regForm.drivingLicenseBackUrl}
+                  onChange={url => setRegForm({ ...regForm, drivingLicenseBackUrl: url || "" })}
+                  showCamera
+                />
+              </div>
+            </div>
+
+            {/* Risk & Notes */}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label className="text-gray-200">Risk Level</Label>
+                <select className="mt-1 w-full rounded-lg bg-[#0a1628] border border-white/20 text-white px-3 py-2 text-sm"
+                  value={regForm.riskLevel} onChange={e => setRegForm({ ...regForm, riskLevel: e.target.value })}>
+                  <option value="low">Low Risk</option>
+                  <option value="medium">Medium Risk</option>
+                  <option value="high">High Risk</option>
+                </select>
+              </div>
+              <div>
+                <Label className="text-gray-200">Notes</Label>
+                <input className="mt-1 w-full rounded-lg bg-[#0a1628] border border-white/20 text-white px-3 py-2 text-sm" placeholder="Any notes..."
+                  value={regForm.notes} onChange={e => setRegForm({ ...regForm, notes: e.target.value })} />
+              </div>
+            </div>
+          </div>
+
+          <div className="flex gap-2 pt-2">
+            <Button variant="outline" className="flex-1" onClick={() => setShowRegisterDialog(false)}>Cancel</Button>
+            <Button className="flex-1 bg-lime-600 hover:bg-lime-700" onClick={handleRegister} disabled={saving || !regForm.fullName || !regForm.phone}>
+              {saving ? "Saving..." : "Register Client"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* View Client Dialog */}
       <Dialog open={!!viewClient} onOpenChange={() => setViewClient(null)}>
