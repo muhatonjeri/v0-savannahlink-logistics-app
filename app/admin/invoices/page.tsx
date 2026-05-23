@@ -432,7 +432,8 @@ export default function InvoicesPage() {
       toast.success("Invoice " + invoiceNumber + " created and saved");
     }).catch(err => {
       setInvoices(prev => [invoice, ...prev]);
-      toast.warning("Invoice created locally. Sync failed: " + err.message);
+      console.error("Invoice save error:", err);
+      toast.error("Save failed: " + err.message);
     });
     setIsCreateDialogOpen(false);
     resetForm();

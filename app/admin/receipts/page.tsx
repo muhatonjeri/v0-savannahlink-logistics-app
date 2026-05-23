@@ -460,7 +460,8 @@ export default function ReceiptsPage() {
         description: "Receipt " + newReceipt.receiptNumber + " is eTIMS compliant and saved to database.",
       });
     }).catch(err => {
-      toast.warning("Receipt created but not saved to database: " + err.message);
+      console.error("Receipt save error:", err);
+      toast.error("Save failed: " + err.message);
     });
 
     setIsDialogOpen(false);
