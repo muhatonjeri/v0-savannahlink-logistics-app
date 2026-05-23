@@ -50,7 +50,6 @@ import {
   HelpCircle,
   Hammer,
   type LucideIcon,
-  Building2,
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -994,69 +993,70 @@ function ClientLookupContent() {
                   
                   {/* Selected Service - Prominent CTA */}
                   {currentService && (
-                    <div className="border-t border-green-500/50 pt-4 space-y-3">
-                      <p className="text-sm text-gray-400 font-medium">Select vehicle source to proceed:</p>
-                      <div className="grid grid-cols-2 gap-3">
-                        <Link href={`${currentService.href}?clientId=${searchResults.client?.id || ""}`}>
-                          <div className="flex flex-col items-center gap-2 rounded-xl border-2 border-emerald-500 bg-emerald-500/10 p-4 hover:bg-emerald-500/20 transition-all cursor-pointer group">
-                            <currentService.icon className="h-7 w-7 text-emerald-400" />
-                            <span className="text-emerald-300 font-semibold text-sm text-center">Company Vehicle</span>
-                            <span className="text-gray-400 text-xs text-center">Use Moventra own fleet</span>
-                          </div>
-                        </Link>
-                        <Link href={`/admin/sublets?clientId=${searchResults.client?.id || ""}&service=${currentService.title}&clientName=${encodeURIComponent(searchResults.client?.fullName || "")}&clientPhone=${encodeURIComponent(searchResults.client?.phone || "")}`}>
-                          <div className="flex flex-col items-center gap-2 rounded-xl border-2 border-cyan-500 bg-cyan-500/10 p-4 hover:bg-cyan-500/20 transition-all cursor-pointer group">
-                            <Building2 className="h-7 w-7 text-cyan-400" />
-                            <span className="text-cyan-300 font-semibold text-sm text-center">Sublet Vehicle</span>
-                            <span className="text-gray-400 text-xs text-center">Source from another company</span>
-                          </div>
-                        </Link>
-                      </div>
+                    <div className="border-t border-green-500/50 pt-4">
+                      <Link href={`${currentService.href}?clientId=${searchResults.client?.id || ""}`}>
+                        <Button className="w-full bg-emerald-600 hover:bg-emerald-700 gap-2">
+                          <currentService.icon className="h-4 w-4" />
+                          Proceed to {currentService.title}
+                        </Button>
+                      </Link>
                     </div>
                   )}
                   
                   {/* All Services - Only show if no specific service selected */}
                   {!currentService && (
-                    <div className="border-t border-green-500/50 pt-4 space-y-4">
-                      <p className="text-sm text-gray-400 font-medium">Select a service — then choose vehicle source:</p>
-                      {[
-                        { label: "Car Rental", href: "/admin/car-rental/new", icon: Car, color: "emerald", service: "Car Rental" },
-                        { label: "Safari Tours", href: "/admin/safari-tours", icon: Compass, color: "amber", service: "Safari Tours" },
-                        { label: "Transfers", href: "/admin/transfers", icon: Plane, color: "sky", service: "Transfers" },
-                        { label: "Movers", href: "/admin/movers", icon: Truck, color: "violet", service: "Movers" },
-                        { label: "Corporate Rental", href: "/admin/car-rental/new", icon: Bus, color: "indigo", service: "Corporate Rental" },
-                        { label: "Road Recovery", href: "/admin/road-recovery", icon: Wrench, color: "rose", service: "Road Recovery" },
-                        { label: "Cargo Handling", href: "/admin/cargo-handling", icon: Package, color: "orange", service: "Cargo Handling" },
-                        { label: "Shipment Imports", href: "/admin/shipment-imports", icon: Ship, color: "cyan", service: "Shipment Imports" },
-                        { label: "Construction", href: "/admin/construction-equipment", icon: HardHat, color: "yellow", service: "Construction Equipment" },
-                      ].map((svc) => (
-                        <div key={svc.label} className="rounded-xl border border-white/10 bg-white/5 p-3">
-                          <div className="flex items-center gap-2 mb-2">
-                            <svc.icon className={`h-4 w-4 text-${svc.color}-400`} />
-                            <span className="text-white text-sm font-semibold">{svc.label}</span>
-                          </div>
-                          <div className="grid grid-cols-2 gap-2">
-                            <Link href={`${svc.href}?clientId=${searchResults.client?.id || ""}`}>
-                              <div className="flex items-center gap-2 rounded-lg border border-emerald-500/40 bg-emerald-500/10 p-2 hover:bg-emerald-500/20 transition-all cursor-pointer">
-                                <svc.icon className="h-4 w-4 text-emerald-400 shrink-0" />
-                                <div>
-                                  <p className="text-emerald-300 text-xs font-semibold">Company Vehicle</p>
-                                  <p className="text-gray-500 text-xs">Own fleet</p>
-                                </div>
-                              </div>
-                            </Link>
-                            <Link href={`/admin/sublets?clientId=${searchResults.client?.id || ""}&service=${encodeURIComponent(svc.service)}&clientName=${encodeURIComponent(searchResults.client?.fullName || "")}&clientPhone=${encodeURIComponent(searchResults.client?.phone || "")}`}>
-                              <div className="flex items-center gap-2 rounded-lg border border-cyan-500/40 bg-cyan-500/10 p-2 hover:bg-cyan-500/20 transition-all cursor-pointer">
-                                <Building2 className="h-4 w-4 text-cyan-400 shrink-0" />
-                                <div>
-                                  <p className="text-cyan-300 text-xs font-semibold">Sublet Vehicle</p>
-                                  <p className="text-gray-500 text-xs">External source</p>
-                                </div>
-                              </div>
-                            </Link>
-                          </div>
-                        </div>
-                      ))}
+                    <div className="border-t border-green-500/50 dark:border-green-800 pt-4">
+                      <h4 className="text-sm font-medium text-muted-foreground mb-3">Quick Service Access - Select a service to proceed:</h4>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <Link href={`/admin/car-rental/new?clientId=${searchResults.client?.id || ""}`}>
+                          <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-indigo-500/50 hover:border-indigo-400 hover:bg-indigo-900/30 group">
+                            <Car className="h-6 w-6 text-indigo-500 group-hover:scale-110 transition-transform" />
+                            <span className="text-xs font-medium">Car Rental</span>
+                          </Button>
+                        </Link>
+                        <Link href="/admin/safari-tours">
+                          <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-amber-500/50 hover:border-amber-400 hover:bg-amber-900/30 group">
+                            <Compass className="h-6 w-6 text-amber-500 group-hover:scale-110 transition-transform" />
+                            <span className="text-xs font-medium">Safari Tours</span>
+                          </Button>
+                        </Link>
+                        <Link href="/admin/transfers">
+                          <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-sky-500/50 hover:border-sky-400 hover:bg-sky-900/30 group">
+                            <Plane className="h-6 w-6 text-sky-500 group-hover:scale-110 transition-transform" />
+                            <span className="text-xs font-medium">Airport Transfers</span>
+                          </Button>
+                        </Link>
+                        <Link href="/admin/cargo-handling">
+                          <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-orange-500/50 hover:border-orange-400 hover:bg-orange-900/30 group">
+                            <Package className="h-6 w-6 text-orange-500 group-hover:scale-110 transition-transform" />
+                            <span className="text-xs font-medium">Cargo Handling</span>
+                          </Button>
+                        </Link>
+                        <Link href="/admin/movers">
+                          <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-violet-500/50 hover:border-violet-400 hover:bg-violet-900/30 group">
+                            <Truck className="h-6 w-6 text-violet-500 group-hover:scale-110 transition-transform" />
+                            <span className="text-xs font-medium">Movers</span>
+                          </Button>
+                        </Link>
+                        <Link href="/admin/construction-equipment">
+                          <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-yellow-500/50 hover:border-yellow-400 hover:bg-yellow-900/30 group">
+                            <HardHat className="h-6 w-6 text-yellow-500 group-hover:scale-110 transition-transform" />
+                            <span className="text-xs font-medium">Construction Equipment</span>
+                          </Button>
+                        </Link>
+                        <Link href="/admin/shipment-imports">
+                          <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-blue-500/50 hover:border-blue-400 hover:bg-blue-900/30 group">
+                            <Ship className="h-6 w-6 text-blue-500 group-hover:scale-110 transition-transform" />
+                            <span className="text-xs font-medium">Shipment Imports</span>
+                          </Button>
+                        </Link>
+                        <Link href="/admin/road-recovery">
+                          <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-rose-500/50 hover:border-rose-400 hover:bg-rose-900/30 group">
+                            <Wrench className="h-6 w-6 text-rose-500 group-hover:scale-110 transition-transform" />
+                            <span className="text-xs font-medium">Road Recovery</span>
+                          </Button>
+                        </Link>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -1083,24 +1083,13 @@ function ClientLookupContent() {
                   
                   {/* Selected Service - Prominent CTA */}
                   {currentService && (
-                    <div className="border-t border-green-500/50 pt-4 space-y-3">
-                      <p className="text-sm text-gray-400 font-medium">Select vehicle source to proceed:</p>
-                      <div className="grid grid-cols-2 gap-3">
-                        <Link href={`${currentService.href}?clientId=${searchResults.client?.id || ""}`}>
-                          <div className="flex flex-col items-center gap-2 rounded-xl border-2 border-emerald-500 bg-emerald-500/10 p-4 hover:bg-emerald-500/20 transition-all cursor-pointer group">
-                            <currentService.icon className="h-7 w-7 text-emerald-400" />
-                            <span className="text-emerald-300 font-semibold text-sm text-center">Company Vehicle</span>
-                            <span className="text-gray-400 text-xs text-center">Use Moventra own fleet</span>
-                          </div>
-                        </Link>
-                        <Link href={`/admin/sublets?clientId=${searchResults.client?.id || ""}&service=${currentService.title}&clientName=${encodeURIComponent(searchResults.client?.fullName || "")}&clientPhone=${encodeURIComponent(searchResults.client?.phone || "")}`}>
-                          <div className="flex flex-col items-center gap-2 rounded-xl border-2 border-cyan-500 bg-cyan-500/10 p-4 hover:bg-cyan-500/20 transition-all cursor-pointer group">
-                            <Building2 className="h-7 w-7 text-cyan-400" />
-                            <span className="text-cyan-300 font-semibold text-sm text-center">Sublet Vehicle</span>
-                            <span className="text-gray-400 text-xs text-center">Source from another company</span>
-                          </div>
-                        </Link>
-                      </div>
+                    <div className="border-t border-green-500/50 pt-4">
+                      <Link href={`${currentService.href}?clientId=${searchResults.client?.id || ""}`}>
+                        <Button className="w-full bg-emerald-600 hover:bg-emerald-700 gap-2">
+                          <currentService.icon className="h-4 w-4" />
+                          Proceed to {currentService.title}
+                        </Button>
+                      </Link>
                     </div>
                   )}
                   
