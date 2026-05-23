@@ -10,8 +10,6 @@ import {
   Car,
   Building2,
   ArrowUpRight,
-  Building2,
-  ArrowUpRight,
   Compass,
   Plane,
   Truck,
