@@ -252,36 +252,36 @@ export default function InvoicesPage() {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [dbLoading, setDbLoading] = useState(true);
 
-  const loadInvoices = () => {
-    invoicesApi.getAll()
-      .then((data: Record<string,unknown>[]) => {
-        if (!data || !Array.isArray(data)) { setInvoices([]); return; }
-        setInvoices(data.map(inv => ({
-          id: String(inv.id || ""),
-          invoiceNumber: String(inv.invoice_number || inv.invoiceNumber || ""),
-          customerName: String(inv.customer_name || inv.customerName || ""),
-          customerEmail: String(inv.customer_email || inv.customerEmail || ""),
-          customerPhone: String(inv.customer_phone || inv.customerPhone || ""),
-          customerAddress: String(inv.customer_address || inv.customerAddress || ""),
-          customerKraPin: String(inv.customer_kra_pin || inv.customerKraPin || ""),
-          serviceType: String(inv.service_type || inv.serviceType || ""),
-          items: Array.isArray(inv.items) ? inv.items : [],
-          subtotal: Number(inv.subtotal) || 0,
-          vatRate: Number(inv.vat_rate ?? inv.vatRate) || 16,
-          vatAmount: Number(inv.vat_amount ?? inv.vatAmount) || 0,
-          total: Number(inv.total) || 0,
-          amountPaid: Number(inv.amount_paid ?? inv.amountPaid) || 0,
-          payments: Array.isArray(inv.payments) ? inv.payments : [],
-          status: String(inv.status || "draft") as Invoice["status"],
-          issueDate: String(inv.issue_date || inv.issueDate || ""),
-          dueDate: String(inv.due_date || inv.dueDate || ""),
-          paymentTerms: String(inv.payment_terms || inv.paymentTerms || "Net 14"),
-          notes: String(inv.notes || ""),
-          createdAt: String(inv.created_at || inv.createdAt || ""),
-        })));
-      })
-      .catch(err => { console.error("Load invoices failed:", err); setInvoices([]); })
-      .finally(() => setDbLoading(false));
+  const loadInvoices = async () => {
+    try {
+      const res = await fetch("/api/invoices");
+      const data = await res.json();
+      if (!Array.isArray(data) || data.length === 0) { setDbLoading(false); return; }
+      setInvoices(data.map((inv: any) => ({
+        id: inv.id,
+        invoiceNumber: inv.invoice_number,
+        customerName: inv.customer_name,
+        customerEmail: inv.customer_email,
+        customerPhone: inv.customer_phone,
+        customerAddress: inv.customer_address,
+        customerKraPin: inv.customer_kra_pin,
+        serviceType: inv.service_type,
+        items: inv.items || [],
+        subtotal: Number(inv.subtotal) || 0,
+        vatRate: Number(inv.vat_rate) || 16,
+        vatAmount: Number(inv.vat_amount) || 0,
+        total: Number(inv.total) || 0,
+        amountPaid: Number(inv.amount_paid) || 0,
+        payments: inv.payments || [],
+        status: inv.status || "draft",
+        issueDate: inv.issue_date,
+        dueDate: inv.due_date,
+        paymentTerms: inv.payment_terms || "Net 14",
+        notes: inv.notes || "",
+        createdAt: inv.created_at,
+      })));
+    } catch(e) { console.error("loadInvoices:", e); }
+    finally { setDbLoading(false); }
   };
 
   // Load invoices from Supabase on mount
