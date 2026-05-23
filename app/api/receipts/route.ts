@@ -1,29 +1,53 @@
-import { connectDB } from "@/lib/mongodb";
-import { Receipt } from "@/lib/models";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET() {
   try {
-    await connectDB();
-    const docs = await Receipt.find().sort({ createdAt: -1 }).lean();
-    return NextResponse.json(docs);
+    const sb = createAdminClient();
+    const { data, error } = await sb.from("receipts").select("*").order("created_at", { ascending: false });
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(data);
   } catch (e) { return NextResponse.json({ error: String(e) }, { status: 500 }); }
 }
 
 export async function POST(req: NextRequest) {
   try {
-    await connectDB();
+    const sb = createAdminClient();
     const body = await req.json();
-    const doc = await Receipt.create(body);
-    return NextResponse.json(doc);
+    const record = {
+      receipt_number: body.receiptNumber,
+      invoice_id: body.invoiceId || null,
+      client_id: body.clientId || null,
+      customer_name: body.customerName,
+      customer_phone: body.customerPhone,
+      customer_email: body.customerEmail,
+      customer_kra_pin: body.customerKraPin,
+      service_type: body.serviceType,
+      items: body.items,
+      subtotal: body.subtotal,
+      tax_amount: body.taxAmount,
+      total_amount: body.totalAmount,
+      payment_method: body.paymentMethod,
+      transaction_code: body.transactionCode,
+      bank_name: body.bankName,
+      status: body.status || "issued",
+      etims_receipt_number: body.etimsReceiptNumber,
+      etims_device_number: body.etimsDeviceNumber,
+      etims_verification_url: body.etimsVerificationUrl,
+      issued_by: body.issuedBy,
+    };
+    const { data, error } = await sb.from("receipts").insert([record]).select().single();
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(data);
   } catch (e) { return NextResponse.json({ error: String(e) }, { status: 500 }); }
 }
 
 export async function PUT(req: NextRequest) {
   try {
-    await connectDB();
+    const sb = createAdminClient();
     const { id, ...updates } = await req.json();
-    const doc = await Receipt.findByIdAndUpdate(id, updates, { new: true }).lean();
-    return NextResponse.json(doc);
+    const { data, error } = await sb.from("receipts").update(updates).eq("id", id).select().single();
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(data);
   } catch (e) { return NextResponse.json({ error: String(e) }, { status: 500 }); }
 }

@@ -1,25 +1,26 @@
-import { connectDB } from "@/lib/mongodb";
-import { Transaction } from "@/lib/models";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
   try {
-    await connectDB();
+    const sb = createAdminClient();
     const { searchParams } = new URL(req.url);
     const type = searchParams.get("type");
-    const filter: Record<string,string> = {};
-    if (type) filter.type = type;
-    const docs = await Transaction.find(filter).sort({ date: -1 }).lean();
-    return NextResponse.json(docs);
+    let query = sb.from("transactions").select("*").order("date", { ascending: false });
+    if (type) query = query.eq("type", type);
+    const { data, error } = await query;
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(data);
   } catch (e) { return NextResponse.json({ error: String(e) }, { status: 500 }); }
 }
 
 export async function POST(req: NextRequest) {
   try {
-    await connectDB();
+    const sb = createAdminClient();
     const body = await req.json();
     const records = Array.isArray(body) ? body : [body];
-    const docs = await Transaction.insertMany(records);
-    return NextResponse.json(docs);
+    const { data, error } = await sb.from("transactions").insert(records).select();
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(data);
   } catch (e) { return NextResponse.json({ error: String(e) }, { status: 500 }); }
 }
