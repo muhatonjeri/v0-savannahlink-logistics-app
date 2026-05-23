@@ -456,9 +456,8 @@ export default function ReceiptsPage() {
       etimsVerificationUrl: newReceipt.etimsVerificationUrl,
       issuedBy: newReceipt.issuedBy,
     }).then(() => {
-      toast.success("Receipt issued and saved", {
-        description: "Receipt " + newReceipt.receiptNumber + " is eTIMS compliant and saved to database.",
-      });
+      toast.success("Receipt issued and saved");
+      loadReceipts();
     }).catch(err => {
       console.error("Receipt save error:", err);
       toast.error("Save failed: " + err.message);
