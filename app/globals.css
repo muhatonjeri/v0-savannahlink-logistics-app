@@ -950,3 +950,15 @@ th[scope="col"] {
   color: rgb(251 146 60) !important;
   font-weight: 700 !important;
 }
+
+/* ── Polish all table column headers system-wide ── */
+thead tr th,
+thead th,
+[role="columnheader"] {
+  color: #e67e22 !important;
+  font-weight: 700 !important;
+  font-size: 0.75rem !important;
+  letter-spacing: 0.05em !important;
+  text-transform: uppercase !important;
+  border-bottom: 1px solid rgba(230, 126, 34, 0.25) !important;
+}
