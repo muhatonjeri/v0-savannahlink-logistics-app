@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { getClients, getBookings } from "@/lib/store";
 import { Plus, Car, Building2, TrendingUp, DollarSign, ArrowRight, Eye, Trash2 } from "lucide-react";
@@ -434,7 +434,7 @@ const emptyBForm = {
   notes: "",
 };
 
-export default function SubletsPage() {
+function SubletsPage() {
   const [vehicles, setVehicles] = useState<SubletVehicle[]>(INITIAL_VEHICLES);
   const [bookings, setBookings] = useState<SubletBooking[]>(INITIAL_BOOKINGS);
   const [showVehicleDialog, setShowVehicleDialog] = useState(false);
@@ -444,24 +444,7 @@ export default function SubletsPage() {
   const [bForm, setBForm] = useState(emptyBForm);
   const [expenses, setExpenses] = useState<Expense[]>([]);
 
-  // Read URL params from client lookup
-  const searchParams = useSearchParams();
-  useEffect(() => {
-    const clientName = searchParams.get("clientName");
-    const clientPhone = searchParams.get("clientPhone");
-    const service = searchParams.get("service");
-    if (clientName || clientPhone || service) {
-      if (clientName) {
-        setBForm(prev => ({ ...prev, clientName: decodeURIComponent(clientName), clientPhone: decodeURIComponent(clientPhone || "") }));
-        setClientSearch(decodeURIComponent(clientName));
-      }
-      if (service) {
-        const matched = SERVICES.find(s => s.toLowerCase() === decodeURIComponent(service).toLowerCase());
-        if (matched) setBForm(prev => ({ ...prev, serviceType: matched }));
-      }
-      setShowBookingDialog(true);
-    }
-  }, [searchParams]);
+
 
   // Load vehicles registered from Fleet Management
   useEffect(() => {
@@ -478,6 +461,66 @@ export default function SubletsPage() {
   const [expenseType, setExpenseType] = useState("Fuel");
   const [expenseAmount, setExpenseAmount] = useState("");
   const [expenseNote, setExpenseNote] = useState("");
+
+  // URL params — pre-fill from client lookup
+  const searchParams = useSearchParams();
+  const urlClientId = searchParams.get("clientId");
+  const urlClientName = searchParams.get("clientName");
+  const urlClientPhone = searchParams.get("clientPhone");
+  const urlService = searchParams.get("service");
+
+  // Pre-fill from URL on mount
+  useEffect(() => {
+    if (urlClientId) {
+      try {
+        const all = getClients();
+        const found = all.find(c => c.id === urlClientId);
+        if (found) {
+          setBForm(prev => ({ ...prev, clientName: found.fullName, clientPhone: found.phone, serviceType: urlService || prev.serviceType }));
+          setClientSearch(found.fullName);
+          setPrefilledClient(found);
+        }
+      } catch {}
+    } else if (urlClientName) {
+      setBForm(prev => ({ ...prev, clientName: decodeURIComponent(urlClientName), clientPhone: decodeURIComponent(urlClientPhone || ""), serviceType: urlService ? decodeURIComponent(urlService) : prev.serviceType }));
+      setClientSearch(decodeURIComponent(urlClientName));
+    }
+  }, [urlClientId, urlClientName, urlClientPhone, urlService]);
+
+  const [prefilledClient, setPrefilledClient] = useState<Client | null>(null);
+  const [showRegForm, setShowRegForm] = useState(false);
+  const [newClientForm, setNewClientForm] = useState({
+    fullName: urlClientName ? decodeURIComponent(urlClientName) : "",
+    phone: urlClientPhone ? decodeURIComponent(urlClientPhone) : "",
+    idNumber: "", email: "", residence: "", placeOfWork: "",
+    kraPin: "", drivingLicenseNumber: "",
+  });
+
+  const registerNewClient = () => {
+    if (!newClientForm.fullName || !newClientForm.phone || !newClientForm.idNumber) {
+      toast.error("Full name, phone and ID number are required"); return;
+    }
+    const newClient: Client = {
+      id: "client-" + Date.now(),
+      fullName: newClientForm.fullName,
+      phone: newClientForm.phone,
+      idNumber: newClientForm.idNumber,
+      email: newClientForm.email,
+      residence: newClientForm.residence,
+      placeOfWork: newClientForm.placeOfWork,
+      kraPin: newClientForm.kraPin,
+      drivingLicenseNumber: newClientForm.drivingLicenseNumber,
+      totalBookings: 0, totalSpent: 0, totalDebt: 0, riskLevel: "low",
+      createdAt: new Date().toISOString().split("T")[0],
+      updatedAt: new Date().toISOString(),
+    };
+    try { saveClient(newClient); } catch {}
+    setBForm(prev => ({ ...prev, clientName: newClient.fullName, clientPhone: newClient.phone }));
+    setClientSearch(newClient.fullName);
+    setPrefilledClient(newClient);
+    setShowRegForm(false);
+    toast.success("Client registered and loaded into booking");
+  };
 
   // Existing data for lookup
   const [clientSearch, setClientSearch] = useState("");
@@ -1038,9 +1081,84 @@ export default function SubletsPage() {
                     </div>
                   )}
                   {bForm.clientName && (
-                    <p className="text-xs text-emerald-400 mt-1">Selected: {bForm.clientName} {bForm.clientPhone && "| " + bForm.clientPhone}</p>
+                    <div className="mt-2 flex items-center justify-between rounded-lg bg-emerald-500/10 border border-emerald-500/30 px-3 py-2">
+                      <div>
+                        <p className="text-xs text-emerald-400 font-semibold">{bForm.clientName}</p>
+                        {bForm.clientPhone && <p className="text-xs text-gray-400">{bForm.clientPhone}</p>}
+                      </div>
+                      <button type="button" className="text-xs text-gray-500 hover:text-red-400" onClick={() => { setBForm(prev => ({ ...prev, clientName: "", clientPhone: "" })); setClientSearch(""); setPrefilledClient(null); }}>Clear</button>
+                    </div>
+                  )}
+                  {!bForm.clientName && clientSearch.length > 1 && !showClientResults && (
+                    <div className="mt-2 flex gap-2">
+                      <button type="button"
+                        className="flex-1 py-2 rounded-lg border border-blue-500/40 bg-blue-500/10 text-blue-300 text-xs font-semibold hover:bg-blue-500/20"
+                        onClick={() => { setNewClientForm(prev => ({ ...prev, fullName: clientSearch })); setShowRegForm(true); }}>
+                        + Register as New Client
+                      </button>
+                      <button type="button"
+                        className="flex-1 py-2 rounded-lg border border-white/10 bg-white/5 text-gray-400 text-xs hover:border-white/20"
+                        onClick={() => { setBForm(prev => ({ ...prev, clientName: clientSearch })); }}>
+                        Use name only
+                      </button>
+                    </div>
                   )}
                 </div>
+
+                {/* Quick Client Registration Form */}
+                {showRegForm && (
+                  <div className="col-span-2 rounded-xl border border-blue-500/30 bg-blue-500/5 p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-blue-400 font-semibold text-xs uppercase tracking-wide">Register New Client</h4>
+                      <button type="button" className="text-gray-500 hover:text-red-400 text-xs" onClick={() => setShowRegForm(false)}>Cancel</button>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <Label className="text-gray-200 text-xs">Full Name *</Label>
+                        <Input className="mt-1 bg-[#0a1628] border-white/20 text-white text-sm" placeholder="Full legal name"
+                          value={newClientForm.fullName} onChange={e => setNewClientForm({ ...newClientForm, fullName: e.target.value })} />
+                      </div>
+                      <div>
+                        <Label className="text-gray-200 text-xs">Phone *</Label>
+                        <Input className="mt-1 bg-[#0a1628] border-white/20 text-white text-sm" placeholder="+254 7XX XXX XXX"
+                          value={newClientForm.phone} onChange={e => setNewClientForm({ ...newClientForm, phone: e.target.value })} />
+                      </div>
+                      <div>
+                        <Label className="text-gray-200 text-xs">ID / Passport Number *</Label>
+                        <Input className="mt-1 bg-[#0a1628] border-white/20 text-white text-sm font-mono" placeholder="e.g. 12345678"
+                          value={newClientForm.idNumber} onChange={e => setNewClientForm({ ...newClientForm, idNumber: e.target.value })} />
+                      </div>
+                      <div>
+                        <Label className="text-gray-200 text-xs">Email</Label>
+                        <Input className="mt-1 bg-[#0a1628] border-white/20 text-white text-sm" placeholder="email@example.com"
+                          value={newClientForm.email} onChange={e => setNewClientForm({ ...newClientForm, email: e.target.value })} />
+                      </div>
+                      <div>
+                        <Label className="text-gray-200 text-xs">Residence / Address</Label>
+                        <Input className="mt-1 bg-[#0a1628] border-white/20 text-white text-sm" placeholder="Westlands, Nairobi"
+                          value={newClientForm.residence} onChange={e => setNewClientForm({ ...newClientForm, residence: e.target.value })} />
+                      </div>
+                      <div>
+                        <Label className="text-gray-200 text-xs">Place of Work</Label>
+                        <Input className="mt-1 bg-[#0a1628] border-white/20 text-white text-sm" placeholder="Company or employer"
+                          value={newClientForm.placeOfWork} onChange={e => setNewClientForm({ ...newClientForm, placeOfWork: e.target.value })} />
+                      </div>
+                      <div>
+                        <Label className="text-gray-200 text-xs">KRA PIN</Label>
+                        <Input className="mt-1 bg-[#0a1628] border-white/20 text-white text-sm font-mono" placeholder="A012345678A"
+                          value={newClientForm.kraPin} onChange={e => setNewClientForm({ ...newClientForm, kraPin: e.target.value })} />
+                      </div>
+                      <div>
+                        <Label className="text-gray-200 text-xs">Driving License No.</Label>
+                        <Input className="mt-1 bg-[#0a1628] border-white/20 text-white text-sm font-mono" placeholder="DL123456"
+                          value={newClientForm.drivingLicenseNumber} onChange={e => setNewClientForm({ ...newClientForm, drivingLicenseNumber: e.target.value })} />
+                      </div>
+                    </div>
+                    <Button type="button" onClick={registerNewClient} className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+                      <Plus className="h-4 w-4 mr-2" />Register Client and Load into Booking
+                    </Button>
+                  </div>
+                )}
                 <div>
                   <Label className="text-gray-200">Start Date *</Label>
                   <Input type="date" className="mt-1 bg-[#0a1628] border-white/20 text-white" value={bForm.startDate} onChange={e => handleStartDate(e.target.value)} />
@@ -1228,4 +1346,8 @@ export default function SubletsPage() {
       </Dialog>
     </div>
   );
+}
+
+export default function SubletsPageWrapper() {
+  return <Suspense fallback={<div className="flex h-[50vh] items-center justify-center text-gray-400">Loading...</div>}><SubletsPage /></Suspense>;
 }
