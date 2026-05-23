@@ -587,10 +587,70 @@ export default function SubletsPage() {
     };
     setBookings([b, ...bookings]);
     setVehicles(vehicles.map(v => v.id === selectedVehicle.id ? { ...v, status: "active" as const } : v));
+
+    // -- Link to Accounts: post income transaction --
+    try {
+      const existing = JSON.parse(localStorage.getItem("sublet_account_entries") || "[]");
+      // Income entry: what we charge the client
+      existing.push({
+        id: "sublet-inc-" + Date.now(),
+        date: b.startDate,
+        type: "income",
+        category: "car-rental",
+        subcategory: "Sublet Income",
+        description: b.serviceType + " - Sublet | " + (selectedVehicle.make + " " + selectedVehicle.model) + " (" + selectedVehicle.registration + ") | Client: " + b.clientName + " | Area: " + (bForm.areaOfUse || "N/A"),
+        amount: b.totalClientCharge,
+        paymentMethod: b.paymentMethod === "cheque" ? "bank" : b.paymentMethod,
+        reference: b.paymentReference || "SUBLET-" + b.id.slice(-6).toUpperCase(),
+        customerName: b.clientName,
+        status: b.amountPaid >= b.totalClientCharge ? "completed" : "pending",
+        createdBy: "Sublet Module",
+        createdAt: new Date().toISOString(),
+        linkedSubletId: b.id,
+      });
+      // Expense entry: what we pay the supplier
+      existing.push({
+        id: "sublet-exp-" + Date.now() + 1,
+        date: b.startDate,
+        type: "expense",
+        category: "other-expense",
+        subcategory: "Sublet Supplier Cost",
+        description: "Supplier cost | " + selectedVehicle.supplierName + " | " + (selectedVehicle.make + " " + selectedVehicle.model) + " (" + selectedVehicle.registration + ")",
+        amount: b.totalSupplierCost,
+        paymentMethod: "bank",
+        reference: "SUBLET-COST-" + b.id.slice(-6).toUpperCase(),
+        customerName: selectedVehicle.supplierName,
+        status: "pending",
+        createdBy: "Sublet Module",
+        createdAt: new Date().toISOString(),
+        linkedSubletId: b.id,
+      });
+      // Extra expenses
+      b.expenses.forEach((exp, i) => {
+        existing.push({
+          id: "sublet-xp-" + Date.now() + i + 2,
+          date: b.startDate,
+          type: "expense",
+          category: "other-expense",
+          subcategory: exp.type,
+          description: exp.type + (exp.note ? " - " + exp.note : "") + " | " + (selectedVehicle.make + " " + selectedVehicle.model),
+          amount: exp.amount,
+          paymentMethod: "cash",
+          reference: "SUBLET-EXP-" + b.id.slice(-6).toUpperCase(),
+          customerName: b.clientName,
+          status: "completed",
+          createdBy: "Sublet Module",
+          createdAt: new Date().toISOString(),
+          linkedSubletId: b.id,
+        });
+      });
+      localStorage.setItem("sublet_account_entries", JSON.stringify(existing));
+    } catch {}
+
     setShowBookingDialog(false);
     setBForm(emptyBForm);
     setExpenses([]);
-    toast.success("Sublet booking recorded");
+    toast.success("Sublet booking recorded and synced to Accounts");
   };
 
   return (

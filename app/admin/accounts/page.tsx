@@ -121,6 +121,7 @@ const incomeCategories = [
   { value: "imports", label: "Imports & Clearing", icon: Ship },
   { value: "equipment-hire", label: "Equipment Hire", icon: Package },
   { value: "other-income", label: "Other Income", icon: DollarSign },
+  { value: "sublet-income", label: "Sublet Income", icon: DollarSign },
 ];
 
 const expenseCategories = [
@@ -205,6 +206,22 @@ const generateMockTransactions = (): Transaction[] => {
 
 export default function AccountsPage() {
   const [transactions, setTransactions] = useState<Transaction[]>(generateMockTransactions);
+
+  // Load transactions from linked modules (Sublet, Fleet Out etc)
+  useEffect(() => {
+    try {
+      const subletEntries = JSON.parse(localStorage.getItem("sublet_account_entries") || "[]");
+      if (subletEntries.length > 0) {
+        setTransactions(prev => {
+          const existingIds = new Set(prev.map((t: Transaction) => t.id));
+          const newEntries = subletEntries.filter((e: Transaction) => !existingIds.has(e.id));
+          return newEntries.length > 0
+            ? [...newEntries, ...prev].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+            : prev;
+        });
+      }
+    } catch {}
+  }, []);
   const [searchQuery, setSearchQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
