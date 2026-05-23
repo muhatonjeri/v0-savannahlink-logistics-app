@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { Eye, EyeOff, Lock, Mail, Shield, ArrowRight, Loader2 } from 'lucide-react'
 
@@ -21,8 +20,6 @@ export default function LoginPage() {
   const [showPass, setShowPass] = useState(false)
   const [error, setError]       = useState('')
   const [loading, setLoading]   = useState(false)
-  const router = useRouter()
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -33,7 +30,7 @@ export default function LoginPage() {
       const auth = JSON.stringify({ user: { email: match.email, role: match.role, name: match.name }, isAuthenticated: true })
       setCookie('mock_auth', auth, 7)
       try { localStorage.setItem('mockAuth', auth) } catch {}
-      setTimeout(() => router.push('/admin'), 200)
+      setTimeout(() => { window.location.href = '/admin'; }, 200)
     } else {
       setError('Invalid email or password')
       setLoading(false)
