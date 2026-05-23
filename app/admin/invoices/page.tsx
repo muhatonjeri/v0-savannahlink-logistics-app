@@ -765,6 +765,9 @@ export default function InvoicesPage() {
                     onChange={(e) => setNewInvoice({ ...newInvoice, customerAddress: e.target.value })}
                   />
                 </div>
+
+                {/* Bottom accent bar */}
+                <div style={{background:"linear-gradient(135deg,#e67e22,#0a1628,#e67e22)",height:"6px"}} />
               </div>
             </TabsContent>
 
@@ -969,145 +972,95 @@ export default function InvoicesPage() {
           </div>
 
           {selectedInvoice && (
-            <div ref={printRef} className="print-receipt bg-white rounded-lg border border-gray-600 text-[#0a1628]" data-print-area="true" style={{backgroundColor:"white",color:"#0a1628"}}>
-              {/* Professional Invoice Template - Savanna Brand Colors */}
-              <div className="p-8 text-[#0a1628]">
-                {/* Header with Logo and Invoice Info */}
-                <div className="border-b-4 border-[#0a1628] pb-6 mb-6">
-                  <div className="flex justify-between items-start">
-                    {/* Company Logo & Info */}
-                    <div className="flex items-start gap-5">
-                      <Image
-                        src="/images/logo.png"
-                        alt={companyInfo.name}
-                        width={100}
-                        height={50}
-                        className="h-auto w-[90px] object-contain"
-                        unoptimized
-                      />
-                      <div>
-                        <h1 className="text-2xl font-bold text-[#0a1628]">{companyInfo.name}</h1>
-                        <p className="text-sm text-gray-500 italic">{companyInfo.tagline}</p>
-                        <div className="mt-3 text-sm text-gray-600 space-y-1">
-                          <p className="flex items-center gap-2">
-                            <MapPin className="h-4 w-4 text-[#e67e22]" />
-                            {companyInfo.address}, {companyInfo.city}
-                          </p>
-                          <p className="flex items-center gap-2">
-                            <Phone className="h-4 w-4 text-[#e67e22]" />
-                            {companyInfo.phone}
-                          </p>
-                          <p className="flex items-center gap-2">
-                            <Mail className="h-4 w-4 text-[#e67e22] shrink-0" />
-                            <span className="break-all">{companyInfo.email}</span>
-                          </p>
-                          <p className="flex items-center gap-2">
-                            <Globe className="h-4 w-4 text-[#e67e22]" />
-                            {companyInfo.website}
-                          </p>
-                        </div>
-                        <p className="mt-2 text-sm font-bold text-[#0a1628]">KRA PIN: {companyInfo.kraPin}</p>
+            <div ref={printRef} className="print-receipt" data-print-area="true" style={{backgroundColor:"#ffffff",color:"#1a1a2e",borderRadius:"12px",overflow:"hidden",boxShadow:"0 4px 24px rgba(0,0,0,0.08)"}}>
+              {/* Polished Invoice Template */}
+
+              {/* Top accent bar */}
+              <div style={{background:"linear-gradient(135deg,#0a1628 0%,#1a3a5c 50%,#0a1628 100%)",height:"6px"}} />
+
+              <div style={{padding:"32px"}}>
+                {/* ── HEADER ── */}
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:"24px"}}>
+                  <div style={{display:"flex",alignItems:"flex-start",gap:"16px"}}>
+                    <Image src="/images/logo.png" alt={companyInfo.name} width={90} height={90}
+                      style={{width:"80px",height:"80px",objectFit:"contain",borderRadius:"8px"}} unoptimized />
+                    <div>
+                      <h1 style={{color:"#0a1628",fontWeight:800,fontSize:"20px",lineHeight:1.2}}>{companyInfo.name}</h1>
+                      <p style={{color:"#e67e22",fontSize:"11px",fontWeight:600,marginTop:"2px",letterSpacing:"0.03em"}}>Experience. Move. Deliver. Beyond Borders.</p>
+                      <div style={{marginTop:"10px",fontSize:"12px",color:"#555",lineHeight:1.8}}>
+                        <p>{companyInfo.address}, {companyInfo.city}</p>
+                        <p>{companyInfo.phone} &nbsp;|&nbsp; <span style={{wordBreak:"break-all"}}>{companyInfo.email}</span></p>
+                        <p>{companyInfo.website}</p>
+                        <p style={{fontWeight:700,color:"#0a1628",marginTop:"4px"}}>KRA PIN: {companyInfo.kraPin}</p>
                       </div>
                     </div>
-                    
-                    {/* Invoice Number Box */}
-                    <div className="text-right">
-                      <div className="inline-block bg-[#0a1628] text-white px-6 py-3 rounded-lg mb-4">
-                        <p className="text-sm uppercase tracking-wider opacity-90">Invoice</p>
-                        <p className="text-2xl font-bold font-mono">{selectedInvoice.invoiceNumber}</p>
+                  </div>
+                  <div style={{textAlign:"right"}}>
+                    <div style={{backgroundColor:"#0a1628",color:"white",borderRadius:"10px",padding:"14px 22px",minWidth:"180px",display:"inline-block"}}>
+                      <p style={{fontSize:"10px",letterSpacing:"0.12em",textTransform:"uppercase",opacity:0.8}}>Tax Invoice</p>
+                      <p style={{fontSize:"22px",fontWeight:800,fontFamily:"monospace",marginTop:"4px"}}>{selectedInvoice.invoiceNumber}</p>
+                      <div style={{height:"1px",backgroundColor:"rgba(230,126,34,0.5)",margin:"10px 0"}} />
+                      <div style={{fontSize:"11px",opacity:0.9}}>
+                        <p>Issue: {format(new Date(selectedInvoice.issueDate), "dd MMM yyyy")}</p>
+                        <p style={{color:"#fca5a5",marginTop:"2px"}}>Due: {format(new Date(selectedInvoice.dueDate), "dd MMM yyyy")}</p>
                       </div>
-                      <div className="space-y-2 text-sm">
-                        <p className="flex items-center justify-end gap-2">
-                          <Calendar className="h-4 w-4 text-[#e67e22]" />
-                          <span className="text-gray-600">Issue Date:</span>
-                          <span className="font-semibold text-[#0a1628]">{format(new Date(selectedInvoice.issueDate), "MMMM dd, yyyy")}</span>
-                        </p>
-                        <p className="flex items-center justify-end gap-2">
-                          <Calendar className="h-4 w-4 text-[#e67e22]" />
-                          <span className="text-gray-600">Due Date:</span>
-                          <span className="font-semibold text-red-600">{format(new Date(selectedInvoice.dueDate), "MMMM dd, yyyy")}</span>
-                        </p>
+                    </div>
+                    <div style={{marginTop:"10px"}}>
+                      <Badge className={statusConfig[selectedInvoice.status].color}>{statusConfig[selectedInvoice.status].label}</Badge>
+                    </div>
+                  </div>
+                </div>
+                {/* Divider */}
+                <div style={{height:"2px",background:"linear-gradient(to right,#e67e22,#0a1628,#e67e22)",borderRadius:"2px",marginBottom:"24px"}} />
+
+                {/* ── BILL TO & DETAILS ── */}
+                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"16px",marginBottom:"24px"}}>
+                  <div style={{backgroundColor:"#f8f9ff",border:"1px solid #e8eaf0",borderRadius:"10px",padding:"16px"}}>
+                    <div style={{display:"flex",alignItems:"center",gap:"8px",marginBottom:"12px"}}>
+                      <User style={{width:14,height:14,color:"#e67e22"}} />
+                      <span style={{color:"#0a1628",fontWeight:700,fontSize:"11px",letterSpacing:"0.06em",textTransform:"uppercase"}}>Bill To</span>
+                    </div>
+                    <p style={{color:"#0a1628",fontWeight:700,fontSize:"17px",marginBottom:"6px"}}>{selectedInvoice.customerName}</p>
+                    {selectedInvoice.customerAddress && <p style={{color:"#555",fontSize:"12px",marginBottom:"3px"}}>{selectedInvoice.customerAddress}</p>}
+                    {selectedInvoice.customerPhone && <p style={{color:"#555",fontSize:"12px",marginBottom:"3px"}}>{selectedInvoice.customerPhone}</p>}
+                    {selectedInvoice.customerEmail && <p style={{color:"#555",fontSize:"12px",wordBreak:"break-all",marginBottom:"3px"}}>{selectedInvoice.customerEmail}</p>}
+                    {selectedInvoice.customerKraPin && <p style={{color:"#0a1628",fontSize:"12px",fontWeight:600,marginTop:"6px"}}>KRA PIN: {selectedInvoice.customerKraPin}</p>}
+                  </div>
+                  <div style={{backgroundColor:"#f8f9ff",border:"1px solid #e8eaf0",borderRadius:"10px",padding:"16px"}}>
+                    <div style={{marginBottom:"12px"}}>
+                      <span style={{color:"#0a1628",fontWeight:700,fontSize:"11px",letterSpacing:"0.06em",textTransform:"uppercase"}}>Invoice Details</span>
+                    </div>
+                    <div style={{fontSize:"12px",color:"#555",lineHeight:2}}>
+                      <div style={{display:"flex",alignItems:"center",gap:"8px",marginBottom:"4px"}}>
+                        {(() => { const SI = getServiceIcon(selectedInvoice.serviceType); return <SI style={{width:16,height:16,color:"#e67e22"}} />; })()}
+                        <span style={{fontWeight:600,color:"#0a1628"}}>{getServiceLabel(selectedInvoice.serviceType)}</span>
                       </div>
-                      <Badge 
-                        className={`mt-3 ${statusConfig[selectedInvoice.status].color}`}
-                      >
-                        {statusConfig[selectedInvoice.status].label}
-                      </Badge>
+                      <p><span style={{fontWeight:600,color:"#0a1628"}}>Terms:</span> {selectedInvoice.paymentTerms}</p>
+                      <p><span style={{fontWeight:600,color:"#0a1628"}}>Currency:</span> KES (Kenya Shillings)</p>
                     </div>
                   </div>
                 </div>
 
-                {/* Bill To & Service Info */}
-                <div className="grid grid-cols-2 gap-8 mb-6">
-                  <div className="bg-gray-50 rounded-lg p-5 border border-gray-600">
-                    <h3 className="text-sm font-bold text-[#0a1628] uppercase mb-3 pb-2 border-b border-gray-300 flex items-center gap-2 tracking-wide">
-                      <User className="h-4 w-4 text-[#e67e22]" />
-                      Bill To
-                    </h3>
-                    <div className="space-y-2">
-                      <p className="font-bold text-xl text-[#0a1628]">{selectedInvoice.customerName}</p>
-                      {selectedInvoice.customerAddress && (
-                        <p className="text-sm text-gray-600">{selectedInvoice.customerAddress}</p>
-                      )}
-                      {selectedInvoice.customerPhone && (
-                        <p className="text-sm text-gray-600 flex items-center gap-2">
-                          <Phone className="h-3.5 w-3.5 text-[#e67e22]" />
-                          {selectedInvoice.customerPhone}
-                        </p>
-                      )}
-                      {selectedInvoice.customerEmail && (
-                        <p className="text-sm text-gray-600 flex items-center gap-2">
-                          <Mail className="h-3.5 w-3.5 text-[#e67e22] shrink-0" />
-                          <span className="break-all">{selectedInvoice.customerEmail}</span>
-                        </p>
-                      )}
-                      {selectedInvoice.customerKraPin && (
-                        <p className="text-sm font-semibold text-[#0a1628] mt-2">KRA PIN: {selectedInvoice.customerKraPin}</p>
-                      )}
-                    </div>
-                  </div>
-                  <div className="bg-gray-50 rounded-lg p-5 border border-gray-600">
-                    <h3 className="text-sm font-bold text-[#0a1628] uppercase mb-3 pb-2 border-b border-gray-300 tracking-wide">
-                      Invoice Details
-                    </h3>
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-3">
-                        {(() => {
-                          const ServiceIcon = getServiceIcon(selectedInvoice.serviceType);
-                          return <ServiceIcon className="h-5 w-5 text-[#e67e22]" />;
-                        })()}
-                        <span className="font-semibold text-[#0a1628]">{getServiceLabel(selectedInvoice.serviceType)}</span>
-                      </div>
-                      <p className="text-sm text-gray-600">
-                        <span className="font-medium text-[#0a1628]">Payment Terms:</span> {selectedInvoice.paymentTerms}
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        <span className="font-medium text-[#0a1628]">Currency:</span> KES (Kenya Shillings)
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Items Table */}
-                <div className="mb-6">
-                  <h3 className="font-bold text-[#0a1628] mb-3 uppercase text-sm tracking-wide">Description of Services</h3>
-                  <div className="border-2 border-gray-600 rounded-lg overflow-hidden">
-                    <table className="w-full">
+                {/* ── ITEMS TABLE ── */}
+                <div style={{marginBottom:"24px"}}>
+                  <p style={{color:"#0a1628",fontWeight:700,fontSize:"11px",letterSpacing:"0.08em",textTransform:"uppercase",marginBottom:"10px"}}>Description of Services</p>
+                  <div style={{border:"1px solid #dde0e8",borderRadius:"10px",overflow:"hidden"}}>
+                    <table style={{width:"100%",borderCollapse:"collapse"}}>
                       <thead>
-                        <tr className="bg-[#0a1628] text-white">
-                          <th className="text-left py-4 px-5 font-semibold">Description</th>
-                          <th className="text-center py-4 px-5 font-semibold w-24">Qty</th>
-                          <th className="text-right py-4 px-5 font-semibold w-36">Unit Price (KES)</th>
-                          <th className="text-right py-4 px-5 font-semibold w-36">Amount (KES)</th>
+                        <tr style={{backgroundColor:"#0a1628",color:"white"}}>
+                          <th style={{textAlign:"left",padding:"12px 16px",fontSize:"11px",fontWeight:700,letterSpacing:"0.05em",textTransform:"uppercase"}}>Description</th>
+                          <th style={{textAlign:"center",padding:"12px 16px",fontSize:"11px",fontWeight:700,width:"60px",letterSpacing:"0.05em",textTransform:"uppercase"}}>Qty</th>
+                          <th style={{textAlign:"right",padding:"12px 16px",fontSize:"11px",fontWeight:700,width:"130px",letterSpacing:"0.05em",textTransform:"uppercase"}}>Unit Price</th>
+                          <th style={{textAlign:"right",padding:"12px 16px",fontSize:"11px",fontWeight:700,width:"130px",letterSpacing:"0.05em",textTransform:"uppercase",color:"#e67e22"}}>Amount (KES)</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {selectedInvoice.items.map((item, index) => (
-                          <tr key={item.id} style={{backgroundColor: index % 2 === 0 ? "white" : "#f9fafb", color: "#0a1628"}}>
-                            <td className="py-4 px-5">{item.description}</td>
-                            <td className="py-4 px-5 text-center">{item.quantity}</td>
-                            <td className="py-4 px-5 text-right">{item.unitPrice.toLocaleString()}</td>
-                            <td className="py-4 px-5 text-right font-semibold">{item.amount.toLocaleString()}</td>
+                        {selectedInvoice.items.map((item, i) => (
+                          <tr key={item.id} style={{backgroundColor:i%2===0?"#ffffff":"#f8f9ff",color:"#1a1a2e",borderBottom:"1px solid #eee"}}>
+                            <td style={{padding:"12px 16px",fontSize:"13px"}}>{item.description}</td>
+                            <td style={{padding:"12px 16px",textAlign:"center",fontSize:"13px"}}>{item.quantity}</td>
+                            <td style={{padding:"12px 16px",textAlign:"right",fontSize:"13px"}}>{item.unitPrice.toLocaleString()}</td>
+                            <td style={{padding:"12px 16px",textAlign:"right",fontWeight:700,fontSize:"13px"}}>{item.amount.toLocaleString()}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -1115,63 +1068,53 @@ export default function InvoicesPage() {
                   </div>
                 </div>
 
-                {/* Totals */}
-                <div className="flex justify-end mb-6">
-                  <div className="w-96 bg-gray-50 rounded-lg border-2 border-[#e67e22] p-5">
-                    <div className="space-y-3">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Subtotal:</span>
-                        <span className="font-medium text-[#0a1628]">KES {selectedInvoice.subtotal.toLocaleString()}</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">VAT ({selectedInvoice.vatRate}%):</span>
-                        <span className="font-medium text-[#0a1628]">KES {selectedInvoice.vatAmount.toLocaleString()}</span>
-                      </div>
-                      <div className="border-t-2 border-[#0a1628] pt-4 mt-4">
-                        <div className="flex justify-between text-xl font-bold">
-                          <span className="text-[#0a1628]">TOTAL DUE:</span>
-                          <span className="text-[#e67e22]">KES {selectedInvoice.total.toLocaleString()}</span>
-                        </div>
-                      </div>
-                      {selectedInvoice.amountPaid > 0 && (
-                        <>
-                          <div className="flex justify-between text-sm text-green-300 font-medium">
-                            <span>Amount Paid:</span>
-                            <span>KES {selectedInvoice.amountPaid.toLocaleString()}</span>
-                          </div>
-                          <div className={`flex justify-between text-base font-bold ${(selectedInvoice.total - selectedInvoice.amountPaid) > 0 ? "text-red-600" : "text-green-600"}`}>
-                            <span>Balance Due:</span>
-                            <span>KES {(selectedInvoice.total - selectedInvoice.amountPaid).toLocaleString()}</span>
-                          </div>
-                        </>
-                      )}
+                {/* ── TOTALS ── */}
+                <div style={{display:"flex",justifyContent:"flex-end",marginBottom:"24px"}}>
+                  <div style={{width:"300px",backgroundColor:"#0a1628",borderRadius:"12px",padding:"18px",border:"2px solid #e67e22"}}>
+                    <div style={{display:"flex",justifyContent:"space-between",fontSize:"12px",color:"rgba(255,255,255,0.65)",marginBottom:"8px"}}>
+                      <span>Subtotal:</span><span>KES {selectedInvoice.subtotal.toLocaleString()}</span>
                     </div>
+                    <div style={{display:"flex",justifyContent:"space-between",fontSize:"12px",color:"rgba(255,255,255,0.65)",marginBottom:"12px"}}>
+                      <span>VAT ({selectedInvoice.vatRate}%):</span><span>KES {selectedInvoice.vatAmount.toLocaleString()}</span>
+                    </div>
+                    <div style={{borderTop:"1px solid rgba(230,126,34,0.5)",paddingTop:"12px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                      <span style={{color:"white",fontWeight:700,fontSize:"14px"}}>TOTAL DUE:</span>
+                      <span style={{color:"#e67e22",fontWeight:800,fontSize:"22px"}}>KES {selectedInvoice.total.toLocaleString()}</span>
+                    </div>
+                    {selectedInvoice.amountPaid > 0 && (
+                      <>
+                        <div style={{display:"flex",justifyContent:"space-between",fontSize:"12px",color:"#86efac",marginTop:"10px"}}>
+                          <span>Amount Paid:</span><span>KES {selectedInvoice.amountPaid.toLocaleString()}</span>
+                        </div>
+                        <div style={{display:"flex",justifyContent:"space-between",fontSize:"14px",fontWeight:700,marginTop:"6px",color:(selectedInvoice.total-selectedInvoice.amountPaid)>0?"#fca5a5":"#86efac"}}>
+                          <span>Balance Due:</span><span>KES {(selectedInvoice.total-selectedInvoice.amountPaid).toLocaleString()}</span>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
 
-                {/* Payment History */}
+                {/* ── PAYMENT HISTORY ── */}
                 {selectedInvoice.payments.length > 0 && (
-                  <div className="mb-6">
-                    <h3 className="font-bold text-[#0a1628] mb-3 uppercase text-sm tracking-wide">Payment History</h3>
-                    <div className="border-2 border-gray-600 rounded-lg overflow-hidden">
-                      <table className="w-full text-sm">
+                  <div style={{marginBottom:"24px"}}>
+                    <p style={{color:"#0a1628",fontWeight:700,fontSize:"11px",letterSpacing:"0.08em",textTransform:"uppercase",marginBottom:"10px"}}>Payment History</p>
+                    <div style={{border:"1px solid #dde0e8",borderRadius:"10px",overflow:"hidden"}}>
+                      <table style={{width:"100%",borderCollapse:"collapse"}}>
                         <thead>
-                          <tr className="bg-gray-100 text-[#0a1628]">
-                            <th className="text-left py-3 px-4 font-semibold">Date</th>
-                            <th className="text-left py-3 px-4 font-semibold">Method</th>
-                            <th className="text-left py-3 px-4 font-semibold">Reference</th>
-                            <th className="text-left py-3 px-4 font-semibold">Note</th>
-                            <th className="text-right py-3 px-4 font-semibold">Amount (KES)</th>
+                          <tr style={{backgroundColor:"#f0f2f8",color:"#0a1628"}}>
+                            {["Date","Method","Reference","Note","Amount (KES)"].map((h,i) => (
+                              <th key={h} style={{padding:"10px 14px",fontSize:"11px",fontWeight:700,textAlign:i===4?"right":"left",letterSpacing:"0.04em",textTransform:"uppercase"}}>{h}</th>
+                            ))}
                           </tr>
                         </thead>
                         <tbody>
-                          {selectedInvoice.payments.map((p) => (
-                            <tr key={p.id} className="border-t border-gray-100">
-                              <td className="py-3 px-4">{format(new Date(p.date), "MMM dd, yyyy")}</td>
-                              <td className="py-3 px-4 capitalize">{p.method === "mpesa" ? "M-Pesa" : p.method}</td>
-                              <td className="py-3 px-4 font-mono text-xs">{p.reference}</td>
-                              <td className="py-3 px-4 text-gray-500">{p.note || "—"}</td>
-                              <td className="py-3 px-4 text-right font-semibold text-green-300">{p.amount.toLocaleString()}</td>
+                          {selectedInvoice.payments.map((p, i) => (
+                            <tr key={p.id} style={{borderTop:"1px solid #eee",backgroundColor:i%2===0?"white":"#f8f9ff",color:"#1a1a2e"}}>
+                              <td style={{padding:"10px 14px",fontSize:"12px"}}>{format(new Date(p.date), "MMM dd, yyyy")}</td>
+                              <td style={{padding:"10px 14px",fontSize:"12px",textTransform:"capitalize"}}>{p.method === "mpesa" ? "M-Pesa" : p.method}</td>
+                              <td style={{padding:"10px 14px",fontSize:"11px",fontFamily:"monospace"}}>{p.reference}</td>
+                              <td style={{padding:"10px 14px",fontSize:"12px",color:"#888"}}>{p.note || "—"}</td>
+                              <td style={{padding:"10px 14px",textAlign:"right",fontWeight:700,fontSize:"13px",color:"#16a34a"}}>{p.amount.toLocaleString()}</td>
                             </tr>
                           ))}
                         </tbody>
@@ -1180,73 +1123,57 @@ export default function InvoicesPage() {
                   </div>
                 )}
 
-                {/* Payment Info */}
-                <div className="grid grid-cols-2 gap-6 mb-6">
-                  <div className="bg-gray-50 rounded-lg p-5 border border-[#0a1628]">
-                    <h3 className="text-sm font-bold text-[#0a1628] uppercase mb-3 flex items-center gap-2 tracking-wide">
-                      <Building2 className="h-4 w-4 text-[#e67e22]" />
-                      Bank Transfer
-                    </h3>
-                    <div className="space-y-2 text-sm">
-                      <p className="flex justify-between">
-                        <span className="text-gray-600">Bank:</span>
-                        <span className="font-semibold text-[#0a1628]">{companyInfo.bankName}</span>
-                      </p>
-                      <p className="flex justify-between">
-                        <span className="text-gray-600">Account:</span>
-                        <span className="font-mono font-semibold text-[#0a1628]">{companyInfo.bankAccount}</span>
-                      </p>
-                      <p className="flex justify-between">
-                        <span className="text-gray-600">Branch:</span>
-                        <span className="font-semibold text-[#0a1628]">{companyInfo.bankBranch}</span>
-                      </p>
+                {/* ── PAYMENT OPTIONS ── */}
+                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"16px",marginBottom:"24px"}}>
+                  <div style={{backgroundColor:"#f8f9ff",border:"1px solid #dde0e8",borderRadius:"10px",padding:"16px"}}>
+                    <div style={{display:"flex",alignItems:"center",gap:"8px",marginBottom:"12px"}}>
+                      <Building2 style={{width:14,height:14,color:"#e67e22"}} />
+                      <span style={{color:"#0a1628",fontWeight:700,fontSize:"11px",letterSpacing:"0.06em",textTransform:"uppercase"}}>Bank Transfer</span>
+                    </div>
+                    <div style={{fontSize:"12px",color:"#555",lineHeight:2}}>
+                      <div style={{display:"flex",justifyContent:"space-between"}}><span>Bank:</span><span style={{fontWeight:700,color:"#0a1628"}}>{companyInfo.bankName}</span></div>
+                      <div style={{display:"flex",justifyContent:"space-between"}}><span>Account:</span><span style={{fontWeight:700,fontFamily:"monospace",color:"#0a1628"}}>{companyInfo.bankAccount}</span></div>
+                      <div style={{display:"flex",justifyContent:"space-between"}}><span>Branch:</span><span style={{fontWeight:700,color:"#0a1628"}}>{companyInfo.bankBranch}</span></div>
                     </div>
                   </div>
-                  <div className="bg-orange-900/30 rounded-lg p-5 border border-[#e67e22]">
-                    <h3 className="text-sm font-bold text-[#0a1628] uppercase mb-3 flex items-center gap-2 tracking-wide">
-                      <Smartphone className="h-4 w-4 text-[#e67e22]" />
-                      M-Pesa Payment
-                    </h3>
-                    <div className="space-y-2 text-sm">
-                      <p className="flex justify-between">
-                        <span className="text-gray-600">Paybill:</span>
-                        <span className="font-mono font-bold text-xl text-[#e67e22]">{companyInfo.mpesaPaybill}</span>
-                      </p>
-                      <p className="flex justify-between">
-                        <span className="text-gray-600">Account No:</span>
-                        <span className="font-mono font-semibold text-[#0a1628]">{companyInfo.mpesaAccountNo}</span>
-                      </p>
-                      <p className="text-xs text-[#e67e22] mt-2 font-medium">
-                        Use invoice number as account reference
-                      </p>
+                  <div style={{backgroundColor:"#fff8ee",border:"1px solid #e67e22",borderRadius:"10px",padding:"16px"}}>
+                    <div style={{display:"flex",alignItems:"center",gap:"8px",marginBottom:"12px"}}>
+                      <Smartphone style={{width:14,height:14,color:"#e67e22"}} />
+                      <span style={{color:"#0a1628",fontWeight:700,fontSize:"11px",letterSpacing:"0.06em",textTransform:"uppercase"}}>M-Pesa Paybill</span>
+                    </div>
+                    <div style={{fontSize:"12px",color:"#555",lineHeight:2}}>
+                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                        <span>Paybill:</span>
+                        <span style={{fontWeight:800,fontFamily:"monospace",fontSize:"22px",color:"#e67e22"}}>{companyInfo.mpesaPaybill}</span>
+                      </div>
+                      <div style={{display:"flex",justifyContent:"space-between"}}><span>Account:</span><span style={{fontWeight:700,fontFamily:"monospace",color:"#0a1628"}}>{companyInfo.mpesaAccountNo}</span></div>
+                      <p style={{fontSize:"11px",color:"#e67e22",fontWeight:600,marginTop:"4px"}}>Use invoice number as account reference</p>
                     </div>
                   </div>
                 </div>
 
-                {/* Notes */}
+                {/* ── NOTES & TERMS ── */}
                 {selectedInvoice.notes && (
-                  <div className="p-5 bg-orange-900/30 rounded-lg border border-[#e67e22] mb-6">
-                    <h3 className="text-sm font-bold text-[#0a1628] mb-2 uppercase tracking-wide">Notes</h3>
-                    <p className="text-sm text-[#0a1628]">{selectedInvoice.notes}</p>
+                  <div style={{backgroundColor:"#fff8ee",border:"1px solid #e67e22",borderRadius:"8px",padding:"12px 16px",marginBottom:"16px"}}>
+                    <p style={{color:"#0a1628",fontWeight:700,fontSize:"11px",textTransform:"uppercase",marginBottom:"6px"}}>Notes</p>
+                    <p style={{fontSize:"12px",color:"#333"}}>{selectedInvoice.notes}</p>
                   </div>
                 )}
-
-                {/* Terms */}
-                <div className="p-5 bg-gray-100 rounded-lg border border-gray-600 mb-6">
-                  <h3 className="text-sm font-bold text-[#0a1628] mb-2 uppercase tracking-wide">Terms & Conditions</h3>
-                  <ul className="text-xs text-gray-600 space-y-1 list-disc list-inside">
+                <div style={{backgroundColor:"#f8f9ff",border:"1px solid #dde0e8",borderRadius:"8px",padding:"12px 16px",marginBottom:"24px"}}>
+                  <p style={{color:"#0a1628",fontWeight:700,fontSize:"11px",textTransform:"uppercase",marginBottom:"8px"}}>Terms & Conditions</p>
+                  <ul style={{fontSize:"11px",color:"#666",paddingLeft:"16px",lineHeight:2}}>
                     <li>Payment is due by the date indicated above</li>
-                    <li>Late payments may incur additional charges</li>
+                    <li>Late payments may incur additional charges of 2% per month</li>
                     <li>Please include invoice number in all payment references</li>
                     <li>This invoice is valid for 30 days from issue date</li>
                   </ul>
                 </div>
 
-                {/* Footer */}
-                <div className="print-footer text-center pt-6 border-t-2 border-[#0a1628]">
-                  <p className="text-lg font-bold text-[#e67e22]">Thank You For Your Business!</p>
-                  <p className="text-sm text-[#0a1628] mt-2">
-                    For inquiries, contact us at <span className="break-all">{companyInfo.email}</span> or {companyInfo.phone}
+                {/* ── FOOTER ── */}
+                <div style={{textAlign:"center",paddingTop:"16px",borderTop:"2px solid #e67e22"}}>
+                  <p style={{color:"#e67e22",fontWeight:700,fontSize:"15px"}}>Thank You For Your Business!</p>
+                  <p style={{fontSize:"12px",color:"#555",marginTop:"6px"}}>
+                    For inquiries: <span style={{wordBreak:"break-all"}}>{companyInfo.email}</span> &nbsp;|&nbsp; {companyInfo.phone}
                   </p>
                   <p className="text-xs text-gray-500 mt-2">
                     {companyInfo.website} | KRA PIN: {companyInfo.kraPin}

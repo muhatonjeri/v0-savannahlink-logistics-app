@@ -989,3 +989,35 @@ table thead th,
 [data-print-area] .text-\[\#e67e22\] {
   color: #e67e22 !important;
 }
+
+/* ══════════════════════════════════════
+   PRINT STYLES — Invoice & Receipt
+   ══════════════════════════════════════ */
+@media print {
+  /* Hide everything except the document */
+  body > *:not(#__next) { display: none !important; }
+  .print-receipt,
+  [data-print-area] {
+    display: block !important;
+    position: fixed !important;
+    top: 0; left: 0;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+  /* Force white backgrounds and dark text in print */
+  .print-receipt *,
+  [data-print-area] * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  /* Hide screen-only elements */
+  .print\:hidden { display: none !important; }
+  /* Page setup */
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
+}
