@@ -250,7 +250,7 @@ const companyInfo = {
 
 export default function InvoicesPage() {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [dbLoading, setDbLoading] = useState(true);
 
   // Load invoices from Supabase on mount
   useEffect(() => {
@@ -287,7 +287,7 @@ export default function InvoicesPage() {
         }
       })
       .catch(() => setInvoices(initialInvoices))
-      .finally(() => setLoading(false));
+      .finally(() => setDbLoading(false));
   }, []);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
@@ -407,8 +407,7 @@ export default function InvoicesPage() {
       createdAt: new Date().toISOString().split("T")[0],
     };
 
-    setInvoices([invoice, ...invoices]);
-    // Save to Supabase
+    // Save to Supabase first, then update UI
     invoicesApi.create({
       invoiceNumber: invoice.invoiceNumber,
       customerName: invoice.customerName,
@@ -429,10 +428,15 @@ export default function InvoicesPage() {
       dueDate: invoice.dueDate,
       paymentTerms: invoice.paymentTerms,
       notes: invoice.notes,
-    }).catch(() => {});
+    }).then(saved => {
+      setInvoices(prev => [{ ...invoice, id: saved.id }, ...prev]);
+      toast.success("Invoice " + invoiceNumber + " created and saved");
+    }).catch(err => {
+      setInvoices(prev => [invoice, ...prev]);
+      toast.warning("Invoice created locally. Sync failed: " + err.message);
+    });
     setIsCreateDialogOpen(false);
     resetForm();
-    toast.success(`Invoice ${invoiceNumber} created successfully`);
   };
 
   // Reset form
@@ -486,7 +490,7 @@ export default function InvoicesPage() {
       amount_paid: updatedInvoice.amountPaid,
       payments: updatedInvoice.payments,
       status: updatedInvoice.status,
-    }).catch(() => {});
+    }).catch(err => toast.error("Payment sync failed: " + err.message));
     setIsPaymentDialogOpen(false);
     setPaymentForm({ amount: "", method: "mpesa", reference: "", note: "" });
     toast.success(`Payment of KES ${amount.toLocaleString()} recorded successfully`);
@@ -495,7 +499,7 @@ export default function InvoicesPage() {
   // Update invoice status
   const updateInvoiceStatus = (id: string, status: Invoice["status"]) => {
     setInvoices(invoices.map((inv) => (inv.id === id ? { ...inv, status } : inv)));
-    invoicesApi.update(id, { status }).catch(() => {});
+    invoicesApi.update(id, { status }).catch(err => toast.error("Sync failed: " + err.message));
     toast.success(`Invoice status updated to ${statusConfig[status].label}`);
   };
 
