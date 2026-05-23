@@ -726,15 +726,15 @@ export default function SubletsPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Service</TableHead>
-                <TableHead>Asset</TableHead>
-                <TableHead>Reg</TableHead>
-                <TableHead>Supplier</TableHead>
-                <TableHead>Their Rate</TableHead>
-                <TableHead>Our Rate</TableHead>
-                <TableHead>Profit/Day</TableHead>
-                <TableHead>Margin</TableHead>
-                <TableHead>Status</TableHead>
+                <TableHead className="text-orange-400 font-bold">Service</TableHead>
+                <TableHead className="text-orange-400 font-bold">Asset</TableHead>
+                <TableHead className="text-orange-400 font-bold">Reg</TableHead>
+                <TableHead className="text-orange-400 font-bold">Supplier</TableHead>
+                <TableHead className="text-orange-400 font-bold">Their Rate</TableHead>
+                <TableHead className="text-orange-400 font-bold">Our Rate</TableHead>
+                <TableHead className="text-orange-400 font-bold">Profit/Day</TableHead>
+                <TableHead className="text-orange-400 font-bold">Margin</TableHead>
+                <TableHead className="text-orange-400 font-bold">Status</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
