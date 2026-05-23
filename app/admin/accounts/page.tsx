@@ -205,22 +205,21 @@ const generateMockTransactions = (): Transaction[] => {
 };
 
 export default function AccountsPage() {
-  const [transactions, setTransactions] = useState<Transaction[]>(generateMockTransactions);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
 
-  // Load transactions from linked modules (Sublet, Fleet Out etc)
+  // Load transactions only on client side to avoid hydration mismatch
   useEffect(() => {
+    const mock = generateMockTransactions();
+    let all = [...mock];
     try {
       const subletEntries = JSON.parse(localStorage.getItem("sublet_account_entries") || "[]");
       if (subletEntries.length > 0) {
-        setTransactions(prev => {
-          const existingIds = new Set(prev.map((t: Transaction) => t.id));
-          const newEntries = subletEntries.filter((e: Transaction) => !existingIds.has(e.id));
-          return newEntries.length > 0
-            ? [...newEntries, ...prev].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-            : prev;
-        });
+        const existingIds = new Set(mock.map((t: Transaction) => t.id));
+        const newEntries = subletEntries.filter((e: Transaction) => !existingIds.has(e.id));
+        all = [...newEntries, ...mock].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
       }
     } catch {}
+    setTransactions(all);
   }, []);
   const [searchQuery, setSearchQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState<string>("all");
