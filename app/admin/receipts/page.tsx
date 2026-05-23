@@ -434,11 +434,37 @@ export default function ReceiptsPage() {
     };
 
     setReceipts((prev) => [newReceipt, ...prev]);
+
+    // Save to Supabase
+    receiptsApi.create({
+      receiptNumber: newReceipt.receiptNumber,
+      customerName: newReceipt.customerName,
+      customerPhone: newReceipt.customerPhone,
+      customerEmail: newReceipt.customerEmail,
+      customerKraPin: newReceipt.customerKraPin,
+      serviceType: newReceipt.serviceType,
+      items: newReceipt.items,
+      subtotal: newReceipt.subtotal,
+      taxAmount: newReceipt.taxAmount,
+      totalAmount: newReceipt.totalAmount,
+      paymentMethod: newReceipt.paymentMethod,
+      transactionCode: newReceipt.transactionCode,
+      bankName: newReceipt.bankName,
+      status: newReceipt.status,
+      etimsReceiptNumber: newReceipt.etimsReceiptNumber,
+      etimsDeviceNumber: newReceipt.etimsDeviceNumber,
+      etimsVerificationUrl: newReceipt.etimsVerificationUrl,
+      issuedBy: newReceipt.issuedBy,
+    }).then(() => {
+      toast.success("Receipt issued and saved", {
+        description: "Receipt " + newReceipt.receiptNumber + " is eTIMS compliant and saved to database.",
+      });
+    }).catch(err => {
+      toast.warning("Receipt created but not saved to database: " + err.message);
+    });
+
     setIsDialogOpen(false);
     form.reset();
-    toast.success("Receipt issued successfully", {
-      description: `Receipt ${newReceipt.receiptNumber} has been created and is eTIMS compliant.`,
-    });
 
     // Automatically send receipt to customer via email and SMS
     setTimeout(() => {
