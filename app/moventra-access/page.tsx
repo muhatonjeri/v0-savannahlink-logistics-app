@@ -1,158 +1,144 @@
 'use client'
 
-import { useState, Suspense } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { Eye, EyeOff, Lock, Mail, Shield, ArrowRight, Loader2 } from 'lucide-react'
 
-const MOCK_ADMIN = { email: 'admin@moventrasafarislogisticsltd.com', password: 'admin123', role: 'admin', name: 'System Administrator' }
-const MOCK_STAFF = { email: 'staff@moventrasafarislogisticsltd.com', password: 'staff123', role: 'staff', name: 'Staff User' }
+const CREDENTIALS = [
+  { email: 'admin@moventrasafarislogisticsltd.com', password: 'admin123', role: 'admin', name: 'System Administrator' },
+  { email: 'staff@moventrasafarislogisticsltd.com', password: 'staff123', role: 'staff', name: 'Staff User' },
+]
 
 function setCookie(name: string, value: string, days = 7) {
   const expires = new Date(Date.now() + days * 864e5).toUTCString()
   document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/`
 }
 
-function LoginForm() {
+export default function LoginPage() {
   const [email, setEmail]       = useState('')
   const [password, setPassword] = useState('')
   const [showPass, setShowPass] = useState(false)
-  const [error, setError]       = useState<string | null>(null)
+  const [error, setError]       = useState('')
   const [loading, setLoading]   = useState(false)
-  const router       = useRouter()
-  const searchParams = useSearchParams()
-  const redirectTo   = searchParams.get('redirect') || '/admin'
+  const router = useRouter()
 
-  const doLogin = (e: React.FormEvent) => {
+  const handleLogin = (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    setError(null)
+    setError('')
 
-    const match = [MOCK_ADMIN, MOCK_STAFF].find(u => u.email === email && u.password === password)
+    const match = CREDENTIALS.find(u => u.email === email && u.password === password)
     if (match) {
-      const authData = JSON.stringify({ user: { email: match.email, role: match.role, name: match.name }, isAuthenticated: true })
-      setCookie('mock_auth', authData, 7)
-      try { localStorage.setItem('mockAuth', authData) } catch {}
-      setTimeout(() => { router.push(redirectTo); router.refresh() }, 100)
+      const data = JSON.stringify({ user: { email: match.email, role: match.role, name: match.name }, isAuthenticated: true })
+      setCookie('mock_auth', data, 7)
+      try { localStorage.setItem('mockAuth', data) } catch {}
+      setTimeout(() => router.push('/admin'), 200)
     } else {
-      setError('Invalid email or password. Please try again.')
+      setError('Invalid email or password.')
       setLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4"
-      style={{ background: 'linear-gradient(135deg, #030a15 0%, #0a1628 40%, #0f2040 70%, #030a15 100%)' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', background: 'linear-gradient(135deg, #030a15 0%, #0a1628 50%, #030a15 100%)' }}>
 
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full opacity-10" style={{ background: 'radial-gradient(circle, #e67e22, transparent)' }} />
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full opacity-10" style={{ background: 'radial-gradient(circle, #1a5c3a, transparent)' }} />
-      </div>
+      {/* Glow blobs */}
+      <div style={{ position: 'fixed', top: '-100px', right: '-100px', width: '400px', height: '400px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(230,126,34,0.15), transparent)', pointerEvents: 'none' }} />
+      <div style={{ position: 'fixed', bottom: '-100px', left: '-100px', width: '400px', height: '400px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(26,92,58,0.15), transparent)', pointerEvents: 'none' }} />
 
-      <div className="relative w-full max-w-md">
-        <div className="rounded-2xl border border-white/10 overflow-hidden"
-          style={{ background: 'rgba(10,22,40,0.90)', backdropFilter: 'blur(20px)', boxShadow: '0 25px 60px rgba(0,0,0,0.5)' }}>
+      <div style={{ width: '100%', maxWidth: '420px', position: 'relative' }}>
+        <div style={{ borderRadius: '20px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(10,22,40,0.95)', boxShadow: '0 30px 80px rgba(0,0,0,0.6)' }}>
 
+          {/* Top bar */}
           <div style={{ height: '4px', background: 'linear-gradient(to right, #1a5c3a, #e67e22, #1a5c3a)' }} />
 
-          <div className="p-8">
+          <div style={{ padding: '40px 36px' }}>
+
             {/* Logo */}
-            <div className="flex flex-col items-center mb-8">
-              <Image src="/images/logo.png" alt="Moventra" width={100} height={100} className="rounded-full object-contain mb-4" unoptimized />
-              <h1 className="text-lg font-extrabold text-white tracking-tight text-center">Moventra Safaris & Logistics</h1>
-              <p className="text-xs text-gray-500 mt-1 tracking-[0.2em] uppercase">Admin Portal</p>
-              <div style={{ height: '1px', width: '60px', background: 'linear-gradient(to right, transparent, #e67e22, transparent)', marginTop: '12px' }} />
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '32px' }}>
+              <Image src="/images/logo.png" alt="Moventra" width={96} height={96} style={{ borderRadius: '50%', objectFit: 'contain', marginBottom: '16px' }} unoptimized />
+              <h1 style={{ color: 'white', fontWeight: 800, fontSize: '18px', textAlign: 'center', margin: 0 }}>Moventra Safaris & Logistics</h1>
+              <p style={{ color: '#6b7280', fontSize: '11px', letterSpacing: '0.2em', marginTop: '4px', textTransform: 'uppercase' }}>Admin Portal</p>
+              <div style={{ height: '1px', width: '50px', background: 'linear-gradient(to right, transparent, #e67e22, transparent)', marginTop: '16px' }} />
             </div>
 
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold text-white">Welcome back</h2>
-              <p className="text-gray-400 text-sm mt-1">Sign in to access the admin dashboard</p>
-            </div>
+            <h2 style={{ color: 'white', fontWeight: 700, fontSize: '22px', margin: '0 0 4px 0' }}>Welcome back</h2>
+            <p style={{ color: '#9ca3af', fontSize: '14px', margin: '0 0 24px 0' }}>Sign in to access your dashboard</p>
 
-            <form onSubmit={doLogin} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1.5">Email Address</label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+            <form onSubmit={handleLogin}>
+              {/* Email */}
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{ display: 'block', color: '#d1d5db', fontSize: '14px', fontWeight: 500, marginBottom: '6px' }}>Email Address</label>
+                <div style={{ position: 'relative' }}>
+                  <Mail style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', width: '16px', height: '16px', color: '#6b7280' }} />
                   <input type="email" required autoComplete="email"
-                    className="w-full rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder:text-gray-600 outline-none transition-all"
-                    style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}
-                    onFocus={e => (e.currentTarget.style.borderColor = '#e67e22')}
-                    onBlur={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)')}
+                    style={{ width: '100%', boxSizing: 'border-box', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', padding: '12px 16px 12px 40px', color: 'white', fontSize: '14px', outline: 'none' }}
                     placeholder="your@email.com"
-                    value={email} onChange={e => setEmail(e.target.value)} />
+                    value={email} onChange={e => setEmail(e.target.value)}
+                    onFocus={e => (e.currentTarget.style.borderColor = '#e67e22')}
+                    onBlur={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)')} />
                 </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1.5">Password</label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+              {/* Password */}
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', color: '#d1d5db', fontSize: '14px', fontWeight: 500, marginBottom: '6px' }}>Password</label>
+                <div style={{ position: 'relative' }}>
+                  <Lock style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', width: '16px', height: '16px', color: '#6b7280' }} />
                   <input type={showPass ? 'text' : 'password'} required autoComplete="current-password"
-                    className="w-full rounded-xl pl-10 pr-10 py-3 text-sm text-white placeholder:text-gray-600 outline-none transition-all"
-                    style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}
-                    onFocus={e => (e.currentTarget.style.borderColor = '#e67e22')}
-                    onBlur={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)')}
+                    style={{ width: '100%', boxSizing: 'border-box', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', padding: '12px 44px 12px 40px', color: 'white', fontSize: '14px', outline: 'none' }}
                     placeholder="Enter your password"
-                    value={password} onChange={e => setPassword(e.target.value)} />
+                    value={password} onChange={e => setPassword(e.target.value)}
+                    onFocus={e => (e.currentTarget.style.borderColor = '#e67e22')}
+                    onBlur={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)')} />
                   <button type="button" onClick={() => setShowPass(!showPass)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors">
-                    {showPass ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#6b7280', padding: 0 }}>
+                    {showPass ? <EyeOff style={{ width: '16px', height: '16px' }} /> : <Eye style={{ width: '16px', height: '16px' }} />}
                   </button>
                 </div>
               </div>
 
+              {/* Error */}
               {error && (
-                <div className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm text-red-400"
-                  style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)' }}>
-                  <Shield className="h-4 w-4 shrink-0" />{error}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: '10px', padding: '10px 14px', marginBottom: '16px', color: '#f87171', fontSize: '14px' }}>
+                  <Shield style={{ width: '16px', height: '16px', flexShrink: 0 }} />{error}
                 </div>
               )}
 
+              {/* Submit */}
               <button type="submit" disabled={loading}
-                className="w-full flex items-center justify-center gap-2 rounded-xl py-3 font-semibold text-white transition-all mt-2 disabled:opacity-60"
-                style={{ background: loading ? 'rgba(230,126,34,0.5)' : 'linear-gradient(135deg, #e67e22, #d35400)', boxShadow: loading ? 'none' : '0 4px 20px rgba(230,126,34,0.3)' }}>
-                {loading ? <><Loader2 className="h-4 w-4 animate-spin" />Signing in...</> : <>Sign In <ArrowRight className="h-4 w-4" /></>}
+                style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', background: loading ? 'rgba(230,126,34,0.5)' : 'linear-gradient(135deg, #e67e22, #d35400)', border: 'none', borderRadius: '12px', padding: '14px', color: 'white', fontWeight: 700, fontSize: '15px', cursor: loading ? 'not-allowed' : 'pointer', boxShadow: loading ? 'none' : '0 4px 20px rgba(230,126,34,0.4)' }}>
+                {loading ? <><Loader2 style={{ width: '16px', height: '16px', animation: 'spin 1s linear infinite' }} />Signing in...</> : <>Sign In <ArrowRight style={{ width: '16px', height: '16px' }} /></>}
               </button>
             </form>
 
-            <div className="mt-6 pt-5" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-              <p className="text-xs text-gray-600 text-center mb-3">Quick access — click to fill credentials</p>
-              <div className="grid grid-cols-2 gap-2">
-                {[MOCK_ADMIN, MOCK_STAFF].map(u => (
+            {/* Quick access */}
+            <div style={{ marginTop: '28px', paddingTop: '20px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+              <p style={{ color: '#4b5563', fontSize: '12px', textAlign: 'center', marginBottom: '12px' }}>Quick access — click to fill</p>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                {CREDENTIALS.map(u => (
                   <button key={u.role} type="button"
                     onClick={() => { setEmail(u.email); setPassword(u.password); }}
-                    className="rounded-xl px-3 py-2.5 text-left transition-all"
-                    style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
-                    onMouseEnter={e => (e.currentTarget.style.background = 'rgba(230,126,34,0.1)')}
-                    onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.04)')}>
-                    <p className="text-xs font-semibold text-white capitalize">{u.role}</p>
-                    <p className="text-xs text-gray-500 truncate mt-0.5">{u.email}</p>
+                    style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', padding: '10px 12px', textAlign: 'left', cursor: 'pointer' }}>
+                    <p style={{ color: 'white', fontSize: '12px', fontWeight: 600, margin: 0, textTransform: 'capitalize' }}>{u.role}</p>
+                    <p style={{ color: '#6b7280', fontSize: '11px', margin: '2px 0 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{u.email}</p>
                   </button>
                 ))}
               </div>
             </div>
           </div>
 
+          {/* Bottom bar */}
           <div style={{ height: '4px', background: 'linear-gradient(to right, #1a5c3a, #e67e22, #1a5c3a)' }} />
         </div>
 
-        <p className="text-center text-xs text-gray-700 mt-6">
-          &copy; {new Date().getFullYear()} Moventra Safaris &amp; Logistics Ltd &mdash; Confidential Admin Access
+        <p style={{ textAlign: 'center', color: '#374151', fontSize: '12px', marginTop: '20px' }}>
+          &copy; {new Date().getFullYear()} Moventra Safaris &amp; Logistics Ltd
         </p>
       </div>
-    </div>
-  )
-}
 
-export default function LoginPage() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center" style={{ background: '#030a15' }}>
-        <Loader2 className="h-8 w-8 animate-spin text-orange-400" />
-      </div>
-    }>
-      <LoginForm />
-    </Suspense>
+      <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
+    </div>
   )
 }
