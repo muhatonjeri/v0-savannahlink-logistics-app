@@ -967,3 +967,11 @@ table thead th,
   text-transform: uppercase !important;
   border-bottom: 1px solid rgba(245, 158, 11, 0.25) !important;
 }
+
+/* Sidebar icon colors — ensure each shows its unique color */
+[data-slot="sidebar-menu-button"] .text-lime-500    { color: rgb(132 204 22)   !important; }
+[data-slot="sidebar-menu-button"] .text-amber-400   { color: rgb(251 191 36)   !important; }
+[data-slot="sidebar-menu-button"] .text-purple-400  { color: rgb(192 132 252)  !important; }
+[data-slot="sidebar-menu-button"] .text-indigo-400  { color: rgb(129 140 248)  !important; }
+[data-slot="sidebar-menu-button"] .text-emerald-400 { color: rgb(52 211 153)   !important; }
+[data-slot="sidebar-menu-button"] .text-rose-400    { color: rgb(251 113 133)  !important; }

@@ -10,6 +10,8 @@ import {
   Car,
   Building2,
   ArrowUpRight,
+  Building2,
+  ArrowUpRight,
   Compass,
   Plane,
   Truck,
@@ -147,15 +149,15 @@ const navItems = [
 ];
 
 const serviceItems = [
-  { title: "Car Rental", href: "/admin/client-lookup?service=car-rental", icon: Car, color: "text-emerald-500" },
-  { title: "Safari Tours", href: "/admin/client-lookup?service=safari-tours", icon: Compass, color: "text-amber-500" },
-  { title: "Transfers", href: "/admin/client-lookup?service=transfers", icon: Plane, color: "text-sky-500" },
-  { title: "Movers", href: "/admin/client-lookup?service=movers", icon: Package, color: "text-violet-500" },
-  { title: "Corporate Rental", href: "/admin/client-lookup?service=corporate-rental", icon: Bus, color: "text-indigo-500" },
-  { title: "Road Recovery", href: "/admin/client-lookup?service=road-recovery", icon: Wrench, color: "text-rose-500" },
-  { title: "Cargo Handling", href: "/admin/client-lookup?service=cargo-handling", icon: Anchor, color: "text-orange-500" },
-  { title: "Shipment Imports", href: "/admin/client-lookup?service=shipment-imports", icon: Ship, color: "text-cyan-500" },
-  { title: "Construction Equipment", href: "/admin/client-lookup?service=construction-equipment", icon: HardHat, color: "text-yellow-500" },
+  { title: "Car Rental",             href: "/admin/client-lookup?service=car-rental",             icon: Car,     color: "text-emerald-400"  },
+  { title: "Safari Tours",           href: "/admin/client-lookup?service=safari-tours",           icon: Compass, color: "text-amber-400"    },
+  { title: "Transfers",              href: "/admin/client-lookup?service=transfers",              icon: Plane,   color: "text-sky-400"      },
+  { title: "Movers",                 href: "/admin/client-lookup?service=movers",                 icon: Package, color: "text-violet-500"   },
+  { title: "Corporate Rental",       href: "/admin/client-lookup?service=corporate-rental",       icon: Bus,     color: "text-indigo-400"   },
+  { title: "Road Recovery",          href: "/admin/client-lookup?service=road-recovery",          icon: Wrench,  color: "text-rose-400"     },
+  { title: "Cargo Handling",         href: "/admin/client-lookup?service=cargo-handling",         icon: Anchor,  color: "text-orange-500"   },
+  { title: "Shipment Imports",       href: "/admin/client-lookup?service=shipment-imports",       icon: Ship,    color: "text-cyan-500"     },
+  { title: "Construction Equipment", href: "/admin/client-lookup?service=construction-equipment", icon: HardHat, color: "text-yellow-500"   },
 ];
 
 function getBreadcrumbTitle(pathname: string): string {
