@@ -9,6 +9,7 @@ import { usePathname } from "next/navigation";
 import {
   Car,
   Building2,
+  ArrowUpRight,
   Compass,
   Plane,
   Truck,
@@ -126,6 +127,18 @@ const navItems = [
     color: "text-orange-400",
   },
   {
+    title: "Sublet Assets",
+    href: "/admin/sublets",
+    icon: Building2,
+    color: "text-cyan-400",
+  },
+  {
+    title: "Fleet Out",
+    href: "/admin/car-rental/fleet-out",
+    icon: ArrowUpRight,
+    color: "text-violet-400",
+  },
+  {
     title: "Services Config",
     href: "/admin/services",
     icon: Sliders,
@@ -143,7 +156,6 @@ const serviceItems = [
   { title: "Cargo Handling", href: "/admin/client-lookup?service=cargo-handling", icon: Anchor, color: "text-orange-500" },
   { title: "Shipment Imports", href: "/admin/client-lookup?service=shipment-imports", icon: Ship, color: "text-cyan-500" },
   { title: "Construction Equipment", href: "/admin/client-lookup?service=construction-equipment", icon: HardHat, color: "text-yellow-500" },
-  { title: "Sublet Assets", href: "/admin/sublets", icon: Building2, color: "text-cyan-400" },
 ];
 
 function getBreadcrumbTitle(pathname: string): string {
