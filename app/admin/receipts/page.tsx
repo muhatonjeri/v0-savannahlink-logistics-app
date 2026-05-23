@@ -1208,209 +1208,167 @@ export default function ReceiptsPage() {
                 </DialogTitle>
               </DialogHeader>
 
-              {/* Professional Print Template - Savanna Brand Colors */}
-              <div style={{backgroundColor:"white",color:"#111827"}} className="p-6 rounded-lg border border-gray-600">
-                {/* Company Header */}
-                <div className="print-header border-b-4 border-[#0a1628] pb-5 mb-5">
-                  <div className="flex items-start justify-between gap-6">
-                    {/* Logo & Company Info */}
+              {/* Polished Receipt Template */}
+              <div style={{backgroundColor:"#ffffff",color:"#1a1a2e"}} className="rounded-xl shadow-sm overflow-hidden border border-gray-200">
+
+                {/* Top accent bar */}
+                <div style={{background:"linear-gradient(135deg,#0a1628 0%,#1a3a5c 50%,#0a1628 100%)",padding:"3px"}} />
+
+                <div className="p-7">
+                  {/* ── HEADER ── */}
+                  <div className="flex items-start justify-between mb-6">
+                    {/* Logo + Company */}
                     <div className="flex items-start gap-4">
-                      <Image
-                        src="/images/logo.png"
-                        alt={companyDetails.name}
-                        width={100}
-                        height={50}
-                        className="h-auto w-[80px] object-contain"
-                        unoptimized
-                      />
+                      <Image src="/images/logo.png" alt={companyDetails.name} width={90} height={90}
+                        className="h-[80px] w-[80px] object-contain rounded-lg" unoptimized />
                       <div>
-                        <h1 className="text-2xl font-bold text-[#0a1628]">{companyDetails.name}</h1>
-                        <div className="mt-2 text-sm text-gray-600 space-y-0.5">
-                          <p className="flex items-center gap-2">
-                            <MapPin className="h-3.5 w-3.5 text-[#e67e22]" />
-                            {companyDetails.address}
-                          </p>
-                          <p className="flex items-center gap-2">
-                            <Phone className="h-3.5 w-3.5 text-[#e67e22]" />
-                            {companyDetails.phone}
-                          </p>
-                          <p className="flex items-center gap-2">
-                            <Mail className="h-3.5 w-3.5 text-[#e67e22]" />
-                            {companyDetails.email}
-                          </p>
+                        <h1 style={{color:"#0a1628"}} className="text-xl font-extrabold leading-tight">{companyDetails.name}</h1>
+                        <p style={{color:"#e67e22"}} className="text-xs font-semibold mt-0.5 tracking-wide">Experience. Move. Deliver. Beyond Borders.</p>
+                        <div className="mt-2 space-y-1 text-xs" style={{color:"#555"}}>
+                          <p>{companyDetails.address}</p>
+                          <p>{companyDetails.phone} &nbsp;|&nbsp; {companyDetails.email}</p>
+                          <p className="font-semibold" style={{color:"#0a1628"}}>KRA PIN: {companyDetails.kraPin}</p>
                         </div>
-                        <p className="mt-2 text-sm font-bold text-gray-800">KRA PIN: {companyDetails.kraPin}</p>
                       </div>
                     </div>
-                    {/* Receipt Number Box */}
+                    {/* Receipt badge */}
                     <div className="text-right">
-                      <div className="inline-block bg-[#0a1628] text-white px-5 py-2 rounded-lg">
-                        <p className="text-xs uppercase tracking-wider opacity-90">Receipt No.</p>
-                        <p className="text-xl font-bold font-mono">{selectedReceipt.receiptNumber}</p>
+                      <div style={{backgroundColor:"#0a1628",color:"white",borderRadius:"10px",padding:"12px 20px",minWidth:"160px"}}>
+                        <p style={{fontSize:"10px",letterSpacing:"0.1em",opacity:0.8,textTransform:"uppercase"}}>Official Receipt</p>
+                        <p style={{fontSize:"20px",fontWeight:800,fontFamily:"monospace",marginTop:"2px"}}>{selectedReceipt.receiptNumber}</p>
+                        <div style={{height:"1px",backgroundColor:"rgba(230,126,34,0.5)",margin:"8px 0"}} />
+                        <p style={{fontSize:"11px",opacity:0.85}}>{formatDate(selectedReceipt.issuedAt)}</p>
                       </div>
-                      <div className="mt-3 text-sm text-gray-600">
-                        <p><span className="font-medium">Date:</span> {formatDate(selectedReceipt.issuedAt)}</p>
-                        <p><span className="font-medium">eTIMS:</span> <span className="text-[#e67e22] font-mono">{selectedReceipt.etimsReceiptNumber}</span></p>
+                      <div className="mt-2 text-xs text-right" style={{color:"#666"}}>
+                        <span style={{color:"#e67e22",fontWeight:600}}>eTIMS: </span>
+                        <span style={{fontFamily:"monospace"}}>{selectedReceipt.etimsReceiptNumber}</span>
                       </div>
                     </div>
                   </div>
-                  
-                  {/* Receipt Title Banner */}
-                  <div className="mt-5 bg-gradient-to-r from-orange-50 to-amber-50 border-2 border-[#e67e22] py-3 rounded-lg text-center">
-                    <h2 className="text-xl font-bold uppercase tracking-[0.2em] text-[#0a1628]">
-                      Official Receipt
-                    </h2>
-                  </div>
-                </div>
 
-                {/* Two Column Layout - Customer & Payment Info */}
-                <div className="grid grid-cols-2 gap-6 mb-5">
-                  {/* Customer Details */}
-                  <div className="bg-gray-50 rounded-lg p-4 border border-gray-600">
-                    <h3 className="font-bold text-[#0a1628] mb-3 pb-2 border-b border-gray-300 flex items-center gap-2 uppercase text-sm tracking-wide">
-                      <User className="h-4 w-4 text-[#e67e22]" />
-                      Received From
-                    </h3>
-                    <div className="space-y-2 text-sm">
-                      <p className="font-semibold text-lg text-[#0a1628]">{selectedReceipt.customerName}</p>
-                      <p className="text-gray-600">{selectedReceipt.customerPhone}</p>
-                      {selectedReceipt.customerEmail && (
-                        <p className="text-gray-600 break-all">{selectedReceipt.customerEmail}</p>
-                      )}
-                      {selectedReceipt.customerKraPin && (
-                        <p className="text-[#0a1628] font-medium">KRA PIN: {selectedReceipt.customerKraPin}</p>
-                      )}
-                    </div>
-                  </div>
+                  {/* ── DIVIDER ── */}
+                  <div style={{height:"2px",background:"linear-gradient(to right,#e67e22,#0a1628,#e67e22)",borderRadius:"2px",marginBottom:"20px"}} />
 
-                  {/* Payment Details */}
-                  <div className="bg-gray-50 rounded-lg p-4 border border-gray-600">
-                    <h3 className="font-bold text-[#0a1628] mb-3 pb-2 border-b border-gray-300 flex items-center gap-2 uppercase text-sm tracking-wide">
-                      <CreditCard className="h-4 w-4 text-[#e67e22]" />
-                      Payment Information
-                    </h3>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex items-center gap-2">
-                        {(() => {
-                          const config = paymentMethodConfig[selectedReceipt.paymentMethod];
-                          const Icon = config.icon;
-                          return (
-                            <>
-                              <Icon className="h-5 w-5 text-[#e67e22]" />
-                              <span className="font-semibold text-[#0a1628]">{config.label}</span>
-                            </>
-                          );
-                        })()}
+                  {/* ── CUSTOMER + PAYMENT ── */}
+                  <div className="grid grid-cols-2 gap-4 mb-6">
+                    <div style={{backgroundColor:"#f8f9ff",border:"1px solid #e8eaf0",borderRadius:"10px",padding:"14px"}}>
+                      <div className="flex items-center gap-2 mb-3">
+                        <User style={{color:"#e67e22",width:14,height:14}} />
+                        <span style={{color:"#0a1628",fontWeight:700,fontSize:"11px",letterSpacing:"0.05em",textTransform:"uppercase"}}>Received From</span>
                       </div>
-                      <p className="text-gray-700">
-                        <span className="text-gray-500">Transaction:</span>{" "}
-                        <code className="bg-orange-100 text-[#0a1628] px-2 py-0.5 rounded font-mono text-xs">
-                          {selectedReceipt.transactionCode}
-                        </code>
-                      </p>
-                      {selectedReceipt.bankName && (
-                        <p className="text-gray-600">Bank: {selectedReceipt.bankName}</p>
-                      )}
-                      <p className="text-gray-600">Service: {selectedReceipt.serviceType}</p>
+                      <p style={{color:"#0a1628",fontWeight:700,fontSize:"16px"}}>{selectedReceipt.customerName}</p>
+                      {selectedReceipt.customerPhone && <p style={{color:"#555",fontSize:"13px",marginTop:"4px"}}>{selectedReceipt.customerPhone}</p>}
+                      {selectedReceipt.customerEmail && <p style={{color:"#555",fontSize:"12px",wordBreak:"break-all"}}>{selectedReceipt.customerEmail}</p>}
+                      {selectedReceipt.customerKraPin && <p style={{color:"#0a1628",fontSize:"12px",fontWeight:600,marginTop:"4px"}}>KRA PIN: {selectedReceipt.customerKraPin}</p>}
+                    </div>
+                    <div style={{backgroundColor:"#f8f9ff",border:"1px solid #e8eaf0",borderRadius:"10px",padding:"14px"}}>
+                      <div className="flex items-center gap-2 mb-3">
+                        <CreditCard style={{color:"#e67e22",width:14,height:14}} />
+                        <span style={{color:"#0a1628",fontWeight:700,fontSize:"11px",letterSpacing:"0.05em",textTransform:"uppercase"}}>Payment Info</span>
+                      </div>
+                      {(() => {
+                        const cfg = paymentMethodConfig[selectedReceipt.paymentMethod];
+                        const Ic = cfg.icon;
+                        return (
+                          <div className="flex items-center gap-2 mb-2">
+                            <Ic style={{color:"#e67e22",width:18,height:18}} />
+                            <span style={{color:"#0a1628",fontWeight:700,fontSize:"14px"}}>{cfg.label}</span>
+                          </div>
+                        );
+                      })()}
+                      <p style={{fontSize:"12px",color:"#555"}}>Ref: <span style={{fontFamily:"monospace",backgroundColor:"#fff3e0",color:"#0a1628",padding:"1px 6px",borderRadius:"4px",fontWeight:600}}>{selectedReceipt.transactionCode}</span></p>
+                      {selectedReceipt.bankName && <p style={{fontSize:"12px",color:"#555",marginTop:"4px"}}>Bank: {selectedReceipt.bankName}</p>}
+                      <p style={{fontSize:"12px",color:"#555",marginTop:"4px"}}>Service: {selectedReceipt.serviceType}</p>
                     </div>
                   </div>
-                </div>
 
-                {/* Items Table */}
-                <div className="mb-5">
-                  <h3 className="font-bold text-[#0a1628] mb-3 uppercase text-sm tracking-wide">Description of Services/Items</h3>
-                  <div className="border-2 border-gray-600 rounded-lg overflow-hidden">
-                    <table className="w-full">
-                      <thead>
-                        <tr className="bg-[#0a1628] text-white">
-                          <th className="text-left py-3 px-4 font-semibold">Description</th>
-                          <th className="text-center py-3 px-4 font-semibold w-20">Qty</th>
-                          <th className="text-right py-3 px-4 font-semibold w-32">Unit Price</th>
-                          <th className="text-right py-3 px-4 font-semibold w-32">Amount (KES)</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {selectedReceipt.items.map((item, index) => (
-                          <tr key={index} style={{backgroundColor: index % 2 === 0 ? "white" : "#f9fafb", color: "#0a1628"}}>
-                            <td className="py-3 px-4">{item.description}</td>
-                            <td className="py-3 px-4 text-center">{item.quantity}</td>
-                            <td className="py-3 px-4 text-right">{formatCurrency(item.unitPrice)}</td>
-                            <td className="py-3 px-4 text-right font-semibold">{formatCurrency(item.amount)}</td>
+                  {/* ── ITEMS TABLE ── */}
+                  <div className="mb-6">
+                    <p style={{color:"#0a1628",fontWeight:700,fontSize:"11px",letterSpacing:"0.08em",textTransform:"uppercase",marginBottom:"8px"}}>Description of Services / Items</p>
+                    <div style={{border:"1px solid #dde0e8",borderRadius:"10px",overflow:"hidden"}}>
+                      <table style={{width:"100%",borderCollapse:"collapse"}}>
+                        <thead>
+                          <tr style={{backgroundColor:"#0a1628",color:"white"}}>
+                            <th style={{textAlign:"left",padding:"10px 14px",fontSize:"11px",fontWeight:700,letterSpacing:"0.05em",textTransform:"uppercase"}}>Description</th>
+                            <th style={{textAlign:"center",padding:"10px 14px",fontSize:"11px",fontWeight:700,width:"60px",letterSpacing:"0.05em",textTransform:"uppercase"}}>Qty</th>
+                            <th style={{textAlign:"right",padding:"10px 14px",fontSize:"11px",fontWeight:700,width:"120px",letterSpacing:"0.05em",textTransform:"uppercase"}}>Unit Price</th>
+                            <th style={{textAlign:"right",padding:"10px 14px",fontSize:"11px",fontWeight:700,width:"130px",letterSpacing:"0.05em",textTransform:"uppercase",color:"#e67e22"}}>Amount (KES)</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                        </thead>
+                        <tbody>
+                          {selectedReceipt.items.map((item, i) => (
+                            <tr key={i} style={{backgroundColor: i % 2 === 0 ? "#ffffff" : "#f8f9ff",color:"#1a1a2e",borderBottom:"1px solid #eee"}}>
+                              <td style={{padding:"10px 14px",fontSize:"13px"}}>{item.description}</td>
+                              <td style={{padding:"10px 14px",textAlign:"center",fontSize:"13px"}}>{item.quantity}</td>
+                              <td style={{padding:"10px 14px",textAlign:"right",fontSize:"13px"}}>{formatCurrency(item.unitPrice)}</td>
+                              <td style={{padding:"10px 14px",textAlign:"right",fontWeight:700,fontSize:"13px"}}>{formatCurrency(item.amount)}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
-                </div>
 
-                {/* Totals Section */}
-                <div className="flex justify-end mb-5">
-                  <div className="w-80 bg-[#0a1628] rounded-lg border-2 border-[#e67e22] p-4">
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm text-[#0a1628]">
-                        <span>Subtotal:</span>
-                        <span className="font-medium">{formatCurrency(selectedReceipt.subtotal)}</span>
+                  {/* ── TOTALS ── */}
+                  <div className="flex justify-end mb-6">
+                    <div style={{width:"280px",backgroundColor:"#0a1628",borderRadius:"12px",padding:"16px",border:"2px solid #e67e22"}}>
+                      <div style={{display:"flex",justifyContent:"space-between",fontSize:"13px",color:"rgba(255,255,255,0.7)",marginBottom:"8px"}}>
+                        <span>Subtotal:</span><span>{formatCurrency(selectedReceipt.subtotal)}</span>
                       </div>
-                      <div className="flex justify-between text-sm text-[#0a1628]">
-                        <span>VAT (16%):</span>
-                        <span className="font-medium">{formatCurrency(selectedReceipt.taxAmount)}</span>
+                      <div style={{display:"flex",justifyContent:"space-between",fontSize:"13px",color:"rgba(255,255,255,0.7)",marginBottom:"10px"}}>
+                        <span>VAT (16%):</span><span>{formatCurrency(selectedReceipt.taxAmount)}</span>
                       </div>
-                      <div className="border-t-2 border-[#0a1628] pt-3 mt-3">
-                        <div className="flex justify-between text-xl font-bold">
-                          <span className="text-[#0a1628]">TOTAL:</span>
-                          <span className="text-[#e67e22]">{formatCurrency(selectedReceipt.totalAmount)}</span>
-                        </div>
+                      <div style={{borderTop:"1px solid rgba(230,126,34,0.5)",paddingTop:"10px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                        <span style={{color:"white",fontWeight:700,fontSize:"15px"}}>TOTAL DUE:</span>
+                        <span style={{color:"#e67e22",fontWeight:800,fontSize:"22px"}}>{formatCurrency(selectedReceipt.totalAmount)}</span>
                       </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Amount in Words */}
-                <div className="bg-orange-900/30 border border-[#e67e22] rounded-lg p-3 mb-5">
-                  <p className="text-sm text-[#0a1628]">
-                    <span className="font-semibold text-[#e67e22]">Amount in Words:</span>{" "}
-                    <span className="italic">Kenya Shillings {numberToWords(selectedReceipt.totalAmount)} Only</span>
-                  </p>
-                </div>
+                  {/* ── AMOUNT IN WORDS ── */}
+                  <div style={{backgroundColor:"#fff8ee",border:"1px solid #e67e22",borderRadius:"8px",padding:"10px 14px",marginBottom:"16px"}}>
+                    <p style={{fontSize:"12px",color:"#0a1628"}}>
+                      <span style={{fontWeight:700,color:"#e67e22"}}>Amount in Words: </span>
+                      <span style={{fontStyle:"italic"}}>Kenya Shillings {numberToWords(selectedReceipt.totalAmount)} Only</span>
+                    </p>
+                  </div>
 
-                {/* eTIMS Verification */}
-                <div className="bg-gradient-to-r from-orange-50 to-amber-50 border-2 border-[#e67e22] rounded-lg p-4 text-center mb-5">
-                  <div className="flex items-center justify-center gap-3 mb-2">
-                    <div className="bg-white p-2 rounded-lg border border-[#e67e22]">
-                      <QrCode className="h-8 w-8 text-[#e67e22]" />
+                  {/* ── eTIMS ── */}
+                  <div style={{border:"2px solid #e67e22",borderRadius:"10px",padding:"14px",display:"flex",alignItems:"center",gap:"16px",marginBottom:"20px",backgroundColor:"#fffaf5"}}>
+                    <div style={{backgroundColor:"white",border:"1px solid #e67e22",borderRadius:"8px",padding:"8px",flexShrink:0}}>
+                      <QrCode style={{width:36,height:36,color:"#e67e22"}} />
                     </div>
-                    <div className="text-left">
-                      <p className="font-bold text-[#0a1628] text-lg">eTIMS Verified Receipt</p>
-                      <p className="text-xs text-[#e67e22]">Device: {selectedReceipt.etimsDeviceNumber}</p>
+                    <div style={{flex:1}}>
+                      <p style={{color:"#0a1628",fontWeight:700,fontSize:"14px"}}>eTIMS Verified Receipt</p>
+                      <p style={{color:"#888",fontSize:"11px",marginTop:"2px"}}>Device: {selectedReceipt.etimsDeviceNumber}</p>
+                      <p style={{fontSize:"11px",marginTop:"4px",color:"#555"}}>
+                        Verify at: <span style={{color:"#e67e22",textDecoration:"underline"}}>{selectedReceipt.etimsVerificationUrl}</span>
+                      </p>
                     </div>
                   </div>
-                  <p className="text-xs text-[#0a1628] font-medium">
-                    Verify at: <span className="underline text-[#e67e22]">{selectedReceipt.etimsVerificationUrl}</span>
-                  </p>
+
+                  {/* ── SIGNATURES ── */}
+                  <div className="grid grid-cols-2 gap-8" style={{marginTop:"24px",paddingTop:"16px",borderTop:"1px solid #dde0e8"}}>
+                    <div style={{textAlign:"center"}}>
+                      <div style={{height:"56px",borderBottom:"1px solid #0a1628",marginBottom:"8px"}} />
+                      <p style={{fontSize:"12px",color:"#0a1628",fontWeight:600}}>Received By (Signature)</p>
+                    </div>
+                    <div style={{textAlign:"center"}}>
+                      <div style={{height:"56px",borderBottom:"1px solid #0a1628",marginBottom:"8px"}} />
+                      <p style={{fontSize:"12px",color:"#0a1628",fontWeight:600}}>Issued By: {selectedReceipt.issuedBy}</p>
+                    </div>
+                  </div>
+
+                  {/* ── FOOTER ── */}
+                  <div style={{textAlign:"center",marginTop:"20px",paddingTop:"14px",borderTop:"2px solid #e67e22"}}>
+                    <p style={{color:"#e67e22",fontWeight:700,fontSize:"14px"}}>Thank You For Your Business!</p>
+                    <p style={{color:"#666",fontSize:"11px",marginTop:"4px"}}>This is an official receipt. Please retain for your records.</p>
+                    <p style={{color:"#999",fontSize:"10px",marginTop:"4px"}}>{companyDetails.website} &nbsp;|&nbsp; {companyDetails.email}</p>
+                  </div>
                 </div>
 
-                {/* Signature Section */}
-                <div className="grid grid-cols-2 gap-8 mt-8 pt-4 border-t border-gray-300">
-                  <div className="text-center">
-                    <div className="h-16 border-b border-[#0a1628] mb-2"></div>
-                    <p className="text-sm text-[#0a1628] font-medium">Received By (Signature)</p>
-                  </div>
-                  <div className="text-center">
-                    <div className="h-16 border-b border-[#0a1628] mb-2"></div>
-                    <p className="text-sm text-[#0a1628] font-medium">Issued By: {selectedReceipt.issuedBy}</p>
-                  </div>
-                </div>
-
-                {/* Footer */}
-                <div className="print-footer text-center mt-6 pt-4 border-t-2 border-[#0a1628]">
-                  <p className="text-sm font-semibold text-[#e67e22]">Thank You For Your Business!</p>
-                  <p className="text-xs text-[#0a1628] mt-1">
-                    This is an official receipt. Please retain for your records.
-                  </p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    {companyDetails.website} | {companyDetails.email}
-                  </p>
-                </div>
+                {/* Bottom accent bar */}
+                <div style={{background:"linear-gradient(135deg,#e67e22,#0a1628,#e67e22)",padding:"3px"}} />
               </div>
 
               {/* Send Options - Screen Only */}
