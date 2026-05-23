@@ -77,7 +77,11 @@ const colorMap: Record<string, string> = {
 };
 
 export default function AdminDashboard() {
-  const [stats, setStats] = useState<ReturnType<typeof getBookingStats> | null>(null);
+  const [stats, setStats] = useState({
+    total: 0, pending: 0, confirmed: 0, inProgress: 0,
+    completed: 0, cancelled: 0, totalRevenue: 0, pendingPayments: 0,
+    byService: {} as Record<string, number>,
+  });
   const [recentBookings, setRecentBookings] = useState<Booking[]>([]);
   const [userCount, setUserCount] = useState(0);
 
@@ -125,19 +129,7 @@ export default function AdminDashboard() {
       .catch(() => {});
   }, []);
 
-  if (!stats) {
-    // Show skeleton/default stats while loading
-    const emptyStats = { total: 0, pending: 0, confirmed: 0, inProgress: 0, completed: 0, cancelled: 0, totalRevenue: 0, pendingPayments: 0, byService: {} };
-    return (
-      <div className="space-y-6 animate-pulse">
-        <div className="h-10 w-48 rounded-lg bg-white/5" />
-        <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
-          {[1,2,3,4].map(i => <div key={i} className="h-24 rounded-xl bg-white/5" />)}
-        </div>
-        <div className="h-64 rounded-xl bg-white/5" />
-      </div>
-    );
-  }
+
 
   return (
     <div className="space-y-6">
