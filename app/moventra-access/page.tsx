@@ -4,7 +4,6 @@ import { useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import { Eye, EyeOff, Lock, Mail, Shield, ArrowRight, Loader2 } from 'lucide-react'
-import { createClient } from '@/lib/supabase/client'
 
 const MOCK_ADMIN = { email: 'admin@moventrasafarislogisticsltd.com', password: 'admin123', role: 'admin', name: 'System Administrator' }
 const MOCK_STAFF = { email: 'staff@moventrasafarislogisticsltd.com', password: 'staff123', role: 'staff', name: 'Staff User' }
@@ -24,16 +23,10 @@ function LoginForm() {
   const searchParams = useSearchParams()
   const redirectTo   = searchParams.get('redirect') || '/admin'
 
-  const doLogin = async (e: React.FormEvent) => {
+  const doLogin = (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError(null)
-
-    try {
-      const supabase = createClient()
-      const { error: sbError } = await supabase.auth.signInWithPassword({ email, password })
-      if (!sbError) { router.push(redirectTo); router.refresh(); return }
-    } catch {}
 
     const match = [MOCK_ADMIN, MOCK_STAFF].find(u => u.email === email && u.password === password)
     if (match) {
