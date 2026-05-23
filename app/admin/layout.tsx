@@ -8,6 +8,7 @@ import { usePathname } from "next/navigation";
 
 import {
   Car,
+  Building2,
   Compass,
   Plane,
   Truck,
@@ -142,6 +143,7 @@ const serviceItems = [
   { title: "Cargo Handling", href: "/admin/client-lookup?service=cargo-handling", icon: Anchor, color: "text-orange-500" },
   { title: "Shipment Imports", href: "/admin/client-lookup?service=shipment-imports", icon: Ship, color: "text-cyan-500" },
   { title: "Construction Equipment", href: "/admin/client-lookup?service=construction-equipment", icon: HardHat, color: "text-yellow-500" },
+  { title: "Sublet Assets", href: "/admin/sublets", icon: Building2, color: "text-cyan-400" },
 ];
 
 function getBreadcrumbTitle(pathname: string): string {
