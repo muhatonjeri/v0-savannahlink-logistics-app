@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { getClients, getBookings } from "@/lib/store";
 import { Plus, Car, Building2, TrendingUp, DollarSign, ArrowRight, Eye, Trash2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -286,6 +287,55 @@ export default function SubletsPage() {
   const [expenseType, setExpenseType] = useState("Fuel");
   const [expenseAmount, setExpenseAmount] = useState("");
   const [expenseNote, setExpenseNote] = useState("");
+
+  // Existing data for lookup
+  const [clientSearch, setClientSearch] = useState("");
+  const [clientResults, setClientResults] = useState<{id: string; fullName: string; phone: string; idNumber: string}[]>([]);
+  const [showClientResults, setShowClientResults] = useState(false);
+  const [regSearch, setRegSearch] = useState("");
+  const [regResults, setRegResults] = useState<SubletVehicle[]>([]);
+  const [showRegResults, setShowRegResults] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
+
+  // Search existing clients
+  const searchClients = (q: string) => {
+    setClientSearch(q);
+    if (q.length < 2) { setClientResults([]); setShowClientResults(false); return; }
+    try {
+      const all = getClients();
+      const matches = all.filter(c =>
+        c.fullName.toLowerCase().includes(q.toLowerCase()) ||
+        c.phone.includes(q) ||
+        (c.idNumber && c.idNumber.includes(q))
+      ).slice(0, 6);
+      setClientResults(matches.map(c => ({ id: c.id, fullName: c.fullName, phone: c.phone, idNumber: c.idNumber || "" })));
+      setShowClientResults(matches.length > 0);
+    } catch { setClientResults([]); }
+  };
+
+  // Search vehicles by registration
+  const searchByReg = (q: string) => {
+    setRegSearch(q);
+    if (q.length < 2) { setRegResults([]); setShowRegResults(false); return; }
+    const matches = vehicles.filter(v =>
+      v.registration.toLowerCase().includes(q.toLowerCase()) ||
+      (v.make + " " + v.model).toLowerCase().includes(q.toLowerCase())
+    ).slice(0, 6);
+    setRegResults(matches);
+    setShowRegResults(matches.length > 0);
+  };
+
+  const selectClient = (c: {id: string; fullName: string; phone: string; idNumber: string}) => {
+    setBForm(prev => ({ ...prev, clientName: c.fullName, clientPhone: c.phone }));
+    setClientSearch(c.fullName);
+    setShowClientResults(false);
+  };
+
+  const selectVehicleByReg = (v: SubletVehicle) => {
+    setBForm(prev => ({ ...prev, vehicleId: v.id }));
+    setRegSearch(v.registration + " - " + v.make + " " + v.model);
+    setShowRegResults(false);
+  };
 
   const profitDay = (v: SubletVehicle) => v.ourDailyRate - v.supplierDailyRate;
   const marginPct = (v: SubletVehicle) => v.supplierDailyRate > 0 ? Math.round((profitDay(v) / v.supplierDailyRate) * 100) : 0;
@@ -655,15 +705,43 @@ export default function SubletsPage() {
                     {AREAS.map(a => <option key={a} value={a}>{a}</option>)}
                   </select>
                 </div>
-                <div className="col-span-2">
-                  <Label className="text-gray-200">Select Asset *</Label>
-                  <select className="w-full mt-1 rounded-lg bg-[#0a1628] border border-white/20 text-white p-2 text-sm"
-                    value={bForm.vehicleId} onChange={e => setBForm({ ...bForm, vehicleId: e.target.value })}>
-                    <option value="">Choose available asset...</option>
-                    {vehicles.filter(v => v.status === "available").map(v => (
-                      <option key={v.id} value={v.id}>{v.make} {v.model} - {v.registration} ({v.color}) - KES {v.ourDailyRate.toLocaleString()}/day</option>
-                    ))}
-                  </select>
+                <div className="col-span-2 relative">
+                  <Label className="text-gray-200">Search Vehicle by Registration or Make/Model *</Label>
+                  <Input
+                    className="mt-1 bg-[#0a1628] border-cyan-500/30 text-white font-mono"
+                    placeholder="e.g. KDD 123A or Toyota Prado..."
+                    value={regSearch}
+                    onChange={e => searchByReg(e.target.value)}
+                    onFocus={() => regSearch.length >= 2 && setShowRegResults(true)}
+                  />
+                  {showRegResults && regResults.length > 0 && (
+                    <div className="absolute z-50 w-full mt-1 rounded-lg border border-cyan-500/30 bg-[#0a1628] shadow-xl overflow-hidden">
+                      {regResults.map(v => (
+                        <button key={v.id} type="button"
+                          className="w-full text-left px-3 py-2.5 hover:bg-cyan-500/10 border-b border-white/5 last:border-0"
+                          onClick={() => selectVehicleByReg(v)}>
+                          <p className="text-white text-sm font-medium">{v.make} {v.model} <span className="font-mono text-cyan-400">{v.registration}</span> <span className="text-gray-400">({v.color})</span></p>
+                          <p className="text-xs"><span className="text-red-400">Pay: KES {v.supplierDailyRate.toLocaleString()}/day</span> <span className="mx-1 text-gray-500">|</span> <span className="text-emerald-400">Charge: KES {v.ourDailyRate.toLocaleString()}/day</span> <span className="mx-1 text-gray-500">|</span> <Badge className={"text-xs px-1 " + (v.status === "available" ? "bg-green-600 text-white" : "bg-blue-600 text-white")}>{v.status}</Badge></p>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  {!regSearch && (
+                    <div className="mt-2">
+                      <Label className="text-gray-400 text-xs">Or pick from available list:</Label>
+                      <select className="w-full mt-1 rounded-lg bg-[#0a1628] border border-white/20 text-white p-2 text-sm"
+                        value={bForm.vehicleId} onChange={e => {
+                          setBForm({ ...bForm, vehicleId: e.target.value });
+                          const v = vehicles.find(x => x.id === e.target.value);
+                          if (v) setRegSearch(v.registration + " - " + v.make + " " + v.model);
+                        }}>
+                        <option value="">Choose available asset...</option>
+                        {vehicles.filter(v => v.status === "available").map(v => (
+                          <option key={v.id} value={v.id}>{v.make} {v.model} - {v.registration} ({v.color}) - KES {v.ourDailyRate.toLocaleString()}/day</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
                 </div>
               </div>
               {selectedVehicle && (
@@ -683,13 +761,34 @@ export default function SubletsPage() {
             <div className="rounded-lg border border-blue-500/30 bg-blue-500/5 p-4 space-y-3">
               <h4 className="text-blue-400 font-semibold text-xs uppercase tracking-wide">Client & Period</h4>
               <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <Label className="text-gray-200">Client Name *</Label>
-                  <Input className="mt-1 bg-[#0a1628] border-white/20 text-white" placeholder="Client name" value={bForm.clientName} onChange={e => setBForm({ ...bForm, clientName: e.target.value })} />
-                </div>
-                <div>
-                  <Label className="text-gray-200">Client Phone</Label>
-                  <Input className="mt-1 bg-[#0a1628] border-white/20 text-white" placeholder="+254 7XX XXX XXX" value={bForm.clientPhone} onChange={e => setBForm({ ...bForm, clientPhone: e.target.value })} />
+                <div className="col-span-2 relative">
+                  <Label className="text-gray-200">Search Client (name, phone or ID) *</Label>
+                  <Input
+                    className="mt-1 bg-[#0a1628] border-blue-500/30 text-white"
+                    placeholder="Type name, phone or ID number..."
+                    value={clientSearch}
+                    onChange={e => searchClients(e.target.value)}
+                    onFocus={() => clientSearch.length >= 2 && setShowClientResults(true)}
+                  />
+                  {showClientResults && clientResults.length > 0 && (
+                    <div className="absolute z-50 w-full mt-1 rounded-lg border border-blue-500/30 bg-[#0a1628] shadow-xl overflow-hidden">
+                      {clientResults.map(c => (
+                        <button key={c.id} type="button"
+                          className="w-full text-left px-3 py-2.5 hover:bg-blue-500/10 border-b border-white/5 last:border-0"
+                          onClick={() => selectClient(c)}>
+                          <p className="text-white text-sm font-medium">{c.fullName}</p>
+                          <p className="text-gray-400 text-xs">{c.phone} {c.idNumber ? "| ID: " + c.idNumber : ""}</p>
+                        </button>
+                      ))}
+                      <button type="button" className="w-full text-left px-3 py-2 text-xs text-blue-400 hover:bg-blue-500/10"
+                        onClick={() => { setBForm(prev => ({ ...prev, clientName: clientSearch, clientPhone: "" })); setShowClientResults(false); }}>
+                        + Use "{clientSearch}" as new client
+                      </button>
+                    </div>
+                  )}
+                  {bForm.clientName && (
+                    <p className="text-xs text-emerald-400 mt-1">Selected: {bForm.clientName} {bForm.clientPhone && "| " + bForm.clientPhone}</p>
+                  )}
                 </div>
                 <div>
                   <Label className="text-gray-200">Start Date *</Label>
