@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { getClients, getBookings } from "@/lib/store";
-import { Plus, Car, Building2, TrendingUp, DollarSign, ArrowRight, Eye, Trash2, Bell, AlertTriangle, Clock, CreditCard, CalendarClock, CheckCircle2, XCircle } from "lucide-react";
+import { Plus, Car, Building2, TrendingUp, DollarSign, ArrowRight, Eye, Trash2, Bell, AlertTriangle, Clock, CreditCard, CalendarClock, CheckCircle2, XCircle, BarChart3, Calendar, ChevronDown } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -579,6 +579,44 @@ function SubletsPage() {
   const totalNetProfit = bookings.reduce((s, b) => s + b.netProfit, 0);
   const totalExpAll = bookings.reduce((s, b) => s + b.totalExpenses, 0);
 
+  // ── ANALYTICS ────────────────────────────────────────
+  const [analyticsPeriod, setAnalyticsPeriod] = useState<"day" | "week" | "month" | "all">("month");
+
+  const filterByPeriod = (b: SubletBooking) => {
+    const now = new Date();
+    const start = new Date(b.startDate);
+    if (analyticsPeriod === "day") {
+      return start.toDateString() === now.toDateString();
+    }
+    if (analyticsPeriod === "week") {
+      const weekAgo = new Date(now.getTime() - 7 * 86400000);
+      return start >= weekAgo;
+    }
+    if (analyticsPeriod === "month") {
+      return start.getMonth() === now.getMonth() && start.getFullYear() === now.getFullYear();
+    }
+    return true;
+  };
+
+  const periodBookings = bookings.filter(filterByPeriod);
+  const periodRevenue  = periodBookings.reduce((s, b) => s + b.totalClientCharge, 0);
+  const periodCost     = periodBookings.reduce((s, b) => s + b.totalSupplierCost, 0);
+  const periodExpenses = periodBookings.reduce((s, b) => s + b.totalExpenses, 0);
+  const periodProfit   = periodBookings.reduce((s, b) => s + b.netProfit, 0);
+  const periodMargin   = periodRevenue > 0 ? Math.round((periodProfit / periodRevenue) * 100) : 0;
+  const periodLabel    = analyticsPeriod === "day" ? "Today" : analyticsPeriod === "week" ? "This Week" : analyticsPeriod === "month" ? "This Month" : "All Time";
+
+  // Group by service for period
+  const byService: Record<string, { revenue: number; cost: number; profit: number; count: number }> = {};
+  periodBookings.forEach(b => {
+    if (!byService[b.serviceType]) byService[b.serviceType] = { revenue: 0, cost: 0, profit: 0, count: 0 };
+    byService[b.serviceType].revenue += b.totalClientCharge;
+    byService[b.serviceType].cost    += b.totalSupplierCost + b.totalExpenses;
+    byService[b.serviceType].profit  += b.netProfit;
+    byService[b.serviceType].count   += 1;
+  });
+  // ─────────────────────────────────────────────────────
+
   const selectedVehicle = vehicles.find(v => v.id === bForm.vehicleId);
   const bDays = parseInt(bForm.numberOfDays) || 0;
   const bEffectiveRate = bForm.ourDailyRateOverride ? parseFloat(bForm.ourDailyRateOverride) : (selectedVehicle?.ourDailyRate || 0);
@@ -830,6 +868,95 @@ function SubletsPage() {
           </Card>
         ))}
       </div>
+
+      {/* Analytics Panel */}
+      <Card className="border-violet-500/30 bg-violet-500/5">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            <CardTitle className="text-base text-white flex items-center gap-2">
+              <BarChart3 className="h-5 w-5 text-violet-400" />
+              Profit & Loss — {periodLabel}
+            </CardTitle>
+            <div className="flex gap-1.5">
+              {(["day","week","month","all"] as const).map(p => (
+                <button key={p} type="button"
+                  onClick={() => setAnalyticsPeriod(p)}
+                  className={analyticsPeriod === p
+                    ? "px-3 py-1.5 rounded-lg text-xs font-semibold bg-violet-600 text-white"
+                    : "px-3 py-1.5 rounded-lg text-xs font-semibold border border-white/10 bg-white/5 text-gray-400 hover:border-violet-500/40"}>
+                  {p === "day" ? "Today" : p === "week" ? "Week" : p === "month" ? "Month" : "All Time"}
+                </button>
+              ))}
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Summary row */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            {[
+              { label: "Revenue", value: periodRevenue, color: "text-emerald-400", border: "border-emerald-500/30", bg: "bg-emerald-500/10" },
+              { label: "Supplier Cost", value: periodCost, color: "text-red-400", border: "border-red-500/30", bg: "bg-red-500/10" },
+              { label: "Expenses", value: periodExpenses, color: "text-orange-400", border: "border-orange-500/30", bg: "bg-orange-500/10" },
+              { label: "Net Profit", value: periodProfit, color: periodProfit >= 0 ? "text-amber-400" : "text-red-400", border: periodProfit >= 0 ? "border-amber-500/30" : "border-red-500/30", bg: periodProfit >= 0 ? "bg-amber-500/10" : "bg-red-500/10" },
+            ].map(({ label, value, color, border, bg }) => (
+              <div key={label} className={"rounded-xl border p-3 " + border + " " + bg}>
+                <p className="text-xs text-gray-400 uppercase tracking-wide mb-1">{label}</p>
+                <p className={"text-lg font-bold " + color}>KES {value.toLocaleString()}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Margin bar */}
+          <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs text-gray-400">Profit Margin</span>
+              <span className={"text-sm font-bold " + (periodMargin >= 20 ? "text-emerald-400" : periodMargin >= 10 ? "text-amber-400" : "text-red-400")}>{periodMargin}%</span>
+            </div>
+            <div className="h-2.5 rounded-full bg-white/10">
+              <div className={"h-2.5 rounded-full transition-all " + (periodMargin >= 20 ? "bg-emerald-500" : periodMargin >= 10 ? "bg-amber-500" : "bg-red-500")}
+                style={{ width: Math.min(periodMargin, 100) + "%" }} />
+            </div>
+            <div className="flex justify-between mt-1.5 text-xs text-gray-500">
+              <span>{periodBookings.length} booking{periodBookings.length !== 1 ? "s" : ""}</span>
+              <span>{periodMargin < 10 ? "Low margin — review pricing" : periodMargin < 20 ? "Fair margin" : "Good margin"}</span>
+            </div>
+          </div>
+
+          {/* By service breakdown */}
+          {Object.keys(byService).length > 0 && (
+            <div>
+              <p className="text-xs text-gray-400 uppercase tracking-wide mb-2">Breakdown by Service</p>
+              <div className="space-y-2">
+                {Object.entries(byService).sort((a, b) => b[1].profit - a[1].profit).map(([svc, d]) => {
+                  const svcMargin = d.revenue > 0 ? Math.round((d.profit / d.revenue) * 100) : 0;
+                  return (
+                    <div key={svc} className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 px-3 py-2.5">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-sm text-white font-medium truncate">{svc}</span>
+                          <span className="text-xs text-gray-500 ml-2">{d.count} booking{d.count !== 1 ? "s" : ""}</span>
+                        </div>
+                        <div className="flex gap-4 text-xs">
+                          <span className="text-emerald-400">Rev: KES {d.revenue.toLocaleString()}</span>
+                          <span className="text-red-400">Cost: KES {d.cost.toLocaleString()}</span>
+                          <span className={"font-bold " + (d.profit >= 0 ? "text-amber-400" : "text-red-400")}>P/L: KES {d.profit.toLocaleString()}</span>
+                        </div>
+                      </div>
+                      <Badge className={"shrink-0 " + (svcMargin >= 20 ? "bg-emerald-600 text-white" : svcMargin >= 10 ? "bg-amber-500 text-white" : "bg-red-600 text-white")}>
+                        {svcMargin}%
+                      </Badge>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {periodBookings.length === 0 && (
+            <p className="text-center text-gray-500 text-sm py-4">No bookings for {periodLabel.toLowerCase()}</p>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Notifications Panel */}
       {notifications.length > 0 && (
