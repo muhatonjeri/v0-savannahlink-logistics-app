@@ -97,6 +97,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { fleetApi } from "@/lib/api";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { DatePicker } from "@/components/ui/date-picker";
 
@@ -641,6 +642,24 @@ export default function FleetManagementPage() {
     };
 
     setFleet([newVehicle, ...fleet]);
+    fleetApi.create({
+      vehicleName: data.vehicleName,
+      vehicleMake: data.vehicleMake,
+      vehicleModel: data.vehicleModel,
+      registrationNo: data.registrationNo,
+      vehicleType: data.vehicleType,
+      fuelType: data.fuelType,
+      year: data.year,
+      color: data.color,
+      ownershipType: ownershipType,
+      supplierName: ownershipType === "sublet" ? subletSupplierName : undefined,
+      supplierPhone: ownershipType === "sublet" ? subletSupplierPhone : undefined,
+      supplierDailyRate: ownershipType === "sublet" ? parseFloat(subletSupplierRate) : undefined,
+      ourDailyRate: ownershipType === "sublet" ? parseFloat(subletOurRate) : undefined,
+      status: "available",
+      currentMileage: data.currentMileage,
+      notes: data.notes,
+    }).catch(err => console.error("Fleet sync failed:", err));
 
     // If sublet vehicle, auto-register in Sublet Assets section
     if (ownershipType === "sublet" && subletSupplierName) {

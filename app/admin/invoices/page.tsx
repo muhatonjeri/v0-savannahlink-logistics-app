@@ -256,30 +256,29 @@ export default function InvoicesPage() {
   useEffect(() => {
     invoicesApi.getAll()
       .then(data => {
-        if (data && data.length > 0) {
-          // Map snake_case from DB to camelCase
+        if (data && Array.isArray(data) && data.length > 0) {
           const mapped = data.map((inv: Record<string, unknown>) => ({
-            id: inv.id,
-            invoiceNumber: inv.invoice_number,
-            customerName: inv.customer_name,
-            customerEmail: inv.customer_email,
-            customerPhone: inv.customer_phone,
-            customerAddress: inv.customer_address,
-            customerKraPin: inv.customer_kra_pin,
-            serviceType: inv.service_type,
-            items: inv.items,
-            subtotal: inv.subtotal,
-            vatRate: inv.vat_rate,
-            vatAmount: inv.vat_amount,
-            total: inv.total,
-            amountPaid: inv.amount_paid,
-            payments: inv.payments || [],
-            status: inv.status,
-            issueDate: inv.issue_date,
-            dueDate: inv.due_date,
-            paymentTerms: inv.payment_terms,
-            notes: inv.notes,
-            createdAt: inv.created_at,
+            id: inv.id as string,
+            invoiceNumber: (inv.invoice_number || inv.invoiceNumber) as string,
+            customerName: (inv.customer_name || inv.customerName) as string,
+            customerEmail: (inv.customer_email || inv.customerEmail) as string,
+            customerPhone: (inv.customer_phone || inv.customerPhone) as string,
+            customerAddress: (inv.customer_address || inv.customerAddress) as string,
+            customerKraPin: (inv.customer_kra_pin || inv.customerKraPin) as string,
+            serviceType: (inv.service_type || inv.serviceType) as string,
+            items: (inv.items || []) as InvoiceItem[],
+            subtotal: Number(inv.subtotal) || 0,
+            vatRate: Number(inv.vat_rate || inv.vatRate) || 16,
+            vatAmount: Number(inv.vat_amount || inv.vatAmount) || 0,
+            total: Number(inv.total) || 0,
+            amountPaid: Number(inv.amount_paid || inv.amountPaid) || 0,
+            payments: (inv.payments || []) as Payment[],
+            status: (inv.status || "draft") as Invoice["status"],
+            issueDate: (inv.issue_date || inv.issueDate) as string,
+            dueDate: (inv.due_date || inv.dueDate) as string,
+            paymentTerms: (inv.payment_terms || inv.paymentTerms) as string,
+            notes: inv.notes as string,
+            createdAt: (inv.created_at || inv.createdAt) as string,
           }));
           setInvoices(mapped);
         } else {
