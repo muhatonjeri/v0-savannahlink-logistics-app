@@ -1,13 +1,9 @@
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-
 export default function NotFound() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-4">
-      <h2 className="text-xl font-semibold">Page Not Found</h2>
-      <Button asChild>
-        <Link href="/">Go Home</Link>
-      </Button>
+    <div style={{ display: "flex", minHeight: "100vh", flexDirection: "column", alignItems: "center", justifyContent: "center", fontFamily: "sans-serif", background: "#0a1628", color: "white" }}>
+      <h1 style={{ fontSize: "4rem", fontWeight: 800, color: "#e67e22" }}>404</h1>
+      <p style={{ fontSize: "1.2rem", marginTop: "8px" }}>Page not found</p>
+      <a href="/admin" style={{ marginTop: "16px", padding: "8px 20px", background: "#e67e22", color: "white", borderRadius: "8px", textDecoration: "none" }}>Go to Dashboard</a>
     </div>
   );
 }
