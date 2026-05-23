@@ -760,7 +760,7 @@ select.bg-white {
 
 /* ── Replace white backgrounds with dark navy across admin ── */
 /* Exempt print areas from dark override */
-.bg-white:not(.print-receipt):not(.print-receipt *):not([data-print-area]):not([data-print-area] *) {
+.bg-white:not(.print-receipt):not(.print-receipt *):not([data-print-area]):not([data-print-area] *):not(.receipt-preview):not(.receipt-preview *) {
   background-color: oklch(0.17 0.02 250) !important;
   color: white !important;
 }
@@ -778,7 +778,7 @@ select.bg-white {
 .text-gray-700 { color: oklch(0.85 0 0) !important; }
 .text-gray-600 { color: oklch(0.78 0 0) !important; }
 .text-gray-500 { color: oklch(0.70 0 0) !important; }
-.text-\[\#0a1628\] { color: white !important; }
+.text-\[\#0a1628\]:not(.print-receipt *):not([data-print-area] *) { color: white !important; }
 
 /* Dialog and card backgrounds */
 [role="dialog"] {
@@ -975,3 +975,17 @@ table thead th,
 [data-slot="sidebar-menu-button"] .text-indigo-400  { color: rgb(129 140 248)  !important; }
 [data-slot="sidebar-menu-button"] .text-emerald-400 { color: rgb(52 211 153)   !important; }
 [data-slot="sidebar-menu-button"] .text-rose-400    { color: rgb(251 113 133)  !important; }
+
+/* ── Receipt & Invoice preview: always white bg, dark text ── */
+.print-receipt,
+.print-receipt *,
+[data-print-area],
+[data-print-area] * {
+  color: #0a1628 !important;
+  background-color: white !important;
+}
+
+.print-receipt .text-\[\#e67e22\],
+[data-print-area] .text-\[\#e67e22\] {
+  color: #e67e22 !important;
+}
