@@ -10,7 +10,6 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { getBookingStats, getBookings, getUsers } from "@/lib/store";
 import type { Booking } from "@/types";
 
 const serviceColors: Record<string, { bg: string; text: string; border: string; icon: string }> = {
@@ -83,16 +82,62 @@ export default function AdminDashboard() {
   const [userCount, setUserCount] = useState(0);
 
   useEffect(() => {
-    setStats(getBookingStats());
-    setRecentBookings(getBookings().slice(-5).reverse());
-    setUserCount(getUsers().length);
+    // Load bookings from Supabase
+    fetch("/api/bookings")
+      .then(r => r.json())
+      .then((bookings: Record<string,unknown>[]) => {
+        if (!Array.isArray(bookings)) return;
+
+        // Calculate stats from real data
+        const total = bookings.length;
+        const pending = bookings.filter(b => b.status === "pending").length;
+        const confirmed = bookings.filter(b => b.status === "confirmed").length;
+        const inProgress = bookings.filter(b => b.status === "in-progress" || b.status === "in_progress").length;
+        const completed = bookings.filter(b => b.status === "completed").length;
+        const cancelled = bookings.filter(b => b.status === "cancelled").length;
+        const totalRevenue = bookings.reduce((s, b) => s + (Number(b.total_amount) || 0), 0);
+        const pendingPayments = bookings.filter(b => b.payment_status !== "completed").reduce((s, b) => s + (Number(b.total_amount) || 0), 0);
+
+        // Group by service
+        const byService: Record<string, number> = {};
+        bookings.forEach(b => {
+          const svc = String(b.service_type || "other");
+          byService[svc] = (byService[svc] || 0) + 1;
+        });
+
+        setStats({ total, pending, confirmed, inProgress, completed, cancelled, totalRevenue, pendingPayments, byService });
+        setRecentBookings(bookings.slice(0, 5).map(b => ({
+          id: String(b.id || ""),
+          customerName: String(b.customer_name || b.customerName || ""),
+          serviceType: String(b.service_type || b.serviceType || ""),
+          status: String(b.status || "pending"),
+          paymentStatus: String(b.payment_status || b.paymentStatus || "pending"),
+          totalAmount: Number(b.total_amount || b.totalAmount || 0),
+          createdAt: String(b.created_at || b.createdAt || ""),
+        } as Booking)));
+      })
+      .catch(e => console.error("Dashboard load error:", e));
+
+    // Load staff count
+    fetch("/api/clients")
+      .then(r => r.json())
+      .then((data: unknown[]) => { if (Array.isArray(data)) setUserCount(data.length); })
+      .catch(() => {});
   }, []);
 
-  if (!stats) return (
-    <div className="flex h-[50vh] items-center justify-center">
-      <div className="text-muted-foreground animate-pulse">Loading...</div>
-    </div>
-  );
+  if (!stats) {
+    // Show skeleton/default stats while loading
+    const emptyStats = { total: 0, pending: 0, confirmed: 0, inProgress: 0, completed: 0, cancelled: 0, totalRevenue: 0, pendingPayments: 0, byService: {} };
+    return (
+      <div className="space-y-6 animate-pulse">
+        <div className="h-10 w-48 rounded-lg bg-white/5" />
+        <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+          {[1,2,3,4].map(i => <div key={i} className="h-24 rounded-xl bg-white/5" />)}
+        </div>
+        <div className="h-64 rounded-xl bg-white/5" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
