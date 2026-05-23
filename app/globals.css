@@ -942,3 +942,11 @@ a .text-yellow-500, button .text-yellow-500 { color: #eab308 !important; }
 [data-slot="sidebar-menu-button"] .text-yellow-400 { color: rgb(250 204 21)   !important; }
 [data-slot="sidebar-menu-button"] .text-orange-400 { color: rgb(251 146 60)   !important; }
 [data-slot="sidebar-menu-button"] .text-pink-400   { color: rgb(244 114 182)  !important; }
+
+/* ── All table column headers: bold orange ── */
+thead th,
+[role="columnheader"],
+th[scope="col"] {
+  color: rgb(251 146 60) !important;
+  font-weight: 700 !important;
+}
