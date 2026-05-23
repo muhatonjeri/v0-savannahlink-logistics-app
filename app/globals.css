@@ -632,11 +632,7 @@ th[class*="bg-"] {
   color: white;
 }
 
-/* TableHead always white on dark header rows */
-thead.dark-header th,
-tr.dark-header th {
-  color: white !important;
-}
+
 
 /* Input fields on dark backgrounds */
 .bg-\[\#0a1628\] input,
@@ -943,13 +939,7 @@ a .text-yellow-500, button .text-yellow-500 { color: #eab308 !important; }
 [data-slot="sidebar-menu-button"] .text-orange-400 { color: rgb(251 146 60)   !important; }
 [data-slot="sidebar-menu-button"] .text-pink-400   { color: rgb(244 114 182)  !important; }
 
-/* ── All table column headers: bold orange ── */
-thead th,
-[role="columnheader"],
-th[scope="col"] {
-  color: rgb(251 146 60) !important;
-  font-weight: 700 !important;
-}
+
 
 /* ── Polish all table column headers system-wide ── */
 thead tr th,
@@ -961,4 +951,19 @@ thead th,
   letter-spacing: 0.05em !important;
   text-transform: uppercase !important;
   border-bottom: 1px solid rgba(230, 126, 34, 0.25) !important;
+}
+
+/* ══════════════════════════════════════════════
+   GLOBAL TABLE COLUMN HEADERS
+   Bright amber-gold — visible on dark and light
+   ══════════════════════════════════════════════ */
+thead tr th,
+table thead th,
+[role="columnheader"] {
+  color: #f59e0b !important;   /* amber-500 — warm gold, highly readable */
+  font-weight: 700 !important;
+  font-size: 0.75rem !important;
+  letter-spacing: 0.05em !important;
+  text-transform: uppercase !important;
+  border-bottom: 1px solid rgba(245, 158, 11, 0.25) !important;
 }
