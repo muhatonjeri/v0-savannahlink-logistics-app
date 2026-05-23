@@ -1,45 +1,28 @@
-import { createServiceClient } from "@/lib/supabase/service";
+import { connectDB } from "@/lib/mongodb";
 import { NextResponse } from "next/server";
+import { Client, Booking, FleetVehicle, Invoice, Receipt, Transaction, Blacklist, SubletVehicle, SubletBooking, FleetOut, Staff } from "@/lib/models";
 
 export async function GET() {
   try {
-    const supabase = createServiceClient();
-    
-    // Test connection by checking each table exists
-    const tables = [
-      "clients",
-      "bookings", 
-      "fleet_vehicles",
-      "invoices",
-      "receipts",
-      "transactions",
-      "blacklist",
-      "sublet_vehicles",
-      "sublet_bookings",
-      "fleet_out",
-      "staff",
-    ];
-
-    const results: Record<string, string> = {};
-
-    for (const table of tables) {
-      const { count, error } = await supabase
-        .from(table)
-        .select("*", { count: "exact", head: true });
-      
-      results[table] = error ? `ERROR: ${error.message}` : `OK (${count} rows)`;
-    }
-
-    return NextResponse.json({
-      status: "connected",
-      message: "Supabase connection successful",
-      tables: results,
-      timestamp: new Date().toISOString(),
-    });
-  } catch (error) {
-    return NextResponse.json({
-      status: "error",
-      message: String(error),
-    }, { status: 500 });
+    await connectDB();
+    const results = await Promise.all([
+      Client.countDocuments(),
+      Booking.countDocuments(),
+      FleetVehicle.countDocuments(),
+      Invoice.countDocuments(),
+      Receipt.countDocuments(),
+      Transaction.countDocuments(),
+      Blacklist.countDocuments(),
+      SubletVehicle.countDocuments(),
+      SubletBooking.countDocuments(),
+      FleetOut.countDocuments(),
+      Staff.countDocuments(),
+    ]);
+    const names = ["clients","bookings","fleet_vehicles","invoices","receipts","transactions","blacklist","sublet_vehicles","sublet_bookings","fleet_out","staff"];
+    const tables: Record<string,string> = {};
+    names.forEach((n,i) => tables[n] = `OK (${results[i]} docs)`);
+    return NextResponse.json({ status: "connected", message: "MongoDB connection successful", tables, timestamp: new Date().toISOString() });
+  } catch (e) {
+    return NextResponse.json({ status: "error", message: String(e) }, { status: 500 });
   }
 }

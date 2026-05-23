@@ -1,38 +1,25 @@
-import { createServiceClient } from "@/lib/supabase/service";
+import { connectDB } from "@/lib/mongodb";
+import { Transaction } from "@/lib/models";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
   try {
-    const supabase = createServiceClient();
+    await connectDB();
     const { searchParams } = new URL(req.url);
     const type = searchParams.get("type");
-    const from = searchParams.get("from");
-    const to = searchParams.get("to");
-
-    let query = supabase.from("transactions").select("*").order("date", { ascending: false });
-    if (type) query = query.eq("type", type);
-    if (from) query = query.gte("date", from);
-    if (to) query = query.lte("date", to);
-
-    const { data, error } = await query;
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-    return NextResponse.json(data);
-  } catch (e) {
-    return NextResponse.json({ error: String(e) }, { status: 500 });
-  }
+    const filter: Record<string,string> = {};
+    if (type) filter.type = type;
+    const docs = await Transaction.find(filter).sort({ date: -1 }).lean();
+    return NextResponse.json(docs);
+  } catch (e) { return NextResponse.json({ error: String(e) }, { status: 500 }); }
 }
 
 export async function POST(req: NextRequest) {
   try {
-    const supabase = createServiceClient();
+    await connectDB();
     const body = await req.json();
-
-    // Support batch inserts (array) or single
     const records = Array.isArray(body) ? body : [body];
-    const { data, error } = await supabase.from("transactions").insert(records).select();
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-    return NextResponse.json(data);
-  } catch (e) {
-    return NextResponse.json({ error: String(e) }, { status: 500 });
-  }
+    const docs = await Transaction.insertMany(records);
+    return NextResponse.json(docs);
+  } catch (e) { return NextResponse.json({ error: String(e) }, { status: 500 }); }
 }

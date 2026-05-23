@@ -1,82 +1,43 @@
-import { createServiceClient } from "@/lib/supabase/service";
+import { connectDB } from "@/lib/mongodb";
+import { FleetVehicle } from "@/lib/models";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
   try {
-    const supabase = createServiceClient();
-    const { searchParams } = new URL(req.url);
-    const id = searchParams.get("id");
-
+    await connectDB();
+    const id = new URL(req.url).searchParams.get("id");
     if (id) {
-      const { data, error } = await supabase.from("fleet_vehicles").select("*").eq("id", id).single();
-      if (error) return NextResponse.json({ error: error.message }, { status: 404 });
-      return NextResponse.json(data);
+      const doc = await FleetVehicle.findById(id).lean();
+      return NextResponse.json(doc);
     }
-
-    const { data, error } = await supabase.from("fleet_vehicles").select("*").order("created_at", { ascending: false });
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-    return NextResponse.json(data);
-  } catch (e) {
-    return NextResponse.json({ error: String(e) }, { status: 500 });
-  }
+    const docs = await FleetVehicle.find().sort({ createdAt: -1 }).lean();
+    return NextResponse.json(docs);
+  } catch (e) { return NextResponse.json({ error: String(e) }, { status: 500 }); }
 }
 
 export async function POST(req: NextRequest) {
   try {
-    const supabase = createServiceClient();
+    await connectDB();
     const body = await req.json();
-
-    const record = {
-      vehicle_name: body.vehicleName,
-      vehicle_make: body.vehicleMake,
-      vehicle_model: body.vehicleModel,
-      registration_no: body.registrationNo,
-      vehicle_type: body.vehicleType,
-      fuel_type: body.fuelType,
-      year: body.year,
-      color: body.color,
-      ownership_type: body.ownershipType || "own",
-      supplier_name: body.supplierName,
-      supplier_phone: body.supplierPhone,
-      supplier_daily_rate: body.supplierDailyRate,
-      our_daily_rate: body.ourDailyRate,
-      status: body.status || "available",
-      current_mileage: body.currentMileage,
-      notes: body.notes,
-    };
-
-    const { data, error } = await supabase.from("fleet_vehicles").insert([record]).select().single();
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-    return NextResponse.json(data);
-  } catch (e) {
-    return NextResponse.json({ error: String(e) }, { status: 500 });
-  }
+    const doc = await FleetVehicle.create(body);
+    return NextResponse.json(doc);
+  } catch (e) { return NextResponse.json({ error: String(e) }, { status: 500 }); }
 }
 
 export async function PUT(req: NextRequest) {
   try {
-    const supabase = createServiceClient();
-    const body = await req.json();
-    const { id, ...updates } = body;
-    if (!id) return NextResponse.json({ error: "id required" }, { status: 400 });
-    const { data, error } = await supabase.from("fleet_vehicles").update(updates).eq("id", id).select().single();
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-    return NextResponse.json(data);
-  } catch (e) {
-    return NextResponse.json({ error: String(e) }, { status: 500 });
-  }
+    await connectDB();
+    const { id, ...updates } = await req.json();
+    const doc = await FleetVehicle.findByIdAndUpdate(id, updates, { new: true }).lean();
+    return NextResponse.json(doc);
+  } catch (e) { return NextResponse.json({ error: String(e) }, { status: 500 }); }
 }
 
 export async function DELETE(req: NextRequest) {
   try {
-    const supabase = createServiceClient();
-    const { searchParams } = new URL(req.url);
-    const id = searchParams.get("id");
-    if (!id) return NextResponse.json({ error: "id required" }, { status: 400 });
-    const { error } = await supabase.from("fleet_vehicles").delete().eq("id", id);
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    await connectDB();
+    const id = new URL(req.url).searchParams.get("id");
+    await FleetVehicle.findByIdAndDelete(id);
     return NextResponse.json({ success: true });
-  } catch (e) {
-    return NextResponse.json({ error: String(e) }, { status: 500 });
-  }
+  } catch (e) { return NextResponse.json({ error: String(e) }, { status: 500 }); }
 }

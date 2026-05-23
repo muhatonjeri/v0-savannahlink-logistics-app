@@ -581,8 +581,9 @@ function SubletsPage() {
 
   const selectedVehicle = vehicles.find(v => v.id === bForm.vehicleId);
   const bDays = parseInt(bForm.numberOfDays) || 0;
+  const bEffectiveRate = bForm.ourDailyRateOverride ? parseFloat(bForm.ourDailyRateOverride) : (selectedVehicle?.ourDailyRate || 0);
   const bSupplierCost = selectedVehicle ? selectedVehicle.supplierDailyRate * bDays : 0;
-  const bClientCharge = selectedVehicle ? selectedVehicle.ourDailyRate * bDays : 0;
+  const bClientCharge = bEffectiveRate * bDays;
   const bTotalExpenses = expenses.reduce((s, e) => s + e.amount, 0);
   const bNetProfit = bClientCharge - bSupplierCost - bTotalExpenses;
   const bProfitPerDay = bDays > 0 ? Math.round(bNetProfit / bDays) : 0;
@@ -639,7 +640,7 @@ function SubletsPage() {
       clientName: bForm.clientName, clientPhone: bForm.clientPhone,
       startDate: bForm.startDate, endDate: bForm.endDate, numberOfDays: bDays,
       supplierDailyRate: selectedVehicle.supplierDailyRate,
-      ourDailyRate: selectedVehicle.ourDailyRate,
+      ourDailyRate: bEffectiveRate,
       totalSupplierCost: bSupplierCost, totalClientCharge: bClientCharge,
       expenses, totalExpenses: bTotalExpenses,
       netProfit: bNetProfit, profitPerDay: bProfitPerDay,
