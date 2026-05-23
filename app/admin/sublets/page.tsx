@@ -14,15 +14,124 @@ import { toast } from "sonner";
 
 // ── Vehicle makes / models ──────────────────────────────────────────
 const VEHICLE_CATALOG: Record<string, string[]> = {
-  Toyota: ["Land Cruiser Prado", "Fortuner", "Hilux", "Hiace", "Coaster", "Land Cruiser 70", "Alphard", "Camry"],
-  Nissan: ["X-Trail", "Patrol", "Navara", "Urvan", "Hardbody", "Pathfinder"],
-  Mitsubishi: ["Pajero", "L200", "Outlander", "Eclipse Cross"],
-  Isuzu: ["D-Max", "MUX", "NPS 75", "FRR 90", "NQR 75"],
-  Mercedes: ["Sprinter", "Vito", "GLE", "GLS", "Actros"],
-  Volvo: ["FH", "FM", "FE", "B8R Bus"],
-  Ford: ["Ranger", "Explorer", "Transit"],
-  Scania: ["R-Series", "P-Series", "Bus"],
-  Other: ["Custom / Other"],
+  Toyota: [
+    "Land Cruiser Prado TX", "Land Cruiser Prado TZ", "Land Cruiser Prado VX",
+    "Land Cruiser 70 Series", "Land Cruiser 76", "Land Cruiser 79 Double Cab",
+    "Land Cruiser 100", "Land Cruiser 200", "Land Cruiser 300",
+    "Fortuner 2.4", "Fortuner 2.7", "Fortuner 2.8 GD6", "Fortuner Legender",
+    "Hilux Single Cab", "Hilux Extra Cab", "Hilux Double Cab 2.4", "Hilux Double Cab 2.8",
+    "Hiace Standard", "Hiace High Roof", "Hiace Commuter 14-Seater",
+    "Hiace Grand Cabin", "Coaster 28-Seater", "Coaster 33-Seater",
+    "Alphard 3.5", "Vellfire", "Noah", "Prius", "Camry 2.5",
+    "RAV4", "Kluger", "Rush", "Axio", "Fielder", "Harrier",
+    "Quantum 10-Seater", "Quantum 14-Seater",
+  ],
+  Nissan: [
+    "X-Trail 2.0", "X-Trail 2.5", "Patrol Y61", "Patrol Y62",
+    "Navara Single Cab", "Navara Double Cab", "Navara King Cab",
+    "Urvan 15-Seater", "Urvan Cargo", "NV350 Caravan",
+    "Hardbody 2.4", "Hardbody 3.0", "Pathfinder", "Murano",
+    "Tiida", "Sylphy", "Note", "Juke",
+  ],
+  Mitsubishi: [
+    "Pajero 3.2 SFX", "Pajero 3.8 GLS", "Pajero Sport",
+    "L200 Single Cab", "L200 Double Cab", "L200 Club Cab",
+    "Outlander", "Eclipse Cross", "ASX",
+    "Canter FE71", "Canter FE84", "Canter Wide Cab",
+    "Rosa 28-Seater", "Rosa 33-Seater",
+  ],
+  Isuzu: [
+    "D-Max Single Cab", "D-Max Space Cab", "D-Max Double Cab",
+    "MUX 4x2", "MUX 4x4",
+    "NPS 75 4x4", "NPS 75L", "NQR 75", "NQR 33-Seater",
+    "FRR 90", "FRR 33-Seater", "FVR 34", "FVZ 34",
+    "ELF NPR 250", "ELF NQR 330",
+  ],
+  Mercedes: [
+    "Sprinter 8-Seater", "Sprinter 15-Seater", "Sprinter Cargo",
+    "Vito 9-Seater", "Vito Tourer", "V-Class",
+    "GLC 250", "GLE 400", "GLS 500", "GL 350",
+    "C 200", "C 300", "E 250", "E 350", "S 500",
+    "Actros 2645", "Atego 1525", "Axor 2540",
+    "Unimog",
+  ],
+  Volkswagen: [
+    "Transporter T5", "Transporter T6", "Caravelle 9-Seater",
+    "Amarok Single Cab", "Amarok Double Cab",
+    "Polo 1.6", "Golf 1.4 TSI", "Passat 2.0",
+    "Touareg", "Tiguan", "Touran 7-Seater",
+  ],
+  Ford: [
+    "Ranger XL", "Ranger XLT", "Ranger Wildtrak", "Ranger Raptor",
+    "Explorer XLT", "Explorer Platinum",
+    "Transit Connect", "Transit Custom", "Transit 17-Seater",
+    "F-150",
+  ],
+  Land: [
+    "Land Rover Defender 90", "Land Rover Defender 110",
+    "Land Rover Discovery 3", "Land Rover Discovery 4", "Land Rover Discovery 5",
+    "Range Rover Sport", "Range Rover Vogue", "Range Rover Evoque",
+    "Freelander 2",
+  ],
+  Scania: [
+    "R 410 4x2", "R 450 6x4", "R 500 6x4",
+    "P 360 4x2", "P 410 6x2",
+    "Touring Bus 49-Seater", "Touring Bus 55-Seater",
+    "Interlink 60-Seater",
+  ],
+  Volvo: [
+    "FH 420 4x2", "FH 460 6x4", "FH 500 6x4",
+    "FM 370 4x2", "FM 430 6x4",
+    "FE 280", "FL 240",
+    "9700 Bus 49-Seater", "B8R Bus 56-Seater",
+  ],
+  Hyundai: [
+    "H1 9-Seater", "H1 Wagon", "County 26-Seater", "County 33-Seater",
+    "Universe 45-Seater", "Universe 56-Seater",
+    "Tucson", "Santa Fe", "Palisade",
+    "Staria 11-Seater",
+  ],
+  Kia: [
+    "Carnival 8-Seater", "Carnival 11-Seater",
+    "Sportage", "Sorento 7-Seater",
+    "K2700 Single Cab", "K2700 Double Cab",
+  ],
+  BMW: [
+    "X3 2.0d", "X5 3.0d", "X7",
+    "3 Series 320d", "5 Series 520d", "7 Series 730d",
+  ],
+  Subaru: [
+    "Outback 2.5", "Forester 2.0", "XV", "Legacy",
+    "Impreza", "Tribeca",
+  ],
+  Mazda: [
+    "BT-50 Single Cab", "BT-50 Double Cab",
+    "CX-5", "CX-9 7-Seater", "Mazda 3", "Mazda 6",
+  ],
+  Honda: [
+    "CR-V", "HR-V", "Pilot 8-Seater",
+    "Accord 2.4", "Civic 1.8",
+  ],
+  Jeep: [
+    "Wrangler 2-Door", "Wrangler 4-Door",
+    "Grand Cherokee 3.0 CRD", "Commander 7-Seater",
+    "Renegade",
+  ],
+  "King Long": [
+    "King Long 29-Seater", "King Long 33-Seater",
+    "King Long 49-Seater", "King Long 56-Seater",
+    "King Long 68-Seater",
+  ],
+  Tata: [
+    "Xenon Double Cab", "Safari Storme",
+    "Ace Mini Truck", "Super Ace",
+    "Ultra 1014 Truck",
+  ],
+  Other: [
+    "Custom / Other", "Motorcycle", "Tuk Tuk", "Boat",
+    "Excavator", "Crane", "Forklift", "Tipper Truck",
+    "Concrete Mixer", "Grader", "Bulldozer",
+  ],
 };
 
 const SERVICES = [
