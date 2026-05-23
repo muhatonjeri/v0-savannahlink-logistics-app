@@ -319,14 +319,25 @@ export default function AdminLayout({
           </Breadcrumb>
         </header>
         <main className="flex-1 overflow-auto p-4 md:p-6 relative">
-          {/* Watermark Logo */}
-          <div className="fixed bottom-4 right-4 pointer-events-none z-0 opacity-[0.03] print:hidden">
+          {/* Watermark Logo — centered, subtle, full page */}
+          <div
+            className="pointer-events-none select-none print:hidden"
+            style={{
+              position: "fixed",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-40%, -50%)",
+              zIndex: 0,
+              opacity: 0.04,
+              width: "520px",
+              height: "520px",
+            }}
+          >
             <Image
               src="/images/logo.png"
               alt=""
-              width={300}
-              height={150}
-              className="h-auto w-[200px] md:w-[300px] object-contain"
+              fill
+              className="object-contain"
               unoptimized
             />
           </div>
