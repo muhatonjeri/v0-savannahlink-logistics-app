@@ -92,20 +92,20 @@ const adminCarRentalSchema = z.object({
   idNumber: z.string().min(6, "ID/Passport number is required"),
   idPhotoFrontUrl: z.string().optional(),
   idPhotoBackUrl: z.string().optional(),
-  drivingLicenseNumber: z.string().min(4, "Driving license number is required"),
+  drivingLicenseNumber: z.string().optional().default(""),
   drivingLicenseFrontUrl: z.string().optional(),
   drivingLicenseBackUrl: z.string().optional(),
-  placeOfWork: z.string().min(2, "Place of work is required"),
-  kraPin: z.string().min(10, "KRA PIN is required (e.g., A012345678A)"),
+  placeOfWork: z.string().optional().default(""),
+  kraPin: z.string().optional().default(""),
   residence: z.string().min(2, "Residence/Address is required"),
   phone: z.string().min(10, "Phone number is required"),
   alternativePhone: z.string().optional(),
   email: z.string().email("Invalid email address"),
   
   // Next of Kin
-  nextOfKinName: z.string().min(2, "Next of kin name is required"),
-  nextOfKinPhone: z.string().min(10, "Next of kin phone is required"),
-  nextOfKinRelationship: z.string().min(2, "Relationship is required"),
+  nextOfKinName: z.string().optional().default(""),
+  nextOfKinPhone: z.string().optional().default(""),
+  nextOfKinRelationship: z.string().optional().default(""),
   
   // Biometric/ID uploads
   fingerprintLeftUrl: z.string().optional(),
