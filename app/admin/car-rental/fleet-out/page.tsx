@@ -26,7 +26,6 @@ interface FleetOutRecord {
   receiverType: "company" | "individual";
   // Agreement
   ourDailyRate: number;        // what we charge the receiver (our income)
-  receiverChargesClient: number; // what receiver charges their client (optional, for info)
   startDate: string;
   endDate: string;
   numberOfDays: number;
@@ -53,7 +52,7 @@ const INITIAL: FleetOutRecord[] = [
   {
     id: "fo-001", vehicleMake: "Toyota", vehicleModel: "Fortuner", vehicleReg: "KCB 001A", vehicleColor: "Black",
     receiverName: "Savannah Rentals Ltd", receiverPhone: "+254 722 500 600", receiverEmail: "ops@savannah.co.ke", receiverType: "company",
-    ourDailyRate: 7000, receiverChargesClient: 9000,
+    ourDailyRate: 7000,
     startDate: "2024-03-08", endDate: "2024-03-12", numberOfDays: 4,
     paymentMethod: "bank", paymentReference: "EQB-TXN-00789", amountPaid: 28000,
     status: "completed", returnCondition: "Good", followUpNotes: "", notes: "Picked up on time, returned in good condition", createdAt: "2024-03-08",
@@ -63,7 +62,7 @@ const INITIAL: FleetOutRecord[] = [
 const emptyForm = {
   vehicleReg: "", vehicleMake: "", vehicleModel: "", vehicleColor: "",
   receiverName: "", receiverPhone: "", receiverEmail: "", receiverType: "company" as "company" | "individual",
-  ourDailyRate: "", receiverChargesClient: "",
+  ourDailyRate: "",
   startDate: "", endDate: "", numberOfDays: "",
   paymentMethod: "mpesa" as "mpesa" | "bank" | "cash" | "cheque",
   paymentReference: "", amountPaid: "",
@@ -116,7 +115,6 @@ export default function FleetOutPage() {
       receiverName: form.receiverName, receiverPhone: form.receiverPhone,
       receiverEmail: form.receiverEmail, receiverType: form.receiverType,
       ourDailyRate: parseFloat(form.ourDailyRate),
-      receiverChargesClient: parseFloat(form.receiverChargesClient) || 0,
       startDate: form.startDate, endDate: form.endDate, numberOfDays: days,
       paymentMethod: form.paymentMethod, paymentReference: form.paymentReference,
       amountPaid: parseFloat(form.amountPaid) || 0,
@@ -355,13 +353,6 @@ export default function FleetOutPage() {
                     onChange={e => setForm({ ...form, ourDailyRate: e.target.value })} />
                 </div>
                 <div>
-                  <Label className="text-gray-400">Their Client Rate (KES) — optional info</Label>
-                  <Input type="number" className="mt-1 bg-[#0a1628] border-white/10 text-white"
-                    placeholder="9000 (what they charge their client)"
-                    value={form.receiverChargesClient}
-                    onChange={e => setForm({ ...form, receiverChargesClient: e.target.value })} />
-                </div>
-                <div>
                   <Label className="text-gray-200">Start Date *</Label>
                   <Input type="date" className="mt-1 bg-[#0a1628] border-white/20 text-white"
                     value={form.startDate} onChange={e => handleStartDate(e.target.value)} />
@@ -371,12 +362,13 @@ export default function FleetOutPage() {
                   <Input type="number" min="1" className="mt-1 bg-[#0a1628] border-white/20 text-white"
                     placeholder="e.g. 5" value={form.numberOfDays} onChange={e => handleDays(e.target.value)} />
                 </div>
-                <div className="col-span-2">
-                  <Label className="text-gray-400 text-xs">End Date (auto-calculated)</Label>
-                  <div className="mt-1 rounded-lg bg-[#0a1628] border border-white/10 px-3 py-2 text-gray-300 text-sm">
-                    {form.endDate || "Set start date and number of days"}
+                <div>
+                  <Label className="text-gray-200">End Date (auto-calculated)</Label>
+                  <div className="mt-1 rounded-lg bg-[#0a1628] border border-white/10 px-3 py-2 text-gray-300 text-sm h-[38px] flex items-center">
+                    {form.endDate || "Set start date and days"}
                   </div>
                 </div>
+
               </div>
 
               {/* Financial summary */}
@@ -387,18 +379,7 @@ export default function FleetOutPage() {
                     <span className="text-gray-400">We charge receiver:</span>
                     <span className="text-emerald-400 font-bold">KES {(parseFloat(form.ourDailyRate) * parseInt(form.numberOfDays)).toLocaleString()}</span>
                   </div>
-                  {form.receiverChargesClient && (
-                    <>
-                      <div className="flex justify-between">
-                        <span className="text-gray-400">Receiver charges client:</span>
-                        <span className="text-blue-400">KES {(parseFloat(form.receiverChargesClient) * parseInt(form.numberOfDays)).toLocaleString()}</span>
-                      </div>
-                      <div className="flex justify-between border-t border-white/10 pt-2">
-                        <span className="text-gray-400">Receiver profit (est.):</span>
-                        <span className="text-gray-300">KES {((parseFloat(form.receiverChargesClient) - parseFloat(form.ourDailyRate)) * parseInt(form.numberOfDays)).toLocaleString()}</span>
-                      </div>
-                    </>
-                  )}
+
                 </div>
               )}
             </div>
@@ -521,9 +502,7 @@ export default function FleetOutPage() {
                   <div className="flex justify-between"><span className="text-gray-400">Period:</span><span className="text-white">{viewRecord.startDate} to {viewRecord.endDate} ({viewRecord.numberOfDays} days)</span></div>
                   <div className="flex justify-between"><span className="text-gray-400">Our daily rate:</span><span className="text-emerald-400 font-bold">KES {viewRecord.ourDailyRate.toLocaleString()}/day</span></div>
                   <div className="flex justify-between"><span className="text-gray-400">Total due:</span><span className="text-white font-bold">KES {(viewRecord.ourDailyRate * viewRecord.numberOfDays).toLocaleString()}</span></div>
-                  {viewRecord.receiverChargesClient > 0 && (
-                    <div className="flex justify-between"><span className="text-gray-400">They charge client:</span><span className="text-blue-400">KES {viewRecord.receiverChargesClient.toLocaleString()}/day</span></div>
-                  )}
+
                 </div>
                 <div className="rounded-lg bg-[#0a1628] border border-amber-500/20 p-3 space-y-1.5">
                   <p className="text-amber-400 font-semibold text-xs uppercase tracking-wide mb-1">Payment</p>
