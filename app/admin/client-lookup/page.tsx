@@ -585,25 +585,46 @@ function ClientLookupContent() {
       return nameMatch || idMatch || phoneMatch || kraPinMatch || licenseMatch;
     });
 
-    // Search clients from store (includes both demo and registered clients)
-    const allClients = getClients();
-    console.log("[v0] All clients from store:", allClients.length, "clients");
-    console.log("[v0] Search query:", query, "Search type:", searchType);
-    const matchedClient = allClients.find((client) => {
-      const nameMatch = client.fullName.toLowerCase().includes(query);
-      const idMatch = client.idNumber.toLowerCase().includes(query);
-      const phoneMatch = client.phone.toLowerCase().includes(query);
-      const kraPinMatch = client.kraPin?.toLowerCase().includes(query) || false;
-      const licenseMatch = client.drivingLicense?.toLowerCase().includes(query) || false;
-      
-      if (searchType === "name") return nameMatch;
-      if (searchType === "id") return idMatch;
-      if (searchType === "phone") return phoneMatch;
-      if (searchType === "krapin") return kraPinMatch;
-      if (searchType === "license") return licenseMatch;
-      if (searchType === "payment") return phoneMatch || idMatch;
-      return nameMatch || idMatch || phoneMatch || kraPinMatch || licenseMatch;
-    });
+    // Search clients from Supabase first, fallback to local store
+    let matchedClient = null;
+    try {
+      const res = await fetch("/api/clients?q=" + encodeURIComponent(query));
+      const supaClients = await res.json();
+      if (Array.isArray(supaClients) && supaClients.length > 0) {
+        const sc = supaClients[0];
+        matchedClient = {
+          id: sc.id,
+          fullName: sc.full_name,
+          idNumber: sc.id_number || "",
+          phone: sc.phone,
+          alternativePhone: sc.alternative_phone || "",
+          email: sc.email || "",
+          residence: sc.residence || "",
+          placeOfWork: sc.place_of_work || "",
+          kraPin: sc.kra_pin || "",
+          drivingLicenseNumber: sc.driving_license_number || "",
+          nextOfKin: { name: sc.next_of_kin_name || "", phone: sc.next_of_kin_phone || "", relationship: sc.next_of_kin_relationship || "" },
+          riskLevel: sc.risk_level || "low",
+          totalBookings: sc.total_bookings || 0,
+          totalSpent: sc.total_spent || 0,
+          totalDebt: sc.total_debt || 0,
+          createdAt: sc.created_at || "",
+          updatedAt: sc.updated_at || "",
+        };
+      }
+    } catch(e) {
+      // Fallback to local store
+      const allClients = getClients();
+      matchedClient = allClients.find((client) => {
+        const nameMatch = client.fullName.toLowerCase().includes(query);
+        const idMatch = client.idNumber.toLowerCase().includes(query);
+        const phoneMatch = client.phone.toLowerCase().includes(query);
+        if (searchType === "name") return nameMatch;
+        if (searchType === "id") return idMatch;
+        if (searchType === "phone") return phoneMatch;
+        return nameMatch || idMatch || phoneMatch;
+      }) || null;
+    }
 
     const isBlacklisted = matchedBlacklist.length > 0 && matchedBlacklist.some(e => e.status === "active");
 
