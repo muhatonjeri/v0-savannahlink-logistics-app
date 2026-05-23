@@ -315,37 +315,37 @@ export default function ClientsPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div className="col-span-2">
                   <Label className="text-gray-200">Full Name *</Label>
-                  <input className="mt-1 w-full rounded-lg bg-[#0a1628] border border-white/20 text-white px-3 py-2 text-sm" placeholder="Full legal name"
+                  <Input className="mt-1 bg-[#0a1628] border-white/20 text-white" placeholder="Full legal name"
                     value={regForm.fullName} onChange={e => setRegForm({ ...regForm, fullName: e.target.value })} />
                 </div>
                 <div>
                   <Label className="text-gray-200">Phone *</Label>
-                  <input className="mt-1 w-full rounded-lg bg-[#0a1628] border border-white/20 text-white px-3 py-2 text-sm" placeholder="+254 7XX XXX XXX"
+                  <Input className="mt-1 bg-[#0a1628] border-white/20 text-white" placeholder="+254 7XX XXX XXX"
                     value={regForm.phone} onChange={e => setRegForm({ ...regForm, phone: e.target.value })} />
                 </div>
                 <div>
                   <Label className="text-gray-200">Alternative Phone</Label>
-                  <input className="mt-1 w-full rounded-lg bg-[#0a1628] border border-white/20 text-white px-3 py-2 text-sm" placeholder="+254 7XX XXX XXX"
+                  <Input className="mt-1 bg-[#0a1628] border-white/20 text-white" placeholder="+254 7XX XXX XXX"
                     value={regForm.alternativePhone} onChange={e => setRegForm({ ...regForm, alternativePhone: e.target.value })} />
                 </div>
                 <div>
                   <Label className="text-gray-200">Email</Label>
-                  <input className="mt-1 w-full rounded-lg bg-[#0a1628] border border-white/20 text-white px-3 py-2 text-sm" placeholder="email@example.com"
+                  <Input className="mt-1 bg-[#0a1628] border-white/20 text-white" placeholder="email@example.com"
                     value={regForm.email} onChange={e => setRegForm({ ...regForm, email: e.target.value })} />
                 </div>
                 <div>
                   <Label className="text-gray-200">KRA PIN</Label>
-                  <input className="mt-1 w-full rounded-lg bg-[#0a1628] border border-white/20 text-white px-3 py-2 text-sm font-mono" placeholder="A012345678A"
+                  <Input className="mt-1 bg-[#0a1628] border-white/20 text-white font-mono" placeholder="A012345678A"
                     value={regForm.kraPin} onChange={e => setRegForm({ ...regForm, kraPin: e.target.value })} />
                 </div>
                 <div>
                   <Label className="text-gray-200">Residence / Address</Label>
-                  <input className="mt-1 w-full rounded-lg bg-[#0a1628] border border-white/20 text-white px-3 py-2 text-sm" placeholder="Westlands, Nairobi"
+                  <Input className="mt-1 bg-[#0a1628] border-white/20 text-white" placeholder="Westlands, Nairobi"
                     value={regForm.residence} onChange={e => setRegForm({ ...regForm, residence: e.target.value })} />
                 </div>
                 <div>
                   <Label className="text-gray-200">Place of Work</Label>
-                  <input className="mt-1 w-full rounded-lg bg-[#0a1628] border border-white/20 text-white px-3 py-2 text-sm" placeholder="Company or employer"
+                  <Input className="mt-1 bg-[#0a1628] border-white/20 text-white" placeholder="Company or employer"
                     value={regForm.placeOfWork} onChange={e => setRegForm({ ...regForm, placeOfWork: e.target.value })} />
                 </div>
               </div>
@@ -356,7 +356,7 @@ export default function ClientsPage() {
               <h4 className="text-emerald-400 font-semibold text-xs uppercase tracking-wide">ID / Passport</h4>
               <div>
                 <Label className="text-gray-200">ID / Passport Number</Label>
-                <input className="mt-1 w-full rounded-lg bg-[#0a1628] border border-white/20 text-white px-3 py-2 text-sm font-mono" placeholder="e.g. 12345678"
+                <Input className="mt-1 bg-[#0a1628] border-white/20 text-white font-mono" placeholder="e.g. 12345678"
                   value={regForm.idNumber} onChange={e => setRegForm({ ...regForm, idNumber: e.target.value })} />
               </div>
               <div className="grid grid-cols-2 gap-3">
@@ -397,7 +397,7 @@ export default function ClientsPage() {
               <h4 className="text-violet-400 font-semibold text-xs uppercase tracking-wide">Driving License</h4>
               <div>
                 <Label className="text-gray-200">License Number</Label>
-                <input className="mt-1 w-full rounded-lg bg-[#0a1628] border border-white/20 text-white px-3 py-2 text-sm font-mono" placeholder="e.g. DL123456"
+                <Input className="mt-1 bg-[#0a1628] border-white/20 text-white font-mono" placeholder="e.g. DL123456"
                   value={regForm.drivingLicenseNumber} onChange={e => setRegForm({ ...regForm, drivingLicenseNumber: e.target.value })} />
               </div>
               <div className="grid grid-cols-2 gap-3">
@@ -426,7 +426,7 @@ export default function ClientsPage() {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label className="text-gray-200">Risk Level</Label>
-                <select className="mt-1 w-full rounded-lg bg-[#0a1628] border border-white/20 text-white px-3 py-2 text-sm"
+                <select className="mt-1 w-full rounded-lg bg-[#0a1628] border border-white/20 text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-lime-500"
                   value={regForm.riskLevel} onChange={e => setRegForm({ ...regForm, riskLevel: e.target.value })}>
                   <option value="low">Low Risk</option>
                   <option value="medium">Medium Risk</option>
@@ -435,7 +435,7 @@ export default function ClientsPage() {
               </div>
               <div>
                 <Label className="text-gray-200">Notes</Label>
-                <input className="mt-1 w-full rounded-lg bg-[#0a1628] border border-white/20 text-white px-3 py-2 text-sm" placeholder="Any notes..."
+                <Input className="mt-1 bg-[#0a1628] border-white/20 text-white" placeholder="Any notes..."
                   value={regForm.notes} onChange={e => setRegForm({ ...regForm, notes: e.target.value })} />
               </div>
             </div>
