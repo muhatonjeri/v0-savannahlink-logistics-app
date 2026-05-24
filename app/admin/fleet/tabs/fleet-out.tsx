@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, Pencil, Car, Building2, TrendingUp, DollarSign, Eye, ArrowUpRight, Bell, AlertTriangle, Clock, CreditCard, CalendarClock, CheckCircle2, XCircle, Trash2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
