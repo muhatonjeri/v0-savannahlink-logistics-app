@@ -92,6 +92,12 @@ const navItems = [
     color: "text-lime-400",
   },
   {
+    title: "Clients",
+    href: "/admin/clients",
+    icon: Users,
+    color: "text-green-400",
+  },
+  {
     title: "Client Lookup",
     href: "/admin/client-lookup",
     icon: Fingerprint,
