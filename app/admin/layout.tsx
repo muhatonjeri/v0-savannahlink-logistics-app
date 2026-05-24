@@ -9,7 +9,7 @@ import {
   Wrench, Package, Ship, HardHat, LogOut, User as UserIcon,
   Gauge, UsersRound, Users, Fingerprint, ShieldX, ReceiptText,
   BadgeDollarSign, FileBadge, Sliders, Anchor, Menu, X,
-  ChevronDown, ChevronUp, Bell, Search, Settings, Lock, Eye, EyeOff, Save,
+  ChevronDown, ChevronUp, Bell, Search, Settings, Lock, Eye, EyeOff, Save, ShieldCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -19,6 +19,7 @@ const navItems = [
   { title: "Clients",          href: "/admin/clients",             icon: Users,         color: "text-green-400"   },
   { title: "Client Lookup",    href: "/admin/client-lookup",       icon: Fingerprint,   color: "text-violet-400"  },
   { title: "Blacklist",        href: "/admin/blacklist",           icon: ShieldX,       color: "text-rose-500"    },
+  { title: "Verify Payment",   href: "/admin/verify-payment",      icon: ShieldCheck,   color: "text-emerald-400" },
   { title: "Fleet Management", href: "/admin/fleet",               icon: Truck,         color: "text-fuchsia-400" },
   { title: "Receipts",         href: "/admin/receipts",            icon: ReceiptText,   color: "text-teal-400"    },
   { title: "Accounts",         href: "/admin/accounts",            icon: BadgeDollarSign, color: "text-yellow-400"},
@@ -119,7 +120,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const colorHex: Record<string,string> = {
     "text-sky-400":"#38bdf8", "text-lime-400":"#a3e635", "text-green-400":"#4ade80",
     "text-violet-400":"#a78bfa", "text-rose-500":"#f43f5e", "text-fuchsia-400":"#e879f9",
-    "text-teal-400":"#2dd4bf", "text-yellow-400":"#facc15", "text-orange-400":"#fb923c",
+    "text-teal-400":"#2dd4bf", "text-emerald-400":"#34d399", "text-yellow-400":"#facc15", "text-orange-400":"#fb923c",
     "text-pink-400":"#f472b6", "text-emerald-400":"#34d399", "text-amber-400":"#fbbf24",
     "text-indigo-400":"#818cf8", "text-cyan-500":"#06b6d4", "text-rose-400":"#fb7185",
     "text-orange-500":"#f97316", "text-yellow-500":"#eab308", "text-violet-500":"#8b5cf6",
