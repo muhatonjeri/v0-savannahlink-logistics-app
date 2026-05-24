@@ -115,19 +115,39 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     blacklist: "text-red-400 bg-red-500/10",
   };
 
+  // Map Tailwind color class to actual hex for active state
+  const colorHex: Record<string,string> = {
+    "text-sky-400":"#38bdf8", "text-lime-400":"#a3e635", "text-green-400":"#4ade80",
+    "text-violet-400":"#a78bfa", "text-rose-500":"#f43f5e", "text-fuchsia-400":"#e879f9",
+    "text-teal-400":"#2dd4bf", "text-yellow-400":"#facc15", "text-orange-400":"#fb923c",
+    "text-pink-400":"#f472b6", "text-emerald-400":"#34d399", "text-amber-400":"#fbbf24",
+    "text-indigo-400":"#818cf8", "text-cyan-500":"#06b6d4", "text-rose-400":"#fb7185",
+    "text-orange-500":"#f97316", "text-yellow-500":"#eab308", "text-violet-500":"#8b5cf6",
+  };
+
   const NavLink = ({ item }: { item: typeof navItems[0] }) => {
     const isActive = item.href === "/admin"
       ? pathname === "/admin"
       : pathname.startsWith(item.href);
+    const hex = colorHex[item.color] || "#ffffff";
     return (
       <Link href={item.href}
-        className={"flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all " +
-          (isActive
-            ? "bg-white/10 text-white"
-            : "text-gray-400 hover:text-white hover:bg-white/5")}>
-        <item.icon className={"h-4 w-4 shrink-0 " + (isActive ? item.color : "text-gray-500")} />
+        className={"flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-all "}
+        style={isActive ? {
+          background: hex + "1a",
+          border: "1px solid " + hex + "40",
+          color: "white",
+        } : {
+          border: "1px solid transparent",
+          color: "#9ca3af",
+        }}
+        onMouseEnter={e => { if (!isActive) (e.currentTarget as HTMLElement).style.color = "white"; (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.05)"; }}
+        onMouseLeave={e => { if (!isActive) { (e.currentTarget as HTMLElement).style.color = "#9ca3af"; (e.currentTarget as HTMLElement).style.background = ""; } }}>
+        <item.icon className={"h-4 w-4 shrink-0"} style={{ color: hex }} />
         <span className="truncate">{item.title}</span>
-        {isActive && <span className={"ml-auto h-1.5 w-1.5 rounded-full shrink-0 " + item.color.replace("text-", "bg-")} />}
+        {isActive && (
+          <span className="ml-auto h-1.5 w-1.5 rounded-full shrink-0" style={{ background: hex }} />
+        )}
       </Link>
     );
   };
@@ -135,7 +155,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
       {/* Logo */}
-      <div className="flex items-center justify-between px-4 py-4 border-b border-white/10 shrink-0">
+      <div className="flex items-center justify-between px-4 py-4 shrink-0" style={{borderBottom:"1px solid rgba(230,126,34,0.25)"}}>
         <Link href="/admin" className="flex items-center gap-2">
           <Image src="/images/logo.png" alt="Moventra" width={40} height={40}
             className="rounded-full object-contain" />
@@ -159,7 +179,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="pt-3">
           <button
             onClick={() => setServicesExpanded(v => !v)}
-            className="flex items-center justify-between w-full px-3 pb-1 pt-1">
+            className="flex items-center justify-between w-full px-3 pb-1 pt-2 mt-1" style={{borderTop:"1px solid rgba(230,126,34,0.15)"}}>
             <p className="text-[10px] font-bold uppercase tracking-widest text-[#e67e22]">Services</p>
             {servicesExpanded
               ? <ChevronUp className="h-3 w-3 text-[#e67e22]" />
@@ -194,6 +214,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#0a1628]">
+      {/* ── Orange top accent bar ── */}
+      <div className="fixed top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-[#e67e22] to-transparent z-[100]" />
+
       {/* ── Desktop sidebar ── */}
       <aside className="hidden lg:flex flex-col w-64 shrink-0 border-r border-white/10 bg-[#0d1f35]">
         <SidebarContent />
@@ -218,7 +241,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* ── Main content ── */}
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
         {/* Top header */}
-        <header className="flex items-center gap-3 h-14 px-4 border-b border-white/10 bg-[#0d1f35] shrink-0">
+        <header className="flex items-center gap-3 h-14 px-4 bg-[#0d1f35] shrink-0" style={{borderBottom:"1px solid rgba(230,126,34,0.3)"}}>
           {/* Hamburger — mobile only */}
           <button
             onClick={() => setSidebarOpen(true)}

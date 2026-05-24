@@ -1027,3 +1027,75 @@ html, body { overflow-x: hidden; }
 @media (max-width: 768px) {
   .overflow-x-auto { -webkit-overflow-scrolling: touch; }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   MOVENTRA GLOBAL COLOR THEME RESTORATION
+   ═══════════════════════════════════════════════════════════ */
+
+/* Top gradient bar on every admin page */
+.admin-gradient-top {
+  background: linear-gradient(90deg, #0a1628 0%, #1a3a5c 50%, #0a1628 100%);
+  border-bottom: 2px solid #e67e22;
+}
+
+/* Card hover glow effects */
+.card-glow-emerald:hover { box-shadow: 0 0 20px rgba(52,211,153,0.15); }
+.card-glow-amber:hover   { box-shadow: 0 0 20px rgba(251,191,36,0.15); }
+.card-glow-blue:hover    { box-shadow: 0 0 20px rgba(59,130,246,0.15); }
+.card-glow-purple:hover  { box-shadow: 0 0 20px rgba(167,139,250,0.15); }
+.card-glow-red:hover     { box-shadow: 0 0 20px rgba(248,113,113,0.15); }
+.card-glow-orange:hover  { box-shadow: 0 0 20px rgba(251,146,60,0.15); }
+
+/* Gradient header bar for receipts, invoices, print templates */
+.moventra-header {
+  background: linear-gradient(135deg, #0a1628 0%, #1a3a5c 100%);
+  border-bottom: 3px solid #e67e22;
+}
+
+/* Service color badges */
+.badge-car-rental    { background: rgba(52,211,153,0.15); color: #34d399; border: 1px solid rgba(52,211,153,0.3); }
+.badge-safari        { background: rgba(251,191,36,0.15);  color: #fbbf24; border: 1px solid rgba(251,191,36,0.3); }
+.badge-transfers     { background: rgba(56,189,248,0.15);  color: #38bdf8; border: 1px solid rgba(56,189,248,0.3); }
+.badge-movers        { background: rgba(167,139,250,0.15); color: #a78bfa; border: 1px solid rgba(167,139,250,0.3); }
+.badge-corporate     { background: rgba(129,140,248,0.15); color: #818cf8; border: 1px solid rgba(129,140,248,0.3); }
+.badge-recovery      { background: rgba(251,113,133,0.15); color: #fb7185; border: 1px solid rgba(251,113,133,0.3); }
+.badge-cargo         { background: rgba(251,146,60,0.15);  color: #fb923c; border: 1px solid rgba(251,146,60,0.3); }
+.badge-shipment      { background: rgba(34,211,238,0.15);  color: #22d3ee; border: 1px solid rgba(34,211,238,0.3); }
+.badge-construction  { background: rgba(234,179,8,0.15);   color: #eab308; border: 1px solid rgba(234,179,8,0.3); }
+
+/* Sidebar active item glow */
+.sidebar-nav-active {
+  position: relative;
+}
+.sidebar-nav-active::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 50%; transform: translateY(-50%);
+  width: 3px; height: 60%;
+  border-radius: 0 2px 2px 0;
+  background: #e67e22;
+}
+
+/* Moventra orange accent for inputs on focus */
+input:focus, textarea:focus, select:focus {
+  outline: none !important;
+  border-color: rgba(230, 126, 34, 0.5) !important;
+  box-shadow: 0 0 0 2px rgba(230, 126, 34, 0.1) !important;
+}
+
+/* Status pill colors - consistent across all pages */
+.status-pending    { background: rgba(234,179,8,0.2);    color: #fcd34d; }
+.status-confirmed  { background: rgba(59,130,246,0.2);   color: #93c5fd; }
+.status-active     { background: rgba(139,92,246,0.2);   color: #c4b5fd; }
+.status-completed  { background: rgba(52,211,153,0.2);   color: #6ee7b7; }
+.status-cancelled  { background: rgba(239,68,68,0.2);    color: #fca5a5; }
+
+/* Print improvements */
+@media print {
+  .moventra-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .badge-car-rental, .badge-safari, .badge-transfers,
+  .badge-movers, .badge-corporate, .badge-recovery,
+  .badge-cargo, .badge-shipment, .badge-construction {
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+}
