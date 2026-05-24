@@ -244,7 +244,7 @@ export default function AccountsPage() {
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [methodFilter, setMethodFilter] = useState<string>("all");
-  const [dateRange, setDateRange] = useState<"today" | "week" | "month" | "all">("month");
+  const [dateRange, setDateRange] = useState<"today" | "week" | "month" | "all">("all");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState(new Date());
