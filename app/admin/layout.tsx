@@ -227,7 +227,7 @@ export default function AdminLayout({
                       tooltip={item.title}
                     >
                       <Link href={item.href}>
-                        <item.icon className="h-4 w-4 shrink-0" style={{color: ({"text-blue-500":"#3b82f6","text-green-500":"#22c55e","text-indigo-500":"#6366f1","text-red-500":"#ef4444","text-purple-500":"#a855f7","text-emerald-500":"#10b981","text-amber-500":"#f59e0b","text-cyan-500":"#06b6d4","text-gray-500":"#6b7280","text-sky-500":"#0ea5e9","text-violet-500":"#8b5cf6","text-rose-500":"#f43f5e","text-orange-500":"#f97316","text-yellow-500":"#eab308"})[item.color] || "white"}} />
+                        <item.icon className={"h-4 w-4 shrink-0 " + item.color} />
                         <span>{item.title}</span>
                       </Link>
                     </SidebarMenuButton>
@@ -249,7 +249,7 @@ export default function AdminLayout({
                       tooltip={item.title}
                     >
                       <Link href={item.href}>
-                        <item.icon className="h-4 w-4 shrink-0" style={{color: ({"text-blue-500":"#3b82f6","text-green-500":"#22c55e","text-indigo-500":"#6366f1","text-red-500":"#ef4444","text-purple-500":"#a855f7","text-emerald-500":"#10b981","text-amber-500":"#f59e0b","text-cyan-500":"#06b6d4","text-gray-500":"#6b7280","text-sky-500":"#0ea5e9","text-violet-500":"#8b5cf6","text-rose-500":"#f43f5e","text-orange-500":"#f97316","text-yellow-500":"#eab308"})[item.color] || "white"}} />
+                        <item.icon className={"h-4 w-4 shrink-0 " + item.color} />
                         <span>{item.title}</span>
                       </Link>
                     </SidebarMenuButton>
