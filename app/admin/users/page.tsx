@@ -62,7 +62,7 @@ export default function UsersPage() {
     const user: AdminUser = editingUser
       ? { ...editingUser, name: formData.name, email: formData.email, role: formData.role }
       : {
-          id: generateId(),
+          id: crypto.randomUUID(),
           name: formData.name,
           email: formData.email,
           role: formData.role,
