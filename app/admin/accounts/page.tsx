@@ -399,10 +399,32 @@ export default function AccountsPage() {
         createdAt: new Date().toISOString(),
       };
 
-      setTransactions([newTransaction, ...transactions]);
+      // Save to Supabase
+      const res = await fetch("/api/transactions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          date: newTransaction.date,
+          type: newTransaction.type,
+          category: newTransaction.category,
+          subcategory: newTransaction.subcategory,
+          description: newTransaction.description,
+          amount: newTransaction.amount,
+          payment_method: newTransaction.paymentMethod,
+          reference: newTransaction.reference,
+          customer_name: newTransaction.customerName,
+          invoice_number: newTransaction.invoiceNumber,
+          status: "completed",
+          created_by: "Admin",
+        }),
+      });
+      const saved = await res.json();
+      if (saved.error) throw new Error(saved.error);
+      
       setIsAddDialogOpen(false);
       form.reset();
       toast.success(`${data.type === "income" ? "Income" : "Expense"} recorded successfully`);
+      loadTransactions();
     } catch {
       toast.error("Failed to record transaction");
     } finally {

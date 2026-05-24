@@ -696,10 +696,25 @@ function SubletsPage() {
       ourDailyRate: parseFloat(vForm.ourDailyRate),
       status: "available", createdAt: new Date().toISOString().split("T")[0],
     };
-    setVehicles([v, ...vehicles]);
+    // Save to Supabase
+    fetch("/api/sublet-vehicles", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        serviceType: v.serviceType, supplierName: v.supplierName,
+        supplierPhone: v.supplierPhone, supplierType: v.supplierType,
+        make: v.make, model: v.model, registration: v.registration,
+        color: v.color, year: v.year,
+        supplierDailyRate: v.supplierDailyRate, ourDailyRate: v.ourDailyRate,
+        status: "available",
+      }),
+    }).then(r => r.json()).then(saved => {
+      if (saved.error) { toast.error("Save failed: " + saved.error); return; }
+      toast.success("Sublet asset saved to database");
+      loadData();
+    }).catch(e => toast.error("Save failed: " + String(e)));
     setShowVehicleDialog(false);
     setVForm(emptyVForm);
-    toast.success("Sublet asset added");
   };
 
   const addBooking = () => {
@@ -727,6 +742,31 @@ function SubletsPage() {
       fetch("/api/sublet-vehicles", { method: "PUT", headers: {"Content-Type":"application/json"}, body: JSON.stringify({ id: selectedVehicle.id, status: "active" }) });
       loadData();
     }).catch(e => console.error("Save booking:", e));
+    // Save to Supabase
+    fetch("/api/sublet-bookings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        vehicleId: b.vehicleId, serviceType: b.serviceType, areaOfUse: b.areaOfUse,
+        clientName: b.clientName, clientPhone: b.clientPhone,
+        startDate: b.startDate, endDate: b.endDate, numberOfDays: b.numberOfDays,
+        supplierDailyRate: b.supplierDailyRate, ourDailyRate: b.ourDailyRate,
+        totalSupplierCost: b.totalSupplierCost, totalClientCharge: b.totalClientCharge,
+        expenses: b.expenses, totalExpenses: b.totalExpenses,
+        netProfit: b.netProfit, profitPerDay: b.profitPerDay,
+        amountPaid: b.amountPaid, paymentMethod: b.paymentMethod,
+        paymentReference: b.paymentReference, notes: b.notes,
+      }),
+    }).then(r => r.json()).then(saved => {
+      if (saved.error) { toast.error("Booking save failed: " + saved.error); return; }
+      // Update vehicle status
+      fetch("/api/sublet-vehicles", {
+        method: "PUT", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: selectedVehicle.id, status: "active" }),
+      });
+      toast.success("Booking saved to database");
+      loadData();
+    }).catch(e => toast.error("Save failed: " + String(e)));
     setBookings([b, ...bookings]);
     setVehicles(vehicles.map(v => v.id === selectedVehicle.id ? { ...v, status: "active" as const } : v));
 
