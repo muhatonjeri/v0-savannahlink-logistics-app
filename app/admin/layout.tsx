@@ -22,6 +22,7 @@ import {
   User as UserIcon,
   Gauge,
   UsersRound,
+  Users,
   Fingerprint,
   ShieldX,
   Truck as FleetIcon,
@@ -161,6 +162,7 @@ const serviceItems = [
 function getBreadcrumbTitle(pathname: string): string {
   if (pathname === "/admin") return "Dashboard";
   if (pathname === "/admin/users") return "Users";
+  if (pathname.startsWith("/admin/clients")) return "Clients";
   if (pathname.includes("client-lookup")) return "Client Lookup";
   if (pathname.includes("blacklist")) return "Blacklist";
   if (pathname.includes("fleet")) return "Fleet Management";
