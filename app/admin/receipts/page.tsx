@@ -332,6 +332,36 @@ function numberToWords(num: number): string {
 
 export default function ReceiptsPage() {
   const [receipts, setReceipts] = useState<ReceiptData[]>([]);
+  const [clientSearch, setClientSearch] = useState("");
+  const [clientResults, setClientResults] = useState<{id:string;fullName:string;phone:string;email:string;kraPin:string}[]>([]);
+  const [showClientDropdown, setShowClientDropdown] = useState(false);
+
+  const searchClients = async (q: string) => {
+    setClientSearch(q);
+    if (q.length < 2) { setClientResults([]); setShowClientDropdown(false); return; }
+    try {
+      const res = await fetch("/api/clients?q=" + encodeURIComponent(q));
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        setClientResults(data.map((c: Record<string,unknown>) => ({
+          id: String(c.id || ""), fullName: String(c.full_name || c.fullName || ""),
+          phone: String(c.phone || ""), email: String(c.email || ""),
+          kraPin: String(c.kra_pin || c.kraPin || ""),
+        })));
+        setShowClientDropdown(true);
+      }
+    } catch {}
+  };
+
+  const selectClient = (c: {id:string;fullName:string;phone:string;email:string;kraPin:string}) => {
+    form.setValue("customerName", c.fullName);
+    form.setValue("customerPhone", c.phone);
+    if (c.email) form.setValue("customerEmail", c.email);
+    if (c.kraPin) form.setValue("customerKraPin", c.kraPin);
+    setClientSearch(c.fullName);
+    setShowClientDropdown(false);
+    setClientResults([]);
+  };
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedReceipt, setSelectedReceipt] = useState<ReceiptData | null>(null);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
@@ -646,6 +676,36 @@ export default function ReceiptsPage() {
                     <User className="h-4 w-4" />
                     Customer Details
                   </h4>
+                  {/* Client Search */}
+                  <div className="mb-4 relative">
+                    <label className="text-sm font-medium text-gray-300 block mb-1.5">Search Existing Client</label>
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                      <input
+                        className="w-full pl-9 pr-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm placeholder:text-gray-500 focus:outline-none focus:border-blue-500/50"
+                        placeholder="Type name, phone or ID to search clients..."
+                        value={clientSearch}
+                        onChange={e => searchClients(e.target.value)}
+                        onFocus={() => clientSearch.length >= 2 && setShowClientDropdown(true)}
+                      />
+                    </div>
+                    {showClientDropdown && clientResults.length > 0 && (
+                      <div className="absolute z-50 w-full mt-1 rounded-lg border border-white/10 bg-[#0a1628] shadow-xl">
+                        {clientResults.map(c => (
+                          <button key={c.id} type="button"
+                            className="w-full text-left px-4 py-3 hover:bg-white/10 transition-colors border-b border-white/5 last:border-0"
+                            onClick={() => selectClient(c)}>
+                            <p className="text-white text-sm font-medium">{c.fullName}</p>
+                            <p className="text-gray-400 text-xs">{c.phone}{c.email ? " · " + c.email : ""}</p>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                    {clientSearch.length >= 2 && clientResults.length === 0 && (
+                      <p className="text-xs text-gray-500 mt-1">No existing client found — fill in details below</p>
+                    )}
+                  </div>
+
                   <div className="grid gap-4 sm:grid-cols-2">
                     <FormField
                       control={form.control}

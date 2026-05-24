@@ -765,74 +765,27 @@ function SubletsPage() {
         body: JSON.stringify({ id: selectedVehicle.id, status: "active" }),
       });
       toast.success("Booking saved to database");
-      loadData();
+      loadData(); // reload from Supabase (no local state duplicate)
     }).catch(e => toast.error("Save failed: " + String(e)));
-    setBookings([b, ...bookings]);
-    setVehicles(vehicles.map(v => v.id === selectedVehicle.id ? { ...v, status: "active" as const } : v));
 
-    // -- Link to Accounts: post income transaction --
-    try {
-      // Save to transactions API instead of localStorage
-      // Income entry: what we charge the client
-      existing.push({
-        id: "sublet-inc-" + Date.now(),
-        date: b.startDate,
-        type: "income",
-        category: "car-rental",
-        subcategory: "Sublet Income",
-        description: b.serviceType + " - Sublet | " + (selectedVehicle.make + " " + selectedVehicle.model) + " (" + selectedVehicle.registration + ") | Client: " + b.clientName + " | Area: " + (bForm.areaOfUse || "N/A"),
-        amount: b.totalClientCharge,
-        paymentMethod: b.paymentMethod === "cheque" ? "bank" : b.paymentMethod,
-        reference: b.paymentReference || "SUBLET-" + b.id.slice(-6).toUpperCase(),
-        customerName: b.clientName,
-        status: b.amountPaid >= b.totalClientCharge ? "completed" : "pending",
-        createdBy: "Sublet Module",
-        createdAt: new Date().toISOString(),
-        linkedSubletId: b.id,
-      });
-      // Expense entry: what we pay the supplier
-      existing.push({
-        id: "sublet-exp-" + Date.now() + 1,
-        date: b.startDate,
-        type: "expense",
-        category: "other-expense",
-        subcategory: "Sublet Supplier Cost",
-        description: "Supplier cost | " + selectedVehicle.supplierName + " | " + (selectedVehicle.make + " " + selectedVehicle.model) + " (" + selectedVehicle.registration + ")",
-        amount: b.totalSupplierCost,
-        paymentMethod: "bank",
-        reference: "SUBLET-COST-" + b.id.slice(-6).toUpperCase(),
-        customerName: selectedVehicle.supplierName,
-        status: "pending",
-        createdBy: "Sublet Module",
-        createdAt: new Date().toISOString(),
-        linkedSubletId: b.id,
-      });
-      // Extra expenses
-      b.expenses.forEach((exp, i) => {
-        existing.push({
-          id: "sublet-xp-" + Date.now() + i + 2,
-          date: b.startDate,
-          type: "expense",
-          category: "other-expense",
-          subcategory: exp.type,
-          description: exp.type + (exp.note ? " - " + exp.note : "") + " | " + (selectedVehicle.make + " " + selectedVehicle.model),
-          amount: exp.amount,
-          paymentMethod: "cash",
-          reference: "SUBLET-EXP-" + b.id.slice(-6).toUpperCase(),
-          customerName: b.clientName,
-          status: "completed",
-          createdBy: "Sublet Module",
-          createdAt: new Date().toISOString(),
-          linkedSubletId: b.id,
-        });
-      });
-
-    } catch {}
-
-    setShowBookingDialog(false);
-    setBForm(emptyBForm);
-    setExpenses([]);
-    toast.success("Sublet booking recorded and synced to Accounts");
+    // -- Sync to Accounts (Supabase) --
+    fetch("/api/transactions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify([
+        {
+          date: b.startDate, type: "income", category: "Sublet",
+          description: "Sublet Income: " + b.clientName + " - " + (selectedVehicle?.make || "") + " " + (selectedVehicle?.model || "") + " (" + b.startDate + " to " + b.endDate + ")",
+          amount: b.totalClientCharge, payment_method: b.paymentMethod || "cash",
+          customer_name: b.clientName, status: "completed",
+        },
+        {
+          date: b.startDate, type: "expense", category: "Sublet Supplier",
+          description: "Supplier Cost: " + (selectedVehicle?.supplierName || "") + " - " + (selectedVehicle?.make || "") + " " + (selectedVehicle?.model || ""),
+          amount: b.totalSupplierCost, payment_method: "cash", status: "completed",
+        }
+      ]),
+    }).catch(e => console.error("Accounts sync:", e));
   };
 
   // ── NOTIFICATION ENGINE ──────────────────────────────
