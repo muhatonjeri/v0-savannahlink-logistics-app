@@ -437,6 +437,49 @@ function SubletsPage() {
   const [vehicles, setVehicles] = useState<SubletVehicle[]>([]);
   const [editAsset, setEditAsset] = useState<SubletVehicle | null>(null);
   const [bookings, setBookings] = useState<SubletBooking[]>([]);
+
+  const loadData = async () => {
+    try {
+      const [vRes, bRes] = await Promise.all([
+        fetch("/api/sublet-vehicles"),
+        fetch("/api/sublet-bookings"),
+      ]);
+      const [vData, bData] = await Promise.all([vRes.json(), bRes.json()]);
+      if (Array.isArray(vData)) setVehicles(vData.map((v: Record<string,unknown>) => ({
+        id: String(v.id || ""), serviceType: String(v.service_type || ""),
+        supplierName: String(v.supplier_name || ""), supplierPhone: String(v.supplier_phone || ""),
+        supplierType: String(v.supplier_type || "company") as "company" | "individual",
+        make: String(v.make || ""), model: String(v.model || ""),
+        registration: String(v.registration || ""), color: String(v.color || ""), year: String(v.year || ""),
+        supplierDailyRate: Number(v.supplier_daily_rate || 0),
+        ourDailyRate: Number(v.our_daily_rate || 0),
+        status: String(v.status || "available") as "available" | "active" | "returned",
+      })));
+      if (Array.isArray(bData)) setBookings(bData.map((b: Record<string,unknown>) => ({
+        id: String(b.id || ""), vehicleId: String(b.vehicle_id || ""),
+        serviceType: String(b.service_type || ""), areaOfUse: String(b.area_of_use || ""),
+        clientName: String(b.client_name || ""), clientPhone: String(b.client_phone || ""),
+        startDate: String(b.start_date || ""), endDate: String(b.end_date || ""),
+        numberOfDays: Number(b.number_of_days || 0),
+        supplierDailyRate: Number(b.supplier_daily_rate || 0),
+        ourDailyRate: Number(b.our_daily_rate || 0),
+        totalSupplierCost: Number(b.total_supplier_cost || 0),
+        totalClientCharge: Number(b.total_client_charge || 0),
+        expenses: Array.isArray(b.expenses) ? b.expenses : [],
+        totalExpenses: Number(b.total_expenses || 0),
+        netProfit: Number(b.net_profit || 0),
+        profitPerDay: Number(b.profit_per_day || 0),
+        status: String(b.status || "active") as "active" | "completed" | "cancelled",
+        paymentMethod: String(b.payment_method || ""),
+        paymentReference: String(b.payment_reference || ""),
+        amountPaid: Number(b.amount_paid || 0),
+        notes: String(b.notes || ""),
+        make: "", model: "", reg: "",
+      })));
+    } catch(e) { console.error("Load sublet data:", e); }
+  };
+
+  useEffect(() => { loadData(); }, []);
   const [showVehicleDialog, setShowVehicleDialog] = useState(false);
   const [showBookingDialog, setShowBookingDialog] = useState(false);
   const [viewRecord, setViewRecord] = useState<SubletBooking | null>(null);
@@ -446,18 +489,7 @@ function SubletsPage() {
 
 
 
-  // Load vehicles registered from Fleet Management
-  useEffect(() => {
-    const pending = loadPendingSublets();
-    if (pending.length > 0) {
-      setVehicles(prev => {
-        const existing = prev.map(v => v.registration);
-        const newOnes = pending.filter((p: SubletVehicle) => !existing.includes(p.registration));
-        return newOnes.length > 0 ? [...newOnes, ...prev] : prev;
-      });
-      toast.success(pending.length + " sublet vehicle(s) synced from Fleet Management");
-    }
-  }, []);
+
   const [expenseType, setExpenseType] = useState("Fuel");
   const [expenseAmount, setExpenseAmount] = useState("");
   const [expenseNote, setExpenseNote] = useState("");
@@ -688,6 +720,13 @@ function SubletsPage() {
       amountPaid: parseFloat(bForm.amountPaid) || 0,
       notes: bForm.notes, createdAt: new Date().toISOString().split("T")[0],
     };
+    fetch("/api/sublet-bookings", {
+      method: "POST", headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ vehicleId: b.vehicleId, serviceType: b.serviceType, areaOfUse: b.areaOfUse, clientName: b.clientName, clientPhone: b.clientPhone, startDate: b.startDate, endDate: b.endDate, numberOfDays: b.numberOfDays, supplierDailyRate: b.supplierDailyRate, ourDailyRate: b.ourDailyRate, totalSupplierCost: b.totalSupplierCost, totalClientCharge: b.totalClientCharge, expenses: b.expenses, totalExpenses: b.totalExpenses, netProfit: b.netProfit, profitPerDay: b.profitPerDay, amountPaid: b.amountPaid, paymentMethod: b.paymentMethod, paymentReference: b.paymentReference, notes: b.notes }),
+    }).then(() => {
+      fetch("/api/sublet-vehicles", { method: "PUT", headers: {"Content-Type":"application/json"}, body: JSON.stringify({ id: selectedVehicle.id, status: "active" }) });
+      loadData();
+    }).catch(e => console.error("Save booking:", e));
     setBookings([b, ...bookings]);
     setVehicles(vehicles.map(v => v.id === selectedVehicle.id ? { ...v, status: "active" as const } : v));
 
@@ -747,7 +786,7 @@ function SubletsPage() {
           linkedSubletId: b.id,
         });
       });
-      // Saved to Supabase via transactions API
+
     } catch {}
 
     setShowBookingDialog(false);

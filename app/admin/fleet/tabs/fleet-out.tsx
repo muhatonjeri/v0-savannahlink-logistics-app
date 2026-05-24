@@ -73,6 +73,37 @@ const emptyForm = {
 export default function FleetOutTab() {
   const [records, setRecords] = useState<FleetOutRecord[]>([]);
   const [editRecord, setEditRecord] = useState<FleetOutRecord | null>(null);
+
+  const loadRecords = async () => {
+    try {
+      const res = await fetch("/api/fleet-out");
+      const data = await res.json();
+      if (Array.isArray(data)) setRecords(data.map((r: Record<string,unknown>) => ({
+        id: String(r.id || ""),
+        vehicleMake: String(r.vehicle_make || ""),
+        vehicleModel: String(r.vehicle_model || ""),
+        vehicleReg: String(r.vehicle_reg || ""),
+        vehicleColor: String(r.vehicle_color || ""),
+        receiverName: String(r.receiver_name || ""),
+        receiverPhone: String(r.receiver_phone || ""),
+        receiverEmail: String(r.receiver_email || ""),
+        receiverType: String(r.receiver_type || "company") as "company" | "individual",
+        ourDailyRate: Number(r.our_daily_rate || 0),
+        startDate: String(r.start_date || ""),
+        endDate: String(r.end_date || ""),
+        numberOfDays: Number(r.number_of_days || 0),
+        paymentMethod: String(r.payment_method || ""),
+        paymentReference: String(r.payment_reference || ""),
+        amountPaid: Number(r.amount_paid || 0),
+        status: String(r.status || "active") as "active" | "completed" | "cancelled",
+        returnCondition: String(r.return_condition || ""),
+        followUpNotes: String(r.follow_up_notes || ""),
+        notes: String(r.notes || ""),
+      })));
+    } catch(e) { console.error("Load fleet-out:", e); }
+  };
+
+  useEffect(() => { loadRecords(); }, []);
   const [showDialog, setShowDialog] = useState(false);
   const [viewRecord, setViewRecord] = useState<FleetOutRecord | null>(null);
   const [form, setForm] = useState(emptyForm);
