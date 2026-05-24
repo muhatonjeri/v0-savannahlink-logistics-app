@@ -1133,6 +1133,16 @@ Sublet Assets
                   <TableCell className={profitDay(v) >= 0 ? "text-emerald-400 font-bold" : "text-red-400 font-bold"}>KES {profitDay(v).toLocaleString()}</TableCell>
                   <TableCell><Badge className={marginPct(v) >= 20 ? "bg-emerald-600 text-white" : marginPct(v) >= 10 ? "bg-amber-500 text-white" : "bg-red-600 text-white"}>{marginPct(v)}%</Badge></TableCell>
                   <TableCell><Badge className={v.status === "available" ? "bg-orange-500 text-white" : v.status === "active" ? "bg-orange-600 text-white" : "bg-orange-900 text-orange-200"}>{v.status.charAt(0).toUpperCase() + v.status.slice(1)}</Badge></TableCell>
+                  <TableCell>
+                    <div className="flex gap-1">
+                      <Button variant="ghost" size="sm" onClick={() => { setEditVehicle({...v}); }} title="Edit">
+                        <Pencil className="h-4 w-4 text-amber-400" />
+                      </Button>
+                      <Button variant="ghost" size="sm" onClick={() => deleteVehicle(v.id)} title="Delete">
+                        <Trash2 className="h-4 w-4 text-red-400" />
+                      </Button>
+                    </div>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -1187,7 +1197,19 @@ Sublet Assets
                     <TableCell className="text-gray-300 text-sm">KES {b.profitPerDay.toLocaleString()}<span className="text-gray-500">/day</span></TableCell>
                     <TableCell><p className="text-white text-sm capitalize">{b.paymentMethod === "mpesa" ? "M-Pesa" : b.paymentMethod.charAt(0).toUpperCase() + b.paymentMethod.slice(1)}</p><p className="text-gray-400 text-xs font-mono">{b.paymentReference || "-"}</p></TableCell>
                     <TableCell><Badge className={b.status === "active" ? "bg-blue-600 text-white" : b.status === "completed" ? "bg-green-600 text-white" : "bg-gray-600 text-white"}>{b.status.charAt(0).toUpperCase() + b.status.slice(1)}</Badge></TableCell>
-                    <TableCell><Button variant="ghost" size="sm" onClick={() => setViewRecord(b)}><Eye className="h-4 w-4 text-gray-400" /></Button></TableCell>
+                    <TableCell>
+                      <div className="flex gap-1">
+                        <Button variant="ghost" size="sm" onClick={() => setViewRecord(b)} title="View">
+                          <Eye className="h-4 w-4 text-gray-400" />
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={() => setEditBooking({...b})} title="Edit">
+                          <Pencil className="h-4 w-4 text-amber-400" />
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={() => deleteBooking(b.id)} title="Delete">
+                          <Trash2 className="h-4 w-4 text-red-400" />
+                        </Button>
+                      </div>
+                    </TableCell>
                   </TableRow>
                 );
               })}
