@@ -23,7 +23,6 @@ import {
 import { MpesaPayment } from "@/components/payment/mpesa-payment";
 import { DatePicker } from "@/components/ui/date-picker";
 import { TimePicker } from "@/components/ui/time-picker";
-import { saveBooking, generateId } from "@/lib/store";
 import { toast } from "sonner";
 import type { CorporateRentalBooking } from "@/types";
 
@@ -109,7 +108,7 @@ export default function CorporateRentalPage() {
     setIsSubmitting(true);
     try {
       const booking: CorporateRentalBooking = {
-        id: generateId(),
+        id: crypto.randomUUID(),
         serviceType: "corporate-rental",
         customerName: data.fullName,
         customerPhone: data.phone,

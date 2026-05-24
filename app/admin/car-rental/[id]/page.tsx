@@ -23,7 +23,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { getBookingById } from "@/lib/store";
 import type { CarRentalBooking, BookingStatus } from "@/types";
 
 const statusColors: Record<BookingStatus, "default" | "secondary" | "destructive" | "outline"> = {

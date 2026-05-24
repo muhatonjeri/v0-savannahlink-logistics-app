@@ -23,7 +23,6 @@ import {
 } from "@/components/ui/select";
 import { MpesaPayment } from "@/components/payment/mpesa-payment";
 import { DatePicker } from "@/components/ui/date-picker";
-import { saveBooking, generateId } from "@/lib/store";
 import { toast } from "sonner";
 import type { MoversBooking, MoversVehicleType } from "@/types";
 
@@ -112,7 +111,7 @@ export default function MoversPage() {
     setIsSubmitting(true);
     try {
       const booking: MoversBooking = {
-        id: generateId(),
+        id: crypto.randomUUID(),
         serviceType: "movers",
         customerName: data.fullName,
         customerPhone: data.phone,

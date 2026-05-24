@@ -18,7 +18,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { MpesaPayment } from "@/components/payment/mpesa-payment";
-import { saveBooking, generateId } from "@/lib/store";
 import { toast } from "sonner";
 import type { RoadRecoveryBooking } from "@/types";
 
@@ -75,7 +74,7 @@ export default function RoadRecoveryPage() {
     setIsSubmitting(true);
     try {
       const booking: RoadRecoveryBooking = {
-        id: generateId(),
+        id: crypto.randomUUID(),
         serviceType: "road-recovery",
         customerName: data.fullName,
         customerPhone: data.phone,

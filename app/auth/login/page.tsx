@@ -62,7 +62,7 @@ function LoginForm() {
       })
       setCookie('mock_auth', authData, 7)
       // Also keep localStorage for client-side checks
-      localStorage.setItem('mockAuth', authData)
+      document.cookie = 'mock_auth=true; path=/'; // localStorage.setItem('mockAuth', authData)
       
       // Small delay to ensure cookie is set
       setTimeout(() => {
@@ -75,7 +75,7 @@ function LoginForm() {
         isAuthenticated: true
       })
       setCookie('mock_auth', authData, 7)
-      localStorage.setItem('mockAuth', authData)
+      document.cookie = 'mock_auth=true; path=/'; // localStorage.setItem('mockAuth', authData)
       
       setTimeout(() => {
         router.push(redirectTo)

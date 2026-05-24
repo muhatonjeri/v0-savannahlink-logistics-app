@@ -79,7 +79,6 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DatePicker } from "@/components/ui/date-picker";
 import { TimePicker } from "@/components/ui/time-picker";
-import { generateId } from "@/lib/store";
 import type { ClientAlert, ClientAlertType, Booking, RogueClient } from "@/types";
 import type { Client } from "@/types";
 import { toast } from "sonner";
@@ -419,7 +418,7 @@ export default function NewCarRentalAdminPage() {
       const total = calculateTotal();
 
       const booking: CarRentalBooking = {
-        id: generateId(),
+        id: crypto.randomUUID(),
         serviceType: "car-rental",
         customerName: data.fullName,
         customerPhone: data.phone,
@@ -695,7 +694,7 @@ export default function NewCarRentalAdminPage() {
     }
 
     const newAlert: ClientAlert = {
-      id: generateId(),
+      id: crypto.randomUUID(),
       type: alertType,
       title: alertTitle,
       description: alertDescription,
@@ -765,7 +764,7 @@ export default function NewCarRentalAdminPage() {
     }
 
     const blacklistAlert: ClientAlert = {
-      id: generateId(),
+      id: crypto.randomUUID(),
       type: "blacklisted",
       title: "BLACKLISTED - DO NOT RENT",
       description: blacklistReason,

@@ -32,7 +32,6 @@ import {
 } from "@/components/ui/select";
 import { MpesaPayment } from "@/components/payment/mpesa-payment";
 import { DatePicker } from "@/components/ui/date-picker";
-import { saveBooking, generateId } from "@/lib/store";
 import { toast } from "sonner";
 import type { SafariTourBooking } from "@/types";
 
@@ -119,7 +118,7 @@ export default function SafariToursPage() {
       const total = calculateTotal();
 
       const booking: SafariTourBooking = {
-        id: generateId(),
+        id: crypto.randomUUID(),
         serviceType: "safari-tours",
         customerName: data.fullName,
         customerPhone: data.phone,

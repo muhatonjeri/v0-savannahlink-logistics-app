@@ -34,7 +34,6 @@ import {
 import { MpesaPayment } from "@/components/payment/mpesa-payment";
 import { DatePicker } from "@/components/ui/date-picker";
 import { TimePicker } from "@/components/ui/time-picker";
-import { saveBooking, generateId } from "@/lib/store";
 import { toast } from "sonner";
 import type { CarRentalBooking } from "@/types";
 
@@ -123,7 +122,7 @@ export default function CarRentalPage() {
       const vehicle = vehicleTypes.find((v) => v.id === data.vehicleType);
 
       const booking: CarRentalBooking = {
-        id: generateId(),
+        id: crypto.randomUUID(),
         serviceType: "car-rental",
         customerName: data.fullName,
         customerPhone: data.phone,

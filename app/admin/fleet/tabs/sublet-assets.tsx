@@ -614,7 +614,10 @@ export default function SubletAssetsTab() {
       createdAt: new Date().toISOString().split("T")[0],
       updatedAt: new Date().toISOString(),
     };
-    try { saveClient(newClient); } catch {}
+    fetch("/api/clients", {
+      method: "POST", headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ full_name: newClient.fullName, phone: newClient.phone, email: newClient.email }),
+    }).catch(e => console.error("Save client:", e));
     setBForm(prev => ({ ...prev, clientName: newClient.fullName, clientPhone: newClient.phone }));
     setClientSearch(newClient.fullName);
     setPrefilledClient(newClient);
@@ -636,7 +639,7 @@ export default function SubletAssetsTab() {
     setClientSearch(q);
     if (q.length < 2) { setClientResults([]); setShowClientResults(false); return; }
     try {
-      const all = getClients();
+      // clients loaded via API search above
       const matches = all.filter(c =>
         c.fullName.toLowerCase().includes(q.toLowerCase()) ||
         c.phone.includes(q) ||

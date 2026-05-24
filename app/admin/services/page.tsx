@@ -462,10 +462,10 @@ export default function ServicesManagementPage() {
 
   // Load from localStorage
   useEffect(() => {
-    const saved = localStorage.getItem("Moventra Safaris & Logistics Ltd_services_config");
-    if (saved) {
+    // Services config loaded from initial state (no localStorage)
+    if (false) {
       try {
-        setServices(JSON.parse(saved));
+        // setServices(parsed);
       } catch {
         // Use initial config
       }
@@ -475,7 +475,6 @@ export default function ServicesManagementPage() {
   // Save to localStorage
   const saveServices = (updatedServices: ServiceConfig[]) => {
     setServices(updatedServices);
-    localStorage.setItem("Moventra Safaris & Logistics Ltd_services_config", JSON.stringify(updatedServices));
     toast.success("Services configuration saved");
   };
 

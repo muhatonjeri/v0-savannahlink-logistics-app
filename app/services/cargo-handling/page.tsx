@@ -19,7 +19,6 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { MpesaPayment } from "@/components/payment/mpesa-payment";
 import { DatePicker } from "@/components/ui/date-picker";
-import { saveBooking, generateId } from "@/lib/store";
 import { toast } from "sonner";
 import type { CargoBooking } from "@/types";
 
@@ -83,7 +82,7 @@ export default function CargoHandlingPage() {
     setIsSubmitting(true);
     try {
       const booking: CargoBooking = {
-        id: generateId(),
+        id: crypto.randomUUID(),
         serviceType: "cargo-handling",
         customerName: data.fullName,
         customerPhone: data.phone,
