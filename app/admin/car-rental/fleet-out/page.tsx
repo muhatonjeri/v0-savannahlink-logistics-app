@@ -121,7 +121,7 @@ export default function FleetOutPage() {
       status: form.status, returnCondition: form.returnCondition, followUpNotes: form.followUpNotes, notes: form.notes,
       createdAt: new Date().toISOString().split("T")[0],
     };
-    setRecords([r, ...records]);
+    // state updated via load
     setShowDialog(false);
     setForm(emptyForm);
     toast.success("Fleet-out record added");

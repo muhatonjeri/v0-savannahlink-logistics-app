@@ -425,11 +425,10 @@ export default function InvoicesPage() {
       dueDate: invoice.dueDate,
       paymentTerms: invoice.paymentTerms,
       notes: invoice.notes,
-    }).then(saved => {
-      setInvoices(prev => [{ ...invoice, id: saved.id }, ...prev]);
+    }).then(() => {
       toast.success("Invoice " + invoiceNumber + " created and saved");
+      loadInvoices();
     }).catch(err => {
-      setInvoices(prev => [invoice, ...prev]);
       console.error("Invoice save error:", err);
       toast.error("Save failed: " + err.message);
     });

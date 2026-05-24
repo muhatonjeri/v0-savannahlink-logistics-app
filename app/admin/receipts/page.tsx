@@ -463,8 +463,6 @@ export default function ReceiptsPage() {
       notes: data.notes || undefined,
     };
 
-    setReceipts((prev) => [newReceipt, ...prev]);
-
     // Sign with eTIMS before saving
     try {
       const etims = await fetch("/api/etims", {
@@ -511,6 +509,8 @@ export default function ReceiptsPage() {
     }).then(() => {
       toast.success("Receipt issued and saved");
       loadReceipts();
+      setIsDialogOpen(false);
+      form.reset();
     }).catch(err => {
       console.error("Receipt save error:", err);
       toast.error("Save failed: " + err.message);

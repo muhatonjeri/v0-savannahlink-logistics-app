@@ -687,7 +687,6 @@ function SubletsPage() {
       amountPaid: parseFloat(bForm.amountPaid) || 0,
       notes: bForm.notes, createdAt: new Date().toISOString().split("T")[0],
     };
-    setBookings([b, ...bookings]);
     setVehicles(vehicles.map(v => v.id === selectedVehicle.id ? { ...v, status: "active" as const } : v));
 
     // -- Link to Accounts: post income transaction --
