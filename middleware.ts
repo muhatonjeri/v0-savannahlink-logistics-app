@@ -1,23 +1,23 @@
-import { NextRequest, NextResponse } from "next/server";
+export function middleware(request: Request) {
+  const url = new URL(request.url);
+  const pathname = url.pathname;
 
-export function middleware(req: NextRequest) {
-  const { pathname } = req.nextUrl;
-
-  if (!pathname.startsWith("/admin")) return NextResponse.next();
-
-  const auth = req.cookies.get("mock_auth")?.value;
-
-  if (!auth) {
-    const url = req.nextUrl.clone();
-    url.pathname = "/moventra-access";
-    url.searchParams.set("redirect", pathname);
-    return NextResponse.redirect(url);
+  if (!pathname.startsWith("/admin")) {
+    return new Response(null, { status: 200 });
   }
 
-  return NextResponse.next();
+  const cookie = request.headers.get("cookie") || "";
+  const hasAuth = cookie.includes("mock_auth=");
+
+  if (!hasAuth) {
+    const loginUrl = new URL("/moventra-access", request.url);
+    loginUrl.searchParams.set("redirect", pathname);
+    return Response.redirect(loginUrl.toString(), 302);
+  }
+
+  return new Response(null, { status: 200 });
 }
 
 export const config = {
   matcher: ["/admin/:path*"],
-  runtime: "experimental-edge",
 };
