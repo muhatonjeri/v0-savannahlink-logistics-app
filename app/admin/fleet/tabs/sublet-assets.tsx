@@ -717,78 +717,72 @@ function SubletsPage() {
     setVForm(emptyVForm);
   };
 
-  const addBooking = () => {
+  const addBooking = async () => {
     if (!selectedVehicle) { toast.error("Select a vehicle"); return; }
     if (!bForm.clientName || !bForm.startDate || !bDays) { toast.error("Fill all required fields"); return; }
-    const b: SubletBooking = {
-      id: "sb-" + Date.now(), vehicleId: selectedVehicle.id,
-      serviceType: bForm.serviceType, areaOfUse: bForm.areaOfUse,
+
+    const b = {
+      vehicleId: selectedVehicle.id, serviceType: bForm.serviceType, areaOfUse: bForm.areaOfUse,
       clientName: bForm.clientName, clientPhone: bForm.clientPhone,
       startDate: bForm.startDate, endDate: bForm.endDate, numberOfDays: bDays,
-      supplierDailyRate: selectedVehicle.supplierDailyRate,
-      ourDailyRate: bEffectiveRate,
+      supplierDailyRate: selectedVehicle.supplierDailyRate, ourDailyRate: bEffectiveRate,
       totalSupplierCost: bSupplierCost, totalClientCharge: bClientCharge,
       expenses, totalExpenses: bTotalExpenses,
       netProfit: bNetProfit, profitPerDay: bProfitPerDay,
       status: "active",
       paymentMethod: bForm.paymentMethod, paymentReference: bForm.paymentReference,
-      amountPaid: parseFloat(bForm.amountPaid) || 0,
-      notes: bForm.notes, createdAt: new Date().toISOString().split("T")[0],
+      amountPaid: parseFloat(bForm.amountPaid) || 0, notes: bForm.notes,
     };
-    fetch("/api/sublet-bookings", {
-      method: "POST", headers: {"Content-Type":"application/json"},
-      body: JSON.stringify({ vehicleId: b.vehicleId, serviceType: b.serviceType, areaOfUse: b.areaOfUse, clientName: b.clientName, clientPhone: b.clientPhone, startDate: b.startDate, endDate: b.endDate, numberOfDays: b.numberOfDays, supplierDailyRate: b.supplierDailyRate, ourDailyRate: b.ourDailyRate, totalSupplierCost: b.totalSupplierCost, totalClientCharge: b.totalClientCharge, expenses: b.expenses, totalExpenses: b.totalExpenses, netProfit: b.netProfit, profitPerDay: b.profitPerDay, amountPaid: b.amountPaid, paymentMethod: b.paymentMethod, paymentReference: b.paymentReference, notes: b.notes }),
-    }).then(() => {
-      fetch("/api/sublet-vehicles", { method: "PUT", headers: {"Content-Type":"application/json"}, body: JSON.stringify({ id: selectedVehicle.id, status: "active" }) });
-      loadData();
-    }).catch(e => console.error("Save booking:", e));
-    // Save to Supabase
-    fetch("/api/sublet-bookings", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        vehicleId: b.vehicleId, serviceType: b.serviceType, areaOfUse: b.areaOfUse,
-        clientName: b.clientName, clientPhone: b.clientPhone,
-        startDate: b.startDate, endDate: b.endDate, numberOfDays: b.numberOfDays,
-        supplierDailyRate: b.supplierDailyRate, ourDailyRate: b.ourDailyRate,
-        totalSupplierCost: b.totalSupplierCost, totalClientCharge: b.totalClientCharge,
-        expenses: b.expenses, totalExpenses: b.totalExpenses,
-        netProfit: b.netProfit, profitPerDay: b.profitPerDay,
-        amountPaid: b.amountPaid, paymentMethod: b.paymentMethod,
-        paymentReference: b.paymentReference, notes: b.notes,
-      }),
-    }).then(r => r.json()).then(saved => {
+
+    try {
+      // 1. Save booking (single call)
+      const res = await fetch("/api/sublet-bookings", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(b),
+      });
+      const saved = await res.json();
       if (saved.error) { toast.error("Booking save failed: " + saved.error); return; }
-      // Update vehicle status
-      fetch("/api/sublet-vehicles", {
+
+      // 2. Update vehicle status
+      await fetch("/api/sublet-vehicles", {
         method: "PUT", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: selectedVehicle.id, status: "active" }),
       });
-      toast.success("Booking saved to database");
-      loadData(); // reload from Supabase (no local state duplicate)
-    }).catch(e => toast.error("Save failed: " + String(e)));
 
-    // -- Sync to Accounts (Supabase) --
-    fetch("/api/transactions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify([
-        {
-          date: b.startDate, type: "income", category: "Sublet",
-          description: "Sublet Income: " + b.clientName + " - " + (selectedVehicle?.make || "") + " " + (selectedVehicle?.model || "") + " (" + b.startDate + " to " + b.endDate + ")",
-          amount: b.totalClientCharge, payment_method: b.paymentMethod || "cash",
-          customer_name: b.clientName, status: "completed",
-        },
-        {
-          date: b.startDate, type: "expense", category: "Sublet Supplier",
-          description: "Supplier Cost: " + (selectedVehicle?.supplierName || "") + " - " + (selectedVehicle?.make || "") + " " + (selectedVehicle?.model || ""),
-          amount: b.totalSupplierCost, payment_method: "cash", status: "completed",
-        }
-      ]),
-    }).catch(e => console.error("Accounts sync:", e));
+      // 3. Sync profit to Accounts
+      await fetch("/api/transactions", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify([
+          {
+            date: b.startDate, type: "income", category: "Sublet Revenue",
+            description: "Sublet: " + b.clientName + " — " + selectedVehicle.make + " " + selectedVehicle.model + " (" + b.startDate + " → " + b.endDate + ")",
+            amount: b.totalClientCharge, payment_method: b.paymentMethod || "cash",
+            customer_name: b.clientName, status: "completed",
+          },
+          {
+            date: b.startDate, type: "expense", category: "Sublet Supplier Cost",
+            description: "Supplier: " + (selectedVehicle.supplierName || selectedVehicle.make + " " + selectedVehicle.model) + " — " + b.startDate + " → " + b.endDate,
+            amount: b.totalSupplierCost, payment_method: "cash", status: "completed",
+          },
+          ...(b.totalExpenses > 0 ? [{
+            date: b.startDate, type: "expense", category: "Sublet Expenses",
+            description: "Expenses for " + b.clientName + " booking",
+            amount: b.totalExpenses, payment_method: "cash", status: "completed",
+          }] : []),
+        ]),
+      });
+
+      toast.success("Booking saved — profit of KES " + bNetProfit.toLocaleString() + " recorded in Accounts");
+      setShowBookingDialog(false);
+      setBForm(emptyBForm);
+      setExpenses([]);
+      loadData();
+    } catch(e) {
+      toast.error("Save failed: " + String(e));
+    }
   };
 
-  // ── NOTIFICATION ENGINE ──────────────────────────────
+
   const today = new Date();
   today.setHours(0,0,0,0);
 

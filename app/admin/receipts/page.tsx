@@ -333,27 +333,52 @@ function numberToWords(num: number): string {
 export default function ReceiptsPage() {
   const [receipts, setReceipts] = useState<ReceiptData[]>([]);
   const [clientSearch, setClientSearch] = useState("");
-  const [clientResults, setClientResults] = useState<{id:string;fullName:string;phone:string;email:string;kraPin:string}[]>([]);
+  const [clientResults, setClientResults] = useState<{id:string;fullName:string;phone:string;email:string;kraPin:string;source?:string}[]>([]);
   const [showClientDropdown, setShowClientDropdown] = useState(false);
 
   const searchClients = async (q: string) => {
     setClientSearch(q);
     if (q.length < 2) { setClientResults([]); setShowClientDropdown(false); return; }
     try {
-      const res = await fetch("/api/clients?q=" + encodeURIComponent(q));
-      const data = await res.json();
-      if (Array.isArray(data)) {
-        setClientResults(data.map((c: Record<string,unknown>) => ({
-          id: String(c.id || ""), fullName: String(c.full_name || c.fullName || ""),
-          phone: String(c.phone || ""), email: String(c.email || ""),
-          kraPin: String(c.kra_pin || c.kraPin || ""),
-        })));
-        setShowClientDropdown(true);
+      // Search registered clients AND sublet bookings AND bookings
+      const [clientRes, subletRes] = await Promise.all([
+        fetch("/api/clients?q=" + encodeURIComponent(q)),
+        fetch("/api/sublet-bookings"),
+      ]);
+      const [clientData, subletData] = await Promise.all([clientRes.json(), subletRes.json()]);
+
+      const results: {id:string;fullName:string;phone:string;email:string;kraPin:string;source:string}[] = [];
+      const seen = new Set<string>();
+
+      // From client registry
+      if (Array.isArray(clientData)) {
+        clientData.forEach((c: Record<string,unknown>) => {
+          const name = String(c.full_name || c.fullName || "");
+          if (!seen.has(name.toLowerCase())) {
+            seen.add(name.toLowerCase());
+            results.push({ id: String(c.id || ""), fullName: name, phone: String(c.phone || ""), email: String(c.email || ""), kraPin: String(c.kra_pin || c.kraPin || ""), source: "client" });
+          }
+        });
       }
-    } catch {}
+
+      // From sublet bookings
+      if (Array.isArray(subletData)) {
+        subletData.forEach((b: Record<string,unknown>) => {
+          const name = String(b.client_name || b.clientName || "");
+          const phone = String(b.client_phone || b.clientPhone || "");
+          if (name.toLowerCase().includes(q.toLowerCase()) && !seen.has(name.toLowerCase())) {
+            seen.add(name.toLowerCase());
+            results.push({ id: "sublet-" + b.id, fullName: name, phone, email: "", kraPin: "", source: "sublet" });
+          }
+        });
+      }
+
+      setClientResults(results);
+      setShowClientDropdown(results.length > 0);
+    } catch(e) { console.error("Search clients:", e); }
   };
 
-  const selectClient = (c: {id:string;fullName:string;phone:string;email:string;kraPin:string}) => {
+  const selectClient = (c: {id:string;fullName:string;phone:string;email:string;kraPin:string;source?:string}) => {
     form.setValue("customerName", c.fullName);
     form.setValue("customerPhone", c.phone);
     if (c.email) form.setValue("customerEmail", c.email);
@@ -695,7 +720,10 @@ export default function ReceiptsPage() {
                           <button key={c.id} type="button"
                             className="w-full text-left px-4 py-3 hover:bg-white/10 transition-colors border-b border-white/5 last:border-0"
                             onClick={() => selectClient(c)}>
-                            <p className="text-white text-sm font-medium">{c.fullName}</p>
+                            <div className="flex items-center justify-between">
+                              <p className="text-white text-sm font-medium">{c.fullName}</p>
+                              <span className={"text-xs px-1.5 py-0.5 rounded " + (c.source === "sublet" ? "bg-cyan-500/20 text-cyan-300" : "bg-emerald-500/20 text-emerald-300")}>{c.source === "sublet" ? "Sublet" : "Client"}</span>
+                            </div>
                             <p className="text-gray-400 text-xs">{c.phone}{c.email ? " · " + c.email : ""}</p>
                           </button>
                         ))}
