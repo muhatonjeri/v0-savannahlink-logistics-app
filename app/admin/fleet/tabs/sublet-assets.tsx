@@ -480,7 +480,74 @@ function SubletsPage() {
   };
 
   useEffect(() => { loadData(); }, []);
+
+  const deleteVehicle = async (id: string) => {
+    if (!confirm("Delete this vehicle? This cannot be undone.")) return;
+    try {
+      await fetch(`/api/sublet-vehicles?id=${id}`, { method: "DELETE" });
+      toast.success("Vehicle deleted");
+      loadData();
+    } catch(e) { toast.error(String(e)); }
+  };
+
+  const deleteBooking = async (id: string) => {
+    if (!confirm("Delete this booking? This cannot be undone.")) return;
+    try {
+      await fetch(`/api/sublet-bookings?id=${id}`, { method: "DELETE" });
+      toast.success("Booking deleted");
+      loadData();
+    } catch(e) { toast.error(String(e)); }
+  };
+
+  const deleteAll = async () => {
+    setDeletingAll(true);
+    try {
+      await fetch("/api/sublet-bookings?all=true", { method: "DELETE" });
+      await fetch("/api/sublet-vehicles?all=true", { method: "DELETE" });
+      toast.success("All sublet data cleared");
+      setShowDeleteAllConfirm(false);
+      loadData();
+    } catch(e) { toast.error(String(e)); } finally { setDeletingAll(false); }
+  };
+
+  const updateVehicle = async () => {
+    if (!editVehicle) return;
+    try {
+      await fetch("/api/sublet-vehicles", {
+        method: "PUT", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: editVehicle.id, service_type: editVehicle.serviceType,
+          supplier_name: editVehicle.supplierName, supplier_phone: editVehicle.supplierPhone,
+          make: editVehicle.make, model: editVehicle.model, registration: editVehicle.registration,
+          color: editVehicle.color, year: editVehicle.year,
+          supplier_daily_rate: editVehicle.supplierDailyRate, our_daily_rate: editVehicle.ourDailyRate,
+          status: editVehicle.status,
+        }),
+      });
+      toast.success("Vehicle updated"); setEditVehicle(null); loadData();
+    } catch(e) { toast.error(String(e)); }
+  };
+
+  const updateBooking = async () => {
+    if (!editBooking) return;
+    try {
+      await fetch("/api/sublet-bookings", {
+        method: "PUT", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: editBooking.id, client_name: editBooking.clientName,
+          client_phone: editBooking.clientPhone, start_date: editBooking.startDate,
+          end_date: editBooking.endDate, our_daily_rate: editBooking.ourDailyRate,
+          amount_paid: editBooking.amountPaid, status: editBooking.status, notes: editBooking.notes,
+        }),
+      });
+      toast.success("Booking updated"); setEditBooking(null); loadData();
+    } catch(e) { toast.error(String(e)); }
+  };
   const [showVehicleDialog, setShowVehicleDialog] = useState(false);
+  const [editVehicle, setEditVehicle] = useState<SubletVehicle | null>(null);
+  const [editBooking, setEditBooking] = useState<SubletBooking | null>(null);
+  const [showDeleteAllConfirm, setShowDeleteAllConfirm] = useState(false);
+  const [deletingAll, setDeletingAll] = useState(false);
   const [showBookingDialog, setShowBookingDialog] = useState(false);
   const [viewRecord, setViewRecord] = useState<SubletBooking | null>(null);
   const [vForm, setVForm] = useState(emptyVForm);
@@ -868,6 +935,9 @@ Sublet Assets
         <div className="flex gap-2">
           <Button variant="outline" className="border-cyan-500/40 text-cyan-400 hover:bg-cyan-500/10 gap-2" onClick={() => { setBForm(emptyBForm); setExpenses([]); setShowBookingDialog(true); }}>
             <Plus className="h-4 w-4" />New Booking
+          </Button>
+          <Button variant="outline" className="border-red-500/30 text-red-400 hover:bg-red-500/10 gap-2" onClick={() => setShowDeleteAllConfirm(true)}>
+            <Trash2 className="h-4 w-4" />Delete All
           </Button>
           <Button className="bg-cyan-600 hover:bg-cyan-700 gap-2" onClick={() => { setVForm(emptyVForm); setShowVehicleDialog(true); }}>
             <Plus className="h-4 w-4" />Add Asset
@@ -1615,10 +1685,118 @@ Sublet Assets
           })()}
         </DialogContent>
       </Dialog>
+      {/* ── Delete All Confirm ── */}
+      {showDeleteAllConfirm && (
+        <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.8)",zIndex:50,display:"flex",alignItems:"center",justifyContent:"center",padding:"16px"}}>
+          <div style={{background:"#111d2e",border:"1px solid rgba(239,68,68,0.4)",borderRadius:"16px",padding:"28px",maxWidth:"400px",width:"100%"}}>
+            <div style={{color:"#f87171",fontSize:"18px",fontWeight:700,marginBottom:"12px",display:"flex",alignItems:"center",gap:"8px"}}>
+              <span>⚠</span> Delete All Sublet Data
+            </div>
+            <p style={{color:"#ccc",fontSize:"14px",marginBottom:"20px"}}>This will permanently delete ALL sublet vehicles and bookings. This cannot be undone.</p>
+            <div style={{display:"flex",gap:"10px"}}>
+              <button onClick={() => setShowDeleteAllConfirm(false)} style={{flex:1,padding:"10px",borderRadius:"10px",background:"rgba(255,255,255,0.08)",border:"1px solid rgba(255,255,255,0.1)",color:"#ccc",cursor:"pointer"}}>Cancel</button>
+              <button onClick={deleteAll} disabled={deletingAll} style={{flex:1,padding:"10px",borderRadius:"10px",background:"#dc2626",border:"none",color:"white",fontWeight:600,cursor:"pointer",opacity:deletingAll?0.7:1}}>
+                {deletingAll ? "Deleting..." : "Delete Everything"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Edit Vehicle Dialog ── */}
+      {editVehicle && (
+        <Dialog open={!!editVehicle} onOpenChange={() => setEditVehicle(null)}>
+          <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-amber-400 flex items-center gap-2"><Pencil className="h-5 w-5" />Edit Vehicle</DialogTitle>
+            </DialogHeader>
+            <div className="grid grid-cols-2 gap-3 py-2">
+              {([
+                ["Service Type","serviceType","text"],["Supplier Name","supplierName","text"],
+                ["Supplier Phone","supplierPhone","text"],["Make","make","text"],
+                ["Model","model","text"],["Registration","registration","text"],
+                ["Color","color","text"],["Year","year","text"],
+                ["Supplier Daily Rate","supplierDailyRate","number"],["Our Daily Rate","ourDailyRate","number"],
+              ] as [string, keyof SubletVehicle, string][]).map(([label, field, type]) => (
+                <div key={field}>
+                  <Label className="text-gray-300 text-xs mb-1 block">{label}</Label>
+                  <Input type={type} className="bg-[#0a1628] border-white/20 text-white"
+                    value={String(editVehicle[field] || "")}
+                    onChange={e => setEditVehicle({...editVehicle, [field]: type === "number" ? Number(e.target.value) : e.target.value})} />
+                </div>
+              ))}
+              <div>
+                <Label className="text-gray-300 text-xs mb-1 block">Status</Label>
+                <select className="w-full rounded-lg bg-[#0a1628] border border-white/20 text-white px-3 py-2 text-sm"
+                  value={editVehicle.status} onChange={e => setEditVehicle({...editVehicle, status: e.target.value as "available"|"active"|"returned"})}>
+                  <option value="available">Available</option>
+                  <option value="active">Active</option>
+                  <option value="returned">Returned</option>
+                </select>
+              </div>
+            </div>
+            <div className="flex gap-2 pt-2">
+              <Button variant="outline" className="flex-1" onClick={() => setEditVehicle(null)}>Cancel</Button>
+              <Button className="flex-1 bg-amber-600 hover:bg-amber-700" onClick={updateVehicle}>Save Changes</Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* ── Edit Booking Dialog ── */}
+      {editBooking && (
+        <Dialog open={!!editBooking} onOpenChange={() => setEditBooking(null)}>
+          <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-amber-400 flex items-center gap-2"><Pencil className="h-5 w-5" />Edit Booking — {editBooking.clientName}</DialogTitle>
+            </DialogHeader>
+            <div className="grid grid-cols-2 gap-3 py-2">
+              <div className="col-span-2">
+                <Label className="text-gray-300 text-xs mb-1 block">Client Name</Label>
+                <Input className="bg-[#0a1628] border-white/20 text-white" value={editBooking.clientName} onChange={e => setEditBooking({...editBooking, clientName: e.target.value})} />
+              </div>
+              <div>
+                <Label className="text-gray-300 text-xs mb-1 block">Client Phone</Label>
+                <Input className="bg-[#0a1628] border-white/20 text-white" value={editBooking.clientPhone} onChange={e => setEditBooking({...editBooking, clientPhone: e.target.value})} />
+              </div>
+              <div>
+                <Label className="text-gray-300 text-xs mb-1 block">Start Date</Label>
+                <Input type="date" className="bg-[#0a1628] border-white/20 text-white" value={editBooking.startDate} onChange={e => setEditBooking({...editBooking, startDate: e.target.value})} />
+              </div>
+              <div>
+                <Label className="text-gray-300 text-xs mb-1 block">End Date</Label>
+                <Input type="date" className="bg-[#0a1628] border-white/20 text-white" value={editBooking.endDate} onChange={e => setEditBooking({...editBooking, endDate: e.target.value})} />
+              </div>
+              <div>
+                <Label className="text-gray-300 text-xs mb-1 block">Our Daily Rate</Label>
+                <Input type="number" className="bg-[#0a1628] border-white/20 text-white" value={editBooking.ourDailyRate} onChange={e => setEditBooking({...editBooking, ourDailyRate: Number(e.target.value)})} />
+              </div>
+              <div>
+                <Label className="text-gray-300 text-xs mb-1 block">Amount Paid</Label>
+                <Input type="number" className="bg-[#0a1628] border-white/20 text-white" value={editBooking.amountPaid} onChange={e => setEditBooking({...editBooking, amountPaid: Number(e.target.value)})} />
+              </div>
+              <div>
+                <Label className="text-gray-300 text-xs mb-1 block">Status</Label>
+                <select className="w-full rounded-lg bg-[#0a1628] border border-white/20 text-white px-3 py-2 text-sm"
+                  value={editBooking.status} onChange={e => setEditBooking({...editBooking, status: e.target.value as "active"|"completed"|"cancelled"})}>
+                  <option value="active">Active</option>
+                  <option value="completed">Completed</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+              </div>
+              <div className="col-span-2">
+                <Label className="text-gray-300 text-xs mb-1 block">Notes</Label>
+                <Input className="bg-[#0a1628] border-white/20 text-white" value={editBooking.notes || ""} onChange={e => setEditBooking({...editBooking, notes: e.target.value})} />
+              </div>
+            </div>
+            <div className="flex gap-2 pt-2">
+              <Button variant="outline" className="flex-1" onClick={() => setEditBooking(null)}>Cancel</Button>
+              <Button className="flex-1 bg-amber-600 hover:bg-amber-700" onClick={updateBooking}>Save Changes</Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
     </div>
   );
-}
-
-export default function SubletAssetsTab() {
-  return <Suspense fallback={<div className="flex h-[50vh] items-center justify-center text-gray-400">Loading...</div>}><SubletsPage /></Suspense>;
 }

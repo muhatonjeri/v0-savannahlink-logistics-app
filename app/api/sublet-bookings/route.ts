@@ -52,3 +52,21 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json(data);
   } catch (e) { return NextResponse.json({ error: String(e) }, { status: 500 }); }
 }
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const sb = createAdminClient();
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get("id");
+    const all = searchParams.get("all");
+    if (all === "true") {
+      const { error } = await sb.from("sublet_bookings").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+      if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+      return NextResponse.json({ success: true, deleted: "all" });
+    }
+    if (!id) return NextResponse.json({ error: "id required" }, { status: 400 });
+    const { error } = await sb.from("sublet_bookings").delete().eq("id", id);
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ success: true });
+  } catch (e) { return NextResponse.json({ error: String(e) }, { status: 500 }); }
+}

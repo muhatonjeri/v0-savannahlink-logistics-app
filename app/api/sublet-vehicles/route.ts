@@ -46,9 +46,19 @@ export async function PUT(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   try {
     const sb = createAdminClient();
-    const id = new URL(req.url).searchParams.get("id");
-    const { error } = await sb.from("sublet_vehicles").delete().eq("id", id!);
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get("id");
+    const all = searchParams.get("all");
+    if (all === "true") {
+      const { error } = await sb.from("sublet_vehicles").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+      if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+      return NextResponse.json({ success: true, deleted: "all" });
+    }
+    if (!id) return NextResponse.json({ error: "id required" }, { status: 400 });
+    const { error } = await sb.from("sublet_vehicles").delete().eq("id", id);
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     return NextResponse.json({ success: true });
   } catch (e) { return NextResponse.json({ error: String(e) }, { status: 500 }); }
 }
+// Note: above handler updated to support ?all=true for bulk delete
+// Note: DELETE by id already exists above — this adds delete-all via ?all=true
