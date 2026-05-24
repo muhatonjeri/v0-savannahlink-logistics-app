@@ -5,9 +5,18 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { Truck, Building2, ArrowUpRight } from "lucide-react";
 import dynamic from "next/dynamic";
 
-const CompanyFleet = dynamic(() => import("./tabs/company-fleet"), { ssr: false, loading: () => <Loader /> });
-const SubletAssets = dynamic(() => import("./tabs/sublet-assets"), { ssr: false, loading: () => <Loader /> });
-const FleetOut     = dynamic(() => import("./tabs/fleet-out"),     { ssr: false, loading: () => <Loader /> });
+const CompanyFleet = dynamic(
+  () => import("./tabs/company-fleet").then(m => ({ default: m.default })),
+  { ssr: false, loading: () => <Loader /> }
+);
+const SubletAssets = dynamic(
+  () => import("./tabs/sublet-assets").then(m => ({ default: m.default })),
+  { ssr: false, loading: () => <Loader /> }
+);
+const FleetOut = dynamic(
+  () => import("./tabs/fleet-out").then(m => ({ default: m.default })),
+  { ssr: false, loading: () => <Loader /> }
+);
 
 const Loader = () => (
   <div className="flex h-64 items-center justify-center text-gray-400 animate-pulse">Loading...</div>
