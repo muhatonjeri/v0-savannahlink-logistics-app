@@ -5,7 +5,7 @@ import { requireAuth } from "@/lib/api-auth";
 export async function GET() {
   try {
     const sb = createAdminClient();
-    const { data, error } = await sb.from("staff").select("*").order("created_at", { ascending: false });
+    const { data, error } = await sb.from("staff").select("id,full_name,email,phone,role,department,is_active,created_at").order("created_at", { ascending: false });
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     return NextResponse.json(data);
   } catch (e) { return NextResponse.json({ error: String(e) }, { status: 500 }); }

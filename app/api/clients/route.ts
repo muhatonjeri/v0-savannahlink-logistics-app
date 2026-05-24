@@ -11,7 +11,8 @@ export async function GET(req: NextRequest) {
     const page  = Number(searchParams.get("page")  || 1);
     const limit = Number(searchParams.get("limit") || 100);
     const offset = (page - 1) * limit;
-    const q = searchParams.get("q");
+    const _rawQ = searchParams.get("q");
+    const q = _rawQ ? sanitizeSearch(_rawQ) : null;
     const id = searchParams.get("id");
     if (id) {
       const { data, error } = await sb.from("clients").select("*").eq("id", id).single();

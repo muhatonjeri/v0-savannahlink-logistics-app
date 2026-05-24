@@ -7,7 +7,8 @@ export async function GET(req: NextRequest) {
   const authErr = requireAuth(req); if (authErr) return authErr;
   try {
     const sb = createAdminClient();
-    const q = new URL(req.url).searchParams.get("q");
+    const _rawQ = new URL(req.url).searchParams.get("q");
+    const q = _rawQ ? sanitizeSearch(_rawQ) : null;
     let query = sb.from("blacklist").select("*").order("created_at", { ascending: false });
     if (q) query = query.or(`client_name.ilike.%${q}%,id_number.ilike.%${q}%,phone.ilike.%${q}%`);
     query = query.range(offset, offset + limit - 1);

@@ -6,7 +6,8 @@ export async function GET(req: NextRequest) {
   const authErr = requireAuth(req); if (authErr) return authErr;
   try {
     const sb = createAdminClient();
-    const q = new URL(req.url).searchParams.get("q");
+    const _rawQ = new URL(req.url).searchParams.get("q");
+    const q = _rawQ ? sanitizeSearch(_rawQ) : null;
     if (!q || q.length < 2) return NextResponse.json({ results: [] });
 
     const like = `%${q}%`;
