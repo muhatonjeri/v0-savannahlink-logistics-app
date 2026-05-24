@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Users, Search, Eye, Phone, Mail, MapPin, ShieldCheck, ShieldAlert, ShieldX, Download, DollarSign, Fingerprint, Car, Package, Receipt, FileText, TrendingUp, AlertOctagon, Calendar, Loader2, Pencil, Printer, ArrowRight, Trash2 } from "lucide-react";
+import { Users, Search, Plus, Eye, Phone, Mail, MapPin, ShieldCheck, ShieldAlert, ShieldX, Download, DollarSign, Fingerprint, Car, Package, Receipt, FileText, TrendingUp, AlertOctagon, Calendar, Loader2, Pencil, Printer, ArrowRight, Trash2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
