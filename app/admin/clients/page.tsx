@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Users, Search, Plus, Eye, Phone, Mail, MapPin, ShieldCheck, ShieldAlert, ShieldX, Download, DollarSign, Fingerprint } from "lucide-react";
+import { Users, Search, Plus, Eye, Phone, Mail, MapPin, ShieldCheck, ShieldAlert, ShieldX, Download, DollarSign, Fingerprint, Car, Package, Receipt, FileText, TrendingUp, AlertOctagon, Calendar, Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -33,9 +33,43 @@ export default function ClientsPage() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<string>("all");
   const [viewClient, setViewClient] = useState<Client | null>(null);
+  const [clientBookings, setClientBookings] = useState<Record<string,unknown>[]>([]);
+  const [loadingBookings, setLoadingBookings] = useState(false);
+
+  const loadClientBookings = async (clientId: string) => {
+    setLoadingBookings(true);
+    try {
+      // Search bookings by client name since some bookings use name not ID
+      const res = await fetch("/api/bookings");
+      const all = await res.json();
+      if (Array.isArray(all)) {
+        // Match by client_id or customer name
+        const client = clients.find(c => c.id === clientId);
+        const matches = all.filter((b: Record<string,unknown>) =>
+          b.client_id === clientId ||
+          (client && String(b.customer_name || "").toLowerCase() === client.fullName.toLowerCase())
+        );
+        setClientBookings(matches);
+      }
+    } catch { setClientBookings([]); }
+    finally { setLoadingBookings(false); }
+  };
   const [showRegister, setShowRegister] = useState(false);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [profile, setProfile] = useState<Record<string,unknown> | null>(null);
+  const [profileLoading, setProfileLoading] = useState(false);
+
+  const loadProfile = async (client: Client) => {
+    setProfile(null);
+    setProfileLoading(true);
+    try {
+      const res = await fetch("/api/client-profile?id=" + client.id + "&name=" + encodeURIComponent(client.fullName));
+      const data = await res.json();
+      setProfile(data);
+    } catch (e) { console.error(e); }
+    finally { setProfileLoading(false); }
+  };
 
   const loadClients = async () => {
     try {
@@ -227,7 +261,7 @@ export default function ClientsPage() {
                       <TableCell className="text-emerald-400 font-semibold">{c.totalSpent ? "KES " + Number(c.totalSpent).toLocaleString() : "-"}</TableCell>
                       <TableCell className="text-gray-400 text-sm">{c.createdAt ? new Date(c.createdAt).toLocaleDateString("en-KE", { day: "numeric", month: "short", year: "numeric" }) : "-"}</TableCell>
                       <TableCell>
-                        <Button variant="ghost" size="sm" onClick={() => setViewClient(c)}>
+                        <Button variant="ghost" size="sm" onClick={() => { setViewClient(c); loadClientBookings(c.id); }}>
                           <Eye className="h-4 w-4 text-gray-400" />
                         </Button>
                       </TableCell>
@@ -357,6 +391,32 @@ export default function ClientsPage() {
                     </div>
                   </div>
                   {viewClient.notes && <div className="rounded-lg bg-[#0a1628] border border-white/10 p-3"><p className="text-gray-400 text-xs">Notes: <span className="text-gray-300">{viewClient.notes}</span></p></div>}
+
+                  {/* Booking History */}
+                  <div className="rounded-lg bg-[#0a1628] border border-orange-500/20 p-3">
+                    <p className="text-orange-400 font-semibold text-xs uppercase tracking-wide mb-2">
+                      Booking History {loadingBookings ? "(loading...)" : "(" + clientBookings.length + " bookings)"}
+                    </p>
+                    {clientBookings.length === 0 && !loadingBookings && (
+                      <p className="text-gray-500 text-xs">No bookings found for this client</p>
+                    )}
+                    <div className="space-y-2 max-h-48 overflow-y-auto">
+                      {clientBookings.map((b: Record<string,unknown>, i: number) => (
+                        <div key={i} className="flex items-center justify-between py-1.5 border-b border-white/5 last:border-0">
+                          <div>
+                            <p className="text-white text-xs font-medium">{String(b.service_type || b.serviceType || "Service")}</p>
+                            <p className="text-gray-500 text-xs">{String(b.created_at || b.createdAt || "").slice(0,10)}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-emerald-400 text-xs font-semibold">KES {Number(b.total_amount || b.totalAmount || 0).toLocaleString()}</p>
+                            <span className={"text-xs px-1.5 py-0.5 rounded " + (String(b.status) === "completed" ? "bg-emerald-500/20 text-emerald-400" : String(b.status) === "cancelled" ? "bg-red-500/20 text-red-400" : "bg-blue-500/20 text-blue-400")}>
+                              {String(b.status || "pending")}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                   <div className="flex gap-2 pt-1">
                     <Button className="flex-1 bg-violet-600 hover:bg-violet-700 gap-2" asChild>
                       <Link href={"/admin/client-lookup?prefill=" + encodeURIComponent(viewClient.fullName)}><Fingerprint className="h-4 w-4" />Verify & Book</Link>
