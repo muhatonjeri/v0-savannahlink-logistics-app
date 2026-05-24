@@ -79,7 +79,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DatePicker } from "@/components/ui/date-picker";
 import { TimePicker } from "@/components/ui/time-picker";
-import { saveBooking, generateId, searchClients, saveClientFromBooking, getClients, saveClient, getClientBookingHistory, initializeDemoBookingHistory, checkRogueClient, searchRogueClients } from "@/lib/store";
+import { generateId, searchClients, getClients, saveClient, getClientBookingHistory, initializeDemoBookingHistory, checkRogueClient, searchRogueClients } from "@/lib/store";
 import type { ClientAlert, ClientAlertType, Booking, RogueClient } from "@/types";
 import type { Client } from "@/types";
 import { toast } from "sonner";
@@ -471,11 +471,57 @@ export default function NewCarRentalAdminPage() {
         },
       };
 
-      saveBooking(booking);
-      
-      // Save or update client record for future bookings
-      saveClientFromBooking(booking);
-      
+      // Save booking to Supabase
+      try {
+        await fetch("/api/bookings", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            service_type: "car-rental",
+            customer_name: data.fullName,
+            customer_phone: data.phone,
+            customer_email: data.email || null,
+            status: "pending",
+            payment_status: "pending",
+            payment_method: data.paymentMethod,
+            total_amount: total,
+            metadata: {
+              rentalType: data.rentalType,
+              idNumber: data.idNumber,
+              kraPin: data.kraPin,
+              residence: data.residence,
+              placeOfWork: data.placeOfWork,
+              carMake: data.carMake,
+              carModel: data.carModel,
+              numberPlate: data.numberPlate,
+              numberOfDays: data.numberOfDays,
+              dailyRate: data.dailyRate,
+              startDate: data.startDate,
+              endDate: data.endDate,
+              destination: data.destination,
+            },
+          }),
+        });
+      } catch {}
+
+      // Also save client to Supabase
+      try {
+        await fetch("/api/clients", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            fullName: data.fullName,
+            phone: data.phone,
+            email: data.email || null,
+            idNumber: data.idNumber || null,
+            kraPin: data.kraPin || null,
+            residence: data.residence || null,
+            placeOfWork: data.placeOfWork || null,
+            drivingLicenseNumber: data.drivingLicenseNumber || null,
+          }),
+        });
+      } catch {}
+
       setCurrentBooking(booking);
       setBookingComplete(true);
       toast.success("Car rental booking created successfully!");
