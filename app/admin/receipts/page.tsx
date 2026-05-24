@@ -389,7 +389,7 @@ export default function ReceiptsPage() {
   }, [receipts]);
 
   // Handle form submit
-  const onSubmit = (data: ReceiptFormData) => {
+  const onSubmit = async (data: ReceiptFormData) => {
     const quantity = parseFloat(data.quantity);
     const unitPrice = parseFloat(data.unitPrice);
     const taxRate = parseFloat(data.taxRate);
@@ -434,6 +434,29 @@ export default function ReceiptsPage() {
     };
 
     setReceipts((prev) => [newReceipt, ...prev]);
+
+    // Sign with eTIMS before saving
+    try {
+      const etims = await fetch("/api/etims", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          receiptNumber: newReceipt.receiptNumber,
+          customerName: newReceipt.customerName,
+          customerPin: newReceipt.customerKraPin,
+          items: newReceipt.items,
+          totalAmount: newReceipt.totalAmount,
+          taxAmount: newReceipt.taxAmount,
+          paymentMethod: newReceipt.paymentMethod,
+        }),
+      });
+      const etimsData = await etims.json();
+      if (etimsData.etimsReceiptNumber) {
+        newReceipt.etimsReceiptNumber = etimsData.etimsReceiptNumber;
+        newReceipt.etimsDeviceNumber = etimsData.etimsDeviceNumber;
+        newReceipt.etimsVerificationUrl = etimsData.etimsVerificationUrl;
+      }
+    } catch(e) { console.error("eTIMS error:", e); }
 
     // Save to Supabase
     receiptsApi.create({

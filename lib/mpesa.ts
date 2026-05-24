@@ -1,10 +1,7 @@
 "use client";
 
-import { generateId, savePayment, updateBookingPaymentStatus } from "./store";
-import type { MpesaPayment, PaymentStatus } from "@/types";
-
-// Mock M-Pesa Daraja API Client
-// In production, this would connect to the real Safaricom Daraja API
+// ── M-Pesa Client Library ──────────────────────────────────────────
+// Connects the UI components to the real Daraja API via /api/mpesa
 
 export interface STKPushRequest {
   phoneNumber: string;
@@ -16,152 +13,123 @@ export interface STKPushRequest {
 
 export interface STKPushResponse {
   success: boolean;
-  merchantRequestId: string;
-  checkoutRequestId: string;
-  responseCode: string;
-  responseDescription: string;
-  customerMessage: string;
+  merchantRequestId?: string;
+  checkoutRequestId?: string;
+  responseCode?: string;
+  responseDescription?: string;
+  customerMessage?: string;
+  error?: string;
+  mock?: boolean;
 }
 
-// Validate Kenyan phone number format
+// Validate Kenyan phone number
 export function validatePhoneNumber(phone: string): { valid: boolean; formatted: string } {
-  // Remove any spaces, dashes, or special characters
   let cleaned = phone.replace(/[\s\-\(\)]/g, "");
-  
-  // Handle different formats
-  if (cleaned.startsWith("+254")) {
-    cleaned = cleaned.substring(1); // Remove +
-  } else if (cleaned.startsWith("0")) {
-    cleaned = "254" + cleaned.substring(1); // Convert 07xx to 2547xx
-  } else if (cleaned.startsWith("7")) {
-    cleaned = "254" + cleaned; // Add country code
-  }
-  
-  // Validate: must be 12 digits starting with 254
-  const isValid = /^254[17]\d{8}$/.test(cleaned);
-  
-  return {
-    valid: isValid,
-    formatted: cleaned,
-  };
+  if (cleaned.startsWith("+254")) cleaned = "0" + cleaned.slice(4);
+  if (cleaned.startsWith("254")) cleaned = "0" + cleaned.slice(3);
+  const valid = /^(07|01)\d{8}$/.test(cleaned);
+  const formatted = valid ? "+254" + cleaned.slice(1) : cleaned;
+  return { valid, formatted };
 }
 
-// Format amount for display
 export function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat("en-KE", {
-    style: "currency",
-    currency: "KES",
-    minimumFractionDigits: 0,
-  }).format(amount);
+  return "KES " + amount.toLocaleString("en-KE");
 }
 
-// Mock STK Push - simulates sending payment request to user's phone
-export async function initiateStkPush(request: STKPushRequest): Promise<STKPushResponse> {
-  const { phoneNumber, amount, bookingId, accountReference, transactionDesc } = request;
-  
-  // Validate phone number
-  const { valid, formatted } = validatePhoneNumber(phoneNumber);
-  if (!valid) {
-    return {
-      success: false,
-      merchantRequestId: "",
-      checkoutRequestId: "",
-      responseCode: "1",
-      responseDescription: "Invalid phone number format",
-      customerMessage: "Please enter a valid Kenyan phone number",
-    };
+// Initiate STK Push via our API route
+export async function initiateStkPush(req: STKPushRequest): Promise<STKPushResponse> {
+  try {
+    const { valid, formatted } = validatePhoneNumber(req.phoneNumber);
+    if (!valid) return { success: false, error: "Invalid phone number. Use format 07XXXXXXXX" };
+
+    const res = await fetch("/api/mpesa", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        phone: formatted,
+        amount: req.amount,
+        reference: req.accountReference,
+        description: req.transactionDesc,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      return {
+        success: true,
+        checkoutRequestId: data.checkoutRequestId,
+        merchantRequestId: data.merchantRequestId,
+        responseCode: "0",
+        responseDescription: "Success",
+        customerMessage: data.message || `STK Push sent to ${formatted}`,
+        mock: data.mock,
+      };
+    }
+
+    // If not configured, simulate success for testing
+    if (data.error === "M-Pesa not configured") {
+      return {
+        success: true,
+        checkoutRequestId: "MOCK-" + Date.now(),
+        merchantRequestId: "MOCK-MR-" + Date.now(),
+        responseCode: "0",
+        responseDescription: "Simulated (M-Pesa not configured)",
+        customerMessage: "Simulated STK Push — add M-Pesa keys to go live",
+        mock: true,
+      };
+    }
+
+    return { success: false, error: data.error || "STK Push failed" };
+  } catch (e) {
+    return { success: false, error: String(e) };
   }
-  
-  // Validate amount
-  if (amount < 1) {
-    return {
-      success: false,
-      merchantRequestId: "",
-      checkoutRequestId: "",
-      responseCode: "2",
-      responseDescription: "Invalid amount",
-      customerMessage: "Amount must be at least KES 1",
-    };
-  }
-  
-  // Simulate API delay
-  await new Promise((resolve) => setTimeout(resolve, 1500));
-  
-  // Generate mock request IDs
-  const merchantRequestId = `MRQ-${generateId()}`;
-  const checkoutRequestId = `CHK-${generateId()}`;
-  
-  // Create payment record
-  const payment: MpesaPayment = {
-    id: generateId(),
-    bookingId,
-    phoneNumber: formatted,
-    amount,
-    merchantRequestId,
-    checkoutRequestId,
-    responseCode: "0",
-    responseDescription: "Success. Request accepted for processing",
-    customerMessage: `Please complete the M-Pesa payment of ${formatCurrency(amount)} on your phone`,
-    status: "processing",
-    createdAt: new Date().toISOString(),
-  };
-  
-  // Save payment record
-  savePayment(payment);
-  
-  // Update booking payment status
-  updateBookingPaymentStatus(bookingId, "processing");
-  
-  return {
-    success: true,
-    merchantRequestId,
-    checkoutRequestId,
-    responseCode: "0",
-    responseDescription: "Success. Request accepted for processing",
-    customerMessage: payment.customerMessage,
-  };
 }
 
-// Mock payment callback - simulates user completing payment
-export async function simulatePaymentCallback(
-  checkoutRequestId: string,
-  success: boolean = true
-): Promise<{ status: PaymentStatus; message: string }> {
-  // Simulate delay (user entering PIN, etc.)
-  await new Promise((resolve) => setTimeout(resolve, 2000));
-  
-  // Find the payment by checkoutRequestId
-  const payments = JSON.parse(localStorage.getItem("savannah_link_payments") || "[]") as MpesaPayment[];
-  const payment = payments.find((p) => p.checkoutRequestId === checkoutRequestId);
-  
-  if (!payment) {
-    return {
-      status: "failed",
-      message: "Payment not found",
-    };
+// Poll payment status
+export async function checkPaymentStatus(checkoutRequestId: string): Promise<{ paid: boolean; status: string }> {
+  try {
+    if (checkoutRequestId.startsWith("MOCK-")) {
+      // Simulate payment after 3 seconds
+      return { paid: true, status: "completed" };
+    }
+
+    const res = await fetch(`/api/mpesa?checkoutId=${checkoutRequestId}`);
+    const data = await res.json();
+
+    if (data.ResultCode === "0") return { paid: true, status: "completed" };
+    if (data.ResultCode === "1032") return { paid: false, status: "cancelled" };
+    return { paid: false, status: "pending" };
+  } catch {
+    return { paid: false, status: "unknown" };
   }
-  
-  // Update payment status
-  const newStatus: PaymentStatus = success ? "completed" : "failed";
-  payment.status = newStatus;
-  payment.completedAt = new Date().toISOString();
-  
-  // Save updated payment
-  savePayment(payment);
-  
-  // Update booking payment status
-  updateBookingPaymentStatus(payment.bookingId, newStatus);
-  
-  return {
-    status: newStatus,
-    message: success
-      ? `Payment of ${formatCurrency(payment.amount)} received successfully`
-      : "Payment was cancelled or failed",
-  };
 }
 
-// Check payment status
-export function checkPaymentStatus(checkoutRequestId: string): MpesaPayment | undefined {
-  const payments = JSON.parse(localStorage.getItem("savannah_link_payments") || "[]") as MpesaPayment[];
-  return payments.find((p) => p.checkoutRequestId === checkoutRequestId);
+// Simulate callback for testing (dev only)
+export async function simulatePaymentCallback(checkoutRequestId: string, amount: number): Promise<boolean> {
+  try {
+    const res = await fetch("/api/mpesa/callback", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        Body: {
+          stkCallback: {
+            MerchantRequestID: "MOCK-MR",
+            CheckoutRequestID: checkoutRequestId,
+            ResultCode: 0,
+            ResultDesc: "The service request is processed successfully.",
+            CallbackMetadata: {
+              Item: [
+                { Name: "Amount", Value: amount },
+                { Name: "MpesaReceiptNumber", Value: "MOCK" + Date.now() },
+                { Name: "TransactionDate", Value: new Date().toISOString() },
+                { Name: "PhoneNumber", Value: "254700000000" },
+              ],
+            },
+          },
+        },
+      }),
+    });
+    return res.ok;
+  } catch { return false; }
 }

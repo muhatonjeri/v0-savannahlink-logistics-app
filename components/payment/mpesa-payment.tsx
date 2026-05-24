@@ -12,12 +12,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { FieldGroup, Field, FieldLabel } from "@/components/ui/field";
-import {
-  initiateStkPush,
-  simulatePaymentCallback,
-  validatePhoneNumber,
-  formatCurrency,
-} from "@/lib/mpesa";
+import { initiateStkPush, checkPaymentStatus, simulatePaymentCallback, validatePhoneNumber, formatCurrency } from "@/lib/mpesa";
 
 type PaymentState = "idle" | "initiating" | "waiting" | "success" | "failed";
 
