@@ -6,7 +6,7 @@ import {
   Plus, Search, Eye, Pencil, Printer, Trash2, Filter,
   TrendingUp, DollarSign, Calendar, Users, CheckCircle2,
   Clock, XCircle, ChevronDown, ChevronUp, Loader2,
-  FileText, Phone, Mail, CreditCard,
+  FileText, Phone, Mail, CreditCard, ExternalLink, ArrowUpRight,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -63,6 +63,14 @@ function ServicePageInner({ service, accentColor = "blue" }: ServicePageProps) {
   const searchParams = useSearchParams();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const getNextReceiptNumber = async () => {
+    try {
+      const res = await fetch("/api/generate-number?type=receipt");
+      const data = await res.json();
+      return data.number || "RCP-" + Date.now().toString().slice(-6);
+    } catch { return "RCP-" + Date.now().toString().slice(-6); }
+  };
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [showForm, setShowForm] = useState(false);
@@ -597,10 +605,23 @@ function ServicePageInner({ service, accentColor = "blue" }: ServicePageProps) {
                   </div>
                 )}
               </div>
-              <div className="flex gap-2 pt-2">
+              <div className="flex gap-2 pt-2 flex-wrap">
                 <Button variant="outline" className="flex-1 gap-2" onClick={() => printBooking(viewBooking)}><Printer className="h-4 w-4" />Print</Button>
                 <Button className="flex-1 bg-amber-600 hover:bg-amber-700 gap-2" onClick={() => { setEditBooking({ ...viewBooking }); setViewBooking(null); }}><Pencil className="h-4 w-4" />Edit</Button>
               </div>
+              {viewBooking.customerName && (
+                <a href={"/api/clients?q=" + encodeURIComponent(viewBooking.customerName)}
+                  onClick={async e => {
+                    e.preventDefault();
+                    const res = await fetch("/api/clients?q=" + encodeURIComponent(viewBooking.customerName));
+                    const data = await res.json();
+                    if (Array.isArray(data) && data[0]?.id) window.location.href = "/admin/clients/" + data[0].id;
+                    else window.location.href = "/admin/clients";
+                  }}
+                  className="flex items-center justify-center gap-2 w-full py-2 rounded-xl border border-blue-500/30 bg-blue-500/10 text-blue-400 hover:bg-blue-500/15 transition-colors text-sm font-medium">
+                  <ExternalLink className="h-4 w-4" />View Full Client Profile
+                </a>
+              )}
             </>
           )}
         </DialogContent>

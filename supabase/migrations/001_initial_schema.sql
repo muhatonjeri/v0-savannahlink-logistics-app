@@ -350,3 +350,11 @@ create index idx_transactions_date on transactions(date);
 create index idx_transactions_type on transactions(type);
 create index idx_blacklist_id_number on blacklist(id_number);
 create index idx_blacklist_phone on blacklist(phone);
+
+-- Receipt and Invoice number sequences (run in Supabase SQL Editor)
+-- CREATE SEQUENCE IF NOT EXISTS receipt_seq START 1000;
+-- CREATE SEQUENCE IF NOT EXISTS invoice_seq START 1000;
+
+-- Add form_data to bookings if not exists
+-- ALTER TABLE bookings ADD COLUMN IF NOT EXISTS form_data jsonb DEFAULT '{}';
+-- ALTER TABLE bookings ADD COLUMN IF NOT EXISTS booking_date date;
