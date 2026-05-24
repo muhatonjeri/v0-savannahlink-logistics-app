@@ -209,20 +209,37 @@ const generateMockTransactions = (): Transaction[] => {
 export default function AccountsPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
 
-  // Load transactions only on client side to avoid hydration mismatch
-  useEffect(() => {
-    const mock = generateMockTransactions();
-    let all = [...mock];
+  const loadTransactions = async () => {
     try {
-      const subletEntries = JSON.parse(localStorage.getItem("sublet_account_entries") || "[]");
-      if (subletEntries.length > 0) {
-        const existingIds = new Set(mock.map((t: Transaction) => t.id));
-        const newEntries = subletEntries.filter((e: Transaction) => !existingIds.has(e.id));
-        all = [...newEntries, ...mock].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      const res = await fetch("/api/transactions");
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        setTransactions(data.map((t: Record<string,unknown>) => ({
+          id: String(t.id || ""),
+          date: String(t.date || ""),
+          type: String(t.type || "income") as "income" | "expense",
+          category: String(t.category || ""),
+          subcategory: String(t.subcategory || ""),
+          description: String(t.description || ""),
+          amount: Number(t.amount) || 0,
+          paymentMethod: String(t.payment_method || t.paymentMethod || "cash") as Transaction["paymentMethod"],
+          reference: String(t.reference || ""),
+          customerName: String(t.customer_name || t.customerName || ""),
+          invoiceNumber: String(t.invoice_number || t.invoiceNumber || ""),
+          status: String(t.status || "completed") as Transaction["status"],
+          createdBy: String(t.created_by || t.createdBy || ""),
+          createdAt: String(t.created_at || t.createdAt || ""),
+        })));
       }
-    } catch {}
-    setTransactions(all);
-  }, []);
+    } catch(e) { console.error("Load transactions:", e); }
+  };
+
+  useEffect(() => { loadTransactions(); }, []);
+  const [viewTransaction, setViewTransaction] = useState<Transaction | null>(null);
+  const [editTransaction, setEditTransaction] = useState<Transaction | null>(null);
+  const [editAmount, setEditAmount] = useState("");
+  const [editDescription, setEditDescription] = useState("");
+  const [editCategory, setEditCategory] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
@@ -981,11 +998,11 @@ export default function AccountsPage() {
                               <DropdownMenuContent align="end">
                                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
                                 <DropdownMenuSeparator />
-                                <DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => setViewTransaction(transaction)}>
                                   <Eye className="h-4 w-4 mr-2" />
                                   View Details
                                 </DropdownMenuItem>
-                                <DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => { setEditTransaction(transaction); setEditAmount(String(transaction.amount)); setEditDescription(transaction.description); setEditCategory(transaction.category); }}>
                                   <Edit className="h-4 w-4 mr-2" />
                                   Edit
                                 </DropdownMenuItem>
@@ -1198,6 +1215,86 @@ export default function AccountsPage() {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* ── View Transaction Dialog ── */}
+      {viewTransaction && (
+        <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.7)",zIndex:50,display:"flex",alignItems:"center",justifyContent:"center",padding:"16px"}} onClick={() => setViewTransaction(null)}>
+          <div style={{background:"#111d2e",borderRadius:"16px",padding:"28px",maxWidth:"440px",width:"100%",border:"1px solid rgba(255,255,255,0.1)"}} onClick={e => e.stopPropagation()}>
+            <div style={{display:"flex",justifyContent:"space-between",marginBottom:"20px"}}>
+              <h2 style={{color:"white",fontWeight:700,fontSize:"18px",margin:0}}>Transaction Details</h2>
+              <button onClick={() => setViewTransaction(null)} style={{background:"none",border:"none",color:"#888",cursor:"pointer",fontSize:"20px"}}>×</button>
+            </div>
+            <div style={{display:"grid",gridTemplateColumns:"140px 1fr",gap:"10px 16px",fontSize:"13px"}}>
+              {[
+                ["ID", viewTransaction.id.slice(0,8)+"..."],
+                ["Date", viewTransaction.date],
+                ["Type", viewTransaction.type.toUpperCase()],
+                ["Category", viewTransaction.category],
+                ["Description", viewTransaction.description],
+                ["Amount", "KES " + viewTransaction.amount.toLocaleString()],
+                ["Payment Method", viewTransaction.paymentMethod || "-"],
+                ["Reference", viewTransaction.reference || "-"],
+                ["Customer", viewTransaction.customerName || "-"],
+                ["Invoice", viewTransaction.invoiceNumber || "-"],
+                ["Status", viewTransaction.status],
+                ["Created By", viewTransaction.createdBy || "-"],
+              ].map(([k, v]) => (
+                <><span style={{color:"#888",fontWeight:600,textTransform:"uppercase",fontSize:"11px",paddingTop:"2px"}}>{k}</span><span style={{color:"white"}}>{v}</span></>
+              ))}
+            </div>
+            <div style={{display:"flex",gap:"10px",marginTop:"20px"}}>
+              <button onClick={() => { setEditTransaction(viewTransaction); setEditAmount(String(viewTransaction.amount)); setEditDescription(viewTransaction.description); setEditCategory(viewTransaction.category); setViewTransaction(null); }}
+                style={{flex:1,padding:"10px",borderRadius:"10px",background:"#e67e22",border:"none",color:"white",fontWeight:600,cursor:"pointer"}}>Edit</button>
+              <button onClick={() => setViewTransaction(null)}
+                style={{flex:1,padding:"10px",borderRadius:"10px",background:"rgba(255,255,255,0.08)",border:"1px solid rgba(255,255,255,0.1)",color:"#ccc",cursor:"pointer"}}>Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Edit Transaction Dialog ── */}
+      {editTransaction && (
+        <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.7)",zIndex:50,display:"flex",alignItems:"center",justifyContent:"center",padding:"16px"}} onClick={() => setEditTransaction(null)}>
+          <div style={{background:"#111d2e",borderRadius:"16px",padding:"28px",maxWidth:"440px",width:"100%",border:"1px solid rgba(255,255,255,0.1)"}} onClick={e => e.stopPropagation()}>
+            <div style={{display:"flex",justifyContent:"space-between",marginBottom:"20px"}}>
+              <h2 style={{color:"#f59e0b",fontWeight:700,fontSize:"18px",margin:0}}>Edit Transaction</h2>
+              <button onClick={() => setEditTransaction(null)} style={{background:"none",border:"none",color:"#888",cursor:"pointer",fontSize:"20px"}}>×</button>
+            </div>
+            <div style={{display:"flex",flexDirection:"column",gap:"14px"}}>
+              <div>
+                <label style={{color:"#ccc",fontSize:"12px",fontWeight:600,display:"block",marginBottom:"6px"}}>DESCRIPTION</label>
+                <input value={editDescription} onChange={e => setEditDescription(e.target.value)}
+                  style={{width:"100%",boxSizing:"border-box",padding:"10px 14px",borderRadius:"10px",background:"rgba(255,255,255,0.07)",border:"1px solid rgba(255,255,255,0.15)",color:"white",fontSize:"13px",outline:"none"}} />
+              </div>
+              <div>
+                <label style={{color:"#ccc",fontSize:"12px",fontWeight:600,display:"block",marginBottom:"6px"}}>CATEGORY</label>
+                <input value={editCategory} onChange={e => setEditCategory(e.target.value)}
+                  style={{width:"100%",boxSizing:"border-box",padding:"10px 14px",borderRadius:"10px",background:"rgba(255,255,255,0.07)",border:"1px solid rgba(255,255,255,0.15)",color:"white",fontSize:"13px",outline:"none"}} />
+              </div>
+              <div>
+                <label style={{color:"#ccc",fontSize:"12px",fontWeight:600,display:"block",marginBottom:"6px"}}>AMOUNT (KES)</label>
+                <input type="number" value={editAmount} onChange={e => setEditAmount(e.target.value)}
+                  style={{width:"100%",boxSizing:"border-box",padding:"10px 14px",borderRadius:"10px",background:"rgba(255,255,255,0.07)",border:"1px solid rgba(255,255,255,0.15)",color:"white",fontSize:"13px",outline:"none"}} />
+              </div>
+            </div>
+            <div style={{display:"flex",gap:"10px",marginTop:"20px"}}>
+              <button onClick={async () => {
+                try {
+                  const res = await fetch("/api/transactions", {
+                    method: "PUT",
+                    headers: {"Content-Type":"application/json"},
+                    body: JSON.stringify({ id: editTransaction.id, description: editDescription, category: editCategory, amount: Number(editAmount) }),
+                  });
+                  if (res.ok) { loadTransactions(); setEditTransaction(null); }
+                } catch(e) { console.error(e); }
+              }} style={{flex:1,padding:"10px",borderRadius:"10px",background:"#e67e22",border:"none",color:"white",fontWeight:600,cursor:"pointer"}}>Save Changes</button>
+              <button onClick={() => setEditTransaction(null)}
+                style={{flex:1,padding:"10px",borderRadius:"10px",background:"rgba(255,255,255,0.08)",border:"1px solid rgba(255,255,255,0.1)",color:"#ccc",cursor:"pointer"}}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

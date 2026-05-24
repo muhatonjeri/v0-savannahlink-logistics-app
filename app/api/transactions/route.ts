@@ -24,3 +24,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(data);
   } catch (e) { return NextResponse.json({ error: String(e) }, { status: 500 }); }
 }
+
+export async function PUT(req: NextRequest) {
+  try {
+    const sb = createAdminClient();
+    const { id, ...updates } = await req.json();
+    if (!id) return NextResponse.json({ error: "id required" }, { status: 400 });
+    const { data, error } = await sb.from("transactions").update(updates).eq("id", id).select().single();
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(data);
+  } catch (e) { return NextResponse.json({ error: String(e) }, { status: 500 }); }
+}
