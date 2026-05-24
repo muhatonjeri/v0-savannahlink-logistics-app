@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Users, Search, Plus, Eye, Phone, Mail, MapPin, ShieldCheck, ShieldAlert, ShieldX, Download, DollarSign, Fingerprint, Car, Package, Receipt, FileText, TrendingUp, AlertOctagon, Calendar, Loader2, Pencil, Printer, ArrowRight, Trash2 } from "lucide-react";
+import { Users, Search, Eye, Phone, Mail, MapPin, ShieldCheck, ShieldAlert, ShieldX, Download, DollarSign, Fingerprint, Car, Package, Receipt, FileText, TrendingUp, AlertOctagon, Calendar, Loader2, Pencil, Printer, ArrowRight, Trash2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -57,6 +57,28 @@ export default function ClientsPage() {
   const [showRegister, setShowRegister] = useState(false);
   const [editClient, setEditClient] = useState<Client | null>(null);
   const [editForm, setEditForm] = useState(emptyForm);
+  const [deleteClient, setDeleteClient] = useState<Client | null>(null);
+  const [deletePassword, setDeletePassword] = useState("");
+  const [deleteError, setDeleteError] = useState("");
+  const [deleting, setDeleting] = useState(false);
+
+  const DELETE_PASSWORD = "moventra2024";
+
+  const handleDelete = async () => {
+    if (deletePassword !== DELETE_PASSWORD) {
+      setDeleteError("Incorrect password"); return;
+    }
+    setDeleting(true);
+    try {
+      const res = await fetch("/api/clients?id=" + deleteClient!.id, { method: "DELETE" });
+      if (res.ok) {
+        setDeleteClient(null); setDeletePassword(""); setDeleteError("");
+        loadClients();
+      } else {
+        setDeleteError("Delete failed — try again");
+      }
+    } catch { setDeleteError("Network error"); } finally { setDeleting(false); }
+  };
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [profile, setProfile] = useState<Record<string,unknown> | null>(null);
@@ -249,9 +271,7 @@ export default function ClientsPage() {
           <Button variant="outline" size="sm" className="border-white/10 text-gray-400 gap-2" onClick={exportCSV}>
             <Download className="h-4 w-4" /> Export
           </Button>
-          <Button className="bg-lime-600 hover:bg-lime-700 gap-2" onClick={() => setShowRegister(true)}>
-            <Plus className="h-4 w-4" /> New Client
-          </Button>
+
         </div>
       </div>
 
@@ -305,9 +325,7 @@ export default function ClientsPage() {
               <Users className="h-12 w-12 text-gray-600 mx-auto mb-3" />
               <p className="text-gray-400 font-medium">No clients found</p>
               <p className="text-gray-500 text-sm mt-1">{search ? "Try a different search term" : "Register your first client"}</p>
-              <Button className="mt-4 bg-lime-600 hover:bg-lime-700" onClick={() => setShowRegister(true)}>
-                <Plus className="h-4 w-4 mr-2" />Register First Client
-              </Button>
+<p className="text-gray-500 text-sm mt-2">Clients are registered through the Client Lookup flow</p>
             </div>
           ) : (
             <Table>
@@ -392,6 +410,46 @@ export default function ClientsPage() {
           <div className="flex gap-2 pt-2">
             <Button variant="outline" className="flex-1" onClick={() => setEditClient(null)}>Cancel</Button>
             <Button className="flex-1 bg-amber-600 hover:bg-amber-700" onClick={handleUpdate}>Save Changes</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Client Dialog — requires password */}
+      <Dialog open={!!deleteClient} onOpenChange={o => { if (!o) { setDeleteClient(null); setDeletePassword(""); setDeleteError(""); } }}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="text-red-400 flex items-center gap-2">
+              <Trash2 className="h-5 w-5" />Delete Client
+            </DialogTitle>
+            <DialogDescription>
+              This permanently removes <strong className="text-white">{deleteClient?.fullName}</strong> and all their records. This cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3">
+              <p className="text-red-300 text-sm font-medium flex items-center gap-2">
+                <ShieldX className="h-4 w-4 shrink-0" />Authentication Required
+              </p>
+              <p className="text-gray-400 text-xs mt-1">Enter the admin password to authorise this deletion</p>
+            </div>
+            <div>
+              <Label className="text-gray-200">Admin Password</Label>
+              <Input
+                type="password"
+                className="mt-1 bg-[#0a1628] border-white/20 text-white"
+                placeholder="Enter password..."
+                value={deletePassword}
+                onChange={e => { setDeletePassword(e.target.value); setDeleteError(""); }}
+                onKeyDown={e => e.key === "Enter" && handleDelete()}
+              />
+              {deleteError && <p className="text-red-400 text-xs mt-1">{deleteError}</p>}
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" className="flex-1" onClick={() => { setDeleteClient(null); setDeletePassword(""); setDeleteError(""); }}>Cancel</Button>
+            <Button className="flex-1 bg-red-600 hover:bg-red-700" onClick={handleDelete} disabled={deleting || !deletePassword}>
+              {deleting ? "Deleting..." : "Confirm Delete"}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
