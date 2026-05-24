@@ -134,6 +134,19 @@ export default function ServicePage({ service, accentColor = "blue" }: ServicePa
       });
       if (res.ok) {
         toast.success("Booking saved successfully");
+        // Auto-sync to accounts if payment received
+        if (Number(form.amountPaid) > 0) {
+          fetch("/api/transactions", {
+            method: "POST", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              date: new Date().toISOString().split("T")[0],
+              type: "income", category: service.title,
+              description: `${service.title} — ${form.customerName}`,
+              amount: Number(form.amountPaid), payment_method: form.paymentMethod,
+              customer_name: form.customerName, status: "completed",
+            }),
+          }).catch(e => console.error("Accounts sync:", e));
+        }
         setShowForm(false);
         setForm({ customerName: "", customerPhone: "", customerEmail: "", totalAmount: "", paymentMethod: "mpesa", amountPaid: "", status: "pending", notes: "" });
         loadBookings();
