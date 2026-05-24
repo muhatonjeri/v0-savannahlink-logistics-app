@@ -98,7 +98,8 @@ export default function ClientsPage() {
   const loadClients = async () => {
     try {
       const res = await fetch("/api/clients");
-      const data = await res.json();
+      const _raw = await res.json();
+      const data = Array.isArray(_raw) ? _raw : (_raw.data || []);
       if (Array.isArray(data)) {
         setClients(data.map((c: Record<string, unknown>) => ({
           id: String(c.id || ""),

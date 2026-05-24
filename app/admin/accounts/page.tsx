@@ -212,7 +212,8 @@ export default function AccountsPage() {
   const loadTransactions = async () => {
     try {
       const res = await fetch("/api/transactions");
-      const data = await res.json();
+      const _raw = await res.json();
+      const data = Array.isArray(_raw) ? _raw : (_raw.data || []);
       if (Array.isArray(data) && data.length > 0) {
         setTransactions(data.map((t: Record<string,unknown>) => ({
           id: String(t.id || ""),

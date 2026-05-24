@@ -3,6 +3,7 @@
 // Docs: https://developer.safaricom.co.ke/APIs/MpesaExpressSimulate
 
 import { NextRequest, NextResponse } from "next/server";
+import { rateLimit } from "@/lib/rate-limit";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 const MPESA_ENV       = process.env.MPESA_ENV || "sandbox";
@@ -44,6 +45,11 @@ function formatPhone(phone: string): string {
 // ── STK Push ──────────────────────────────────────────────────────
 export async function POST(req: NextRequest) {
   try {
+    // Rate limit: 10 STK push requests per minute per IP
+    const ip = req.headers.get("x-forwarded-for") || "unknown";
+    const rl = rateLimit(`mpesa:${ip}`, 10, 60_000);
+    if (!rl.ok) return NextResponse.json({ error: "Too many requests. Try again in 1 minute." }, { status: 429 });
+
     const body = await req.json();
     const { phone, amount, reference, description, bookingId, invoiceId } = body;
 

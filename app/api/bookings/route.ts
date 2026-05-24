@@ -15,6 +15,9 @@ export async function GET(req: NextRequest) {
   try {
     const sb = createAdminClient();
     const { searchParams } = new URL(req.url);
+    const page  = Number(searchParams.get("page")  || 1);
+    const limit = Number(searchParams.get("limit") || 100);
+    const offset = (page - 1) * limit;
     const service  = searchParams.get("service");
     const clientId = searchParams.get("clientId");
     const q_param  = searchParams.get("q");
@@ -24,9 +27,10 @@ export async function GET(req: NextRequest) {
     if (clientId) q = q.eq("client_id", clientId);
     if (q_param)  q = q.ilike("customer_name", `%${q_param}%`);
 
-    const { data, error } = await q;
+    q = q.range(offset, offset + limit - 1);
+    const { data, error, count } = await q;
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-    return NextResponse.json(data);
+    return NextResponse.json({ data, page, limit, total: count });
   } catch (e) { return NextResponse.json({ error: String(e) }, { status: 500 }); }
 }
 
@@ -35,6 +39,26 @@ export async function POST(req: NextRequest) {
     const sb   = createAdminClient();
     const body = await req.json();
     const bookingRef = generateBookingRef();
+
+    const force = new URL(req.url).searchParams.get("force") === "true";
+
+    // Duplicate detection: same client + service within last 24hrs
+    const yesterday = new Date(Date.now() - 86400000).toISOString();
+    const { data: existing } = await sb.from("bookings")
+      .select("id,booking_ref,created_at")
+      .eq("customer_phone", body.customer_phone || "")
+      .eq("service_type", body.service_type || "")
+      .gte("created_at", yesterday)
+      .neq("status", "cancelled")
+      .limit(1);
+
+    if (!force && existing && existing.length > 0) {
+      return NextResponse.json({
+        warning: "duplicate",
+        message: `A booking for this client and service already exists in the last 24hrs (${existing[0].booking_ref}). Proceed anyway?`,
+        existing_ref: existing[0].booking_ref,
+      }, { status: 409 });
+    }
 
     const { data, error } = await sb.from("bookings").insert([{
       booking_ref:      bookingRef,

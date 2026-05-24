@@ -7,9 +7,10 @@ export async function GET(req: NextRequest) {
     const q = new URL(req.url).searchParams.get("q");
     let query = sb.from("blacklist").select("*").order("created_at", { ascending: false });
     if (q) query = query.or(`client_name.ilike.%${q}%,id_number.ilike.%${q}%,phone.ilike.%${q}%`);
-    const { data, error } = await query;
+    query = query.range(offset, offset + limit - 1);
+    const { data, error, count } = await query;
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-    return NextResponse.json(data);
+    return NextResponse.json({ data, page, limit, total: count });
   } catch (e) { return NextResponse.json({ error: String(e) }, { status: 500 }); }
 }
 

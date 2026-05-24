@@ -5,6 +5,9 @@ export async function GET(req: NextRequest) {
   try {
     const sb = createAdminClient();
     const { searchParams } = new URL(req.url);
+    const page  = Number(searchParams.get("page")  || 1);
+    const limit = Number(searchParams.get("limit") || 100);
+    const offset = (page - 1) * limit;
     const q = searchParams.get("q");
     const id = searchParams.get("id");
     if (id) {
@@ -20,7 +23,7 @@ export async function GET(req: NextRequest) {
     }
     const { data, error } = await sb.from("clients").select("*").order("created_at", { ascending: false });
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-    return NextResponse.json(data);
+    return NextResponse.json({ data, page, limit, total: count });
   } catch (e) { return NextResponse.json({ error: String(e) }, { status: 500 }); }
 }
 
