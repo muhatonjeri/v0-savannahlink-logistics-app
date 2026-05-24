@@ -69,15 +69,20 @@ export default function UsersPage() {
           createdAt: new Date().toISOString(),
         };
 
-    saveUser(user);
-    fetch("/api/staff").then(r => r.json()).then(data => {
-      if (Array.isArray(data) && data.length > 0) setUsers(data.map((u: Record<string,unknown>) => ({
+    const method = editingUser ? "PUT" : "POST";
+    const body = editingUser
+      ? { id: editingUser.id, full_name: user.name, email: user.email, role: user.role }
+      : { full_name: user.name, email: user.email, role: user.role };
+    fetch("/api/staff", {
+      method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body),
+    }).then(() => fetch("/api/staff").then(r => r.json())).then(data => {
+      if (Array.isArray(data)) setUsers(data.map((u: Record<string,unknown>) => ({
         id: String(u.id || ""), name: String(u.full_name || u.name || ""),
         email: String(u.email || ""), phone: String(u.phone || ""),
         role: String(u.role || "staff"), department: String(u.department || ""),
         isActive: u.is_active !== false, createdAt: String(u.created_at || ""),
       })));
-    }).catch(e => console.error("Load users:", e));
+    }).catch(e => console.error("Save user:", e));
     setIsDialogOpen(false);
     setEditingUser(null);
     setFormData({ name: "", email: "", role: "staff" });
@@ -95,9 +100,9 @@ export default function UsersPage() {
       toast.error("Cannot delete the last user");
       return;
     }
-    deleteUser(id);
-    fetch("/api/staff").then(r => r.json()).then(data => {
-      if (Array.isArray(data) && data.length > 0) setUsers(data.map((u: Record<string,unknown>) => ({
+    fetch("/api/staff?id=" + id, { method: "DELETE" })
+      .then(() => fetch("/api/staff").then(r => r.json())).then(data => {
+      if (Array.isArray(data)) setUsers(data.map((u: Record<string,unknown>) => ({
         id: String(u.id || ""), name: String(u.full_name || u.name || ""),
         email: String(u.email || ""), phone: String(u.phone || ""),
         role: String(u.role || "staff"), department: String(u.department || ""),
