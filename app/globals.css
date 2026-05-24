@@ -1021,3 +1021,9 @@ table thead th,
     margin: 12mm;
   }
 }
+
+/* Mobile overflow fixes */
+html, body { overflow-x: hidden; }
+@media (max-width: 768px) {
+  .overflow-x-auto { -webkit-overflow-scrolling: touch; }
+}

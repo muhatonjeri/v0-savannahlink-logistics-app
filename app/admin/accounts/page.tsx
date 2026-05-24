@@ -923,7 +923,8 @@ export default function AccountsPage() {
             /* List View */
             <Card>
               <CardContent className="p-0">
-                <Table>
+            <div className="overflow-x-auto">
+            <Table>
                   <TableHeader>
                     <TableRow>
                       <TableHead>Date</TableHead>

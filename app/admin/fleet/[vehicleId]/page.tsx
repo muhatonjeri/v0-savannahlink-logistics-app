@@ -920,7 +920,8 @@ export default function VehicleProfilePage() {
               </Button>
             </CardHeader>
             <CardContent>
-              <Table>
+            <div className="overflow-x-auto">
+            <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Period</TableHead>
@@ -977,6 +978,7 @@ export default function VehicleProfilePage() {
                   ))}
                 </TableBody>
               </Table>
+            </div>
             </CardContent>
           </Card>
 
@@ -987,7 +989,8 @@ export default function VehicleProfilePage() {
               <CardDescription>Periods when the vehicle was not on assignment</CardDescription>
             </CardHeader>
             <CardContent>
-              <Table>
+            <div className="overflow-x-auto">
+            <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Period</TableHead>
@@ -1019,6 +1022,7 @@ export default function VehicleProfilePage() {
                   ))}
                 </TableBody>
               </Table>
+            </div>
             </CardContent>
           </Card>
         </TabsContent>
@@ -1379,7 +1383,8 @@ export default function VehicleProfilePage() {
               </Button>
             </CardHeader>
             <CardContent>
-              <Table>
+            <div className="overflow-x-auto">
+            <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Date</TableHead>
@@ -1421,6 +1426,7 @@ export default function VehicleProfilePage() {
                   ))}
                 </TableBody>
               </Table>
+            </div>
             </CardContent>
           </Card>
 
@@ -1437,7 +1443,8 @@ export default function VehicleProfilePage() {
               </Button>
             </CardHeader>
             <CardContent>
-              <Table>
+            <div className="overflow-x-auto">
+            <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Date</TableHead>
@@ -1487,6 +1494,7 @@ export default function VehicleProfilePage() {
                   ))}
                 </TableBody>
               </Table>
+            </div>
             </CardContent>
           </Card>
         </TabsContent>
@@ -1511,7 +1519,8 @@ export default function VehicleProfilePage() {
               </div>
             </CardHeader>
             <CardContent>
-              <Table>
+            <div className="overflow-x-auto">
+            <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Receipt No.</TableHead>
@@ -1584,6 +1593,7 @@ export default function VehicleProfilePage() {
                   ))}
                 </TableBody>
               </Table>
+            </div>
             </CardContent>
           </Card>
         </TabsContent>

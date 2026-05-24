@@ -642,7 +642,8 @@ export default function InvoicesPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
+            <div className="overflow-x-auto">
+            <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Invoice #</TableHead>
@@ -768,7 +769,8 @@ export default function InvoicesPage() {
               )}
             </TableBody>
           </Table>
-        </CardContent>
+            </div>
+            </CardContent>
       </Card>
 
       {/* Create Invoice Dialog */}

@@ -283,7 +283,8 @@ export default function FleetOutPage() {
           <CardDescription className="text-gray-500 text-xs">Vehicles given to other companies/individuals for sub-renting</CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
+            <div className="overflow-x-auto">
+            <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Vehicle</TableHead>
@@ -351,7 +352,8 @@ export default function FleetOutPage() {
               })}
             </TableBody>
           </Table>
-        </CardContent>
+            </div>
+            </CardContent>
       </Card>
 
       {/* Add Record Dialog */}

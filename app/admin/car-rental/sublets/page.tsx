@@ -187,7 +187,8 @@ export default function SubletsPage() {
           <CardDescription className="text-gray-500 text-xs">Assets sourced from external suppliers across all services</CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
+            <div className="overflow-x-auto">
+            <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Service</TableHead>
@@ -224,7 +225,8 @@ export default function SubletsPage() {
               ))}
             </TableBody>
           </Table>
-        </CardContent>
+            </div>
+            </CardContent>
       </Card>
 
       <Card className="border-white/10 bg-white/5">
@@ -233,7 +235,8 @@ export default function SubletsPage() {
           <CardDescription className="text-gray-500 text-xs">All client bookings using subleted vehicles</CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
+            <div className="overflow-x-auto">
+            <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Service</TableHead>
@@ -278,7 +281,8 @@ export default function SubletsPage() {
               })}
             </TableBody>
           </Table>
-        </CardContent>
+            </div>
+            </CardContent>
       </Card>
 
       {/* Add Vehicle Dialog */}

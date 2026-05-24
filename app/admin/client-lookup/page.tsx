@@ -1586,7 +1586,8 @@ function ClientLookupContent() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Table>
+            <div className="overflow-x-auto">
+            <Table>
                   <TableHeader>
                     <TableRow>
                       <TableHead>Date</TableHead>
@@ -1630,7 +1631,8 @@ function ClientLookupContent() {
                     ))}
                   </TableBody>
                 </Table>
-              </CardContent>
+            </div>
+            </CardContent>
             </Card>
           )}
         </div>
@@ -1638,7 +1640,7 @@ function ClientLookupContent() {
 
       {/* Blacklist Detail Dialog */}
       <Dialog open={isBlacklistDetailOpen} onOpenChange={setIsBlacklistDetailOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl w-full mx-4 sm:mx-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-red-500">
               <ShieldAlert className="h-5 w-5" />

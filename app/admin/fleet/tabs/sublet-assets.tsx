@@ -1107,7 +1107,8 @@ Sublet Assets
           <CardDescription className="text-gray-500 text-xs">Assets sourced from external suppliers</CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
+            <div className="overflow-x-auto">
+            <Table>
             <TableHeader>
               <TableRow>
                 <TableHead className="text-orange-400 font-bold">Service</TableHead>
@@ -1147,7 +1148,8 @@ Sublet Assets
               ))}
             </TableBody>
           </Table>
-        </CardContent>
+            </div>
+            </CardContent>
       </Card>
 
       {/* Bookings Table */}
@@ -1157,7 +1159,8 @@ Sublet Assets
           <CardDescription className="text-gray-500 text-xs">All client bookings using subleted assets</CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
+            <div className="overflow-x-auto">
+            <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Service</TableHead>
@@ -1215,7 +1218,8 @@ Sublet Assets
               })}
             </TableBody>
           </Table>
-        </CardContent>
+            </div>
+            </CardContent>
       </Card>
 
       {/* Add Asset Dialog */}

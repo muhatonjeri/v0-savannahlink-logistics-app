@@ -230,7 +230,8 @@ export default function UsersPage() {
           <CardDescription>View and manage all user accounts</CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
+            <div className="overflow-x-auto">
+            <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Name</TableHead>
@@ -272,7 +273,8 @@ export default function UsersPage() {
               ))}
             </TableBody>
           </Table>
-        </CardContent>
+            </div>
+            </CardContent>
       </Card>
     </div>
   );

@@ -278,7 +278,7 @@ export default function ServicePage({ service, accentColor = "blue" }: ServicePa
           <CardTitle className="text-sm text-gray-300 uppercase tracking-wide">Service Packages & Rates</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-2">
             {service.packages.map(pkg => (
               <div key={pkg.id} className={"relative rounded-xl border p-3 " + (pkg.popular ? "border-[#e67e22]/50 bg-[#e67e22]/5" : "border-white/10 bg-white/5")}>
                 {pkg.popular && <span className="absolute -top-2 right-3 bg-[#e67e22] text-white text-[10px] font-bold px-2 py-0.5 rounded-full">POPULAR</span>}

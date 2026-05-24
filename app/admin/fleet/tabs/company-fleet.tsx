@@ -1270,7 +1270,8 @@ export default function CompanyFleetTab() {
           {/* Fleet Table */}
           <Card>
             <CardContent className="p-0">
-              <Table>
+            <div className="overflow-x-auto">
+            <Table>
                 <TableHeader>
                   <TableRow className="bg-[#0a1628] text-white border-b-2 border-[#e67e22]">
                     <TableHead className="text-[#e67e22]">Vehicle</TableHead>
@@ -1388,6 +1389,7 @@ export default function CompanyFleetTab() {
                   )}
                 </TableBody>
               </Table>
+            </div>
             </CardContent>
           </Card>
         </TabsContent>
@@ -1588,7 +1590,7 @@ export default function CompanyFleetTab() {
 
       {/* View Vehicle Details Dialog */}
       <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl w-full mx-4 sm:mx-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Car className="h-5 w-5 text-emerald-600" />
