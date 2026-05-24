@@ -134,18 +134,6 @@ const navItems = [
     color: "text-orange-400",
   },
   {
-    title: "Sublet Assets",
-    href: "/admin/sublets",
-    icon: Building2,
-    color: "text-cyan-400",
-  },
-  {
-    title: "Fleet Out",
-    href: "/admin/car-rental/fleet-out",
-    icon: ArrowUpRight,
-    color: "text-violet-400",
-  },
-  {
     title: "Services Config",
     href: "/admin/services",
     icon: Sliders,
