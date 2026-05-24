@@ -268,9 +268,11 @@ export default function BlacklistPage() {
       const data = await res.json();
       if (Array.isArray(data)) setBlacklist(data.map((b: Record<string,unknown>) => ({
         id: String(b.id || ""),
+        fullName: String(b.client_name || b.fullName || ""),
         clientName: String(b.client_name || b.clientName || ""),
         idNumber: String(b.id_number || b.idNumber || ""),
         phone: String(b.phone || ""),
+        phoneNumber: String(b.phone || b.phoneNumber || ""),
         recordType: String(b.record_type || b.recordType || "other"),
         severity: String(b.severity || "low"),
         status: String(b.status || "active"),
@@ -347,10 +349,10 @@ export default function BlacklistPage() {
   // Filter blacklist entries
   const filteredBlacklist = blacklist.filter((entry) => {
     const matchesSearch =
-      entry.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      entry.idNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      entry.phoneNumber.includes(searchQuery) ||
-      entry.drivingLicenseNumber?.toLowerCase().includes(searchQuery.toLowerCase());
+      (entry.clientName || entry.fullName || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (entry.idNumber || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (entry.phone || entry.phoneNumber || "").includes(searchQuery) ||
+      (entry.description || "").toLowerCase().includes(searchQuery.toLowerCase());
 
     const matchesType = filterType === "all" || entry.recordType === filterType;
     const matchesSeverity = filterSeverity === "all" || entry.severity === filterSeverity;
@@ -414,9 +416,9 @@ export default function BlacklistPage() {
   const handleEdit = (entry: BlacklistEntry) => {
     setEditingEntry(entry);
     editForm.reset({
-      fullName: entry.fullName,
-      idNumber: entry.idNumber,
-      phoneNumber: entry.phoneNumber,
+      fullName: entry.clientName || entry.fullName || "",
+      idNumber: entry.idNumber || "",
+      phoneNumber: entry.phone || entry.phoneNumber || "",
       email: entry.email || "",
       drivingLicenseNumber: entry.drivingLicenseNumber || "",
       kraPin: entry.kraPin || "",
@@ -1030,12 +1032,12 @@ export default function BlacklistPage() {
                               <User className="h-5 w-5 text-red-400" />
                             </div>
                             <div>
-                              <p className="font-medium text-foreground">{entry.fullName}</p>
-                              <p className="text-sm text-muted-foreground">{entry.phoneNumber}</p>
+                              <p className="font-medium text-foreground">{entry.clientName || entry.fullName || "-"}</p>
+                              <p className="text-sm text-muted-foreground">{entry.phone || entry.phoneNumber || "-"}</p>
                             </div>
                           </div>
                         </TableCell>
-                        <TableCell className="font-mono text-sm">{entry.idNumber}</TableCell>
+                        <TableCell className="font-mono text-sm">{entry.idNumber || "-"}</TableCell>
                         <TableCell>
                           <Badge 
                             variant="outline" 
@@ -1113,7 +1115,7 @@ export default function BlacklistPage() {
                                 <AlertDialogHeader>
                                   <AlertDialogTitle>Remove from Blacklist?</AlertDialogTitle>
                                   <AlertDialogDescription>
-                                    Are you sure you want to remove {entry.fullName} from the
+                                    Are you sure you want to remove {entry.clientName || entry.fullName || "this person"} from the
                                     blacklist? This action cannot be undone.
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
