@@ -261,8 +261,10 @@ const initialBlacklistData: BlacklistEntry[] = [
 
 export default function BlacklistPage() {
   const [blacklist, setBlacklist] = useState<BlacklistEntry[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const loadBlacklist = async () => {
+    setLoading(true);
     try {
       const res = await fetch("/api/blacklist");
       const _raw = await res.json();
@@ -282,7 +284,7 @@ export default function BlacklistPage() {
         reportedBy: String(b.reported_by || b.reportedBy || ""),
         createdAt: String(b.created_at || b.createdAt || ""),
       })));
-    } catch(e) { console.error("Load blacklist:", e); }
+    } catch(e) { console.error("Load blacklist:", e); } finally { setLoading(false); }
   };
 
   useEffect(() => { loadBlacklist(); }, []);

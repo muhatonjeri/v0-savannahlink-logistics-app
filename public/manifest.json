@@ -1,0 +1,20 @@
+{
+  "name": "Moventra Safaris & Logistics Ltd",
+  "short_name": "Moventra",
+  "description": "Admin system for Moventra Safaris & Logistics Ltd",
+  "start_url": "/admin",
+  "display": "standalone",
+  "background_color": "#0a1628",
+  "theme_color": "#e67e22",
+  "orientation": "any",
+  "icons": [
+    { "src": "/images/logo.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/images/logo.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "categories": ["business", "productivity"],
+  "shortcuts": [
+    { "name": "New Booking",    "url": "/admin/client-lookup", "description": "Create a new booking" },
+    { "name": "Dashboard",     "url": "/admin",               "description": "View dashboard"       },
+    { "name": "Verify Payment","url": "/admin/verify-payment","description": "Verify a payment"     }
+  ]
+}

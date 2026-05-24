@@ -75,6 +75,8 @@ const fmt = (n: number) => "KES " + n.toLocaleString();
 
 export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
+  const [lastUpdated, setLastUpdated] = useState<Date|null>(null);
+  const [refreshing, setRefreshing] = useState(false);
   const [bookings, setBookings] = useState<Record<string,unknown>[]>([]);
   const [clients, setClients] = useState<Record<string,unknown>[]>([]);
   const [invoices, setInvoices] = useState<Record<string,unknown>[]>([]);
@@ -92,6 +94,7 @@ export default function AdminDashboard() {
       if (Array.isArray(i)) setInvoices(i);
       if (Array.isArray(t)) setTransactions(t);
       setLoading(false);
+      setLastUpdated(new Date());
     }).catch(() => setLoading(false));
   }, []);
 
@@ -147,6 +150,13 @@ export default function AdminDashboard() {
           <p className="text-gray-400 text-sm mt-0.5">
             {new Date().toLocaleDateString("en-KE", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
           </p>
+        </div>
+        <div className="flex items-center gap-2">
+          {lastUpdated && <span className="text-gray-500 text-xs hidden sm:block">Updated {lastUpdated.toLocaleTimeString("en-KE",{hour:"2-digit",minute:"2-digit"})}</span>}
+          <button onClick={() => { setRefreshing(true); Promise.all([fetch("/api/bookings").then(r=>r.json()),fetch("/api/clients").then(r=>r.json()),fetch("/api/invoices").then(r=>r.json()),fetch("/api/transactions").then(r=>r.json())]).then(([b,c,i,t])=>{if(Array.isArray(b))setBookings(b);else if(b.data)setBookings(b.data);if(Array.isArray(c))setClients(c);else if(c.data)setClients(c.data);if(Array.isArray(i))setInvoices(i);else if(i.data)setInvoices(i.data);if(Array.isArray(t))setTransactions(t);else if(t.data)setTransactions(t.data);setLastUpdated(new Date());}).finally(()=>setRefreshing(false)); }}
+            className={"p-2 rounded-xl border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 transition-all " + (refreshing?"animate-spin":"")}>
+            <Activity className="h-4 w-4" />
+          </button>
         </div>
         <Button asChild className="bg-[#e67e22] hover:bg-[#d35400] gap-2">
           <Link href="/admin/client-lookup"><Users className="h-4 w-4" />New Booking</Link>

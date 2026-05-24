@@ -1,4 +1,5 @@
 "use client";
+import { Suspense } from "react";
 
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -2658,5 +2659,13 @@ export default function NewCarRentalAdminPage() {
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+
+export default function NewCarRentalBooking() {
+  return (
+    <Suspense fallback={<div className="flex h-64 items-center justify-center text-gray-400 animate-pulse">Loading booking form...</div>}>
+      <NewCarRentalBookingContent />
+    </Suspense>
   );
 }

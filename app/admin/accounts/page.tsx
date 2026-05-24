@@ -208,8 +208,10 @@ const generateMockTransactions = (): Transaction[] => {
 
 export default function AccountsPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const loadTransactions = async () => {
+    setLoading(true);
     try {
       const res = await fetch("/api/transactions");
       const _raw = await res.json();
@@ -232,7 +234,7 @@ export default function AccountsPage() {
           createdAt: String(t.created_at || t.createdAt || ""),
         })));
       }
-    } catch(e) { console.error("Load transactions:", e); }
+    } catch(e) { console.error("Load transactions:", e); } finally { setLoading(false); }
   };
 
   useEffect(() => { loadTransactions(); }, []);
