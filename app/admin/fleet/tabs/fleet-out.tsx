@@ -674,7 +674,6 @@ export default function FleetOutTab() {
           </DialogContent>
         </Dialog>
       )}
-    </div>
 
       {/* Edit Fleet Out Dialog */}
       {editRecord && (
@@ -721,5 +720,6 @@ export default function FleetOutTab() {
           </DialogContent>
         </Dialog>
       )}
+    </div>
   );
 }
