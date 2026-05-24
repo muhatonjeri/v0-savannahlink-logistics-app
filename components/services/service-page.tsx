@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   Plus, Search, Eye, Pencil, Printer, Trash2, Filter,
   TrendingUp, DollarSign, Calendar, Users, CheckCircle2,
@@ -59,8 +59,8 @@ interface ServicePageProps {
   accentColor?: string;
 }
 
-export default function ServicePage({ service, accentColor = "blue" }: ServicePageProps) {
-  const router = useRouter();
+function ServicePageInner({ service, accentColor = "blue" }: ServicePageProps) {
+  const searchParams = useSearchParams();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -104,6 +104,25 @@ export default function ServicePage({ service, accentColor = "blue" }: ServicePa
   };
 
   useEffect(() => { loadBookings(); }, [service.id]);
+
+  // Prefill client data from Client Lookup
+  useEffect(() => {
+    const prefill = searchParams.get("prefill");
+    if (prefill) {
+      try {
+        const data = JSON.parse(decodeURIComponent(prefill));
+        if (data.customerName || data.customerPhone) {
+          setForm(f => ({
+            ...f,
+            customerName: data.customerName || f.customerName,
+            customerPhone: data.customerPhone || f.customerPhone,
+            customerEmail: data.customerEmail || f.customerEmail,
+          }));
+          setShowForm(true); // Auto-open the booking form
+        }
+      } catch {}
+    }
+  }, [searchParams]);
 
   const handleSave = async () => {
     if (!form.customerName || !form.customerPhone) {
@@ -636,5 +655,13 @@ export default function ServicePage({ service, accentColor = "blue" }: ServicePa
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+
+export default function ServicePage(props: ServicePageProps) {
+  return (
+    <Suspense fallback={<div className="flex h-64 items-center justify-center text-gray-400 animate-pulse">Loading...</div>}>
+      <ServicePageInner {...props} />
+    </Suspense>
   );
 }

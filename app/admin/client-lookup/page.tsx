@@ -102,11 +102,11 @@ import type { Client as StoreClient } from "@/types";
 
 // Service configuration - hrefs match actual page paths
 const serviceConfig: Record<string, { title: string; icon: LucideIcon; href: string; color: string; bgColor: string; hoverColor: string }> = {
-  "car-rental": { title: "Car Rental", icon: Car, href: "/admin/car-rental/new", color: "text-indigo-400", bgColor: "bg-indigo-900/40 border-indigo-500", hoverColor: "hover:bg-indigo-900/60" },
+  "car-rental": { title: "Car Rental", icon: Car, href: "/admin/car-rental", color: "text-indigo-400", bgColor: "bg-indigo-900/40 border-indigo-500", hoverColor: "hover:bg-indigo-900/60" },
   "safari-tours": { title: "Safari Tours", icon: Compass, href: "/admin/safari-tours", color: "text-amber-400", bgColor: "bg-amber-900/40 border-amber-500", hoverColor: "hover:bg-amber-900/60" },
   "transfers": { title: "Airport Transfers", icon: Plane, href: "/admin/transfers", color: "text-sky-400", bgColor: "bg-sky-900/40 border-sky-500", hoverColor: "hover:bg-sky-900/60" },
   "movers": { title: "Movers", icon: Truck, href: "/admin/movers", color: "text-violet-400", bgColor: "bg-violet-900/40 border-violet-500", hoverColor: "hover:bg-violet-900/60" },
-  "corporate-rental": { title: "Corporate Rental", icon: Bus, href: "/admin/car-rental/new", color: "text-purple-400", bgColor: "bg-purple-900/40 border-purple-500", hoverColor: "hover:bg-purple-900/60" },
+  "corporate-rental": { title: "Corporate Rental", icon: Bus, href: "/admin/corporate-rental", color: "text-purple-400", bgColor: "bg-purple-900/40 border-purple-500", hoverColor: "hover:bg-purple-900/60" },
   "road-recovery": { title: "Road Recovery", icon: Wrench, href: "/admin/road-recovery", color: "text-rose-400", bgColor: "bg-rose-900/40 border-rose-500", hoverColor: "hover:bg-rose-900/60" },
   "cargo-handling": { title: "Cargo Handling", icon: Package, href: "/admin/cargo-handling", color: "text-orange-400", bgColor: "bg-orange-900/40 border-orange-500", hoverColor: "hover:bg-orange-900/60" },
   "shipment-imports": { title: "Shipment Imports", icon: Ship, href: "/admin/shipment-imports", color: "text-blue-400", bgColor: "bg-blue-900/40 border-blue-500", hoverColor: "hover:bg-blue-900/60" },
@@ -1015,11 +1015,17 @@ function ClientLookupContent() {
                   
                   {/* Selected Service - Prominent CTA */}
                   {currentService && (
-                    <div className="border-t border-green-500/50 pt-4">
-                      <Link href={`${currentService.href}?clientId=${searchResults.client?.id || ""}`}>
-                        <Button className="w-full bg-emerald-600 hover:bg-emerald-700 gap-2">
+                    <div className="border-t pt-4" style={{borderColor:"rgba(230,126,34,0.4)"}}>
+                      <p className="text-xs text-gray-400 mb-2">Client verified — proceed to booking:</p>
+                      <Link href={`${currentService.href}?prefill=${encodeURIComponent(JSON.stringify({
+                        clientId: searchResults.client?.id || "",
+                        customerName: searchResults.client?.full_name || searchResults.client?.fullName || "",
+                        customerPhone: searchResults.client?.phone || "",
+                        customerEmail: searchResults.client?.email || "",
+                      }))}`}>
+                        <Button className="w-full gap-2 text-white" style={{background:"#e67e22"}}>
                           <currentService.icon className="h-4 w-4" />
-                          Proceed to {currentService.title}
+                          Proceed to {currentService.title} Booking
                         </Button>
                       </Link>
                     </div>
@@ -1029,57 +1035,17 @@ function ClientLookupContent() {
                   {!currentService && (
                     <div className="border-t border-green-500/50 dark:border-green-800 pt-4">
                       <h4 className="text-sm font-medium text-muted-foreground mb-3">Quick Service Access - Select a service to proceed:</h4>
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                        <Link href={`/admin/car-rental/new?clientId=${searchResults.client?.id || ""}`}>
-                          <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-indigo-500/50 hover:border-indigo-400 hover:bg-indigo-900/30 group">
-                            <Car className="h-6 w-6 text-indigo-500 group-hover:scale-110 transition-transform" />
-                            <span className="text-xs font-medium">Car Rental</span>
-                          </Button>
+                      <div className="grid grid-cols-3 gap-2">
+                      {Object.entries(serviceConfig).map(([key, svc]) => (
+                        <Link key={key} href={`${svc.href}?prefill=${encodeURIComponent(JSON.stringify({ clientId: searchResults.client?.id || "", customerName: searchResults.client?.full_name || "", customerPhone: searchResults.client?.phone || "", customerEmail: searchResults.client?.email || "" }))}`}>
+                          <button className={"w-full flex flex-col items-center gap-1.5 p-3 rounded-xl border transition-all text-center hover:scale-105 " + svc.bgColor + " " + svc.hoverColor}>
+                            <svc.icon className={"h-5 w-5 " + svc.color} />
+                            <span className={"text-xs font-medium " + svc.color}>{svc.title}</span>
+                          </button>
                         </Link>
-                        <Link href="/admin/safari-tours">
-                          <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-amber-500/50 hover:border-amber-400 hover:bg-amber-900/30 group">
-                            <Compass className="h-6 w-6 text-amber-500 group-hover:scale-110 transition-transform" />
-                            <span className="text-xs font-medium">Safari Tours</span>
-                          </Button>
-                        </Link>
-                        <Link href="/admin/transfers">
-                          <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-sky-500/50 hover:border-sky-400 hover:bg-sky-900/30 group">
-                            <Plane className="h-6 w-6 text-sky-500 group-hover:scale-110 transition-transform" />
-                            <span className="text-xs font-medium">Airport Transfers</span>
-                          </Button>
-                        </Link>
-                        <Link href="/admin/cargo-handling">
-                          <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-orange-500/50 hover:border-orange-400 hover:bg-orange-900/30 group">
-                            <Package className="h-6 w-6 text-orange-500 group-hover:scale-110 transition-transform" />
-                            <span className="text-xs font-medium">Cargo Handling</span>
-                          </Button>
-                        </Link>
-                        <Link href="/admin/movers">
-                          <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-violet-500/50 hover:border-violet-400 hover:bg-violet-900/30 group">
-                            <Truck className="h-6 w-6 text-violet-500 group-hover:scale-110 transition-transform" />
-                            <span className="text-xs font-medium">Movers</span>
-                          </Button>
-                        </Link>
-                        <Link href="/admin/construction-equipment">
-                          <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-yellow-500/50 hover:border-yellow-400 hover:bg-yellow-900/30 group">
-                            <HardHat className="h-6 w-6 text-yellow-500 group-hover:scale-110 transition-transform" />
-                            <span className="text-xs font-medium">Construction Equipment</span>
-                          </Button>
-                        </Link>
-                        <Link href="/admin/shipment-imports">
-                          <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-blue-500/50 hover:border-blue-400 hover:bg-blue-900/30 group">
-                            <Ship className="h-6 w-6 text-blue-500 group-hover:scale-110 transition-transform" />
-                            <span className="text-xs font-medium">Shipment Imports</span>
-                          </Button>
-                        </Link>
-                        <Link href="/admin/road-recovery">
-                          <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2 border-rose-500/50 hover:border-rose-400 hover:bg-rose-900/30 group">
-                            <Wrench className="h-6 w-6 text-rose-500 group-hover:scale-110 transition-transform" />
-                            <span className="text-xs font-medium">Road Recovery</span>
-                          </Button>
-                        </Link>
-                      </div>
+                      ))}
                     </div>
+
                   )}
                 </div>
               </CardContent>
@@ -1105,11 +1071,17 @@ function ClientLookupContent() {
                   
                   {/* Selected Service - Prominent CTA */}
                   {currentService && (
-                    <div className="border-t border-green-500/50 pt-4">
-                      <Link href={`${currentService.href}?clientId=${searchResults.client?.id || ""}`}>
-                        <Button className="w-full bg-emerald-600 hover:bg-emerald-700 gap-2">
+                    <div className="border-t pt-4" style={{borderColor:"rgba(230,126,34,0.4)"}}>
+                      <p className="text-xs text-gray-400 mb-2">Client verified — proceed to booking:</p>
+                      <Link href={`${currentService.href}?prefill=${encodeURIComponent(JSON.stringify({
+                        clientId: searchResults.client?.id || "",
+                        customerName: searchResults.client?.full_name || searchResults.client?.fullName || "",
+                        customerPhone: searchResults.client?.phone || "",
+                        customerEmail: searchResults.client?.email || "",
+                      }))}`}>
+                        <Button className="w-full gap-2 text-white" style={{background:"#e67e22"}}>
                           <currentService.icon className="h-4 w-4" />
-                          Proceed to {currentService.title}
+                          Proceed to {currentService.title} Booking
                         </Button>
                       </Link>
                     </div>
