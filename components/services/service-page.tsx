@@ -80,10 +80,11 @@ function ServicePageInner({ service, accentColor = "blue" }: ServicePageProps) {
   const [expandFaq, setExpandFaq] = useState<number | null>(null);
 
   // Form state
+  const [bookingRef, setBookingRef] = useState<string>("");
   const [form, setForm] = useState<Record<string, string>>({
     customerName: "", customerPhone: "", customerEmail: "",
     totalAmount: "", paymentMethod: "mpesa", amountPaid: "",
-    status: "pending", notes: "",
+    paymentReference: "", status: "pending", notes: "",
   });
 
   const loadBookings = async () => {
@@ -152,6 +153,7 @@ function ServicePageInner({ service, accentColor = "blue" }: ServicePageProps) {
           status: form.status || "pending",
           payment_status: Number(form.amountPaid || 0) >= Number(form.totalAmount || 1) ? "completed" : Number(form.amountPaid || 0) > 0 ? "partial" : "pending",
           payment_method: form.paymentMethod,
+          payment_reference: form.paymentReference || "",
           total_amount: Number(form.totalAmount || 0),
           amount_paid: Number(form.amountPaid || 0),
           booking_date: new Date().toISOString().split("T")[0],
@@ -160,8 +162,7 @@ function ServicePageInner({ service, accentColor = "blue" }: ServicePageProps) {
         }),
       });
       if (res.ok) {
-        toast.success("Booking saved successfully");
-        // Auto-sync to accounts if payment received
+        // Auto-sync (handled in API) to accounts if payment received
         if (Number(form.amountPaid) > 0) {
           fetch("/api/transactions", {
             method: "POST", headers: { "Content-Type": "application/json" },
@@ -390,7 +391,10 @@ function ServicePageInner({ service, accentColor = "blue" }: ServicePageProps) {
                       <p className="text-white font-medium text-sm">{b.customerName}</p>
                       <p className="text-gray-400 text-xs">{b.customerPhone}</p>
                     </TableCell>
-                    <TableCell className="text-gray-300 text-sm">{fmtDate(b.bookingDate || b.createdAt)}</TableCell>
+                    <TableCell>
+                      <p className="text-gray-300 text-sm">{fmtDate(b.bookingDate || b.createdAt)}</p>
+                      {(b as any).booking_ref && <p className="text-[10px] font-mono text-[#e67e22]">{(b as any).booking_ref}</p>}
+                    </TableCell>
                     <TableCell className="text-white font-semibold text-sm">{fmt(b.totalAmount)}</TableCell>
                     <TableCell className="text-emerald-400 font-semibold text-sm">{fmt(b.amountPaid)}</TableCell>
                     <TableCell className="text-gray-300 text-sm capitalize">{b.paymentMethod}</TableCell>
@@ -577,7 +581,7 @@ function ServicePageInner({ service, accentColor = "blue" }: ServicePageProps) {
                 </div>
                 {[
                   { title: "Client", items: [["Phone", viewBooking.customerPhone], ["Email", viewBooking.customerEmail || "-"]] },
-                  { title: "Payment", items: [["Total", fmt(viewBooking.totalAmount)], ["Paid", fmt(viewBooking.amountPaid)], ["Balance", fmt(viewBooking.totalAmount - viewBooking.amountPaid)], ["Method", viewBooking.paymentMethod]] },
+                  { title: "Payment", items: [["Total", fmt(viewBooking.totalAmount)], ["Paid", fmt(viewBooking.amountPaid)], ["Balance", fmt(viewBooking.totalAmount - viewBooking.amountPaid)], ["Method", viewBooking.paymentMethod], ["Reference", (viewBooking as any).payment_reference || "-"], ["Booking Ref", (viewBooking as any).booking_ref || "-"]] },
                 ].map(({ title, items }) => (
                   <div key={title} className="rounded-xl border border-white/10 bg-white/5 p-3">
                     <p className="text-gray-400 text-xs font-bold uppercase mb-2">{title}</p>
