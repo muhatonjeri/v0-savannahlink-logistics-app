@@ -1,5 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { NextRequest, NextResponse } from "next/server";
+import { requireAuth } from "@/lib/api-auth";
 
 export async function GET() {
   try {
@@ -11,6 +12,7 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  const authErr = requireAuth(req); if (authErr) return authErr;
   try {
     const sb = createAdminClient();
     const body = await req.json();
@@ -34,6 +36,7 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PUT(req: NextRequest) {
+  const authErr = requireAuth(req); if (authErr) return authErr;
   try {
     const sb = createAdminClient();
     const { id, ...updates } = await req.json();
@@ -44,6 +47,7 @@ export async function PUT(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
+  const authErr = requireAuth(req); if (authErr) return authErr;
   try {
     const sb = createAdminClient();
     const { searchParams } = new URL(req.url);

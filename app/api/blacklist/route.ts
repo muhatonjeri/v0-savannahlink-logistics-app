@@ -1,7 +1,10 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { NextRequest, NextResponse } from "next/server";
+import { requireAuth } from "@/lib/api-auth";
+import { sanitizeBody } from "@/lib/sanitize";
 
 export async function GET(req: NextRequest) {
+  const authErr = requireAuth(req); if (authErr) return authErr;
   try {
     const sb = createAdminClient();
     const q = new URL(req.url).searchParams.get("q");
@@ -15,9 +18,11 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const authErr = requireAuth(req); if (authErr) return authErr;
   try {
     const sb = createAdminClient();
-    const body = await req.json();
+    const rawBody = await req.json();
+    const body = sanitizeBody(rawBody);
     const record = {
       client_id: body.clientId || null,
       client_name: body.clientName,
@@ -37,6 +42,7 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PUT(req: NextRequest) {
+  const authErr = requireAuth(req); if (authErr) return authErr;
   try {
     const sb = createAdminClient();
     const { id, ...updates } = await req.json();
@@ -47,6 +53,7 @@ export async function PUT(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
+  const authErr = requireAuth(req); if (authErr) return authErr;
   try {
     const sb = createAdminClient();
     const id = new URL(req.url).searchParams.get("id");

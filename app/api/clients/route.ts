@@ -1,7 +1,10 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { NextRequest, NextResponse } from "next/server";
+import { requireAuth } from "@/lib/api-auth";
+import { sanitizeBody, isValidUUID } from "@/lib/sanitize";
 
 export async function GET(req: NextRequest) {
+  const authErr = requireAuth(req); if (authErr) return authErr;
   try {
     const sb = createAdminClient();
     const { searchParams } = new URL(req.url);
@@ -28,6 +31,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const authErr = requireAuth(req); if (authErr) return authErr;
   try {
     const sb = createAdminClient();
     const body = await req.json();
@@ -56,6 +60,7 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PUT(req: NextRequest) {
+  const authErr = requireAuth(req); if (authErr) return authErr;
   try {
     const sb = createAdminClient();
     const { id, ...updates } = await req.json();
@@ -66,10 +71,12 @@ export async function PUT(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
+  const authErr = requireAuth(req); if (authErr) return authErr;
   try {
     const sb = createAdminClient();
     const id = new URL(req.url).searchParams.get("id");
-    const { error } = await sb.from("clients").delete().eq("id", id!);
+    if (!id || !isValidUUID(id)) return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
+    const { error } = await sb.from("clients").delete().eq("id", id);
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     return NextResponse.json({ success: true });
   } catch (e) { return NextResponse.json({ error: String(e) }, { status: 500 }); }

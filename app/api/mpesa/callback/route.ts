@@ -35,14 +35,14 @@ export async function POST(req: NextRequest) {
         .update({ payment_status: "completed", mpesa_ref: mpesaRef, amount_paid: amount })
         .eq("mpesa_ref", CheckoutRequestID);
 
-      console.log(`✅ M-Pesa payment confirmed: ${mpesaRef} - KES ${amount} from ${phone}`);
+      console.log(`✅ M-Pesa payment confirmed: ref=${mpesaRef} amount=${amount}`); // phone masked for security
     } else {
       // Payment failed/cancelled
       await sb.from("transactions")
         .update({ status: "cancelled" })
         .eq("reference", CheckoutRequestID);
 
-      console.log(`❌ M-Pesa payment failed: ${ResultDesc}`);
+      console.log(`❌ M-Pesa payment failed: ${ResultDesc.substring(0, 50)}`);
     }
 
     return NextResponse.json({ ResultCode: 0, ResultDesc: "Accepted" });

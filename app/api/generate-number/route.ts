@@ -1,8 +1,10 @@
 // Generates unique sequential receipt/invoice numbers using Supabase as counter
 import { createAdminClient } from "@/lib/supabase/admin";
 import { NextRequest, NextResponse } from "next/server";
+import { requireAuth } from "@/lib/api-auth";
 
 export async function GET(req: NextRequest) {
+  const authErr = requireAuth(req); if (authErr) return authErr;
   try {
     const sb = createAdminClient();
     const type = new URL(req.url).searchParams.get("type") || "receipt";
