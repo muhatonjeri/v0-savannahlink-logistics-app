@@ -1,32 +1,39 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { Truck, Building2, ArrowUpRight } from "lucide-react";
-import dynamic from "next/dynamic";
-
-const CompanyFleet = dynamic(
-  () => import("./tabs/company-fleet").then(m => ({ default: m.default })),
-  { ssr: false, loading: () => <Loader /> }
-);
-const SubletAssets = dynamic(
-  () => import("./tabs/sublet-assets").then(m => ({ default: m.default })),
-  { ssr: false, loading: () => <Loader /> }
-);
-const FleetOut = dynamic(
-  () => import("./tabs/fleet-out").then(m => ({ default: m.default })),
-  { ssr: false, loading: () => <Loader /> }
-);
-
-const Loader = () => (
-  <div className="flex h-64 items-center justify-center text-gray-400 animate-pulse">Loading...</div>
-);
+import { Truck, Building2, ArrowUpRight, Loader2 } from "lucide-react";
 
 const TABS = [
   { key: "vehicles",  label: "Company Fleet",  icon: Truck,        color: "text-fuchsia-400" },
   { key: "sublets",   label: "Sublet Assets",  icon: Building2,    color: "text-cyan-400"    },
   { key: "fleet-out", label: "Fleet Out",       icon: ArrowUpRight, color: "text-purple-400"  },
 ];
+
+const Spinner = () => (
+  <div className="flex h-64 items-center justify-center">
+    <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+  </div>
+);
+
+// Lazy load components only when needed
+function TabContent({ tab }: { tab: string }) {
+  const [Component, setComponent] = useState<React.ComponentType | null>(null);
+
+  useEffect(() => {
+    setComponent(null);
+    if (tab === "vehicles") {
+      import("./tabs/company-fleet").then(m => setComponent(() => m.default));
+    } else if (tab === "sublets") {
+      import("./tabs/sublet-assets").then(m => setComponent(() => m.default));
+    } else if (tab === "fleet-out") {
+      import("./tabs/fleet-out").then(m => setComponent(() => m.default));
+    }
+  }, [tab]);
+
+  if (!Component) return <Spinner />;
+  return <Component />;
+}
 
 function FleetHubContent() {
   const searchParams = useSearchParams();
@@ -35,7 +42,6 @@ function FleetHubContent() {
 
   return (
     <div className="space-y-6">
-      {/* Tab Bar */}
       <div className="flex items-center gap-1 rounded-xl bg-white/5 border border-white/10 p-1 w-fit">
         {TABS.map(t => (
           <button key={t.key}
@@ -49,18 +55,14 @@ function FleetHubContent() {
           </button>
         ))}
       </div>
-
-      {/* Tab Content */}
-      {tab === "vehicles"  && <CompanyFleet />}
-      {tab === "sublets"   && <SubletAssets />}
-      {tab === "fleet-out" && <FleetOut />}
+      <TabContent tab={tab} />
     </div>
   );
 }
 
 export default function FleetPage() {
   return (
-    <Suspense fallback={<Loader />}>
+    <Suspense fallback={<Spinner />}>
       <FleetHubContent />
     </Suspense>
   );

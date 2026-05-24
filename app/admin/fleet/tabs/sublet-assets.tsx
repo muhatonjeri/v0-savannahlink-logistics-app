@@ -433,7 +433,7 @@ const emptyBForm = {
   notes: "",
 };
 
-function SubletsPage() {
+export default function SubletAssetsTab() {
   const [vehicles, setVehicles] = useState<SubletVehicle[]>([]);
   const [editAsset, setEditAsset] = useState<SubletVehicle | null>(null);
   const [bookings, setBookings] = useState<SubletBooking[]>([]);
