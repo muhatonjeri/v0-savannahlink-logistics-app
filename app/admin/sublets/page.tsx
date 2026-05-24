@@ -435,8 +435,8 @@ const emptyBForm = {
 };
 
 function SubletsPage() {
-  const [vehicles, setVehicles] = useState<SubletVehicle[]>(INITIAL_VEHICLES);
-  const [bookings, setBookings] = useState<SubletBooking[]>(INITIAL_BOOKINGS);
+  const [vehicles, setVehicles] = useState<SubletVehicle[]>([]);
+  const [bookings, setBookings] = useState<SubletBooking[]>([]);
   const [showVehicleDialog, setShowVehicleDialog] = useState(false);
   const [showBookingDialog, setShowBookingDialog] = useState(false);
   const [viewRecord, setViewRecord] = useState<SubletBooking | null>(null);

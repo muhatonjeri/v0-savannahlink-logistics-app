@@ -71,7 +71,7 @@ const emptyForm = {
 };
 
 export default function FleetOutPage() {
-  const [records, setRecords] = useState<FleetOutRecord[]>(INITIAL);
+  const [records, setRecords] = useState<FleetOutRecord[]>([]);
   const [showDialog, setShowDialog] = useState(false);
   const [viewRecord, setViewRecord] = useState<FleetOutRecord | null>(null);
   const [form, setForm] = useState(emptyForm);

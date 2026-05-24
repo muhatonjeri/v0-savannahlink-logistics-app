@@ -331,7 +331,7 @@ function numberToWords(num: number): string {
 }
 
 export default function ReceiptsPage() {
-  const [receipts, setReceipts] = useState<ReceiptData[]>(initialReceiptsData);
+  const [receipts, setReceipts] = useState<ReceiptData[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedReceipt, setSelectedReceipt] = useState<ReceiptData | null>(null);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
