@@ -1045,6 +1045,7 @@ function ClientLookupContent() {
                         </Link>
                       ))}
                     </div>
+                    </div>
 
                   )}
                 </div>
@@ -1141,7 +1142,7 @@ function ClientLookupContent() {
                           </Button>
                         </Link>
                       </div>
-                    </div>
+                  </div>
                   )}
                 </div>
               </CardContent>
