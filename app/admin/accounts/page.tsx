@@ -438,6 +438,19 @@ export default function AccountsPage() {
           <p className="text-gray-400 mt-1 text-sm">Track income and expenses across all services</p>
         </div>
         <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" className="gap-2 border-white/10 text-gray-400"
+            onClick={() => {
+              const win = window.open("","_blank");
+              if (!win) return;
+              const rows = document.querySelectorAll("tbody tr");
+              let html = "<html><head><title>Accounts</title><style>body{font-family:Arial;padding:20px}table{width:100%;border-collapse:collapse}td,th{padding:8px;border:1px solid #ddd;font-size:12px}th{background:#0a1628;color:white}</style></head><body>";
+              html += "<h2>Moventra - Accounts & Transactions</h2><p>Printed: " + new Date().toLocaleString() + "</p><table><thead><tr><th>Date</th><th>Description</th><th>Category</th><th>Method</th><th>Type</th><th>Amount (KES)</th></tr></thead><tbody>";
+              rows.forEach(row => { const cells = row.querySelectorAll("td"); if(cells.length>3) html += "<tr>" + Array.from(cells).slice(0,6).map(c=>"<td>"+c.innerText+"</td>").join("") + "</tr>"; });
+              html += "</tbody></table><script>window.onload=()=>window.print();<\/script></body></html>";
+              win.document.write(html); win.document.close();
+            }}>
+            <Printer className="h-4 w-4" />Print
+          </Button>
           <Button variant="outline" size="sm">
             <Download className="h-4 w-4 mr-2" />
             Export
@@ -512,6 +525,19 @@ export default function AccountsPage() {
                             {(watchType === "income" ? incomeCategories : expenseCategories).map((cat) => (
                               <SelectItem key={cat.value} value={cat.value}>
                                 <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" className="gap-2 border-white/10 text-gray-400"
+            onClick={() => {
+              const win = window.open("","_blank");
+              if (!win) return;
+              const rows = document.querySelectorAll("tbody tr");
+              let html = "<html><head><title>Accounts</title><style>body{font-family:Arial;padding:20px}table{width:100%;border-collapse:collapse}td,th{padding:8px;border:1px solid #ddd;font-size:12px}th{background:#0a1628;color:white}</style></head><body>";
+              html += "<h2>Moventra - Accounts & Transactions</h2><p>Printed: " + new Date().toLocaleString() + "</p><table><thead><tr><th>Date</th><th>Description</th><th>Category</th><th>Method</th><th>Type</th><th>Amount (KES)</th></tr></thead><tbody>";
+              rows.forEach(row => { const cells = row.querySelectorAll("td"); if(cells.length>3) html += "<tr>" + Array.from(cells).slice(0,6).map(c=>"<td>"+c.innerText+"</td>").join("") + "</tr>"; });
+              html += "</tbody></table><script>window.onload=()=>window.print();<\/script></body></html>";
+              win.document.write(html); win.document.close();
+            }}>
+            <Printer className="h-4 w-4" />Print
+          </Button>
                                   <cat.icon className="h-4 w-4" />
                                   {cat.label}
                                 </div>
@@ -563,6 +589,19 @@ export default function AccountsPage() {
                             {paymentMethods.map((method) => (
                               <SelectItem key={method.value} value={method.value}>
                                 <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" className="gap-2 border-white/10 text-gray-400"
+            onClick={() => {
+              const win = window.open("","_blank");
+              if (!win) return;
+              const rows = document.querySelectorAll("tbody tr");
+              let html = "<html><head><title>Accounts</title><style>body{font-family:Arial;padding:20px}table{width:100%;border-collapse:collapse}td,th{padding:8px;border:1px solid #ddd;font-size:12px}th{background:#0a1628;color:white}</style></head><body>";
+              html += "<h2>Moventra - Accounts & Transactions</h2><p>Printed: " + new Date().toLocaleString() + "</p><table><thead><tr><th>Date</th><th>Description</th><th>Category</th><th>Method</th><th>Type</th><th>Amount (KES)</th></tr></thead><tbody>";
+              rows.forEach(row => { const cells = row.querySelectorAll("td"); if(cells.length>3) html += "<tr>" + Array.from(cells).slice(0,6).map(c=>"<td>"+c.innerText+"</td>").join("") + "</tr>"; });
+              html += "</tbody></table><script>window.onload=()=>window.print();<\/script></body></html>";
+              win.document.write(html); win.document.close();
+            }}>
+            <Printer className="h-4 w-4" />Print
+          </Button>
                                   <method.icon className="h-4 w-4" />
                                   {method.label}
                                 </div>
@@ -784,6 +823,19 @@ export default function AccountsPage() {
             </div>
 
             <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" className="gap-2 border-white/10 text-gray-400"
+            onClick={() => {
+              const win = window.open("","_blank");
+              if (!win) return;
+              const rows = document.querySelectorAll("tbody tr");
+              let html = "<html><head><title>Accounts</title><style>body{font-family:Arial;padding:20px}table{width:100%;border-collapse:collapse}td,th{padding:8px;border:1px solid #ddd;font-size:12px}th{background:#0a1628;color:white}</style></head><body>";
+              html += "<h2>Moventra - Accounts & Transactions</h2><p>Printed: " + new Date().toLocaleString() + "</p><table><thead><tr><th>Date</th><th>Description</th><th>Category</th><th>Method</th><th>Type</th><th>Amount (KES)</th></tr></thead><tbody>";
+              rows.forEach(row => { const cells = row.querySelectorAll("td"); if(cells.length>3) html += "<tr>" + Array.from(cells).slice(0,6).map(c=>"<td>"+c.innerText+"</td>").join("") + "</tr>"; });
+              html += "</tbody></table><script>window.onload=()=>window.print();<\/script></body></html>";
+              win.document.write(html); win.document.close();
+            }}>
+            <Printer className="h-4 w-4" />Print
+          </Button>
               {/* Search */}
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -875,6 +927,19 @@ export default function AccountsPage() {
                           </TableCell>
                           <TableCell>
                             <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" className="gap-2 border-white/10 text-gray-400"
+            onClick={() => {
+              const win = window.open("","_blank");
+              if (!win) return;
+              const rows = document.querySelectorAll("tbody tr");
+              let html = "<html><head><title>Accounts</title><style>body{font-family:Arial;padding:20px}table{width:100%;border-collapse:collapse}td,th{padding:8px;border:1px solid #ddd;font-size:12px}th{background:#0a1628;color:white}</style></head><body>";
+              html += "<h2>Moventra - Accounts & Transactions</h2><p>Printed: " + new Date().toLocaleString() + "</p><table><thead><tr><th>Date</th><th>Description</th><th>Category</th><th>Method</th><th>Type</th><th>Amount (KES)</th></tr></thead><tbody>";
+              rows.forEach(row => { const cells = row.querySelectorAll("td"); if(cells.length>3) html += "<tr>" + Array.from(cells).slice(0,6).map(c=>"<td>"+c.innerText+"</td>").join("") + "</tr>"; });
+              html += "</tbody></table><script>window.onload=()=>window.print();<\/script></body></html>";
+              win.document.write(html); win.document.close();
+            }}>
+            <Printer className="h-4 w-4" />Print
+          </Button>
                               <CategoryIcon className="h-4 w-4 text-muted-foreground" />
                               <span className="text-sm">{categoryInfo.label}</span>
                             </div>
@@ -1034,6 +1099,19 @@ export default function AccountsPage() {
                       <div key={category} className="space-y-2">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" className="gap-2 border-white/10 text-gray-400"
+            onClick={() => {
+              const win = window.open("","_blank");
+              if (!win) return;
+              const rows = document.querySelectorAll("tbody tr");
+              let html = "<html><head><title>Accounts</title><style>body{font-family:Arial;padding:20px}table{width:100%;border-collapse:collapse}td,th{padding:8px;border:1px solid #ddd;font-size:12px}th{background:#0a1628;color:white}</style></head><body>";
+              html += "<h2>Moventra - Accounts & Transactions</h2><p>Printed: " + new Date().toLocaleString() + "</p><table><thead><tr><th>Date</th><th>Description</th><th>Category</th><th>Method</th><th>Type</th><th>Amount (KES)</th></tr></thead><tbody>";
+              rows.forEach(row => { const cells = row.querySelectorAll("td"); if(cells.length>3) html += "<tr>" + Array.from(cells).slice(0,6).map(c=>"<td>"+c.innerText+"</td>").join("") + "</tr>"; });
+              html += "</tbody></table><script>window.onload=()=>window.print();<\/script></body></html>";
+              win.document.write(html); win.document.close();
+            }}>
+            <Printer className="h-4 w-4" />Print
+          </Button>
                             <Icon className="h-4 w-4 text-green-600" />
                             <span className="text-sm font-medium">{info.label}</span>
                           </div>
@@ -1079,6 +1157,19 @@ export default function AccountsPage() {
                       <div key={category} className="space-y-2">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" className="gap-2 border-white/10 text-gray-400"
+            onClick={() => {
+              const win = window.open("","_blank");
+              if (!win) return;
+              const rows = document.querySelectorAll("tbody tr");
+              let html = "<html><head><title>Accounts</title><style>body{font-family:Arial;padding:20px}table{width:100%;border-collapse:collapse}td,th{padding:8px;border:1px solid #ddd;font-size:12px}th{background:#0a1628;color:white}</style></head><body>";
+              html += "<h2>Moventra - Accounts & Transactions</h2><p>Printed: " + new Date().toLocaleString() + "</p><table><thead><tr><th>Date</th><th>Description</th><th>Category</th><th>Method</th><th>Type</th><th>Amount (KES)</th></tr></thead><tbody>";
+              rows.forEach(row => { const cells = row.querySelectorAll("td"); if(cells.length>3) html += "<tr>" + Array.from(cells).slice(0,6).map(c=>"<td>"+c.innerText+"</td>").join("") + "</tr>"; });
+              html += "</tbody></table><script>window.onload=()=>window.print();<\/script></body></html>";
+              win.document.write(html); win.document.close();
+            }}>
+            <Printer className="h-4 w-4" />Print
+          </Button>
                             <Icon className="h-4 w-4 text-red-600" />
                             <span className="text-sm font-medium">{info.label}</span>
                           </div>

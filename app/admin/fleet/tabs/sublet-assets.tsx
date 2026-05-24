@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { Plus, Car, Building2, TrendingUp, DollarSign, ArrowRight, Eye, Trash2, Bell, AlertTriangle, Clock, CreditCard, CalendarClock, CheckCircle2, XCircle, BarChart3, Calendar, ChevronDown } from "lucide-react";
+import { Plus, Pencil, Car, Building2, TrendingUp, DollarSign, ArrowRight, Eye, Trash2, Bell, AlertTriangle, Clock, CreditCard, CalendarClock, CheckCircle2, XCircle, BarChart3, Calendar, ChevronDown } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -435,6 +435,7 @@ const emptyBForm = {
 
 function SubletsPage() {
   const [vehicles, setVehicles] = useState<SubletVehicle[]>([]);
+  const [editAsset, setEditAsset] = useState<SubletVehicle | null>(null);
   const [bookings, setBookings] = useState<SubletBooking[]>([]);
   const [showVehicleDialog, setShowVehicleDialog] = useState(false);
   const [showBookingDialog, setShowBookingDialog] = useState(false);

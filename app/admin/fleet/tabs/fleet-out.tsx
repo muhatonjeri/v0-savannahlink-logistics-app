@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Car, Building2, TrendingUp, DollarSign, Eye, ArrowUpRight, Bell, AlertTriangle, Clock, CreditCard, CalendarClock, CheckCircle2, XCircle } from "lucide-react";
+import { Plus, Pencil, Car, Building2, TrendingUp, DollarSign, Eye, ArrowUpRight, Bell, AlertTriangle, Clock, CreditCard, CalendarClock, CheckCircle2, XCircle, Trash2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -72,6 +72,7 @@ const emptyForm = {
 
 export default function FleetOutTab() {
   const [records, setRecords] = useState<FleetOutRecord[]>([]);
+  const [editRecord, setEditRecord] = useState<FleetOutRecord | null>(null);
   const [showDialog, setShowDialog] = useState(false);
   const [viewRecord, setViewRecord] = useState<FleetOutRecord | null>(null);
   const [form, setForm] = useState(emptyForm);
@@ -640,6 +641,85 @@ export default function FleetOutTab() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Edit Record Dialog */}
+      {editRecord && (
+        <Dialog open={!!editRecord} onOpenChange={() => setEditRecord(null)}>
+          <DialogContent className="max-w-lg">
+            <DialogHeader><DialogTitle className="text-amber-400">Edit Fleet Out Record</DialogTitle></DialogHeader>
+            <div className="space-y-3 py-2">
+              {[
+                ["Receiver Name", "receiverName"], ["Receiver Phone", "receiverPhone"],
+                ["Follow Up Notes", "followUpNotes"], ["Return Condition", "returnCondition"],
+              ].map(([label, key]) => (
+                <div key={key}>
+                  <Label className="text-gray-200 text-xs">{label}</Label>
+                  <Input className="mt-1 bg-[#0a1628] border-white/20 text-white"
+                    value={String((editForm as any)[key] || "")}
+                    onChange={e => setEditForm({...editForm, [key]: e.target.value})} />
+                </div>
+              ))}
+              <div>
+                <Label className="text-gray-200 text-xs">Status</Label>
+                <select className="mt-1 w-full rounded-lg bg-[#0a1628] border border-white/20 text-white px-3 py-2 text-sm"
+                  value={String(editForm.status || "active")} onChange={e => setEditForm({...editForm, status: e.target.value as any})}>
+                  <option value="active">Active</option><option value="completed">Completed</option><option value="cancelled">Cancelled</option>
+                </select>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" className="flex-1" onClick={() => setEditRecord(null)}>Cancel</Button>
+              <Button className="flex-1 bg-amber-600 hover:bg-amber-700" onClick={handleUpdate}>Update</Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
+
+      {/* Edit Fleet Out Dialog */}
+      {editRecord && (
+        <Dialog open={!!editRecord} onOpenChange={() => setEditRecord(null)}>
+          <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-amber-400 flex items-center gap-2">
+                <Pencil className="h-5 w-5" />Edit Fleet Out Record
+              </DialogTitle>
+              <DialogDescription>{editRecord.vehicleMake} {editRecord.vehicleModel} — {editRecord.receiverName}</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-3 py-2">
+              <div className="grid grid-cols-2 gap-3">
+                <div><Label className="text-gray-200">Vehicle Make</Label><Input className="mt-1 bg-[#0a1628] border-white/20 text-white" defaultValue={editRecord.vehicleMake} id="fo-make" /></div>
+                <div><Label className="text-gray-200">Vehicle Model</Label><Input className="mt-1 bg-[#0a1628] border-white/20 text-white" defaultValue={editRecord.vehicleModel} id="fo-model" /></div>
+                <div><Label className="text-gray-200">Registration</Label><Input className="mt-1 bg-[#0a1628] border-white/20 text-white font-mono" defaultValue={editRecord.vehicleReg} id="fo-reg" /></div>
+                <div><Label className="text-gray-200">Receiver Name</Label><Input className="mt-1 bg-[#0a1628] border-white/20 text-white" defaultValue={editRecord.receiverName} id="fo-receiver" /></div>
+                <div><Label className="text-gray-200">Phone</Label><Input className="mt-1 bg-[#0a1628] border-white/20 text-white" defaultValue={editRecord.receiverPhone} id="fo-phone" /></div>
+                <div><Label className="text-gray-200">Daily Rate (KES)</Label><Input type="number" className="mt-1 bg-[#0a1628] border-white/20 text-white" defaultValue={editRecord.ourDailyRate} id="fo-rate" /></div>
+                <div><Label className="text-gray-200">Start Date</Label><Input type="date" className="mt-1 bg-[#0a1628] border-white/20 text-white" defaultValue={editRecord.startDate} id="fo-start" /></div>
+                <div><Label className="text-gray-200">End Date</Label><Input type="date" className="mt-1 bg-[#0a1628] border-white/20 text-white" defaultValue={editRecord.endDate} id="fo-end" /></div>
+                <div><Label className="text-gray-200">Amount Paid (KES)</Label><Input type="number" className="mt-1 bg-[#0a1628] border-white/20 text-white" defaultValue={editRecord.amountPaid} id="fo-paid" /></div>
+                <div>
+                  <Label className="text-gray-200">Status</Label>
+                  <select className="mt-1 w-full rounded-lg bg-[#0a1628] border border-white/20 text-white px-3 py-2 text-sm" defaultValue={editRecord.status} id="fo-status">
+                    <option value="active">Active</option>
+                    <option value="completed">Completed</option>
+                    <option value="cancelled">Cancelled</option>
+                  </select>
+                </div>
+                <div className="col-span-2"><Label className="text-gray-200">Return Condition</Label><Input className="mt-1 bg-[#0a1628] border-white/20 text-white" defaultValue={editRecord.returnCondition} id="fo-condition" /></div>
+                <div className="col-span-2"><Label className="text-gray-200">Follow-up Notes</Label><Input className="mt-1 bg-[#0a1628] border-white/20 text-white" defaultValue={editRecord.followUpNotes} id="fo-notes" /></div>
+              </div>
+            </div>
+            <div className="flex gap-2 pt-2">
+              <Button variant="outline" className="flex-1" onClick={() => setEditRecord(null)}>Cancel</Button>
+              <Button className="flex-1 bg-amber-600 hover:bg-amber-700" onClick={() => {
+                const get = (id: string) => (document.getElementById(id) as HTMLInputElement)?.value || "";
+                const updated = { ...editRecord, vehicleMake: get("fo-make"), vehicleModel: get("fo-model"), vehicleReg: get("fo-reg"), receiverName: get("fo-receiver"), receiverPhone: get("fo-phone"), ourDailyRate: Number(get("fo-rate")), startDate: get("fo-start"), endDate: get("fo-end"), amountPaid: Number(get("fo-paid")), status: get("fo-status") as FleetOutRecord["status"], returnCondition: get("fo-condition"), followUpNotes: get("fo-notes") };
+                setRecords(records.map(r => r.id === editRecord.id ? updated : r));
+                setEditRecord(null);
+              }}>Save Changes</Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
   );
 }

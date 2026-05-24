@@ -55,6 +55,8 @@ export default function ClientsPage() {
     finally { setLoadingBookings(false); }
   };
   const [showRegister, setShowRegister] = useState(false);
+  const [editClient, setEditClient] = useState<Client | null>(null);
+  const [editForm, setEditForm] = useState(emptyForm);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [profile, setProfile] = useState<Record<string,unknown> | null>(null);
@@ -138,6 +140,90 @@ export default function ClientsPage() {
         loadClients();
       }
     } finally { setSaving(false); }
+  };
+
+  const printClient = (c: Client) => {
+    const win = window.open("", "_blank");
+    if (!win) return;
+    win.document.write(`
+      <html><head><title>Client - ${c.fullName}</title>
+      <style>
+        body{font-family:Arial,sans-serif;padding:32px;color:#111;max-width:600px;margin:0 auto}
+        h1{color:#0a1628;font-size:20px;margin:0} h2{color:#e67e22;font-size:14px;margin:4px 0 20px}
+        .grid{display:grid;grid-template-columns:160px 1fr;gap:8px 16px;margin-bottom:20px}
+        .label{color:#888;font-size:12px;font-weight:600;text-transform:uppercase;padding-top:2px}
+        .value{color:#111;font-size:13px}
+        .section{background:#f8f9ff;border-left:3px solid #0a1628;padding:10px 14px;margin-bottom:16px;border-radius:0 6px 6px 0}
+        .section-title{font-size:11px;font-weight:700;color:#0a1628;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px}
+        .badge{display:inline-block;padding:2px 10px;border-radius:99px;font-size:11px;font-weight:600}
+        .footer{color:#aaa;font-size:11px;border-top:1px solid #eee;padding-top:12px;margin-top:24px}
+        @media print{body{padding:0}}
+      </style></head><body>
+      <img src="/images/logo.png" style="width:60px;height:60px;border-radius:50%;object-fit:contain;float:right" />
+      <h1>Moventra Safaris & Logistics Ltd</h1>
+      <h2>Client Record — ${c.fullName}</h2>
+      <div class="section">
+        <div class="section-title">Contact Information</div>
+        <div class="grid">
+          <span class="label">Full Name</span><span class="value">${c.fullName}</span>
+          <span class="label">Phone</span><span class="value">${c.phone || '-'}</span>
+          ${c.alternativePhone ? `<span class="label">Alt Phone</span><span class="value">${c.alternativePhone}</span>` : ''}
+          ${c.email ? `<span class="label">Email</span><span class="value">${c.email}</span>` : ''}
+          ${c.residence ? `<span class="label">Residence</span><span class="value">${c.residence}</span>` : ''}
+          ${c.placeOfWork ? `<span class="label">Place of Work</span><span class="value">${c.placeOfWork}</span>` : ''}
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-title">Identity</div>
+        <div class="grid">
+          ${c.idNumber ? `<span class="label">ID / Passport</span><span class="value">${c.idNumber}</span>` : ''}
+          ${c.kraPin ? `<span class="label">KRA PIN</span><span class="value">${c.kraPin}</span>` : ''}
+          ${c.drivingLicenseNumber ? `<span class="label">Driving License</span><span class="value">${c.drivingLicenseNumber}</span>` : ''}
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-title">Account Summary</div>
+        <div class="grid">
+          <span class="label">Total Bookings</span><span class="value">${c.totalBookings || 0}</span>
+          <span class="label">Total Spent</span><span class="value">KES ${Number(c.totalSpent || 0).toLocaleString()}</span>
+          <span class="label">Outstanding</span><span class="value">KES ${Number(c.totalDebt || 0).toLocaleString()}</span>
+          <span class="label">Risk Level</span><span class="value">${(c.riskLevel || 'low').toUpperCase()}</span>
+        </div>
+      </div>
+      ${c.notes ? `<div class="section"><div class="section-title">Notes</div><p style="font-size:13px;margin:0">${c.notes}</p></div>` : ''}
+      <div class="footer">Printed: ${new Date().toLocaleString()} &nbsp;|&nbsp; Moventra Safaris & Logistics Ltd &nbsp;|&nbsp; Confidential</div>
+      <script>window.onload=function(){window.print()}<\/script>
+      </body></html>`);
+    win.document.close();
+  };
+
+  const openEdit = (c: Client) => {
+    setEditClient(c);
+    setEditForm({
+      fullName: c.fullName || "", phone: c.phone || "",
+      alternativePhone: (c as any).alternativePhone || "",
+      email: c.email || "", idNumber: c.idNumber || "",
+      idPhotoUrl: "", idPhotoBackUrl: "",
+      drivingLicenseNumber: c.drivingLicenseNumber || "",
+      drivingLicenseUrl: "", drivingLicenseBackUrl: "",
+      kraPin: c.kraPin || "", residence: c.residence || "",
+      placeOfWork: (c as any).placeOfWork || "",
+      passportPhotoUrl: "", riskLevel: c.riskLevel || "low",
+      notes: c.notes || "", clientType: (c as any).clientType || "citizen",
+      countryOfOrigin: (c as any).countryOfOrigin || "Kenya",
+    });
+  };
+
+  const handleUpdate = async () => {
+    if (!editClient || !editForm.fullName || !editForm.phone) return;
+    try {
+      const res = await fetch("/api/clients", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: editClient.id, full_name: editForm.fullName, phone: editForm.phone, alternative_phone: editForm.alternativePhone, email: editForm.email, id_number: editForm.idNumber, residence: editForm.residence, place_of_work: editForm.placeOfWork, kra_pin: editForm.kraPin, driving_license_number: editForm.drivingLicenseNumber, risk_level: editForm.riskLevel, notes: editForm.notes }),
+      });
+      if (res.ok) { setEditClient(null); loadClients(); }
+    } catch(e) { console.error(e); }
   };
 
   const exportCSV = () => {
@@ -273,6 +359,42 @@ export default function ClientsPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Edit Client Dialog */}
+      <Dialog open={!!editClient} onOpenChange={() => setEditClient(null)}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-amber-400 flex items-center gap-2"><Pencil className="h-5 w-5" />Edit Client</DialogTitle>
+            <DialogDescription>{editClient?.fullName}</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 py-2">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="col-span-2"><Label className="text-gray-200">Full Name *</Label><Input className="mt-1 bg-[#0a1628] border-white/20 text-white" value={editForm.fullName} onChange={e => setEditForm({...editForm, fullName: e.target.value})} /></div>
+              <div><Label className="text-gray-200">Phone *</Label><Input className="mt-1 bg-[#0a1628] border-white/20 text-white" value={editForm.phone} onChange={e => setEditForm({...editForm, phone: e.target.value})} /></div>
+              <div><Label className="text-gray-200">Alt Phone</Label><Input className="mt-1 bg-[#0a1628] border-white/20 text-white" value={editForm.alternativePhone} onChange={e => setEditForm({...editForm, alternativePhone: e.target.value})} /></div>
+              <div><Label className="text-gray-200">Email</Label><Input className="mt-1 bg-[#0a1628] border-white/20 text-white" value={editForm.email} onChange={e => setEditForm({...editForm, email: e.target.value})} /></div>
+              <div><Label className="text-gray-200">ID / Passport No.</Label><Input className="mt-1 bg-[#0a1628] border-white/20 text-white font-mono" value={editForm.idNumber} onChange={e => setEditForm({...editForm, idNumber: e.target.value})} /></div>
+              <div><Label className="text-gray-200">KRA PIN</Label><Input className="mt-1 bg-[#0a1628] border-white/20 text-white font-mono" value={editForm.kraPin} onChange={e => setEditForm({...editForm, kraPin: e.target.value})} /></div>
+              <div><Label className="text-gray-200">Driving License No.</Label><Input className="mt-1 bg-[#0a1628] border-white/20 text-white font-mono" value={editForm.drivingLicenseNumber} onChange={e => setEditForm({...editForm, drivingLicenseNumber: e.target.value})} /></div>
+              <div><Label className="text-gray-200">Residence</Label><Input className="mt-1 bg-[#0a1628] border-white/20 text-white" value={editForm.residence} onChange={e => setEditForm({...editForm, residence: e.target.value})} /></div>
+              <div><Label className="text-gray-200">Place of Work</Label><Input className="mt-1 bg-[#0a1628] border-white/20 text-white" value={editForm.placeOfWork} onChange={e => setEditForm({...editForm, placeOfWork: e.target.value})} /></div>
+              <div>
+                <Label className="text-gray-200">Risk Level</Label>
+                <select className="mt-1 w-full rounded-lg bg-[#0a1628] border border-white/20 text-white px-3 py-2 text-sm" value={editForm.riskLevel} onChange={e => setEditForm({...editForm, riskLevel: e.target.value})}>
+                  <option value="low">Low Risk</option>
+                  <option value="medium">Medium Risk</option>
+                  <option value="high">High Risk</option>
+                </select>
+              </div>
+              <div className="col-span-2"><Label className="text-gray-200">Notes</Label><Input className="mt-1 bg-[#0a1628] border-white/20 text-white" value={editForm.notes} onChange={e => setEditForm({...editForm, notes: e.target.value})} /></div>
+            </div>
+          </div>
+          <div className="flex gap-2 pt-2">
+            <Button variant="outline" className="flex-1" onClick={() => setEditClient(null)}>Cancel</Button>
+            <Button className="flex-1 bg-amber-600 hover:bg-amber-700" onClick={handleUpdate}>Save Changes</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Register Dialog */}
       <Dialog open={showRegister} onOpenChange={setShowRegister}>

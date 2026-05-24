@@ -538,6 +538,7 @@ function generateNotifications(fleet: FleetVehicle[]): Notification[] {
 
 export default function CompanyFleetTab() {
   const [fleet, setFleet] = useState<FleetVehicle[]>([]);
+  const [editVehicle, setEditVehicle] = useState<FleetVehicle | null>(null);
 
   const loadFleet = async () => {
     try {
