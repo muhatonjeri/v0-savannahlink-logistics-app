@@ -537,7 +537,38 @@ function generateNotifications(fleet: FleetVehicle[]): Notification[] {
 }
 
 export default function CompanyFleetTab() {
-  const [fleet, setFleet] = useState<FleetVehicle[]>(mockFleetData);
+  const [fleet, setFleet] = useState<FleetVehicle[]>([]);
+
+  const loadFleet = async () => {
+    try {
+      const res = await fetch("/api/fleet");
+      const data = await res.json();
+      if (!Array.isArray(data)) return;
+      setFleet(data.map((v: Record<string,unknown>) => ({
+        id: String(v.id || ""),
+        vehicleName: String(v.vehicle_name || v.vehicleName || ""),
+        vehicleMake: String(v.vehicle_make || v.vehicleMake || ""),
+        vehicleModel: String(v.vehicle_model || v.vehicleModel || ""),
+        registrationNo: String(v.registration_no || v.registrationNo || ""),
+        vehicleType: String(v.vehicle_type || v.vehicleType || "sedan") as FleetVehicle["vehicleType"],
+        fuelType: String(v.fuel_type || v.fuelType || "petrol") as FleetVehicle["fuelType"],
+        year: String(v.year || ""),
+        color: String(v.color || ""),
+        ownershipType: String(v.ownership_type || v.ownershipType || "own") as "own" | "sublet",
+        supplierName: String(v.supplier_name || v.supplierName || ""),
+        supplierPhone: String(v.supplier_phone || v.supplierPhone || ""),
+        supplierDailyRate: Number(v.supplier_daily_rate || v.supplierDailyRate || 0),
+        ourDailyRate: Number(v.our_daily_rate || v.ourDailyRate || 0),
+        status: String(v.status || "available") as FleetVehicle["status"],
+        currentMileage: Number(v.current_mileage || v.currentMileage || 0),
+        notes: String(v.notes || ""),
+        assignments: [],
+        maintenanceHistory: [],
+      })));
+    } catch(e) { console.error("Load fleet:", e); }
+  };
+
+  useEffect(() => { loadFleet(); }, []);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -639,7 +670,6 @@ export default function CompanyFleetTab() {
       updatedAt: new Date().toISOString(),
     };
 
-    setFleet([newVehicle, ...fleet]);
     fleetApi.create({
       vehicleName: data.vehicleName,
       vehicleMake: data.vehicleMake,
@@ -657,7 +687,7 @@ export default function CompanyFleetTab() {
       status: "available",
       currentMileage: data.currentMileage,
       notes: data.notes,
-    }).catch(err => console.error("Fleet sync failed:", err));
+    }).then(() => loadFleet()).catch(err => console.error("Fleet sync failed:", err));
 
     // If sublet vehicle, auto-register in Sublet Assets section
     if (ownershipType === "sublet" && subletSupplierName) {
