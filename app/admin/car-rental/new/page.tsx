@@ -79,7 +79,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DatePicker } from "@/components/ui/date-picker";
 import { TimePicker } from "@/components/ui/time-picker";
-import { generateId, searchClients, getClients, saveClient, getClientBookingHistory, initializeDemoBookingHistory, checkRogueClient, searchRogueClients } from "@/lib/store";
+import { generateId } from "@/lib/store";
 import type { ClientAlert, ClientAlertType, Booking, RogueClient } from "@/types";
 import type { Client } from "@/types";
 import { toast } from "sonner";
@@ -261,16 +261,15 @@ export default function NewCarRentalAdminPage() {
   // Load existing client from URL parameter
   useEffect(() => {
     if (clientIdFromUrl) {
-      const clients = getClients();
-      const existingClient = clients.find(c => c.id === clientIdFromUrl);
-      if (existingClient) {
-        setSelectedClient(existingClient);
-        setIsNewClient(false);
-        // Load booking history for this client
-        const history = getClientBookingHistory(existingClient.idNumber);
-        setClientBookingHistory(history);
-        toast.success(`Existing client loaded: ${existingClient.fullName} (${existingClient.totalBookings} previous bookings)`);
-      }
+      (async () => {
+        const clientRes = await fetch("/api/clients?id=" + clientIdFromUrl);
+        const existingClient = await clientRes.json();
+        if (existingClient && existingClient.id) {
+          setSelectedClient(existingClient);
+          setIsNewClient(false);
+          toast.success("Existing client loaded: " + (existingClient.full_name || existingClient.fullName || ""));
+        }
+      })();
     }
   }, [clientIdFromUrl]);
   
@@ -566,7 +565,8 @@ export default function NewCarRentalAdminPage() {
     await new Promise((resolve) => setTimeout(resolve, 1500));
     
     // Get all clients with fingerprints and randomly select one for demo
-    const allClients = getClients();
+    const res = await fetch("/api/clients?q=" + encodeURIComponent(form.getValues("fullName") || ""));
+    const allClients = await res.json();
     const clientsWithFingerprints = allClients.filter(
       (c) => c.fingerprintLeftUrl || c.fingerprintRightUrl
     );

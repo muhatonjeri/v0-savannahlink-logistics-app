@@ -7,13 +7,33 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { BookingsTable } from "@/components/admin/bookings-table";
-import { getBookingsByService } from "@/lib/store";
 import type { Booking } from "@/types";
 
 export default function CarRentalAdminPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
 
-  const loadBookings = () => setBookings(getBookingsByService("car-rental"));
+  const loadBookings = async () => {
+    try {
+      const res = await fetch("/api/bookings?service=car-rental");
+      const data = await res.json();
+      if (Array.isArray(data)) setBookings(data.map((b: Record<string,unknown>) => ({
+        id: String(b.id || ""),
+        customerName: String(b.customer_name || b.customerName || ""),
+        customerPhone: String(b.customer_phone || b.customerPhone || ""),
+        customerEmail: String(b.customer_email || b.customerEmail || ""),
+        serviceType: String(b.service_type || b.serviceType || ""),
+        status: String(b.status || "pending"),
+        paymentStatus: String(b.payment_status || b.paymentStatus || "pending"),
+        paymentMethod: String(b.payment_method || b.paymentMethod || ""),
+        totalAmount: Number(b.total_amount || b.totalAmount || 0),
+        amountPaid: Number(b.amount_paid || b.amountPaid || 0),
+        notes: String(b.notes || ""),
+        createdAt: String(b.created_at || b.createdAt || ""),
+        updatedAt: String(b.updated_at || b.updatedAt || ""),
+        ...b,
+      })));
+    } catch(e) { console.error("Load bookings:", e); }
+  };
 
   useEffect(() => { loadBookings(); }, []);
 

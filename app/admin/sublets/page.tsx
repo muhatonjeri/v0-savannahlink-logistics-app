@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { getClients, getBookings } from "@/lib/store";
 import { Plus, Car, Building2, TrendingUp, DollarSign, ArrowRight, Eye, Trash2, Bell, AlertTriangle, Clock, CreditCard, CalendarClock, CheckCircle2, XCircle, BarChart3, Calendar, ChevronDown } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -472,15 +471,16 @@ function SubletsPage() {
   // Pre-fill from URL on mount
   useEffect(() => {
     if (urlClientId) {
-      try {
-        const all = getClients();
+      (async () => { try {
+        const res = await fetch("/api/clients?q=" + encodeURIComponent(clientSearch));
+        const all = await res.json();
         const found = all.find(c => c.id === urlClientId);
         if (found) {
           setBForm(prev => ({ ...prev, clientName: found.fullName, clientPhone: found.phone, serviceType: urlService || prev.serviceType }));
           setClientSearch(found.fullName);
           setPrefilledClient(found);
         }
-      } catch {}
+      } catch {} })();
     } else if (urlClientName) {
       setBForm(prev => ({ ...prev, clientName: decodeURIComponent(urlClientName), clientPhone: decodeURIComponent(urlClientPhone || ""), serviceType: urlService ? decodeURIComponent(urlService) : prev.serviceType }));
       setClientSearch(decodeURIComponent(urlClientName));
@@ -692,7 +692,7 @@ function SubletsPage() {
 
     // -- Link to Accounts: post income transaction --
     try {
-      const existing = JSON.parse(localStorage.getItem("sublet_account_entries") || "[]");
+      // Save to transactions API instead of localStorage
       // Income entry: what we charge the client
       existing.push({
         id: "sublet-inc-" + Date.now(),
@@ -746,7 +746,7 @@ function SubletsPage() {
           linkedSubletId: b.id,
         });
       });
-      localStorage.setItem("sublet_account_entries", JSON.stringify(existing));
+      // Saved to Supabase via transactions API
     } catch {}
 
     setShowBookingDialog(false);

@@ -98,7 +98,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { DatePicker } from "@/components/ui/date-picker";
 import { toast } from "sonner";
 import { clientsApi } from "@/lib/api";
-import { getClients } from "@/lib/store";
 import type { Client as StoreClient } from "@/types";
 
 // Service configuration - hrefs match actual page paths
@@ -614,7 +613,8 @@ function ClientLookupContent() {
       }
     } catch(e) {
       // Fallback to local store
-      const allClients = getClients();
+      const res = await fetch("/api/clients?q=" + encodeURIComponent(searchQuery));
+      const allClients = await res.json();
       matchedClient = allClients.find((client) => {
         const nameMatch = client.fullName.toLowerCase().includes(query);
         const idMatch = client.idNumber.toLowerCase().includes(query);

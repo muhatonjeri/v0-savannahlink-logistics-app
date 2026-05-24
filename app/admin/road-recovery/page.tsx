@@ -4,14 +4,13 @@ import { useEffect, useState } from "react";
 import { Wrench } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BookingsTable } from "@/components/admin/bookings-table";
-import { getBookingsByService } from "@/lib/store";
 import type { Booking } from "@/types";
 
 export default function RoadRecoveryAdminPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
 
   const loadBookings = () => {
-    setBookings(getBookingsByService("road-recovery"));
+    loadBookings();
   };
 
   useEffect(() => {

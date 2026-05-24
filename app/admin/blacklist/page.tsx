@@ -260,7 +260,29 @@ const initialBlacklistData: BlacklistEntry[] = [
 ];
 
 export default function BlacklistPage() {
-  const [blacklist, setBlacklist] = useState<BlacklistEntry[]>(initialBlacklistData);
+  const [blacklist, setBlacklist] = useState<BlacklistEntry[]>([]);
+
+  const loadBlacklist = async () => {
+    try {
+      const res = await fetch("/api/blacklist");
+      const data = await res.json();
+      if (Array.isArray(data)) setBlacklist(data.map((b: Record<string,unknown>) => ({
+        id: String(b.id || ""),
+        clientName: String(b.client_name || b.clientName || ""),
+        idNumber: String(b.id_number || b.idNumber || ""),
+        phone: String(b.phone || ""),
+        recordType: String(b.record_type || b.recordType || "other"),
+        severity: String(b.severity || "low"),
+        status: String(b.status || "active"),
+        incidentDate: String(b.incident_date || b.incidentDate || ""),
+        description: String(b.description || ""),
+        reportedBy: String(b.reported_by || b.reportedBy || ""),
+        createdAt: String(b.created_at || b.createdAt || ""),
+      })));
+    } catch(e) { console.error("Load blacklist:", e); }
+  };
+
+  useEffect(() => { loadBlacklist(); }, []);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState<string>("all");
   const [filterSeverity, setFilterSeverity] = useState<string>("all");

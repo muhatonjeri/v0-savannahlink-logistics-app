@@ -4,14 +4,13 @@ import { useEffect, useState } from "react";
 import { Package } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BookingsTable } from "@/components/admin/bookings-table";
-import { getBookingsByService } from "@/lib/store";
 import type { Booking } from "@/types";
 
 export default function CargoHandlingAdminPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
 
   const loadBookings = () => {
-    setBookings(getBookingsByService("cargo-handling"));
+    loadBookings();
   };
 
   useEffect(() => {
