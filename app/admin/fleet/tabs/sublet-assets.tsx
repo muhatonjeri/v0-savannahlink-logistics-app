@@ -872,10 +872,10 @@ function SubletsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-3">
+          <h2 className="text-xl font-bold text-white flex items-center gap-2">
             <Building2 className="h-7 w-7 text-cyan-400" />
-            Sublet Assets
-          </h1>
+Sublet Assets
+          </h2>
           <p className="text-gray-400 mt-1 text-sm">Track assets subleted from other companies across all services — monitor cost, profit and expenses</p>
         </div>
         <div className="flex gap-2">

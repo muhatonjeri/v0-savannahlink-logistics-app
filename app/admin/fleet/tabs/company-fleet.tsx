@@ -829,11 +829,10 @@ export default function CompanyFleetTab() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-3">
-            <Truck className="h-7 w-7 text-fuchsia-400" />
-            Fleet Management
-          </h1>
-          <p className="text-gray-400 mt-1 text-sm">Manage vehicles, assignments and maintenance schedules</p>
+          <h2 className="text-xl font-bold text-white flex items-center gap-2">
+            <Truck className="h-5 w-5 text-fuchsia-400" />Company Fleet
+          </h2>
+          <p className="text-gray-400 text-sm mt-0.5">Manage owned & sublet vehicles, assignments and maintenance</p>
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
