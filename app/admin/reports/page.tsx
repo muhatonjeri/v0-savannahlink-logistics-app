@@ -142,7 +142,7 @@ export default function ReportsPage() {
       <div className="hidden print:block border-b-2 border-[#e67e22] pb-4 mb-4">
         <h1 className="text-2xl font-bold text-gray-900">Moventra Safaris & Logistics Ltd</h1>
         <p className="text-gray-600">Financial Report — {periodLabel}</p>
-        <p className="text-gray-400 text-sm" suppressHydrationWarning>Generated: {new Date().toLocaleString("en-KE", {timeZone:"Africa/Nairobi"})}</p>
+        {mounted && <p className="text-gray-400 text-sm">Generated: {new Date().toLocaleString("en-KE", {timeZone:"Africa/Nairobi"})}</p>}
       </div>
 
       {loading ? (
