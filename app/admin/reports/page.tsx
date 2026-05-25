@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { TrendingUp, TrendingDown, DollarSign, Users, FileText, Download, Printer, Calendar, BarChart3, PieChart, Loader2, ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -39,7 +39,9 @@ export default function ReportsPage() {
   }, []);
 
   // Period filter
-  const now = new Date();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+  const now = useMemo(() => new Date(), []);
   const filterDate = period === "month"
     ? new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
     : period === "quarter"
@@ -140,7 +142,7 @@ export default function ReportsPage() {
       <div className="hidden print:block border-b-2 border-[#e67e22] pb-4 mb-4">
         <h1 className="text-2xl font-bold text-gray-900">Moventra Safaris & Logistics Ltd</h1>
         <p className="text-gray-600">Financial Report — {periodLabel}</p>
-        <p className="text-gray-400 text-sm">Generated: {new Date().toLocaleString("en-KE")}</p>
+        <p className="text-gray-400 text-sm">Generated: {typeof window !== "undefined" ? new Date().toLocaleString("en-KE", {timeZone:"Africa/Nairobi"}) : ""}</p>
       </div>
 
       {loading ? (

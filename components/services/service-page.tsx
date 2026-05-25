@@ -170,6 +170,9 @@ function ServicePageInner({ service, accentColor = "blue" }: ServicePageProps) {
 
   // Form state
   const [bookingRef, setBookingRef] = useState<string>("");
+  const [terms, setTerms] = useState<string[]>([]);
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
   const [stkLoading, setStkLoading] = useState(false);
   const [stkStatus, setStkStatus] = useState<"idle"|"sent"|"confirmed"|"failed">("idle");
   const [stkCheckoutId, setStkCheckoutId] = useState("");
@@ -208,7 +211,14 @@ function ServicePageInner({ service, accentColor = "blue" }: ServicePageProps) {
     } catch (e) { console.error(e); } finally { setLoading(false); }
   };
 
-  useEffect(() => { loadBookings(); }, [service.id]);
+  useEffect(() => {
+    loadBookings();
+    // Load T&C for this service
+    fetch(`/api/terms?service=${service.id}`)
+      .then(r => r.json())
+      .then(d => setTerms(d.terms || []))
+      .catch(() => {});
+  }, [service.id]);
 
   // Prefill client data from Client Lookup
   useEffect(() => {
@@ -426,6 +436,7 @@ function ServicePageInner({ service, accentColor = "blue" }: ServicePageProps) {
                 <p className="text-white font-semibold text-sm">{pkg.name}</p>
                 <p className="text-gray-400 text-xs mt-0.5 mb-2">{pkg.description}</p>
                 <p className="text-[#e67e22] font-bold text-base">{fmt(pkg.price)}<span className="text-gray-400 text-xs font-normal"> {pkg.unit}</span></p>
+                <div className="mt-1"><CurrencyConverter amountKES={pkg.price} /></div>
                 <div className="mt-2 space-y-0.5">
                   {pkg.features.map(f => (
                     <p key={f} className="text-gray-400 text-xs flex items-center gap-1">
@@ -665,9 +676,40 @@ function ServicePageInner({ service, accentColor = "blue" }: ServicePageProps) {
             </div>
           </div>
 
+          {/* Terms & Conditions */}
+          {terms.length > 0 && (
+            <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-4">
+              <div className="flex items-start justify-between mb-2">
+                <p className="text-amber-400 text-xs font-bold uppercase tracking-wide">Terms & Conditions</p>
+                <button type="button" onClick={() => setShowTerms(v => !v)}
+                  className="text-xs text-gray-400 hover:text-white underline">
+                  {showTerms ? "Hide" : "Read all"}
+                </button>
+              </div>
+              {showTerms && (
+                <ol className="space-y-1.5 mb-3 max-h-40 overflow-y-auto">
+                  {terms.map((t, i) => (
+                    <li key={i} className="text-gray-300 text-xs flex gap-2">
+                      <span className="text-amber-400 font-bold shrink-0">{i+1}.</span>
+                      <span>{t}</span>
+                    </li>
+                  ))}
+                </ol>
+              )}
+              <label className="flex items-start gap-2 cursor-pointer">
+                <input type="checkbox" checked={termsAccepted} onChange={e => setTermsAccepted(e.target.checked)}
+                  className="mt-0.5 accent-[#e67e22]" />
+                <span className="text-gray-300 text-xs">
+                  I have read and agree to the <button type="button" onClick={() => setShowTerms(true)} className="text-[#e67e22] underline">Terms & Conditions</button> for this service
+                </span>
+              </label>
+            </div>
+          )}
+
           <div className="flex gap-2 pt-2">
-            <Button variant="outline" className="flex-1" onClick={() => setShowForm(false)}>Cancel</Button>
-            <Button className="flex-1 bg-[#e67e22] hover:bg-[#d35400]" onClick={handleSave} disabled={saving}>
+            <Button variant="outline" className="flex-1" onClick={() => { setShowForm(false); setTermsAccepted(false); }}>Cancel</Button>
+            <Button className="flex-1 bg-[#e67e22] hover:bg-[#d35400]" onClick={handleSave}
+              disabled={saving || (terms.length > 0 && !termsAccepted)}>
               {saving ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Saving...</> : "Save Booking"}
             </Button>
           </div>
