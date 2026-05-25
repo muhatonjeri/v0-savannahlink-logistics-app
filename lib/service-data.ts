@@ -25,12 +25,24 @@ export interface ServiceInfo {
 }
 
 export const PAYMENT_METHODS = [
-  { id: "mpesa", label: "M-Pesa", icon: "📱" },
-  { id: "bank", label: "Bank Transfer", icon: "🏦" },
-  { id: "cash", label: "Cash", icon: "💵" },
-  { id: "cheque", label: "Cheque", icon: "📄" },
-  { id: "card", label: "Card (Visa/Mastercard)", icon: "💳" },
+  { id: "mpesa",    label: "M-Pesa STK Push",   icon: "📱" },
+  { id: "paybill",  label: "M-Pesa Paybill",    icon: "🏧" },
+  { id: "bank",     label: "Bank Transfer",      icon: "🏦" },
+  { id: "cash",     label: "Cash",               icon: "💵" },
+  { id: "cheque",   label: "Cheque",             icon: "📄" },
+  { id: "card",     label: "Card (Visa/MC)",     icon: "💳" },
 ];
+
+// Moventra bank details (update with real account)
+export const BANK_DETAILS = {
+  bank:        "NCBA Bank Kenya",
+  accountName: "Moventra Safaris & Logistics Ltd",
+  accountNo:   "01234567890000",
+  branch:      "Thika Road Mall",
+  swiftCode:   "CBAFKENX",
+  pesalink:    "+254 727 247 032",
+  paybill:     process.env.NEXT_PUBLIC_MPESA_PAYBILL || "174379",
+};
 
 export const SERVICES: ServiceInfo[] = [
 

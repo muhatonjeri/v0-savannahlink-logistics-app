@@ -106,6 +106,53 @@ function ServicePageInner({ service, accentColor = "blue" }: ServicePageProps) {
     a.download = `${service.id}-bookings-${new Date().toISOString().split("T")[0]}.csv`; a.click();
   };
 
+  const triggerStkPush = async () => {
+    const phone = form.customerPhone;
+    const amount = Number(form.amountPaid || form.totalAmount || 0);
+    if (!phone) { toast.error("Enter customer phone number first"); return; }
+    if (!amount) { toast.error("Enter amount to collect"); return; }
+    setStkLoading(true); setStkStatus("idle");
+    try {
+      const res = await fetch("/api/mpesa", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          phone, amount, reference: `BK-${service.id.slice(0,3).toUpperCase()}`,
+          description: `${service.title} payment`, customerName: form.customerName,
+        }),
+      });
+      const data = await res.json();
+      if (data.success || data.mock) {
+        setStkStatus("sent");
+        setStkCheckoutId(data.checkoutRequestId || "");
+        toast.success(data.mock ? "STK Push simulated (add M-Pesa keys for live)" : `STK Push sent to ${phone}`);
+        // Poll for payment confirmation
+        if (data.checkoutRequestId && !data.mock) {
+          const poll = setInterval(async () => {
+            const statusRes = await fetch(`/api/mpesa?checkoutId=${data.checkoutRequestId}`);
+            const statusData = await statusRes.json();
+            if (statusData.ResultCode === "0") {
+              setStkStatus("confirmed"); setForm(f => ({...f, amountPaid: String(amount)}));
+              clearInterval(poll); setStkPolling(null);
+              toast.success("✅ M-Pesa payment confirmed!");
+            } else if (statusData.ResultCode === "1032") {
+              setStkStatus("failed"); clearInterval(poll); setStkPolling(null);
+              toast.error("Payment cancelled by user");
+            }
+          }, 5000);
+          setStkPolling(poll);
+          setTimeout(() => { clearInterval(poll); setStkPolling(null); if (stkStatus === "sent") setStkStatus("idle"); }, 120000);
+        } else if (data.mock) {
+          // Simulate success after 3s in demo mode
+          setTimeout(() => { setStkStatus("confirmed"); setForm(f => ({...f, amountPaid: String(amount), paymentReference: data.checkoutRequestId || "MOCK-" + Date.now()})); toast.success("Payment confirmed (demo mode)"); }, 3000);
+        }
+      } else {
+        toast.error(data.error || "STK Push failed");
+        setStkStatus("failed");
+      }
+    } catch(e) { toast.error(String(e)); setStkStatus("failed"); }
+    finally { setStkLoading(false); }
+  };
+
   const getNextReceiptNumber = async () => {
     try {
       const res = await fetch("/api/generate-number?type=receipt");
@@ -123,6 +170,10 @@ function ServicePageInner({ service, accentColor = "blue" }: ServicePageProps) {
 
   // Form state
   const [bookingRef, setBookingRef] = useState<string>("");
+  const [stkLoading, setStkLoading] = useState(false);
+  const [stkStatus, setStkStatus] = useState<"idle"|"sent"|"confirmed"|"failed">("idle");
+  const [stkCheckoutId, setStkCheckoutId] = useState("");
+  const [stkPolling, setStkPolling] = useState<NodeJS.Timeout|null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkAction, setBulkAction] = useState("");
   const [bulkLoading, setBulkLoading] = useState(false);
