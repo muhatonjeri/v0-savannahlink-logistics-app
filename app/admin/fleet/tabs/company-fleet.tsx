@@ -1175,10 +1175,10 @@ export default function CompanyFleetTab() {
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
         {[
           { label: "Total Vehicles",  value: fleet.length,            color: "text-fuchsia-400", border: "border-fuchsia-500/30", bg: "from-fuchsia-500/10" },
-          { label: "Available",       value: fleetStats.available,    color: "text-emerald-400", border: "border-emerald-500/30", bg: "from-emerald-500/10" },
-          { label: "Assigned",        value: fleetStats.assigned,     color: "text-blue-400",    border: "border-blue-500/30",    bg: "from-blue-500/10"    },
-          { label: "Maintenance",     value: fleetStats.maintenance,  color: "text-amber-400",   border: "border-amber-500/30",   bg: "from-amber-500/10"   },
-          { label: "Alerts",          value: fleetStats.criticalAlerts, color: fleetStats.criticalAlerts > 0 ? "text-red-400" : "text-emerald-400", border: fleetStats.criticalAlerts > 0 ? "border-red-500/30" : "border-emerald-500/30", bg: fleetStats.criticalAlerts > 0 ? "from-red-500/10" : "from-emerald-500/10" },
+          { label: "Available",       value: stats.available,    color: "text-emerald-400", border: "border-emerald-500/30", bg: "from-emerald-500/10" },
+          { label: "Assigned",        value: stats.assigned,     color: "text-blue-400",    border: "border-blue-500/30",    bg: "from-blue-500/10"    },
+          { label: "Maintenance",     value: stats.maintenance,  color: "text-amber-400",   border: "border-amber-500/30",   bg: "from-amber-500/10"   },
+          { label: "Alerts",          value: stats.criticalAlerts, color: stats.criticalAlerts > 0 ? "text-red-400" : "text-emerald-400", border: stats.criticalAlerts > 0 ? "border-red-500/30" : "border-emerald-500/30", bg: stats.criticalAlerts > 0 ? "from-red-500/10" : "from-emerald-500/10" },
         ].map(({ label, value, color, border, bg }) => (
           <Card key={label} className={"border bg-gradient-to-br to-transparent " + border + " " + bg}>
             <CardContent className="pt-4 pb-4 px-4">
