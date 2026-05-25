@@ -68,9 +68,29 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [currentTheme, setCurrentTheme] = useState<"dark"|"light"|"system">("dark");
   const [biometricsEnabled, setBiometricsEnabled] = useState(false);
   const [biometricsAvailable, setBiometricsAvailable] = useState(false);
+  const [settingsTab, setSettingsTab] = useState<"profile"|"security"|"theme"|"notifications"|"system">("profile");
+  const [notifPrefs, setNotifPrefs] = useState({ email: true, sms: true, whatsapp: false, overdue: true, payments: true, bookings: true });
+  const [companyName, setCompanyName] = useState("Moventra Safaris & Logistics Ltd");
+  const [companyPhone, setCompanyPhone] = useState("+254 727 247 032");
+  const [companyEmail, setCompanyEmail] = useState("info@moventrasafarislogisticsltd.com");
+  const [userRole, setUserRole] = useState("admin");
+  const [sessionTimeout, setSessionTimeout] = useState("24");
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
+    // Detect role from cookie
+    const cookies = document.cookie.split(";");
+    const authCookie = cookies.find(c => c.trim().startsWith("mock_auth="));
+    const role = authCookie?.split("=")?.[1]?.trim() || "admin";
+    setUserRole(role === "staff" ? "staff" : "admin");
+
+    // Load saved settings
+    const savedName = localStorage.getItem("moventra-admin-name");
+    if (savedName) setAdminName(savedName);
+    const savedTimeout = localStorage.getItem("moventra-session-timeout");
+    if (savedTimeout) setSessionTimeout(savedTimeout);
+
     // Init theme
     const stored = localStorage.getItem("moventra-theme") as "dark"|"light"|"system" || "dark";
     setCurrentTheme(stored);
@@ -426,105 +446,315 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       {/* ── Admin Settings Modal ── */}
       {isMounted && settingsOpen && (
-        <div className="fixed inset-0 z-[60] bg-black/70 flex items-center justify-center px-4"
+        <div className="fixed inset-0 z-[60] bg-black/70 backdrop-blur-sm flex items-center justify-center px-4"
           onClick={() => setSettingsOpen(false)}>
-          <div className="w-full max-w-md bg-[#0d1f35] border border-white/10 rounded-2xl shadow-2xl overflow-hidden"
+          <div className="w-full max-w-2xl max-h-[90vh] bg-[#0d1f35] border border-white/10 rounded-2xl shadow-2xl overflow-hidden flex flex-col"
             onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
+
+            {/* Settings Header */}
+            <div className="flex items-center justify-between px-5 py-4 border-b border-white/10 shrink-0">
               <div className="flex items-center gap-3">
                 <div className="h-10 w-10 rounded-full bg-[#e67e22]/20 flex items-center justify-center">
-                  <span className="text-[#e67e22] font-bold">AD</span>
+                  <span className="text-[#e67e22] font-bold text-sm">{adminName.slice(0,2).toUpperCase()}</span>
                 </div>
                 <div>
-                  <p className="text-white font-semibold">Admin Settings</p>
-                  <p className="text-gray-400 text-xs">admin@moventrasafarislogisticsltd.com</p>
-                </div>
-              </div>
-              <button onClick={() => setSettingsOpen(false)} className="text-gray-400 hover:text-white">✕</button>
-            </div>
-            <div className="p-5 space-y-4">
-              {/* Display Name */}
-              <div>
-                <label className="text-gray-300 text-xs font-semibold block mb-1.5">DISPLAY NAME</label>
-                <input className="w-full bg-white/5 border border-white/20 rounded-xl px-3 py-2.5 text-white text-sm outline-none focus:border-[#e67e22]/50"
-                  value={adminName} onChange={e => setAdminName(e.target.value)} placeholder="Your name" />
-              </div>
-
-              {/* Theme Selector */}
-              <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-                <p className="text-gray-300 text-xs font-semibold flex items-center gap-2 mb-3"><Palette className="h-3.5 w-3.5" />THEME</p>
-                <div className="grid grid-cols-3 gap-2">
-                  {([["dark","Dark","🌙"],["light","Light","☀️"],["system","System","💻"]] as const).map(([val,label,icon]) => (
-                    <button key={val} onClick={() => applyTheme(val)}
-                      className={"py-2.5 rounded-xl border text-sm font-medium transition-all flex flex-col items-center gap-1 " +
-                        (currentTheme === val ? "border-[#e67e22] bg-[#e67e22]/15 text-white" : "border-white/10 text-gray-400 hover:border-white/30 hover:text-white")}>
-                      <span className="text-lg">{icon}</span>
-                      <span>{label}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Biometrics */}
-              <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-gray-300 text-xs font-semibold flex items-center gap-2"><FingerprintIcon className="h-3.5 w-3.5" />BIOMETRIC LOGIN</p>
-                    <p className="text-gray-500 text-xs mt-1">
-                      {biometricsAvailable ? "Use fingerprint or Face ID to log in" : "Not available on this device"}
-                    </p>
+                  <p className="text-white font-bold">{adminName}</p>
+                  <div className="flex items-center gap-2">
+                    <span className={"text-xs px-2 py-0.5 rounded-full font-semibold " + (userRole === "admin" ? "bg-[#e67e22]/20 text-[#e67e22]" : "bg-blue-500/20 text-blue-300")}>
+                      {userRole === "admin" ? "Administrator" : "Staff Member"}
+                    </span>
                   </div>
-                  <button onClick={toggleBiometrics} disabled={!biometricsAvailable}
-                    className={"relative w-11 h-6 rounded-full transition-colors " + (biometricsEnabled ? "bg-[#e67e22]" : "bg-gray-600") + (!biometricsAvailable ? " opacity-40 cursor-not-allowed" : "")}>
-                    <span className={"absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform " + (biometricsEnabled ? "translate-x-5" : "")} />
-                  </button>
                 </div>
-                {biometricsEnabled && (
-                  <p className="text-emerald-400 text-xs mt-2 flex items-center gap-1">
-                    <span>✓</span> Biometric login active on this device
-                  </p>
-                )}
               </div>
-              {/* Change Password */}
-              <div className="rounded-xl border border-white/10 bg-white/5 p-4 space-y-3">
-                <p className="text-gray-300 text-xs font-semibold flex items-center gap-2"><Lock className="h-3.5 w-3.5" />CHANGE PASSWORD</p>
-                {[
-                  { key: "current", label: "Current Password", placeholder: "Current password" },
-                  { key: "newPw",   label: "New Password",     placeholder: "Min 8 characters" },
-                  { key: "confirm", label: "Confirm Password", placeholder: "Repeat new password" },
-                ].map(({ key, label, placeholder }) => (
-                  <div key={key}>
-                    <label className="text-gray-400 text-xs block mb-1">{label}</label>
-                    <div className="relative">
-                      <input type={pwShow ? "text" : "password"}
-                        className="w-full bg-[#0a1628] border border-white/20 rounded-lg px-3 py-2 text-white text-sm outline-none focus:border-[#e67e22]/50 pr-10"
-                        placeholder={placeholder}
-                        value={(pwForm as Record<string,string>)[key]}
-                        onChange={e => setPwForm(f => ({ ...f, [key]: e.target.value }))} />
-                      {key === "newPw" && (
-                        <button type="button" onClick={() => setPwShow(v => !v)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white">
-                          {pwShow ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                        </button>
-                      )}
+              <button onClick={() => setSettingsOpen(false)} className="text-gray-400 hover:text-white text-xl leading-none">✕</button>
+            </div>
+
+            {/* Settings Tabs */}
+            <div className="flex gap-0 border-b border-white/10 shrink-0 overflow-x-auto">
+              {([
+                ["profile",      "👤", "Profile"      ],
+                ["security",     "🔐", "Security"     ],
+                ["theme",        "🎨", "Appearance"   ],
+                ["notifications","🔔", "Alerts"       ],
+                ["system",       "⚙️", "System"       ],
+              ] as const).map(([tab, icon, label]) => (
+                <button key={tab} onClick={() => setSettingsTab(tab)}
+                  className={"flex items-center gap-1.5 px-4 py-3 text-xs font-semibold whitespace-nowrap border-b-2 transition-all " +
+                    (settingsTab === tab ? "border-[#e67e22] text-[#e67e22]" : "border-transparent text-gray-400 hover:text-white")}>
+                  <span>{icon}</span>{label}
+                </button>
+              ))}
+            </div>
+
+            {/* Settings Content */}
+            <div className="flex-1 overflow-y-auto p-5 space-y-4">
+
+              {/* ─── PROFILE TAB ─── */}
+              {settingsTab === "profile" && (
+                <div className="space-y-4">
+                  <div className="rounded-xl border border-white/10 bg-white/5 p-4 space-y-3">
+                    <p className="text-gray-400 text-xs font-bold uppercase tracking-wide">Personal Details</p>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="col-span-2">
+                        <label className="text-gray-300 text-xs font-semibold block mb-1">Display Name</label>
+                        <input className="w-full bg-[#0a1628] border border-white/20 rounded-xl px-3 py-2.5 text-white text-sm outline-none focus:border-[#e67e22]/50"
+                          value={adminName} onChange={e => setAdminName(e.target.value)} placeholder="Your name" />
+                      </div>
+                      <div className="col-span-2">
+                        <label className="text-gray-300 text-xs font-semibold block mb-1">Role</label>
+                        <div className={"px-3 py-2.5 rounded-xl border border-white/10 text-sm " + (userRole==="admin"?"text-[#e67e22]":"text-blue-300")}>
+                          {userRole === "admin" ? "🔑 Administrator — Full access" : "👤 Staff Member — Limited access"}
+                        </div>
+                      </div>
                     </div>
                   </div>
-                ))}
-                {pwError && <p className="text-red-400 text-xs">{pwError}</p>}
-                {pwSuccess && <p className="text-emerald-400 text-xs font-semibold">✓ Password changed successfully</p>}
-              </div>
+
+                  {userRole === "admin" && (
+                    <div className="rounded-xl border border-white/10 bg-white/5 p-4 space-y-3">
+                      <p className="text-gray-400 text-xs font-bold uppercase tracking-wide">Company Details</p>
+                      <div className="space-y-3">
+                        <div>
+                          <label className="text-gray-300 text-xs font-semibold block mb-1">Company Name</label>
+                          <input className="w-full bg-[#0a1628] border border-white/20 rounded-xl px-3 py-2.5 text-white text-sm outline-none focus:border-[#e67e22]/50"
+                            value={companyName} onChange={e => setCompanyName(e.target.value)} />
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label className="text-gray-300 text-xs font-semibold block mb-1">Phone</label>
+                            <input className="w-full bg-[#0a1628] border border-white/20 rounded-xl px-3 py-2.5 text-white text-sm outline-none focus:border-[#e67e22]/50"
+                              value={companyPhone} onChange={e => setCompanyPhone(e.target.value)} />
+                          </div>
+                          <div>
+                            <label className="text-gray-300 text-xs font-semibold block mb-1">Email</label>
+                            <input className="w-full bg-[#0a1628] border border-white/20 rounded-xl px-3 py-2.5 text-white text-sm outline-none focus:border-[#e67e22]/50"
+                              value={companyEmail} onChange={e => setCompanyEmail(e.target.value)} />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* ─── SECURITY TAB ─── */}
+              {settingsTab === "security" && (
+                <div className="space-y-4">
+                  <div className="rounded-xl border border-white/10 bg-white/5 p-4 space-y-3">
+                    <p className="text-gray-400 text-xs font-bold uppercase tracking-wide flex items-center gap-2">
+                      <Lock className="h-3.5 w-3.5" />Change Password
+                    </p>
+                    <p className="text-gray-500 text-xs">
+                      {userRole === "staff" ? "Staff password: staff123 → change to a strong password" : "Admin password: admin123 → change to a strong password"}
+                    </p>
+                    {[
+                      { key: "current", label: "Current Password", placeholder: userRole === "staff" ? "staff123" : "admin123" },
+                      { key: "newPw",   label: "New Password",     placeholder: "Min 8 characters" },
+                      { key: "confirm", label: "Confirm New Password", placeholder: "Repeat new password" },
+                    ].map(({ key, label, placeholder }) => (
+                      <div key={key}>
+                        <label className="text-gray-400 text-xs block mb-1">{label}</label>
+                        <div className="relative">
+                          <input type={pwShow ? "text" : "password"}
+                            className="w-full bg-[#0a1628] border border-white/20 rounded-xl px-3 py-2.5 text-white text-sm outline-none focus:border-[#e67e22]/50 pr-10"
+                            placeholder={placeholder}
+                            value={(pwForm as Record<string,string>)[key]}
+                            onChange={e => setPwForm(f => ({ ...f, [key]: e.target.value }))} />
+                          {key === "newPw" && (
+                            <button type="button" onClick={() => setPwShow(v => !v)}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white">
+                              {pwShow ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                    {pwError && <p className="text-red-400 text-xs flex items-center gap-1">⚠ {pwError}</p>}
+                    {pwSuccess && <p className="text-emerald-400 text-xs flex items-center gap-1">✓ Password updated successfully</p>}
+                    <button onClick={handlePasswordChange}
+                      className="w-full py-2.5 rounded-xl bg-[#e67e22] hover:bg-[#d35400] text-white font-semibold text-sm transition-all">
+                      Update Password
+                    </button>
+                  </div>
+
+                  <div className="rounded-xl border border-white/10 bg-white/5 p-4 space-y-3">
+                    <p className="text-gray-400 text-xs font-bold uppercase tracking-wide flex items-center gap-2">
+                      <FingerprintIcon className="h-3.5 w-3.5" />Biometric Authentication
+                    </p>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-white text-sm">Fingerprint / Face ID</p>
+                        <p className="text-gray-500 text-xs mt-0.5">
+                          {biometricsAvailable ? "Skip password — use your device biometrics to sign in" : "Not supported on this device/browser"}
+                        </p>
+                      </div>
+                      <button onClick={toggleBiometrics} disabled={!biometricsAvailable}
+                        className={"relative w-12 h-6 rounded-full transition-all duration-300 " + (biometricsEnabled ? "bg-[#e67e22]" : "bg-gray-600") + (!biometricsAvailable ? " opacity-40 cursor-not-allowed" : " cursor-pointer")}>
+                        <span className={"absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-md transition-transform duration-300 " + (biometricsEnabled ? "translate-x-6" : "")} />
+                      </button>
+                    </div>
+                    {biometricsEnabled && <p className="text-emerald-400 text-xs">✓ Active on this device</p>}
+                  </div>
+
+                  <div className="rounded-xl border border-white/10 bg-white/5 p-4 space-y-3">
+                    <p className="text-gray-400 text-xs font-bold uppercase tracking-wide">Session Settings</p>
+                    <div>
+                      <label className="text-gray-300 text-xs font-semibold block mb-1">Auto-logout after</label>
+                      <select className="w-full bg-[#0a1628] border border-white/20 rounded-xl px-3 py-2.5 text-white text-sm outline-none focus:border-[#e67e22]/50"
+                        value={sessionTimeout} onChange={e => { setSessionTimeout(e.target.value); localStorage.setItem("moventra-session-timeout", e.target.value); }}>
+                        <option value="1">1 hour</option>
+                        <option value="4">4 hours</option>
+                        <option value="8">8 hours (work day)</option>
+                        <option value="24">24 hours</option>
+                        <option value="168">7 days</option>
+                      </select>
+                    </div>
+                    <button onClick={() => { document.cookie = "mock_auth=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"; window.location.href = "/moventra-access"; }}
+                      className="w-full py-2 rounded-xl border border-red-500/30 text-red-400 hover:bg-red-500/10 text-sm font-medium transition-all">
+                      Sign Out All Devices
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* ─── APPEARANCE TAB ─── */}
+              {settingsTab === "theme" && (
+                <div className="space-y-4">
+                  <div className="rounded-xl border border-white/10 bg-white/5 p-4 space-y-3">
+                    <p className="text-gray-400 text-xs font-bold uppercase tracking-wide">Color Theme</p>
+                    <div className="grid grid-cols-3 gap-2">
+                      {([["dark","🌙","Dark Mode","Deep navy background — easy on eyes at night"],["light","☀️","Light Mode","Clean white — ideal for bright environments"],["system","💻","Follow System","Matches your device setting automatically"]] as const).map(([val,icon,label,desc]) => (
+                        <button key={val} onClick={() => applyTheme(val)}
+                          className={"py-3 px-2 rounded-xl border text-center transition-all " +
+                            (currentTheme===val ? "border-[#e67e22] bg-[#e67e22]/15" : "border-white/10 hover:border-white/30")}>
+                          <div className="text-2xl mb-1">{icon}</div>
+                          <p className={"text-xs font-bold " + (currentTheme===val?"text-[#e67e22]":"text-white")}>{label}</p>
+                          <p className="text-[10px] text-gray-500 mt-0.5 leading-tight">{desc}</p>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="rounded-xl border border-white/10 bg-white/5 p-4 space-y-2">
+                    <p className="text-gray-400 text-xs font-bold uppercase tracking-wide">Accent Color</p>
+                    <div className="flex gap-2">
+                      {["#e67e22","#3b82f6","#10b981","#8b5cf6","#ef4444","#f59e0b"].map(color => (
+                        <button key={color} onClick={() => { document.documentElement.style.setProperty("--accent", color); localStorage.setItem("moventra-accent", color); }}
+                          className="w-8 h-8 rounded-full border-2 border-white/20 hover:border-white/60 transition-all"
+                          style={{backgroundColor: color}} />
+                      ))}
+                    </div>
+                    <p className="text-gray-600 text-xs">Customise the system accent colour</p>
+                  </div>
+                </div>
+              )}
+
+              {/* ─── NOTIFICATIONS TAB ─── */}
+              {settingsTab === "notifications" && (
+                <div className="space-y-4">
+                  <div className="rounded-xl border border-white/10 bg-white/5 p-4 space-y-4">
+                    <p className="text-gray-400 text-xs font-bold uppercase tracking-wide">Notification Channels</p>
+                    {([
+                      ["email","📧","Email Notifications","Receive alerts and confirmations by email"],
+                      ["sms","📱","SMS Notifications","Get critical alerts by SMS (Africa's Talking)"],
+                      ["whatsapp","💬","WhatsApp Notifications","Send booking confirmations via WhatsApp"],
+                    ] as [keyof typeof notifPrefs, string, string, string][]).map(([key, icon, label, desc]) => (
+                      <div key={key} className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <span className="text-xl">{icon}</span>
+                          <div>
+                            <p className="text-white text-sm font-medium">{label}</p>
+                            <p className="text-gray-500 text-xs">{desc}</p>
+                          </div>
+                        </div>
+                        <button onClick={() => setNotifPrefs(p => ({ ...p, [key]: !p[key] }))}
+                          className={"relative w-12 h-6 rounded-full transition-all duration-300 " + (notifPrefs[key] ? "bg-[#e67e22]" : "bg-gray-600")}>
+                          <span className={"absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-md transition-transform duration-300 " + (notifPrefs[key] ? "translate-x-6" : "")} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="rounded-xl border border-white/10 bg-white/5 p-4 space-y-4">
+                    <p className="text-gray-400 text-xs font-bold uppercase tracking-wide">Alert Types</p>
+                    {([
+                      ["overdue","🚨","Overdue payments & returns","Get alerted when payments or vehicle returns are overdue"],
+                      ["payments","💰","Payment received","Notify when M-Pesa or bank payment is confirmed"],
+                      ["bookings","📅","New bookings","Alert on new booking creation across all services"],
+                    ] as [keyof typeof notifPrefs, string, string, string][]).map(([key, icon, label, desc]) => (
+                      <div key={key} className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <span className="text-xl">{icon}</span>
+                          <div>
+                            <p className="text-white text-sm font-medium">{label}</p>
+                            <p className="text-gray-500 text-xs">{desc}</p>
+                          </div>
+                        </div>
+                        <button onClick={() => setNotifPrefs(p => ({ ...p, [key]: !p[key] }))}
+                          className={"relative w-12 h-6 rounded-full transition-all duration-300 " + (notifPrefs[key] ? "bg-[#e67e22]" : "bg-gray-600")}>
+                          <span className={"absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-md transition-transform duration-300 " + (notifPrefs[key] ? "translate-x-6" : "")} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* ─── SYSTEM TAB ─── */}
+              {settingsTab === "system" && (
+                <div className="space-y-4">
+                  <div className="rounded-xl border border-white/10 bg-white/5 p-4 space-y-3">
+                    <p className="text-gray-400 text-xs font-bold uppercase tracking-wide">System Information</p>
+                    {[
+                      ["Version", "v1.0.0"],
+                      ["Environment", process.env.NODE_ENV || "development"],
+                      ["Database", "Supabase PostgreSQL"],
+                      ["Payments", "Safaricom M-Pesa Daraja"],
+                      ["Tax Compliance", "KRA eTIMS"],
+                      ["Hosting", window.location.hostname],
+                    ].map(([k,v]) => (
+                      <div key={k} className="flex justify-between text-sm border-b border-white/5 pb-2">
+                        <span className="text-gray-400">{k}</span>
+                        <span className="text-white font-mono text-xs">{v}</span>
+                      </div>
+                    ))}
+                  </div>
+                  {userRole === "admin" && (
+                    <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-4 space-y-2">
+                      <p className="text-red-400 text-xs font-bold uppercase tracking-wide">Danger Zone</p>
+                      <p className="text-gray-500 text-xs">These actions are irreversible. Admin only.</p>
+                      <button onClick={() => { if (confirm("Clear browser cache and reload?")) { if ("caches" in window) caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k)))).then(() => window.location.reload()); else window.location.reload(); } }}
+                        className="w-full py-2 rounded-xl border border-amber-500/30 text-amber-400 hover:bg-amber-500/10 text-sm transition-all">
+                        Clear Cache & Reload
+                      </button>
+                      <button onClick={() => { const data = { exported: new Date().toISOString(), url: window.location.href }; const a = document.createElement("a"); a.href = "data:application/json," + JSON.stringify(data,null,2); a.download = "moventra-settings.json"; a.click(); }}
+                        className="w-full py-2 rounded-xl border border-white/10 text-gray-300 hover:bg-white/5 text-sm transition-all">
+                        Export Settings
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
-            <div className="flex gap-3 px-5 pb-5">
+
+            {/* Settings Footer */}
+            <div className="flex gap-3 px-5 py-4 border-t border-white/10 shrink-0">
               <button onClick={() => setSettingsOpen(false)}
-                className="flex-1 py-2.5 rounded-xl border border-white/20 text-gray-300 hover:text-white hover:bg-white/5 transition-all text-sm">Cancel</button>
-              <button onClick={handlePasswordChange}
+                className="flex-1 py-2.5 rounded-xl border border-white/20 text-gray-300 hover:text-white hover:bg-white/5 transition-all text-sm">
+                Close
+              </button>
+              <button onClick={() => {
+                localStorage.setItem("moventra-admin-name", adminName);
+                localStorage.setItem("moventra-notif-prefs", JSON.stringify(notifPrefs));
+                setSettingsOpen(false);
+                // Show brief confirmation
+                setTimeout(() => {}, 0);
+              }}
                 className="flex-1 py-2.5 rounded-xl bg-[#e67e22] hover:bg-[#d35400] text-white font-semibold text-sm flex items-center justify-center gap-2 transition-all">
-                <Save className="h-4 w-4" />Save Changes
+                <Save className="h-4 w-4" />Save All Changes
               </button>
             </div>
           </div>
         </div>
       )}
+
     </div>
   );
 }

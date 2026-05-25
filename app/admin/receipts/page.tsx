@@ -683,6 +683,45 @@ export default function ReceiptsPage() {
   };
 
   // Send receipt via both Email and SMS
+
+  const sendReceiptWhatsApp = (receipt: ReceiptData) => {
+    const phone = receipt.customerPhone?.replace(/\D/g, "");
+    const intlPhone = phone?.startsWith("0") ? "254" + phone.slice(1) : phone;
+    const verifyUrl = receipt.etimsReceiptNumber
+      ? `https://etims.kra.go.ke/verify/${receipt.etimsReceiptNumber}`
+      : "";
+    const msg = encodeURIComponent(
+      `*Moventra Safaris & Logistics Ltd*\n` +
+      `Receipt No: *${receipt.receiptNumber}*\n` +
+      `Service: ${receipt.serviceType?.replace(/-/g," ")}\n` +
+      `Amount: *KES ${Number(receipt.totalAmount).toLocaleString()}*\n` +
+      `Payment: ${receipt.paymentMethod}\n` +
+      (receipt.transactionCode ? `Ref: ${receipt.transactionCode}\n` : "") +
+      (verifyUrl ? `\nVerify receipt: ${verifyUrl}\n` : "") +
+      `\nThank you for choosing Moventra!\n+254 727 247 032`
+    );
+    const url = `https://wa.me/${intlPhone}?text=${msg}`;
+    window.open(url, "_blank");
+    toast.success(`WhatsApp message opened for ${receipt.customerName}`);
+  };
+
+  const sendInvoiceWhatsApp = (invoice: { customerPhone?: string; invoiceNumber?: string; serviceType?: string; total?: number; dueDate?: string; customerName?: string }) => {
+    const phone = invoice.customerPhone?.replace(/\D/g, "");
+    const intlPhone = phone?.startsWith("0") ? "254" + phone.slice(1) : phone;
+    const msg = encodeURIComponent(
+      `*Moventra Safaris & Logistics Ltd*\n` +
+      `Invoice No: *${invoice.invoiceNumber}*\n` +
+      `Service: ${invoice.serviceType?.replace(/-/g," ")}\n` +
+      `Amount: *KES ${Number(invoice.total).toLocaleString()}*\n` +
+      `Due Date: ${invoice.dueDate || "Upon receipt"}\n` +
+      `\nPay via M-Pesa Paybill: 174379\nAccount: ${invoice.invoiceNumber}\n` +
+      `\nQueries? Call +254 727 247 032`
+    );
+    const url = `https://wa.me/${intlPhone}?text=${msg}`;
+    window.open(url, "_blank");
+    toast.success(`WhatsApp message opened for ${invoice.customerName}`);
+  };
+
   const sendReceiptBoth = async (receipt: ReceiptData) => {
     const promises: Promise<void>[] = [];
     
