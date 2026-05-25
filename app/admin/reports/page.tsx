@@ -142,7 +142,7 @@ export default function ReportsPage() {
       <div className="hidden print:block border-b-2 border-[#e67e22] pb-4 mb-4">
         <h1 className="text-2xl font-bold text-gray-900">Moventra Safaris & Logistics Ltd</h1>
         <p className="text-gray-600">Financial Report — {periodLabel}</p>
-        <p className="text-gray-400 text-sm">Generated: {typeof window !== "undefined" ? new Date().toLocaleString("en-KE", {timeZone:"Africa/Nairobi"}) : ""}</p>
+        <p className="text-gray-400 text-sm" suppressHydrationWarning>Generated: {new Date().toLocaleString("en-KE", {timeZone:"Africa/Nairobi"})}</p>
       </div>
 
       {loading ? (
@@ -152,7 +152,7 @@ export default function ReportsPage() {
           {/* Period label */}
           <div className="flex items-center gap-2">
             <Calendar className="h-4 w-4 text-gray-400" />
-            <span className="text-gray-300 text-sm font-medium">{periodLabel}</span>
+            <span className="text-gray-300 text-sm font-medium" suppressHydrationWarning>{periodLabel}</span>
             <Badge className="bg-purple-500/20 text-purple-300 text-xs">{periodTx.length} transactions</Badge>
           </div>
 
