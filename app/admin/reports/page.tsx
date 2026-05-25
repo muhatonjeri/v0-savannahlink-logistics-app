@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { TrendingUp, TrendingDown, DollarSign, Users, FileText, Download, Printer, Calendar, BarChart3, PieChart, Loader2, ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -40,9 +40,9 @@ export default function ReportsPage() {
 
   // Period filter
   const [mounted, setMounted] = useState(false);
-  useEffect(() => { setMounted(true); }, []);
-  const now = useMemo(() => new Date(), []);
-  const filterDate = period === "month"
+  const [now, setNow] = useState<Date | null>(null);
+  useEffect(() => { setMounted(true); setNow(new Date()); }, []);
+  const filterDate = !now ? new Date(0).toISOString() : period === "month"
     ? new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
     : period === "quarter"
     ? new Date(now.getFullYear(), Math.floor(now.getMonth()/3)*3, 1).toISOString()
@@ -65,7 +65,8 @@ export default function ReportsPage() {
 
   // Monthly trend (last 6 months)
   const monthlyData = Array.from({length:6},(_,i) => {
-    const d = new Date(now.getFullYear(), now.getMonth()-5+i, 1);
+    const base = now || new Date();
+    const d = new Date(base.getFullYear(), base.getMonth()-5+i, 1);
     const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`;
     const txMonth = transactions.filter(t => String(t.date||"").startsWith(key));
     return {
@@ -109,7 +110,13 @@ export default function ReportsPage() {
     a.click();
   };
 
-  const periodLabel = period === "month" ? `${MONTHS[now.getMonth()]} ${now.getFullYear()}` : period === "quarter" ? `Q${Math.floor(now.getMonth()/3)+1} ${now.getFullYear()}` : `Full Year ${now.getFullYear()}`;
+  const periodLabel = !now ? "" : period === "month" ? `${MONTHS[now.getMonth()]} ${now.getFullYear()}` : period === "quarter" ? `Q${Math.floor(now.getMonth()/3)+1} ${now.getFullYear()}` : `Full Year ${now.getFullYear()}`;
+
+  if (!mounted || !now) return (
+    <div className="flex h-64 items-center justify-center">
+      <div className="h-6 w-6 rounded-full border-2 border-[#e67e22] border-t-transparent animate-spin" />
+    </div>
+  );
 
   return (
     <div className="space-y-5 print:space-y-4">
