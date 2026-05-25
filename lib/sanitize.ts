@@ -1,39 +1,31 @@
-// Input sanitization utilities for API routes
+// Input sanitization utilities
 
-// Strip HTML tags and dangerous characters
-export function sanitizeString(input: unknown): string {
-  if (typeof input !== "string") return String(input || "");
-  return input
-    .replace(/<[^>]*>/g, "")          // remove HTML tags
-    .replace(/[<>"'&]/g, "")          // remove dangerous chars
-    .trim()
-    .slice(0, 1000);                   // max length
+export function sanitizeString(value: unknown): string {
+  return String(value || "").replace(/[<>"'`;]/g, "").trim().slice(0, 500);
 }
 
-// Sanitize an object's string values recursively
-export function sanitizeBody(obj: Record<string, unknown>): Record<string, unknown> {
+export function sanitizeBody(body: Record<string, unknown>): Record<string, unknown> {
   const clean: Record<string, unknown> = {};
-  for (const [k, v] of Object.entries(obj)) {
-    if (typeof v === "string") clean[k] = sanitizeString(v);
-    else if (typeof v === "number") clean[k] = isFinite(v) ? v : 0;
-    else if (typeof v === "boolean") clean[k] = v;
-    else if (v === null || v === undefined) clean[k] = v;
-    else if (typeof v === "object" && !Array.isArray(v)) {
-      clean[k] = sanitizeBody(v as Record<string, unknown>);
-    }
-    else if (Array.isArray(v)) clean[k] = v;
-    else clean[k] = String(v || "");
+  for (const [key, value] of Object.entries(body)) {
+    if (typeof value === "string") clean[key] = sanitizeString(value);
+    else if (typeof value === "number") clean[key] = isNaN(value) ? 0 : value;
+    else if (typeof value === "boolean") clean[key] = value;
+    else if (value === null || value === undefined) clean[key] = null;
+    else if (Array.isArray(value)) clean[key] = value;
+    else if (typeof value === "object") clean[key] = sanitizeBody(value as Record<string, unknown>);
+    else clean[key] = value;
   }
   return clean;
 }
 
-// Validate UUID format
 export function isValidUUID(id: string): boolean {
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id);
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
 }
 
-// Validate Kenya phone
-export function isKEPhone(phone: string): boolean {
-  const clean = phone.replace(/\D/g, "");
-  return /^(254|0)(7\d{8}|1\d{8})$/.test(clean);
+export function sanitizePhone(phone: string): string {
+  return phone.replace(/[^\d+\s\-()]/g, "").trim().slice(0, 20);
+}
+
+export function sanitizeEmail(email: string): string {
+  return email.toLowerCase().replace(/[^a-z0-9@._\-+]/g, "").trim().slice(0, 200);
 }
