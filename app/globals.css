@@ -464,9 +464,6 @@
 .bg-zinc-800,
 .bg-neutral-900,
 .bg-neutral-800,
-[class*="bg-\\[#0a1628\\]"] {
-  color: #f9fafb !important;
-}
 
 /* Dark colored backgrounds need light text */
 .bg-blue-900,
@@ -569,17 +566,7 @@
 }
 
 /* Tailwind dark bg classes - force white text on all children */
-.bg-\[\#0a1628\],
-.bg-\[\#0f1d32\],
-.bg-\[\#1a2744\] {
-  color: #f9fafb !important;
-}
 
-.bg-\[\#0a1628\] *:not(button):not(.text-\[\#e67e22\]):not([class*="text-emerald"]):not([class*="text-green"]):not([class*="text-red"]):not([class*="text-amber"]):not([class*="text-blue"]),
-.bg-\[\#0f1d32\] *:not(button):not(.text-\[\#e67e22\]):not([class*="text-emerald"]):not([class*="text-green"]):not([class*="text-red"]):not([class*="text-amber"]):not([class*="text-blue"]),
-.bg-\[\#1a2744\] *:not(button):not(.text-\[\#e67e22\]):not([class*="text-emerald"]):not([class*="text-green"]):not([class*="text-red"]):not([class*="text-amber"]):not([class*="text-blue"]) {
-  color: #f9fafb !important;
-}
 
 /* Table headers with dark backgrounds */
 th[class*="bg-"] {
@@ -601,14 +588,6 @@ th[class*="bg-"] {
 /* ── Readability fixes: ensure text is always visible on dark backgrounds ── */
 
 /* Table headers on dark backgrounds */
-.bg-\[\#0a1628\] th,
-.bg-\[\#0a1628\] td,
-.bg-\[\#0f1d32\] th,
-.bg-\[\#0f1d32\] td,
-.bg-\[\#1a2744\] th,
-.bg-\[\#1a2744\] td {
-  color: white !important;
-}
 
 /* SelectContent, DropdownMenu, PopoverContent - ensure readable */
 [data-slot="select-content"],
@@ -635,22 +614,8 @@ th[class*="bg-"] {
 
 
 /* Input fields on dark backgrounds */
-.bg-\[\#0a1628\] input,
-.bg-\[\#0f1d32\] input,
-.bg-\[\#1a2744\] input {
-  color: white;
-  background-color: oklch(0.20 0.02 250);
-}
 
 /* Gray text on dark backgrounds - boost contrast */
-.bg-\[\#0a1628\] .text-gray-500,
-.bg-\[\#0f1d32\] .text-gray-500,
-.bg-\[\#0a1628\] .text-gray-600,
-.bg-\[\#0f1d32\] .text-gray-600,
-.bg-\[\#0a1628\] .text-muted-foreground,
-.bg-\[\#0f1d32\] .text-muted-foreground {
-  color: oklch(0.75 0 0) !important;
-}
 
 /* ── Force white text everywhere on dark backgrounds ── */
 * {
@@ -778,7 +743,6 @@ select.bg-white {
 .text-gray-700 { color: oklch(0.85 0 0) !important; }
 .text-gray-600 { color: oklch(0.78 0 0) !important; }
 .text-gray-500 { color: oklch(0.70 0 0) !important; }
-.text-\[\#0a1628\]:not(.print-receipt *):not([data-print-area] *) { color: white !important; }
 
 /* Dialog and card backgrounds */
 [role="dialog"] {
@@ -918,7 +882,6 @@ a .text-yellow-500, button .text-yellow-500 { color: #eab308 !important; }
 
 /* Sidebar group labels - keep their assigned colors */
 [data-slot="sidebar-group-label"].text-blue-400 { color: rgb(96 165 250) !important; }
-[data-slot="sidebar-group-label"].text-\[\#e67e22\] { color: #e67e22 !important; }
 
 /* Additional sidebar icon colors */
 .text-sky-400    { color: rgb(56 189 248)   !important; }
@@ -985,10 +948,6 @@ table thead th,
   background-color: white !important;
 }
 
-.print-receipt .text-\[\#e67e22\],
-[data-print-area] .text-\[\#e67e22\] {
-  color: #e67e22 !important;
-}
 
 /* ══════════════════════════════════════
    PRINT STYLES — Invoice & Receipt
@@ -1118,16 +1077,56 @@ input:focus, textarea:focus, select:focus {
   color: #0a1628;
 }
 
-.light .bg-\\[\\#0a1628\\] { background-color: #f0f4f8 !important; }
-.light .bg-\\[\\#0d1f35\\] { background-color: #ffffff !important; }
-.light .bg-white\\/5       { background-color: rgba(0,0,0,0.03) !important; }
-.light .bg-white\\/10      { background-color: rgba(0,0,0,0.06) !important; }
 .light .text-white         { color: #0a1628 !important; }
 .light .text-gray-300      { color: #374151 !important; }
 .light .text-gray-400      { color: #4b5563 !important; }
 .light .text-gray-500      { color: #6b7280 !important; }
-.light .border-white\\/10  { border-color: #e2e8f0 !important; }
-.light .border-white\\/20  { border-color: #cbd5e1 !important; }
 
 /* Sidebar always stays dark regardless of theme */
 aside { background-color: #0d1f35 !important; }
+
+/* ═══════════════════════════════════════════════════════════
+   LIGHT THEME OVERRIDES
+   Uses CSS custom properties — no escaped Tailwind classes
+   ═══════════════════════════════════════════════════════════ */
+:root {
+  --page-bg: #0a1628;
+  --page-fg: #ffffff;
+  --card-bg: rgba(255,255,255,0.05);
+  --border: rgba(255,255,255,0.1);
+  --muted: #9ca3af;
+}
+
+.light {
+  --page-bg: #f0f4f8;
+  --page-fg: #0a1628;
+  --card-bg: #ffffff;
+  --border: #e2e8f0;
+  --muted: #6b7280;
+}
+
+.light body {
+  background-color: #f0f4f8;
+  color: #0a1628;
+}
+
+/* Light theme page background */
+.light main {
+  background-color: #f0f4f8;
+}
+
+/* Cards in light mode */
+.light .rounded-xl,
+.light .rounded-2xl {
+  --tw-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+/* Sidebar always stays dark regardless of theme */
+aside {
+  background-color: #0d1f35 !important;
+  color: white !important;
+}
+
+aside * {
+  --tw-text-opacity: 1;
+}
