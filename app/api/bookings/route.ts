@@ -30,9 +30,9 @@ export async function GET(req: NextRequest) {
     if (q_param)  q = q.ilike("customer_name", `%${q_param}%`);
 
     q = q.range(offset, offset + limit - 1);
-    const { data, error, count } = await q;
+    const { data, error } = await q;
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-    return NextResponse.json({ data, page, limit, total: count });
+    return NextResponse.json(data || []);
   } catch (e) { return NextResponse.json({ error: String(e) }, { status: 500 }); }
 }
 

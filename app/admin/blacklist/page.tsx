@@ -267,8 +267,7 @@ export default function BlacklistPage() {
     setLoading(true);
     try {
       const res = await fetch("/api/blacklist");
-      const _raw = await res.json();
-      const data = Array.isArray(_raw) ? _raw : (_raw.data || []);
+      const data = await res.json().then((d: unknown) => Array.isArray(d) ? d : (d as any)?.data ?? []);
       if (Array.isArray(data)) setBlacklist(data.map((b: Record<string,unknown>) => ({
         id: String(b.id || ""),
         fullName: String(b.client_name || b.fullName || ""),

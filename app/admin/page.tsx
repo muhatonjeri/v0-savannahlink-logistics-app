@@ -1,4 +1,5 @@
 "use client";
+import { toast } from "sonner";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -95,7 +96,7 @@ export default function AdminDashboard() {
       if (Array.isArray(t)) setTransactions(t);
       setLoading(false);
       setLastUpdated(new Date());
-    }).catch(() => setLoading(false));
+    }).catch(() => { setLoading(false); toast.error("Failed to load dashboard data — check your connection"); });
   }, []);
 
   // ── Computed stats ──────────────────────────────────────────────

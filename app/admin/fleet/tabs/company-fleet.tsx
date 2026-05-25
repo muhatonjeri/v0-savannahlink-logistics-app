@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { Loader2,
+ useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -538,9 +539,11 @@ function generateNotifications(fleet: FleetVehicle[]): Notification[] {
 
 export default function CompanyFleetTab() {
   const [fleet, setFleet] = useState<FleetVehicle[]>([]);
+  const [loading, setLoading] = useState(true);
   const [editVehicle, setEditVehicle] = useState<FleetVehicle | null>(null);
 
   const loadFleet = async () => {
+    setLoading(true);
     try {
       const res = await fetch("/api/fleet");
       const data = await res.json();
@@ -566,7 +569,7 @@ export default function CompanyFleetTab() {
         assignments: [],
         maintenanceHistory: [],
       })));
-    } catch(e) { console.error("Load fleet:", e); }
+    } catch(e) { console.error("Load fleet:", e); toast.error("Failed to load fleet data"); } finally { setLoading(false); }
   };
 
   useEffect(() => { loadFleet(); }, []);

@@ -14,9 +14,9 @@ export async function GET(req: NextRequest) {
     let query = sb.from("transactions").select("*").order("date", { ascending: false });
     if (type) query = query.eq("type", type);
     query = query.range(offset, offset + limit - 1);
-    const { data, error, count } = await query;
+    const { data, error } = await query;
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-    return NextResponse.json({ data, page, limit, total: count });
+    return NextResponse.json(data || []);
   } catch (e) { return NextResponse.json({ error: String(e) }, { status: 500 }); }
 }
 

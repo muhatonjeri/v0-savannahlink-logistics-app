@@ -29,12 +29,13 @@ export default function ReportsPage() {
       fetch("/api/clients").then(r=>r.json()),
       fetch("/api/invoices").then(r=>r.json()),
     ]).then(([t,b,c,i]) => {
+
       setTransactions(Array.isArray(t) ? t : (t.data||[]));
       setBookings(Array.isArray(b) ? b : (b.data||[]));
       setClients(Array.isArray(c) ? c : (c.data||[]));
       setInvoices(Array.isArray(i) ? i : (i.data||[]));
       setLoading(false);
-    });
+    }).catch(() => { setLoading(false); });
   }, []);
 
   // Period filter

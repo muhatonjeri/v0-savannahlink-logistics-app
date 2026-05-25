@@ -62,8 +62,7 @@ export default function FleetOutTab() {
   const loadRecords = async () => {
     try {
       const res = await fetch("/api/fleet-out");
-      const _raw = await res.json();
-      const data = Array.isArray(_raw) ? _raw : (_raw.data || []);
+      const data = await res.json().then((d: unknown) => Array.isArray(d) ? d : (d as any)?.data ?? []);
       if (Array.isArray(data)) setRecords(data.map((r: Record<string, unknown>) => ({
         id: String(r.id || ""), vehicleMake: String(r.vehicle_make || ""),
         vehicleModel: String(r.vehicle_model || ""), vehicleReg: String(r.vehicle_reg || ""),

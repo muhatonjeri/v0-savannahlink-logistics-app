@@ -435,10 +435,12 @@ const emptyBForm = {
 
 export default function SubletAssetsTab() {
   const [vehicles, setVehicles] = useState<SubletVehicle[]>([]);
+  const [loading, setLoading] = useState(true);
   const [editAsset, setEditAsset] = useState<SubletVehicle | null>(null);
   const [bookings, setBookings] = useState<SubletBooking[]>([]);
 
   const loadData = async () => {
+    setLoading(true);
     try {
       const [vRes, bRes] = await Promise.all([
         fetch("/api/sublet-vehicles"),
@@ -476,7 +478,7 @@ export default function SubletAssetsTab() {
         notes: String(b.notes || ""),
         make: "", model: "", reg: "",
       })));
-    } catch(e) { console.error("Load sublet data:", e); }
+    } catch(e) { console.error("Load sublet data:", e); } finally { setLoading(false); }
   };
 
   useEffect(() => { loadData(); }, []);
