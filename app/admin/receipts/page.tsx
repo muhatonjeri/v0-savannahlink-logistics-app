@@ -1,4 +1,5 @@
 "use client";
+import { generateQRDataURL, generateEtimsVerifyUrl } from "@/lib/qr";
 
 import { useState, useMemo, useRef } from "react";
 import Image from "next/image";

@@ -1099,3 +1099,35 @@ input:focus, textarea:focus, select:focus {
     -webkit-print-color-adjust: exact; print-color-adjust: exact;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   LIGHT THEME OVERRIDES
+   ═══════════════════════════════════════════════════════════ */
+.light {
+  --background: #f0f4f8;
+  --foreground: #0a1628;
+  --card-bg: #ffffff;
+  --border-color: #e2e8f0;
+  --text-muted: #64748b;
+  --sidebar-bg: #0a1628;
+  --header-bg: #0d1f35;
+}
+
+.light body {
+  background-color: #f0f4f8;
+  color: #0a1628;
+}
+
+.light .bg-\\[\\#0a1628\\] { background-color: #f0f4f8 !important; }
+.light .bg-\\[\\#0d1f35\\] { background-color: #ffffff !important; }
+.light .bg-white\\/5       { background-color: rgba(0,0,0,0.03) !important; }
+.light .bg-white\\/10      { background-color: rgba(0,0,0,0.06) !important; }
+.light .text-white         { color: #0a1628 !important; }
+.light .text-gray-300      { color: #374151 !important; }
+.light .text-gray-400      { color: #4b5563 !important; }
+.light .text-gray-500      { color: #6b7280 !important; }
+.light .border-white\\/10  { border-color: #e2e8f0 !important; }
+.light .border-white\\/20  { border-color: #cbd5e1 !important; }
+
+/* Sidebar always stays dark regardless of theme */
+aside { background-color: #0d1f35 !important; }

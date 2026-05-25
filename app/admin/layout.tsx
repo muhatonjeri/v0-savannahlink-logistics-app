@@ -10,6 +10,7 @@ import {
   Gauge, UsersRound, Users, Fingerprint, ShieldX, ReceiptText,
   BadgeDollarSign, FileBadge, Sliders, Anchor, Menu, X,
   ChevronDown, ChevronUp, Bell, Search, Settings, Lock, Eye, EyeOff, Save, ShieldCheck, BarChart3,
+  Sun, Moon, Monitor, Fingerprint as FingerprintIcon, Palette,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -63,9 +64,25 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [pwError, setPwError] = useState("");
   const [pwSuccess, setPwSuccess] = useState(false);
   const [adminName, setAdminName] = useState("Admin");
+  const [currentTheme, setCurrentTheme] = useState<"dark"|"light"|"system">("dark");
+  const [biometricsEnabled, setBiometricsEnabled] = useState(false);
+  const [biometricsAvailable, setBiometricsAvailable] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
+    // Init theme
+    const stored = localStorage.getItem("moventra-theme") as "dark"|"light"|"system" || "dark";
+    setCurrentTheme(stored);
+    document.documentElement.classList.toggle("dark", stored === "dark" || (stored === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches));
+    
+    // Check biometrics support
+    if (window.PublicKeyCredential) {
+      PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable().then(available => {
+        setBiometricsAvailable(available);
+        setBiometricsEnabled(localStorage.getItem("moventra-biometrics") === "true");
+      }).catch(() => {});
+    }
+
     // Load notifications
     fetch("/api/notifications").then(r => r.json()).then(d => {
       if (d.alerts) { setAlerts(d.alerts); setAlertCount(d.count || 0); }
@@ -85,6 +102,44 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const handleSignOut = () => {
     document.cookie = "mock_auth=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     window.location.href = "/moventra-access";
+  };
+
+  const applyTheme = (theme: "dark"|"light"|"system") => {
+    setCurrentTheme(theme);
+    const isDark = theme === "dark" || (theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    document.documentElement.classList.toggle("dark", isDark);
+    document.documentElement.classList.toggle("light", !isDark);
+    localStorage.setItem("moventra-theme", theme);
+  };
+
+  const toggleBiometrics = async () => {
+    if (!biometricsAvailable) { alert("Biometric authentication is not available on this device."); return; }
+    if (biometricsEnabled) {
+      localStorage.removeItem("moventra-biometrics");
+      setBiometricsEnabled(false);
+      toast.success("Biometrics disabled");
+    } else {
+      try {
+        // Register biometric credential
+        const credential = await navigator.credentials.create({
+          publicKey: {
+            challenge: new Uint8Array(32),
+            rp: { name: "Moventra Admin", id: window.location.hostname },
+            user: { id: new Uint8Array(16), name: adminName || "admin", displayName: adminName || "Admin" },
+            pubKeyCredParams: [{ type: "public-key", alg: -7 }],
+            authenticatorSelection: { authenticatorAttachment: "platform", userVerification: "required" },
+            timeout: 60000,
+          }
+        });
+        if (credential) {
+          localStorage.setItem("moventra-biometrics", "true");
+          setBiometricsEnabled(true);
+          toast.success("Biometrics enabled successfully");
+        }
+      } catch(e) {
+        toast.error("Biometrics setup failed: " + String(e));
+      }
+    }
   };
 
   const doSearch = async (q: string) => {
@@ -392,6 +447,42 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 <label className="text-gray-300 text-xs font-semibold block mb-1.5">DISPLAY NAME</label>
                 <input className="w-full bg-white/5 border border-white/20 rounded-xl px-3 py-2.5 text-white text-sm outline-none focus:border-[#e67e22]/50"
                   value={adminName} onChange={e => setAdminName(e.target.value)} placeholder="Your name" />
+              </div>
+
+              {/* Theme Selector */}
+              <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+                <p className="text-gray-300 text-xs font-semibold flex items-center gap-2 mb-3"><Palette className="h-3.5 w-3.5" />THEME</p>
+                <div className="grid grid-cols-3 gap-2">
+                  {([["dark","Dark","🌙"],["light","Light","☀️"],["system","System","💻"]] as const).map(([val,label,icon]) => (
+                    <button key={val} onClick={() => applyTheme(val)}
+                      className={"py-2.5 rounded-xl border text-sm font-medium transition-all flex flex-col items-center gap-1 " +
+                        (currentTheme === val ? "border-[#e67e22] bg-[#e67e22]/15 text-white" : "border-white/10 text-gray-400 hover:border-white/30 hover:text-white")}>
+                      <span className="text-lg">{icon}</span>
+                      <span>{label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Biometrics */}
+              <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-gray-300 text-xs font-semibold flex items-center gap-2"><FingerprintIcon className="h-3.5 w-3.5" />BIOMETRIC LOGIN</p>
+                    <p className="text-gray-500 text-xs mt-1">
+                      {biometricsAvailable ? "Use fingerprint or Face ID to log in" : "Not available on this device"}
+                    </p>
+                  </div>
+                  <button onClick={toggleBiometrics} disabled={!biometricsAvailable}
+                    className={"relative w-11 h-6 rounded-full transition-colors " + (biometricsEnabled ? "bg-[#e67e22]" : "bg-gray-600") + (!biometricsAvailable ? " opacity-40 cursor-not-allowed" : "")}>
+                    <span className={"absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform " + (biometricsEnabled ? "translate-x-5" : "")} />
+                  </button>
+                </div>
+                {biometricsEnabled && (
+                  <p className="text-emerald-400 text-xs mt-2 flex items-center gap-1">
+                    <span>✓</span> Biometric login active on this device
+                  </p>
+                )}
               </div>
               {/* Change Password */}
               <div className="rounded-xl border border-white/10 bg-white/5 p-4 space-y-3">

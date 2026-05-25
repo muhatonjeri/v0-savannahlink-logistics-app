@@ -1,0 +1,7 @@
+User-agent: *
+Disallow: /admin
+Disallow: /api
+Disallow: /portal
+Allow: /
+
+Sitemap: https://moventrasafarislogisticsltd.com/sitemap.xml

@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import {
-  Plus, Search, Eye, Pencil, Printer, Trash2, Filter,
+  Plus, Search, Eye, Pencil, Printer, Trash2, Filter, Download,
   TrendingUp, DollarSign, Calendar, Users, CheckCircle2,
   Clock, XCircle, ChevronDown, ChevronUp, Loader2,
   FileText, Phone, Mail, CreditCard, ExternalLink, ArrowUpRight,
@@ -64,6 +64,48 @@ function ServicePageInner({ service, accentColor = "blue" }: ServicePageProps) {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const toggleSelect = (id: string) => {
+    setSelected(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
+  };
+
+  const selectAll = () => {
+    setSelected(selected.size === filtered.length ? new Set() : new Set(filtered.map(b => b.id)));
+  };
+
+  const executeBulk = async () => {
+    if (!bulkAction || selected.size === 0) return;
+    setBulkLoading(true);
+    try {
+      if (bulkAction === "delete") {
+        if (!confirm(`Delete ${selected.size} booking(s)? Cannot be undone.`)) { setBulkLoading(false); return; }
+        await Promise.all([...selected].map(id => fetch(`/api/bookings?id=${id}`, { method: "DELETE" })));
+        toast.success(`${selected.size} booking(s) deleted`);
+      } else {
+        await Promise.all([...selected].map(id =>
+          fetch("/api/bookings", { method: "PUT", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id, status: bulkAction }) })
+        ));
+        toast.success(`${selected.size} booking(s) updated to "${bulkAction}"`);
+      }
+      setSelected(new Set());
+      setBulkAction("");
+      loadBookings();
+    } catch(e) { toast.error(String(e)); } finally { setBulkLoading(false); }
+  };
+
+  const exportBookingsCSV = () => {
+    const rows = [
+      ["Ref","Customer","Phone","Email","Status","Payment","Total","Paid","Date"],
+      ...filtered.map(b => [
+        (b as any).booking_ref||"", b.customerName, b.customerPhone, b.customerEmail,
+        b.status, b.paymentStatus, b.totalAmount, b.amountPaid, fmtDate(b.createdAt)
+      ])
+    ];
+    const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(",")).join("\n");
+    const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv],{type:"text/csv"}));
+    a.download = `${service.id}-bookings-${new Date().toISOString().split("T")[0]}.csv`; a.click();
+  };
+
   const getNextReceiptNumber = async () => {
     try {
       const res = await fetch("/api/generate-number?type=receipt");
@@ -81,6 +123,9 @@ function ServicePageInner({ service, accentColor = "blue" }: ServicePageProps) {
 
   // Form state
   const [bookingRef, setBookingRef] = useState<string>("");
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkAction, setBulkAction] = useState("");
+  const [bulkLoading, setBulkLoading] = useState(false);
   const [form, setForm] = useState<Record<string, string>>({
     customerName: "", customerPhone: "", customerEmail: "",
     totalAmount: "", paymentMethod: "mpesa", amountPaid: "",
@@ -285,6 +330,10 @@ function ServicePageInner({ service, accentColor = "blue" }: ServicePageProps) {
           <p className="text-gray-400 text-sm mt-0.5">{service.tagline}</p>
         </div>
         <div className="flex gap-2 shrink-0">
+          <Button variant="outline" className="gap-2 border-teal-500/30 text-teal-400 hover:bg-teal-500/10 hidden sm:flex"
+            onClick={exportBookingsCSV}>
+            <Download className="h-4 w-4" />CSV
+          </Button>
           <Button
             className="gap-2 bg-[#e67e22] hover:bg-[#d35400] text-white"
             onClick={() => setShowForm(true)}>
@@ -374,6 +423,11 @@ function ServicePageInner({ service, accentColor = "blue" }: ServicePageProps) {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="w-10">
+                    <input type="checkbox" className="rounded border-gray-600 accent-[#e67e22]"
+                      checked={selected.size === filtered.length && filtered.length > 0}
+                      onChange={selectAll} />
+                  </TableHead>
                   <TableHead>Customer</TableHead>
                   <TableHead>Date</TableHead>
                   <TableHead>Amount</TableHead>
@@ -387,6 +441,10 @@ function ServicePageInner({ service, accentColor = "blue" }: ServicePageProps) {
               <TableBody>
                 {filtered.map(b => (
                   <TableRow key={b.id}>
+                    <TableCell>
+                      <input type="checkbox" className="rounded border-gray-600 accent-[#e67e22]"
+                        checked={selected.has(b.id)} onChange={() => toggleSelect(b.id)} />
+                    </TableCell>
                     <TableCell>
                       <p className="text-white font-medium text-sm">{b.customerName}</p>
                       <p className="text-gray-400 text-xs">{b.customerPhone}</p>
