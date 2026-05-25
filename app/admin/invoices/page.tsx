@@ -249,10 +249,12 @@ const companyInfo = {
 };
 
 export default function InvoicesPage() {
-  const [invoices, setInvoices] = useState<Invoice[]>([]);
+    const [loading, setLoading] = useState(false);
+const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [dbLoading, setDbLoading] = useState(true);
 
   const loadInvoices = async () => {
+    setLoading(true);
     try {
       const res = await fetch("/api/invoices");
       const data = await res.json();
@@ -280,8 +282,7 @@ export default function InvoicesPage() {
         notes: inv.notes || "",
         createdAt: inv.created_at,
       })));
-    } catch(e) { console.error("loadInvoices:", e); }
-    finally { setDbLoading(false); }
+    } catch(e) { console.error("loadInvoices:", e); } finally { setLoading(false); }
   };
 
   // Load invoices from Supabase on mount

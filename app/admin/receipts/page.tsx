@@ -333,6 +333,44 @@ function numberToWords(num: number): string {
 
 export default function ReceiptsPage() {
   const [receipts, setReceipts] = useState<ReceiptData[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const loadReceipts = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/receipts");
+      const json = await res.json();
+      const data = Array.isArray(json) ? json : (json.data || []);
+      if (Array.isArray(data)) {
+        setReceipts(data.map((r: Record<string,unknown>) => ({
+          id: String(r.id || ""),
+          receiptNumber: String(r.receipt_number || ""),
+          customerName: String(r.customer_name || ""),
+          customerPhone: String(r.customer_phone || ""),
+          customerEmail: String(r.customer_email || ""),
+          serviceType: String(r.service_type || ""),
+          items: Array.isArray(r.items) ? r.items : [],
+          subtotal: Number(r.subtotal || 0),
+          taxAmount: Number(r.tax_amount || 0),
+          totalAmount: Number(r.total_amount || 0),
+          paymentMethod: String(r.payment_method || "cash") as ReceiptData["paymentMethod"],
+          transactionCode: String(r.transaction_code || ""),
+          customerKraPin: String(r.customer_kra_pin || ""),
+          issuedAt: String(r.issued_at || r.created_at || ""),
+          etimsReceiptNumber: String(r.etims_receipt_number || ""),
+          etimsDeviceNumber: String(r.etims_device_number || ""),
+          etimsVerificationUrl: String(r.etims_verification_url || ""),
+          status: String(r.status || "issued") as ReceiptData["status"],
+          notes: String(r.notes || ""),
+          sendEmail: false,
+          sendSms: false,
+        })));
+      }
+    } catch(e) { console.error("Load receipts:", e); }
+    finally { setLoading(false); }
+  };
+
+  useEffect(() => { loadReceipts(); }, []);
   const [clientSearch, setClientSearch] = useState("");
   const [clientResults, setClientResults] = useState<{id:string;fullName:string;phone:string;email:string;kraPin:string;source?:string}[]>([]);
   const [showClientDropdown, setShowClientDropdown] = useState(false);

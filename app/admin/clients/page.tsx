@@ -245,7 +245,7 @@ export default function ClientsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: editClient.id, full_name: editForm.fullName, phone: editForm.phone, alternative_phone: editForm.alternativePhone, email: editForm.email, id_number: editForm.idNumber, residence: editForm.residence, place_of_work: editForm.placeOfWork, kra_pin: editForm.kraPin, driving_license_number: editForm.drivingLicenseNumber, risk_level: editForm.riskLevel, notes: editForm.notes }),
       });
-      if (res.ok) { setEditClient(null); loadClients(); }
+      if (res.ok) { setEditClient(null); loadClients(); toast.success("Client updated successfully"); }
     } catch(e) { console.error(e); }
   };
 
