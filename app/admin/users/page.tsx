@@ -38,6 +38,7 @@ import type { AdminUser, UserRole } from "@/types";
 
 export default function UsersPage() {
   const [users, setUsers] = useState<AdminUser[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<AdminUser | null>(null);
   const [formData, setFormData] = useState({ name: "", email: "", role: "staff" as UserRole });
