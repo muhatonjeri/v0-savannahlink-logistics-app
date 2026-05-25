@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Search, Phone, CheckCircle2, Clock, XCircle, FileText, Receipt, Loader2 } from "lucide-react";
 

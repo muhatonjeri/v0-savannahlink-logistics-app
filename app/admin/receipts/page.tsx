@@ -1,7 +1,7 @@
 "use client";
 import { generateQRDataURL, generateEtimsVerifyUrl } from "@/lib/qr";
 
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";

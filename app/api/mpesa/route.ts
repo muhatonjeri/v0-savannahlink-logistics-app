@@ -3,6 +3,8 @@
 // Docs: https://developer.safaricom.co.ke/APIs/MpesaExpressSimulate
 
 import { NextRequest, NextResponse } from "next/server";
+import { verifyInternalRequest, unauthorized } from "@/lib/api-auth";
+
 import { rateLimit } from "@/lib/rate-limit";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -44,6 +46,7 @@ function formatPhone(phone: string): string {
 
 // ── STK Push ──────────────────────────────────────────────────────
 export async function POST(req: NextRequest) {
+  if (!verifyInternalRequest(req)) return unauthorized();
   try {
     // Rate limit: 10 STK push requests per minute per IP
     const ip = req.headers.get("x-forwarded-for") || "unknown";
@@ -127,6 +130,7 @@ export async function POST(req: NextRequest) {
 
 // ── Check STK Push Status ─────────────────────────────────────────
 export async function GET(req: NextRequest) {
+  if (!verifyInternalRequest(req)) return unauthorized();
   try {
     const checkoutId = new URL(req.url).searchParams.get("checkoutId");
     if (!checkoutId) return NextResponse.json({ error: "checkoutId required" }, { status: 400 });

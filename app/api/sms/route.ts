@@ -3,6 +3,8 @@
 // Docs: https://developers.africastalking.com/docs/sms/sending
 
 import { NextRequest, NextResponse } from "next/server";
+import { verifyInternalRequest, unauthorized } from "@/lib/api-auth";
+
 
 const AT_KEY      = process.env.AT_API_KEY || "";
 const AT_USERNAME = process.env.AT_USERNAME || "sandbox";
@@ -22,6 +24,7 @@ function formatPhone(phone: string): string {
 }
 
 export async function POST(req: NextRequest) {
+  if (!verifyInternalRequest(req)) return unauthorized();
   try {
     const body = await req.json();
     const { phone, message, type, data } = body;

@@ -654,9 +654,7 @@ export default function NewCarRentalAdminPage() {
     form.setValue("passportPhotoUrl", client.passportPhotoUrl || "");
     
     // Load client booking history
-    const history = getClientBookingHistory(client.idNumber);
-    setClientBookingHistory(history);
-    setShowClientHistory(true);
+        setShowClientHistory(true);
     
     toast.success(`Client "${client.fullName}" loaded! Previous bookings: ${client.totalBookings}`);
   };

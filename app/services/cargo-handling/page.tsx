@@ -101,7 +101,18 @@ export default function CargoHandlingPage() {
         hazardous: data.hazardous,
         pickupDate: data.pickupDate,
       };
-      saveBooking(booking);
+      fetch("/api/bookings", {
+        method: "POST", headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({
+          service_type: newBooking.serviceType || newBooking.service_type || "service",
+          customer_name: newBooking.customerName || newBooking.customer_name || "",
+          customer_phone: newBooking.customerPhone || newBooking.customer_phone || "",
+          customer_email: newBooking.customerEmail || newBooking.customer_email || "",
+          status: "pending", payment_status: "pending",
+          total_amount: newBooking.totalAmount || newBooking.total_amount || 0,
+          notes: newBooking.notes || "",
+        }),
+      }).catch(e => console.error("Save booking:", e));
       setCurrentBooking(booking);
       setBookingComplete(true);
       toast.success("Cargo booking created!");

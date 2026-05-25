@@ -3,12 +3,15 @@
 // Docs: https://resend.com/docs
 
 import { NextRequest, NextResponse } from "next/server";
+import { verifyInternalRequest, unauthorized } from "@/lib/api-auth";
+
 
 const RESEND_KEY  = process.env.RESEND_API_KEY || "";
 const FROM_EMAIL  = process.env.FROM_EMAIL || "receipts@moventrasafarislogisticsltd.com";
 const FROM_NAME   = "Moventra Safaris & Logistics Ltd";
 
 export async function POST(req: NextRequest) {
+  if (!verifyInternalRequest(req)) return unauthorized();
   try {
     const body = await req.json();
     const { to, subject, type, data } = body;
