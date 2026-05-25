@@ -827,8 +827,11 @@ export default function CompanyFleetTab() {
     }
   }
 
+  const fmt = (n: number) => "KES " + n.toLocaleString();
+  const totalValue = fleet.reduce((s, v) => s + (v.ourDailyRate || 0), 0);
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -1168,6 +1171,24 @@ export default function CompanyFleetTab() {
       </div>
 
       {/* Stats Cards */}
+      {/* ── KPI Cards ── */}
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+        {[
+          { label: "Total Vehicles",  value: fleet.length,            color: "text-fuchsia-400", border: "border-fuchsia-500/30", bg: "from-fuchsia-500/10" },
+          { label: "Available",       value: fleetStats.available,    color: "text-emerald-400", border: "border-emerald-500/30", bg: "from-emerald-500/10" },
+          { label: "Assigned",        value: fleetStats.assigned,     color: "text-blue-400",    border: "border-blue-500/30",    bg: "from-blue-500/10"    },
+          { label: "Maintenance",     value: fleetStats.maintenance,  color: "text-amber-400",   border: "border-amber-500/30",   bg: "from-amber-500/10"   },
+          { label: "Alerts",          value: fleetStats.criticalAlerts, color: fleetStats.criticalAlerts > 0 ? "text-red-400" : "text-emerald-400", border: fleetStats.criticalAlerts > 0 ? "border-red-500/30" : "border-emerald-500/30", bg: fleetStats.criticalAlerts > 0 ? "from-red-500/10" : "from-emerald-500/10" },
+        ].map(({ label, value, color, border, bg }) => (
+          <Card key={label} className={"border bg-gradient-to-br to-transparent " + border + " " + bg}>
+            <CardContent className="pt-4 pb-4 px-4">
+              <p className="text-xs text-gray-400 uppercase tracking-wide mb-1">{label}</p>
+              <p className={"text-2xl font-bold " + color}>{value}</p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
         <Card className="border-l-4 border-l-gray-500">
           <CardHeader className="pb-2">

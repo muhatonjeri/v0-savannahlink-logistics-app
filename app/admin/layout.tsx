@@ -65,6 +65,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [pwError, setPwError] = useState("");
   const [pwSuccess, setPwSuccess] = useState(false);
   const [adminName, setAdminName] = useState("Admin");
+  const [lastLogin, setLastLogin] = useState<string>("");
   const [currentTheme, setCurrentTheme] = useState<"dark"|"light"|"system">("dark");
   const [biometricsEnabled, setBiometricsEnabled] = useState(false);
   const [biometricsAvailable, setBiometricsAvailable] = useState(false);
@@ -86,10 +87,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     setUserRole(role === "staff" ? "staff" : "admin");
 
     // Load saved settings
-    const savedName = localStorage.getItem("moventra-admin-name");
-    if (savedName) setAdminName(savedName);
+    const _savedName = localStorage.getItem("moventra-admin-name");
+    if (_savedName) setAdminName(_savedName);
     const savedTimeout = localStorage.getItem("moventra-session-timeout");
     if (savedTimeout) setSessionTimeout(savedTimeout);
+
+    // Record last login
+    const now = new Date().toLocaleString("en-KE", { timeZone: "Africa/Nairobi", day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+    const prev = localStorage.getItem("moventra-last-login") || "";
+    setLastLogin(prev);
+    localStorage.setItem("moventra-last-login", now);
 
     // Init theme
     const stored = localStorage.getItem("moventra-theme") as "dark"|"light"|"system" || "dark";
@@ -393,7 +400,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <div className="h-7 w-7 rounded-full bg-[#e67e22]/20 flex items-center justify-center shrink-0">
                 <span className="text-[#e67e22] text-xs font-bold">AD</span>
               </div>
-              <span className="text-white text-xs hidden sm:block">{adminName}</span>
+<span className="text-white text-xs hidden sm:block font-medium">{adminName || "Admin"}</span>
             </button>
           </div>
         </header>
