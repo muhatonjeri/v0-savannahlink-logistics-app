@@ -25,6 +25,7 @@ const navItems = [
   { title: "Receipts",         href: "/admin/receipts",            icon: ReceiptText,   color: "text-teal-400"    },
   { title: "Accounts",         href: "/admin/accounts",            icon: BadgeDollarSign, color: "text-yellow-400"},
   { title: "Invoices",         href: "/admin/invoices",            icon: FileBadge,     color: "text-orange-400"  },
+  { title: "Reports",          href: "/admin/reports",             icon: BarChart3,     color: "text-purple-400"  },
   { title: "Services Config",  href: "/admin/services",            icon: Sliders,       color: "text-pink-400"    },
 ];
 
@@ -175,7 +176,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const colorHex: Record<string,string> = {
     "text-sky-400":"#38bdf8", "text-lime-400":"#a3e635", "text-green-400":"#4ade80",
     "text-violet-400":"#a78bfa", "text-rose-500":"#f43f5e", "text-fuchsia-400":"#e879f9",
-    "text-teal-400":"#2dd4bf", "text-emerald-400":"#34d399", "text-purple-400":"#c084fc", "text-yellow-400":"#facc15", "text-orange-400":"#fb923c",
+    "text-teal-400":"#2dd4bf", "text-purple-400":"#c084fc", "text-emerald-400":"#34d399", "text-purple-400":"#c084fc", "text-yellow-400":"#facc15", "text-orange-400":"#fb923c",
     "text-pink-400":"#f472b6", "text-emerald-400":"#34d399", "text-purple-400":"#c084fc", "text-amber-400":"#fbbf24",
     "text-indigo-400":"#818cf8", "text-cyan-500":"#06b6d4", "text-rose-400":"#fb7185",
     "text-orange-500":"#f97316", "text-yellow-500":"#eab308", "text-violet-500":"#8b5cf6",
