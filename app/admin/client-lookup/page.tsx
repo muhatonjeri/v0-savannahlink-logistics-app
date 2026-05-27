@@ -1071,52 +1071,36 @@ function ClientLookupContent() {
                       <h3 className="font-bold text-emerald-300 text-base">Clear — No Negative Records</h3>
                       <p className="text-gray-400 text-sm mt-1">
                         <strong className="text-white">&ldquo;{searchQuery}&rdquo;</strong> has no blacklist entries and is not yet registered.
-                        Register this client first, then proceed to the service.
+                        Register this client first, then proceed to the booking.
                       </p>
                     </div>
                   </div>
 
-                  {/* PRIMARY: Register New Client button */}
-                  <Button
-                    type="button"
-                    onClick={openRegisterDialog}
-                    className="w-full gap-3 py-6 text-base font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl"
-                  >
-                    <UserPlus className="h-5 w-5" />
-                    Register New Client
-                  </Button>
-
-                  {/* Divider */}
-                  {currentService && (
-                    <div className="flex items-center gap-3">
-                      <div className="flex-1 h-px bg-white/10" />
-                      <span className="text-xs text-gray-500">or if client already exists elsewhere</span>
-                      <div className="flex-1 h-px bg-white/10" />
-                    </div>
-                  )}
-
-                  {/* Secondary: skip registration and go directly to booking form */}
-                  {currentService && (() => {
+                  {/* PRIMARY CTA — navigate to dedicated registration page */}
+                  {(() => {
                     const prefill = encodeURIComponent(JSON.stringify({
-                      customerName:        searchType === "name"    ? searchQuery : "",
-                      customerPhone:       searchType === "phone"   ? searchQuery : "",
-                      idNumber:            searchType === "id"      ? searchQuery : "",
-                      kraPin:              searchType === "krapin"  ? searchQuery : "",
-                      drivingLicenseNumber:searchType === "license" ? searchQuery : "",
+                      customerName:         searchType === "name"    ? searchQuery : "",
+                      customerPhone:        searchType === "phone"   ? searchQuery : "",
+                      idNumber:             searchType === "id"      ? searchQuery : "",
+                      kraPin:               searchType === "krapin"  ? searchQuery : "",
+                      drivingLicenseNumber: searchType === "license" ? searchQuery : "",
                     }));
-                    const bookingUrl = selectedService === "car-rental"
-                      ? `/admin/car-rental/new?prefill=${prefill}`
-                      : `${currentService.href}?prefill=${prefill}`;
+                    const registerUrl = `/admin/register-client?service=${selectedService || ""}&prefill=${prefill}`;
                     return (
-                      <Link href={bookingUrl}>
-                        <Button variant="outline" className="w-full gap-2 py-3 text-sm border-white/20 text-gray-400 hover:text-white hover:border-white/40">
-                          <currentService.icon className="h-4 w-4" />
-                          Skip registration — go directly to {currentService.title} booking
-                          <ArrowRight className="h-4 w-4 ml-auto" />
+                      <Link href={registerUrl}>
+                        <Button className="w-full gap-3 py-6 text-base font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl">
+                          <UserPlus className="h-5 w-5" />
+                          Register New Client
+                          <ArrowRight className="h-5 w-5 ml-auto" />
                         </Button>
                       </Link>
                     );
                   })()}
+
+                  <p className="text-center text-xs text-gray-500">
+                    Full registration form — ID photo, driving license, fingerprints, passport photo
+                  </p>
+
                 </div>
               </CardContent>
             </Card>
