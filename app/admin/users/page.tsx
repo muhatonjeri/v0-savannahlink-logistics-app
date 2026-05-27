@@ -49,7 +49,7 @@ export default function UsersPage() {
       if (Array.isArray(data) && data.length > 0) setUsers(data.map((u: Record<string,unknown>) => ({
         id: String(u.id || ""), name: String(u.full_name || u.name || ""),
         email: String(u.email || ""), phone: String(u.phone || ""),
-        role: String(u.role || "staff"), department: String(u.department || ""),
+        role: String(u.role || "staff") as "admin" | "staff", department: String(u.department || ""),
         isActive: u.is_active !== false, createdAt: String(u.created_at || ""),
       })));
     }).catch(e => console.error("Load users:", e)).finally(() => setLoading(false));
@@ -81,7 +81,7 @@ export default function UsersPage() {
       if (Array.isArray(data)) setUsers(data.map((u: Record<string,unknown>) => ({
         id: String(u.id || ""), name: String(u.full_name || u.name || ""),
         email: String(u.email || ""), phone: String(u.phone || ""),
-        role: String(u.role || "staff"), department: String(u.department || ""),
+        role: String(u.role || "staff") as "admin" | "staff", department: String(u.department || ""),
         isActive: u.is_active !== false, createdAt: String(u.created_at || ""),
       })));
     }).catch(e => console.error("Save user:", e));
@@ -107,7 +107,7 @@ export default function UsersPage() {
       if (Array.isArray(data)) setUsers(data.map((u: Record<string,unknown>) => ({
         id: String(u.id || ""), name: String(u.full_name || u.name || ""),
         email: String(u.email || ""), phone: String(u.phone || ""),
-        role: String(u.role || "staff"), department: String(u.department || ""),
+        role: String(u.role || "staff") as "admin" | "staff", department: String(u.department || ""),
         isActive: u.is_active !== false, createdAt: String(u.created_at || ""),
       })));
     }).catch(e => console.error("Load users:", e)).finally(() => setLoading(false));

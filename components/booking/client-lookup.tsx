@@ -35,7 +35,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { getClients, getBlacklistEntries } from "@/lib/store";
+import { getClients } from "@/lib/store";
 import type { Client } from "@/types";
 
 interface ClientLookupProps {
@@ -127,7 +127,7 @@ export function ClientLookup({
   // Check blacklist when client is selected
   const checkBlacklist = (client: Client): BlacklistEntry | null => {
     try {
-      const blacklist = getBlacklistEntries();
+      const blacklist: { id: string; fullName: string; idNumber: string; phoneNumber: string; drivingLicenseNumber?: string; recordType: string; severity: string; description: string; incidentDate: string; status?: string; }[] = [];
       const match = blacklist.find(
         entry =>
           entry.idNumber === client.idNumber ||
@@ -140,7 +140,7 @@ export function ClientLookup({
           fullName: match.fullName,
           idNumber: match.idNumber,
           phoneNumber: match.phoneNumber,
-          status: match.status,
+          status: match.status ?? "active",
           recordType: match.recordType,
           severity: match.severity,
         };

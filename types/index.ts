@@ -22,8 +22,8 @@ export interface Service {
 
 // Booking Types
 export type BookingStatus = "pending" | "confirmed" | "in-progress" | "completed" | "cancelled";
-export type PaymentStatus = "pending" | "processing" | "completed" | "failed";
-export type PaymentMethod = "mpesa" | "bank";
+export type PaymentStatus = "pending" | "processing" | "completed" | "failed" | "paid" | "partial" | "unpaid" | "refunded";
+export type PaymentMethod = "mpesa" | "bank" | "cash" | "card" | "cheque" | "paybill";
 
 export interface BaseBooking {
   id: string;
@@ -35,8 +35,10 @@ export interface BaseBooking {
   paymentStatus: PaymentStatus;
   paymentMethod?: PaymentMethod;
   totalAmount: number;
+  amountPaid?: number;
   createdAt: string;
   updatedAt: string;
+  customerDetails?: { fullName?: string; idNumber?: string; phone?: string; email?: string; };
 }
 
 // Car Rental Specific Types
@@ -280,7 +282,11 @@ export interface AdminUser {
   name: string;
   email: string;
   role: UserRole;
+  phone?: string;
+  department?: string;
+  isActive?: boolean;
   createdAt: string;
+  updatedAt?: string;
 }
 
 // Payment Types

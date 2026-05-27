@@ -1,4 +1,6 @@
 "use client";
+import type { Client } from "@/types";
+
 
 import { useState, useEffect, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
@@ -346,6 +348,7 @@ interface SubletVehicle {
   createdAt: string;
 }
 
+
 interface SubletBooking {
   id: string;
   vehicleId: string;
@@ -370,6 +373,9 @@ interface SubletBooking {
   amountPaid: number;
   notes: string;
   createdAt: string;
+  make?: string;
+  model?: string;
+  reg?: string;
 }
 
 const INITIAL_VEHICLES: SubletVehicle[] = [
@@ -430,6 +436,7 @@ const emptyBForm = {
   startDate: "", endDate: "", numberOfDays: "",
   paymentMethod: "mpesa" as "mpesa" | "bank" | "cash" | "cheque",
   paymentReference: "", amountPaid: "",
+  ourDailyRateOverride: "",
   notes: "",
 };
 
@@ -456,6 +463,8 @@ export default function SubletAssetsTab() {
         supplierDailyRate: Number(v.supplier_daily_rate || 0),
         ourDailyRate: Number(v.our_daily_rate || 0),
         status: String(v.status || "available") as "available" | "active" | "returned",
+        supplierEmail: String(v.supplier_email || ""),
+        createdAt: String(v.created_at || ""),
       })));
       if (Array.isArray(bData)) setBookings(bData.map((b: Record<string,unknown>) => ({
         id: String(b.id || ""), vehicleId: String(b.vehicle_id || ""),
@@ -463,6 +472,7 @@ export default function SubletAssetsTab() {
         clientName: String(b.client_name || ""), clientPhone: String(b.client_phone || ""),
         startDate: String(b.start_date || ""), endDate: String(b.end_date || ""),
         numberOfDays: Number(b.number_of_days || 0),
+        createdAt: String(b.created_at || ""),
         supplierDailyRate: Number(b.supplier_daily_rate || 0),
         ourDailyRate: Number(b.our_daily_rate || 0),
         totalSupplierCost: Number(b.total_supplier_cost || 0),
@@ -472,7 +482,7 @@ export default function SubletAssetsTab() {
         netProfit: Number(b.net_profit || 0),
         profitPerDay: Number(b.profit_per_day || 0),
         status: String(b.status || "active") as "active" | "completed" | "cancelled",
-        paymentMethod: String(b.payment_method || ""),
+        paymentMethod: String(b.payment_method || "mpesa") as "mpesa" | "bank" | "cash" | "cheque",
         paymentReference: String(b.payment_reference || ""),
         amountPaid: Number(b.amount_paid || 0),
         notes: String(b.notes || ""),
@@ -576,7 +586,7 @@ export default function SubletAssetsTab() {
       (async () => { try {
         const res = await fetch("/api/clients?q=" + encodeURIComponent(clientSearch));
         const all = await res.json();
-        const found = all.find(c => c.id === urlClientId);
+        const found = (Array.isArray(all) ? all : []).find((c: Record<string,unknown>) => c.id === urlClientId);
         if (found) {
           setBForm(prev => ({ ...prev, clientName: found.fullName, clientPhone: found.phone, serviceType: urlService || prev.serviceType }));
           setClientSearch(found.fullName);
@@ -637,17 +647,17 @@ export default function SubletAssetsTab() {
   const searchRef = useRef<HTMLDivElement>(null);
 
   // Search existing clients
-  const searchClients = (q: string) => {
+  const searchClients = async (q: string) => {
     setClientSearch(q);
     if (q.length < 2) { setClientResults([]); setShowClientResults(false); return; }
     try {
-      // clients loaded via API search above
-      const matches = all.filter(c =>
-        c.fullName.toLowerCase().includes(q.toLowerCase()) ||
-        c.phone.includes(q) ||
-        (c.idNumber && c.idNumber.includes(q))
-      ).slice(0, 6);
-      setClientResults(matches.map(c => ({ id: c.id, fullName: c.fullName, phone: c.phone, idNumber: c.idNumber || "" })));
+      const res = await fetch("/api/clients?q=" + encodeURIComponent(q));
+      const all: Record<string, unknown>[] = await res.json();
+      const matches = (Array.isArray(all) ? all : []).slice(0, 6);
+      setClientResults(matches.map((c: Record<string, unknown>) => ({
+        id: String(c.id || ""), fullName: String(c.full_name || c.fullName || ""),
+        phone: String(c.phone || ""), idNumber: String(c.id_number || c.idNumber || ""),
+      })));
       setShowClientResults(matches.length > 0);
     } catch { setClientResults([]); }
   };

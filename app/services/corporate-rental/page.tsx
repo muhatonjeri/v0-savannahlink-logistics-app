@@ -135,13 +135,13 @@ export default function CorporateRentalPage() {
       fetch("/api/bookings", {
         method: "POST", headers: {"Content-Type":"application/json"},
         body: JSON.stringify({
-          service_type: newBooking.serviceType || newBooking.service_type || "service",
-          customer_name: newBooking.customerName || newBooking.customer_name || "",
-          customer_phone: newBooking.customerPhone || newBooking.customer_phone || "",
-          customer_email: newBooking.customerEmail || newBooking.customer_email || "",
+          service_type: booking.serviceType || "service",
+          customer_name: booking.customerName || "",
+          customer_phone: booking.customerPhone || "",
+          customer_email: booking.customerEmail || "",
           status: "pending", payment_status: "pending",
-          total_amount: newBooking.totalAmount || newBooking.total_amount || 0,
-          notes: newBooking.notes || "",
+          total_amount: booking.totalAmount || 0,
+          notes: "",
         }),
       }).catch(e => console.error("Save booking:", e));
       setCurrentBooking(booking);

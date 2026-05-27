@@ -67,6 +67,8 @@ const emptyForm = {
   paymentMethod: "mpesa" as "mpesa" | "bank" | "cash" | "cheque",
   paymentReference: "", amountPaid: "",
   status: "active" as "active" | "completed" | "cancelled",
+  returnCondition: "",
+  followUpNotes: "",
   notes: "",
 };
 

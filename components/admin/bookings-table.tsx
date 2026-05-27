@@ -1,4 +1,5 @@
 "use client";
+import type { PaymentStatus } from "@/types";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -46,11 +47,15 @@ const statusColors: Record<BookingStatus, "default" | "secondary" | "destructive
   cancelled: "destructive",
 };
 
-const paymentStatusColors = {
+const paymentStatusColors: Record<PaymentStatus, string> = {
   pending: "outline",
   processing: "secondary",
   completed: "default",
   failed: "destructive",
+  paid: "default",
+  partial: "secondary",
+  unpaid: "outline",
+  refunded: "outline",
 };
 
 export function BookingsTable({ bookings, onRefresh, showService = false }: BookingsTableProps) {

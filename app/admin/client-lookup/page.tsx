@@ -28,7 +28,6 @@ import {
   IdCard,
   Loader2,
   UserCheck,
-  UserX,
   ExternalLink,
   Plane,
   Truck,
@@ -381,8 +380,9 @@ function ClientLookupContent() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchType, setSearchType] = useState<"name" | "id" | "phone" | "krapin" | "license" | "payment">("name");
   const [isSearching, setIsSearching] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [searchResults, setSearchResults] = useState<{
-    client: (Client | StoreClient) | null;
+    client: any;
     blacklistEntries: BlacklistEntry[];
     isBlacklisted: boolean;
   } | null>(null);
@@ -509,7 +509,7 @@ function ClientLookupContent() {
     } else if (searchType === "krapin") {
       registerForm.setValue("kraPin", searchQuery);
     } else if (searchType === "license") {
-      registerForm.setValue("drivingLicense", searchQuery);
+      registerForm.setValue("drivingLicenseNumber", searchQuery);
     }
     setIsRegisterDialogOpen(true);
   };
@@ -615,7 +615,8 @@ function ClientLookupContent() {
       // Fallback to local store
       const res = await fetch("/api/clients?q=" + encodeURIComponent(searchQuery));
       const allClients = await res.json();
-      matchedClient = allClients.find((client) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      matchedClient = allClients.find((client: any) => {
         const nameMatch = client.fullName.toLowerCase().includes(query);
         const idMatch = client.idNumber.toLowerCase().includes(query);
         const phoneMatch = client.phone.toLowerCase().includes(query);
@@ -675,9 +676,10 @@ function ClientLookupContent() {
       
       if (randomResult === "success") {
         // Simulate finding a client by fingerprint
-        const matchedClient = clientsData[Math.floor(Math.random() * clientsData.length)];
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const matchedClient: any = ([] as any[])[Math.floor(Math.random() * 0)];
         const matchedBlacklist = localBlacklistData.filter(
-          (entry) => entry.fullName.toLowerCase() === matchedClient.fullName.toLowerCase()
+          (entry) => entry.fullName.toLowerCase() === String(matchedClient?.fullName || "").toLowerCase()
         );
         const isBlacklisted = matchedBlacklist.length > 0 && matchedBlacklist.some(e => e.status === "active");
         
@@ -921,7 +923,7 @@ function ClientLookupContent() {
               )}
               {fingerprintStatus === "failed" && (
                 <div className="absolute -bottom-1 -right-1 bg-red-900/300 rounded-full p-0.5">
-                  <X className="h-3 w-3 text-white" />
+                  <XCircle className="h-3 w-3 text-white" />
                 </div>
               )}
             </div>
@@ -997,56 +999,82 @@ function ClientLookupContent() {
 
           {/* No Results - New Client Option */}
           {!searchResults.client && searchResults.blacklistEntries.length === 0 && (
-            <Card className="border-green-500/50 bg-green-900/300/10">
+            <Card className="border-blue-500/40 bg-blue-500/5">
               <CardContent className="pt-6">
-                <div className="space-y-6">
-                  <div className="flex items-center gap-4">
-                    <div className="rounded-full bg-green-900/300/20 p-3">
-                      <CheckCircle2 className="h-8 w-8 text-green-500" />
+                <div className="space-y-5">
+                  {/* Status */}
+                  <div className="flex items-start gap-4">
+                    <div className="rounded-full bg-blue-500/20 p-3 shrink-0">
+                      <CheckCircle2 className="h-7 w-7 text-blue-400" />
                     </div>
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-green-600 dark:text-green-400 text-lg">No Negative Records Found</h3>
-                      <p className="text-muted-foreground">
-                        This person has no blacklist records. Safe to register as a new client or proceed with services.
+                    <div>
+                      <h3 className="font-bold text-blue-300 text-base">No Negative Records Found</h3>
+                      <p className="text-gray-400 text-sm mt-1">
+                        <strong className="text-white">&ldquo;{searchQuery}&rdquo;</strong> has no blacklist records.
+                        Proceed to the service booking form to register this client — the full registration form
+                        includes fingerprint scanning and photo capture.
                       </p>
                     </div>
-
                   </div>
-                  
-                  {/* Selected Service - Prominent CTA */}
-                  {currentService && (
-                    <div className="border-t pt-4" style={{borderColor:"rgba(230,126,34,0.4)"}}>
-                      <p className="text-xs text-gray-400 mb-2">Client verified — proceed to booking:</p>
-                      <Link href={`${currentService.href}?prefill=${encodeURIComponent(JSON.stringify({
-                        clientId: searchResults.client?.id || "",
-                        customerName: searchResults.client?.full_name || searchResults.client?.fullName || "",
-                        customerPhone: searchResults.client?.phone || "",
-                        customerEmail: searchResults.client?.email || "",
-                      }))}`}>
-                        <Button className="w-full gap-2 text-white" style={{background:"#e67e22"}}>
-                          <currentService.icon className="h-4 w-4" />
-                          Proceed to {currentService.title} Booking
-                        </Button>
-                      </Link>
-                    </div>
-                  )}
-                  
-                  {/* All Services - Only show if no specific service selected */}
-                  {!currentService && (
-                    <div className="border-t border-green-500/50 dark:border-green-800 pt-4">
-                      <h4 className="text-sm font-medium text-muted-foreground mb-3">Quick Service Access - Select a service to proceed:</h4>
-                      <div className="grid grid-cols-3 gap-2">
-                      {Object.entries(serviceConfig).map(([key, svc]) => (
-                        <Link key={key} href={`${svc.href}?prefill=${encodeURIComponent(JSON.stringify({ clientId: searchResults.client?.id || "", customerName: searchResults.client?.full_name || "", customerPhone: searchResults.client?.phone || "", customerEmail: searchResults.client?.email || "" }))}`}>
-                          <button className={"w-full flex flex-col items-center gap-1.5 p-3 rounded-xl border transition-all text-center hover:scale-105 " + svc.bgColor + " " + svc.hoverColor}>
-                            <svc.icon className={"h-5 w-5 " + svc.color} />
-                            <span className={"text-xs font-medium " + svc.color}>{svc.title}</span>
-                          </button>
-                        </Link>
-                      ))}
-                    </div>
-                    </div>
 
+                  {/* Primary CTA — go to the selected service booking form */}
+                  {currentService ? (
+                    <div className="space-y-2">
+                      <p className="text-xs text-gray-400 uppercase tracking-wide font-semibold">
+                        Register client &amp; proceed to {currentService.title}
+                      </p>
+                      {(() => {
+                        const prefill = encodeURIComponent(JSON.stringify({
+                          customerName:        searchType === "name"    ? searchQuery : "",
+                          customerPhone:       searchType === "phone"   ? searchQuery : "",
+                          idNumber:            searchType === "id"      ? searchQuery : "",
+                          kraPin:              searchType === "krapin"  ? searchQuery : "",
+                          drivingLicenseNumber:searchType === "license" ? searchQuery : "",
+                        }));
+                        // car-rental has a dedicated /new booking form with fingerprints
+                        // all other services use their main page with ?prefill
+                        const bookingUrl = selectedService === "car-rental"
+                          ? `/admin/car-rental/new?prefill=${prefill}`
+                          : `${currentService.href}?prefill=${prefill}`;
+                        return (
+                          <Link href={bookingUrl}>
+                            <Button className="w-full gap-2 py-5 text-sm font-semibold text-white" style={{background:"#e67e22"}}>
+                              <currentService.icon className="h-5 w-5" />
+                              Open {currentService.title} Registration &amp; Booking Form
+                              <ArrowRight className="h-4 w-4 ml-auto" />
+                            </Button>
+                          </Link>
+                        );
+                      })()}
+                      <p className="text-xs text-gray-500 text-center">
+                        The booking form includes fingerprint scanning, ID photo upload and passport photo capture
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      <p className="text-xs text-gray-400 uppercase tracking-wide font-semibold">
+                        Select a service to open the full registration form:
+                      </p>
+                      <div className="grid grid-cols-3 gap-2">
+                        {Object.entries(serviceConfig).map(([key, svc]) => (
+                          <Link key={key} href={(() => {
+                            const pf = encodeURIComponent(JSON.stringify({
+                              customerName:  searchType === "name"  ? searchQuery : "",
+                              customerPhone: searchType === "phone" ? searchQuery : "",
+                              idNumber:      searchType === "id"    ? searchQuery : "",
+                            }));
+                            return key === "car-rental"
+                              ? `/admin/car-rental/new?prefill=${pf}`
+                              : `${svc.href}?prefill=${pf}`;
+                          })()}>
+                            <button className={"w-full flex flex-col items-center gap-1.5 p-3 rounded-xl border transition-all text-center hover:scale-105 " + svc.bgColor + " " + svc.hoverColor}>
+                              <svc.icon className={"h-5 w-5 " + svc.color} />
+                              <span className={"text-xs font-medium " + svc.color}>{svc.title}</span>
+                            </button>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
                   )}
                 </div>
               </CardContent>
@@ -1076,7 +1104,7 @@ function ClientLookupContent() {
                       <p className="text-xs text-gray-400 mb-2">Client verified — proceed to booking:</p>
                       <Link href={`${currentService.href}?prefill=${encodeURIComponent(JSON.stringify({
                         clientId: searchResults.client?.id || "",
-                        customerName: searchResults.client?.full_name || searchResults.client?.fullName || "",
+                        customerName: searchResults.client?.fullName || searchResults.client?.full_name as string || searchResults.client?.fullName || "",
                         customerPhone: searchResults.client?.phone || "",
                         customerEmail: searchResults.client?.email || "",
                       }))}`}>

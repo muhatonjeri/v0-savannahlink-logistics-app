@@ -712,7 +712,9 @@ export function getClientBookingHistory(clientIdNumber: string): Booking[] {
 }
 
 // Demo booking history for testing - matches demo customers
-const demoBookingHistory: Booking[] = [
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const demoBookingHistory: Booking[] = ([
+
   // Record 1: Peter Mwangi Kariuki - Toyota Prado to Naivasha
   {
     id: "booking-hist-1",
@@ -1173,7 +1175,7 @@ const demoBookingHistory: Booking[] = [
     createdAt: "2026-04-05T10:00:00.000Z",
     updatedAt: "2026-04-14T19:30:00.000Z",
   },
-];
+]) as unknown as Booking[];
 
 // Initialize demo booking history on first load
 export function initializeDemoBookingHistory(): void {
@@ -1336,7 +1338,7 @@ const demoRogueClients: RogueClient[] = [
 
 // Get all rogue clients
 export function getRogueClients(): RogueClient[] {
-  const data = getStorage<RogueClient[]>(ROGUE_CLIENTS_KEY);
+  const data = getStorage<RogueClient[]>(ROGUE_CLIENTS_KEY, []);
   if (!data || data.length === 0) {
     // Initialize with demo data
     setStorage(ROGUE_CLIENTS_KEY, demoRogueClients);

@@ -84,6 +84,7 @@ import type { ClientAlert, ClientAlertType, Booking, RogueClient } from "@/types
 import type { Client } from "@/types";
 import { toast } from "sonner";
 import type { CarRentalBooking } from "@/types";
+import { searchClients, searchRogueClients, saveClient, initializeDemoBookingHistory } from "@/lib/store";
 
 // Comprehensive validation schema for admin car rental form
 const adminCarRentalSchema = z.object({
@@ -133,9 +134,6 @@ const adminCarRentalSchema = z.object({
   endTime: z.string().min(1, "End time is required"),
   
   clientType: z.enum(["citizen", "foreigner"]).default("citizen"),
-  countryCode: z.string().default("+254"),
-  countryName: z.string().default("Kenya"),
-  idType: z.enum(["national_id", "passport", "alien_id", "military_id"]).default("national_id"),
   countryCode: z.string().default("+254"),
   countryName: z.string().default("Kenya"),
   idType: z.enum(["national_id", "passport", "alien_id", "military_id"]).default("national_id"),
@@ -209,7 +207,7 @@ const COUNTRIES = [
   { name: "Netherlands", code: "+31", flag: "" },
 ];
 
-export default function NewCarRentalAdminPage() {
+function NewCarRentalBookingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const clientIdFromUrl = searchParams.get("clientId");
@@ -319,11 +317,6 @@ export default function NewCarRentalAdminPage() {
       countryCode: "+254",
       countryName: "Kenya",
       idType: "national_id",
-      countryCode: "+254",
-      countryName: "Kenya",
-      idType: "national_id",
-      paymentType: "full",
-      depositAmount: "",
       paymentType: "full",
       depositAmount: "",
       paymentMethod: "mpesa",
@@ -568,7 +561,7 @@ export default function NewCarRentalAdminPage() {
     const res = await fetch("/api/clients?q=" + encodeURIComponent(form.getValues("fullName") || ""));
     const allClients = await res.json();
     const clientsWithFingerprints = allClients.filter(
-      (c) => c.fingerprintLeftUrl || c.fingerprintRightUrl
+      (c: Record<string, unknown>) => c.fingerprintLeftUrl || c.fingerprintRightUrl
     );
     
     // For demo: randomly match a client (in real app, this would use actual fingerprint matching)
@@ -606,9 +599,9 @@ export default function NewCarRentalAdminPage() {
       const rogueMatches = searchRogueClients(query);
       if (rogueMatches.length > 0) {
         // Show alert for the most severe match
+        const severityOrder: Record<string, number> = { blacklisted: 0, fraud: 1, "high-risk": 2, warning: 3 };
         const sortedByRisk = rogueMatches.sort((a, b) => {
-          const severityOrder = { blacklisted: 0, fraud: 1, "high-risk": 2, warning: 3 };
-          return severityOrder[a.severity] - severityOrder[b.severity];
+          return (severityOrder[a.severity] ?? 99) - (severityOrder[b.severity] ?? 99);
         });
         setRogueClientAlert(sortedByRisk[0]);
         setShowRogueAlert(true);
@@ -672,16 +665,16 @@ export default function NewCarRentalAdminPage() {
   const handleNewBookingForClient = () => {
     // Reset vehicle and booking fields only
     setSelectedMake("");
-    form.setValue("vehicleMake", "");
-    form.setValue("vehicleModel", "");
+    form.setValue("carMake", "");
+    form.setValue("carModel", "");
     form.setValue("rentalType", "self-drive");
-    form.setValue("pickupLocation", "");
-    form.setValue("dropoffLocation", "");
-    form.setValue("pickupDate", "");
-    form.setValue("pickupTime", "");
-    form.setValue("returnDate", "");
-    form.setValue("returnTime", "");
-    form.setValue("specialRequests", "");
+    form.setValue("destination", "");
+    // dropoffLocation mapped to destination
+    form.setValue("startDate", "");
+    form.setValue("startTime", "");
+    form.setValue("endDate", "");
+    form.setValue("endTime", "");
+    // specialRequests not in schema
     toast.info("Booking details cleared - client info retained for new booking");
   };
 
@@ -1903,7 +1896,7 @@ export default function NewCarRentalAdminPage() {
                 <div className="grid gap-4 sm:grid-cols-4">
                   <FormField
                     control={form.control}
-                    name="pickupDate"
+                    name="startDate"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="text-gray-200">Pickup Date *</FormLabel>
@@ -1918,7 +1911,7 @@ export default function NewCarRentalAdminPage() {
                               if (days && dateStr) {
                                 const pickupDate = new Date(dateStr);
                                 pickupDate.setDate(pickupDate.getDate() + parseInt(days));
-                                form.setValue("returnDate", pickupDate.toISOString().split("T")[0]);
+                                form.setValue("endDate", pickupDate.toISOString().split("T")[0]);
                               }
                             }}
                             placeholder="Select pickup date"
@@ -1930,7 +1923,7 @@ export default function NewCarRentalAdminPage() {
                   />
                   <FormField
                     control={form.control}
-                    name="pickupTime"
+                    name="startTime"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="text-gray-200">Pickup Time *</FormLabel>
@@ -1961,11 +1954,11 @@ export default function NewCarRentalAdminPage() {
                             onChange={(e) => {
                               field.onChange(e);
                               // Auto-calculate return date based on pickup date
-                              const pickupDate = form.getValues("pickupDate");
+                              const pickupDate = form.getValues("startDate");
                               if (pickupDate && e.target.value) {
                                 const date = new Date(pickupDate);
                                 date.setDate(date.getDate() + parseInt(e.target.value));
-                                form.setValue("returnDate", date.toISOString().split("T")[0]);
+                                form.setValue("endDate", date.toISOString().split("T")[0]);
                               }
                             }}
                           />
@@ -1976,7 +1969,7 @@ export default function NewCarRentalAdminPage() {
                   />
                   <FormField
                     control={form.control}
-                    name="returnDate"
+                    name="endDate"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="text-gray-200">Return Date (Auto)</FormLabel>

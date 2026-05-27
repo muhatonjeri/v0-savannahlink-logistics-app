@@ -29,3 +29,7 @@ export function sanitizePhone(phone: string): string {
 export function sanitizeEmail(email: string): string {
   return email.toLowerCase().replace(/[^a-z0-9@._\-+]/g, "").trim().slice(0, 200);
 }
+
+export function sanitizeSearch(value: string): string {
+  return value.replace(/[%_\\;'"]/g, "").trim().toLowerCase().slice(0, 100);
+}

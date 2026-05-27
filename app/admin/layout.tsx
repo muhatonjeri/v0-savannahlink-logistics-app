@@ -13,6 +13,7 @@ import {
   Sun, Moon, Monitor, Fingerprint as FingerprintIcon, Palette,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 const navItems = [
   { title: "Dashboard",        href: "/admin",                     icon: Gauge,         color: "text-sky-400"     },
@@ -201,12 +202,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   // Map Tailwind color class to actual hex for active state
   const colorHex: Record<string,string> = {
-    "text-sky-400":"#38bdf8", "text-lime-400":"#a3e635", "text-green-400":"#4ade80",
-    "text-violet-400":"#a78bfa", "text-rose-500":"#f43f5e", "text-fuchsia-400":"#e879f9",
-    "text-teal-400":"#2dd4bf", "text-purple-400":"#c084fc", "text-emerald-400":"#34d399", "text-purple-400":"#c084fc", "text-yellow-400":"#facc15", "text-orange-400":"#fb923c",
-    "text-pink-400":"#f472b6", "text-emerald-400":"#34d399", "text-purple-400":"#c084fc", "text-amber-400":"#fbbf24",
-    "text-indigo-400":"#818cf8", "text-cyan-500":"#06b6d4", "text-rose-400":"#fb7185",
-    "text-orange-500":"#f97316", "text-yellow-500":"#eab308", "text-violet-500":"#8b5cf6",
+    "text-sky-400":"#38bdf8","text-lime-400":"#a3e635","text-green-400":"#4ade80",
+    "text-violet-400":"#a78bfa","text-violet-500":"#8b5cf6","text-rose-400":"#fb7185",
+    "text-rose-500":"#f43f5e","text-fuchsia-400":"#e879f9","text-teal-400":"#2dd4bf",
+    "text-purple-400":"#c084fc","text-yellow-400":"#facc15","text-yellow-500":"#eab308",
+    "text-orange-400":"#fb923c","text-orange-500":"#f97316","text-pink-400":"#f472b6",
+    "text-emerald-400":"#34d399","text-amber-400":"#fbbf24","text-indigo-400":"#818cf8",
+    "text-cyan-500":"#06b6d4",
   };
 
   const NavLink = ({ item }: { item: typeof navItems[0] }) => {
@@ -727,7 +729,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-4 space-y-2">
                       <p className="text-red-400 text-xs font-bold uppercase tracking-wide">Danger Zone</p>
                       <p className="text-gray-500 text-xs">These actions are irreversible. Admin only.</p>
-                      <button onClick={() => { if (confirm("Clear browser cache and reload?")) { if ("caches" in window) caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k)))).then(() => window.location.reload()); else window.location.reload(); } }}
+                      <button onClick={() => { if (confirm("Clear browser cache and reload?")) { const cs = (window as Window & { caches?: CacheStorage }).caches; if (cs) { cs.keys().then(keys => Promise.all(keys.map(k => cs.delete(k)))).then(() => window.location.reload()); } else { window.location.reload(); } } }}
                         className="w-full py-2 rounded-xl border border-amber-500/30 text-amber-400 hover:bg-amber-500/10 text-sm transition-all">
                         Clear Cache & Reload
                       </button>

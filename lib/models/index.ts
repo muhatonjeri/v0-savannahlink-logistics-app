@@ -62,7 +62,8 @@ const BookingSchema = new Schema({
   metadata:        Schema.Types.Mixed,
 }, { timestamps: true });
 
-BookingSchema.pre("save", function(next) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(BookingSchema as { pre: Function }).pre("save", function(this: { bookingRef?: string }, next: () => void) {
   if (!this.bookingRef) {
     this.bookingRef = "BK-" + Date.now().toString(36).toUpperCase();
   }

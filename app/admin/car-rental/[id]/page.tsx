@@ -23,6 +23,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { getBookingById } from "@/lib/store";
 import type { CarRentalBooking, BookingStatus } from "@/types";
 
 const statusColors: Record<BookingStatus, "default" | "secondary" | "destructive" | "outline"> = {
@@ -33,11 +34,16 @@ const statusColors: Record<BookingStatus, "default" | "secondary" | "destructive
   cancelled: "destructive",
 };
 
-const paymentStatusColors = {
+import type { PaymentStatus } from "@/types";
+const paymentStatusColors: Record<PaymentStatus, string> = {
   pending: "outline",
   processing: "secondary",
   completed: "default",
   failed: "destructive",
+  paid: "default",
+  partial: "secondary",
+  unpaid: "outline",
+  refunded: "outline",
 };
 
 export default function CarRentalDetailPage() {

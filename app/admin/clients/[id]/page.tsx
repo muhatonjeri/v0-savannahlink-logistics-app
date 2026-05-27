@@ -133,12 +133,12 @@ export default function ClientProfilePage() {
               <Badge className={risk.color + " gap-1 text-xs"}>
                 <RiskIcon className="h-3 w-3" />{risk.label}
               </Badge>
-              {client?.client_type && (
+              {!!client?.client_type && (
                 <Badge className={client.client_type === "foreigner" ? "bg-amber-500/20 text-amber-300" : "bg-blue-500/20 text-blue-300"}>
                   {String(client.client_type) === "foreigner" ? "Foreign National" : "Kenyan Resident"}
                 </Badge>
               )}
-              {client?.phone && (
+              {!!client?.phone && (
                 <a href={`tel:${client.phone}`} className="text-gray-400 hover:text-white text-xs flex items-center gap-1 transition-colors">
                   <Phone className="h-3 w-3" />{String(client.phone)}
                 </a>
@@ -226,7 +226,7 @@ export default function ClientProfilePage() {
                   <p className="text-white font-mono">{value}</p>
                 </div>
               ))}
-              {client?.notes && (
+              {!!client?.notes && (
                 <div className="rounded-lg bg-amber-500/10 border border-amber-500/20 p-3">
                   <p className="text-amber-400 text-xs font-semibold mb-1">Notes</p>
                   <p className="text-gray-300 text-xs">{String(client.notes)}</p>
@@ -352,7 +352,7 @@ export default function ClientProfilePage() {
                         <div className="flex items-center gap-2">
                           <p className={"text-sm font-medium capitalize " + color}>{String(b.service_type || "").replace(/-/g, " ")}</p>
                           <Badge className={"text-xs border " + (statusColors[String(b.status || "")] || "bg-gray-500/20 text-gray-400")}>{String(b.status || "")}</Badge>
-                          {b.booking_ref && <span className="text-[10px] font-mono text-[#e67e22]">{String(b.booking_ref)}</span>}
+                          {!!b.booking_ref && <span className="text-[10px] font-mono text-[#e67e22]">{String(b.booking_ref)}</span>}
                         </div>
                         <p className="text-xs text-gray-400 mt-0.5">{fmtDate(String(b.created_at || ""))}</p>
                       </div>

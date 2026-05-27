@@ -32,7 +32,7 @@ interface FleetOutRecord {
 const emptyForm = {
   vehicleReg: "", vehicleMake: "", vehicleModel: "", vehicleColor: "",
   receiverName: "", receiverPhone: "", receiverEmail: "",
-  receiverType: "company" as const,
+  receiverType: "company" as "company" | "individual",
   ourDailyRate: "", startDate: "", endDate: "", numberOfDays: "",
   paymentMethod: "mpesa" as const, paymentReference: "", amountPaid: "",
   status: "active" as const, returnCondition: "", followUpNotes: "", notes: "",

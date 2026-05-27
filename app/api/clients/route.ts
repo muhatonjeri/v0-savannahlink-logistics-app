@@ -1,3 +1,4 @@
+import { sanitizeSearch } from "@/lib/sanitize";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/api-auth";

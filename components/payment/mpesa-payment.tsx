@@ -68,27 +68,27 @@ export function MpesaPayment({
       });
 
       if (response.success) {
-        setCheckoutRequestId(response.checkoutRequestId);
-        setMessage(response.customerMessage);
+        setCheckoutRequestId(response.checkoutRequestId ?? "");
+        setMessage(response.customerMessage ?? "STK Push sent");
         setPaymentState("waiting");
 
         // Simulate user completing payment after a delay
         // In production, this would be handled by M-Pesa callback
         setTimeout(async () => {
-          const result = await simulatePaymentCallback(response.checkoutRequestId, true);
-          if (result.status === "completed") {
+          const paid = await simulatePaymentCallback(response.checkoutRequestId ?? "", amount);
+          if (paid) {
             setPaymentState("success");
-            setMessage(result.message);
+            setMessage("Payment received — thank you!");
             onSuccess?.();
           } else {
             setPaymentState("failed");
-            setMessage(result.message);
+            setMessage("Payment not completed. Please try again.");
             onFailure?.();
           }
         }, 3000);
       } else {
         setPaymentState("failed");
-        setMessage(response.customerMessage);
+        setMessage(response.customerMessage ?? "STK Push sent");
         onFailure?.();
       }
     } catch (err) {
@@ -100,9 +100,9 @@ export function MpesaPayment({
 
   const handleSimulateFailure = async () => {
     if (checkoutRequestId) {
-      const result = await simulatePaymentCallback(checkoutRequestId, false);
+      await simulatePaymentCallback(checkoutRequestId, 0);
       setPaymentState("failed");
-      setMessage(result.message);
+      setMessage("Payment cancelled.");
       onFailure?.();
     }
   };

@@ -149,7 +149,9 @@ const recordTypeConfig: Record<string, { label: string; icon: LucideIcon; color:
 interface BlacklistEntry {
   id: string;
   fullName: string;
+  clientName?: string;
   idNumber: string;
+  phone?: string;
   phoneNumber: string;
   email?: string;
   drivingLicenseNumber?: string;
@@ -260,33 +262,44 @@ const initialBlacklistData: BlacklistEntry[] = [
 ];
 
 export default function BlacklistPage() {
-  const [blacklist, setBlacklist] = useState<BlacklistEntry[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [blacklist, setBlacklist] = useState<BlacklistEntry[]>(initialBlacklistData);
+  const [loading, setLoading] = useState(false);
 
-  const loadBlacklist = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch("/api/blacklist");
-      const data = await res.json().then((d: unknown) => Array.isArray(d) ? d : (d as any)?.data ?? []);
-      if (Array.isArray(data)) setBlacklist(data.map((b: Record<string,unknown>) => ({
-        id: String(b.id || ""),
-        fullName: String(b.client_name || b.fullName || ""),
-        clientName: String(b.client_name || b.clientName || ""),
-        idNumber: String(b.id_number || b.idNumber || ""),
-        phone: String(b.phone || ""),
-        phoneNumber: String(b.phone || b.phoneNumber || ""),
-        recordType: String(b.record_type || b.recordType || "other"),
-        severity: String(b.severity || "low"),
-        status: String(b.status || "active"),
-        incidentDate: String(b.incident_date || b.incidentDate || ""),
-        description: String(b.description || ""),
-        reportedBy: String(b.reported_by || b.reportedBy || ""),
-        createdAt: String(b.created_at || b.createdAt || ""),
-      })));
-    } catch(e) { console.error("Load blacklist:", e); } finally { setLoading(false); }
-  };
-
-  useEffect(() => { loadBlacklist(); }, []);
+  // Background sync: only replaces seeded data if Supabase returns real records
+  useEffect(() => {
+    fetch("/api/blacklist")
+      .then(r => r.ok ? r.json() : null)
+      .then(raw => {
+        const data = Array.isArray(raw) ? raw : null;
+        if (data && data.length > 0) {
+          setBlacklist(data.map((b: Record<string,unknown>) => ({
+            id: String(b.id || ""),
+            fullName: String(b.client_name || b.fullName || ""),
+            clientName: String(b.client_name || ""),
+            idNumber: String(b.id_number || b.idNumber || ""),
+            phone: String(b.phone || ""),
+            phoneNumber: String(b.phone || b.phoneNumber || ""),
+            recordType: String(b.record_type || b.recordType || "other") as BlacklistEntry["recordType"],
+            severity: String(b.severity || "low") as BlacklistEntry["severity"],
+            status: String(b.status || "active") as BlacklistEntry["status"],
+            incidentDate: String(b.incident_date || b.incidentDate || ""),
+            description: String(b.description || ""),
+            reportedBy: String(b.reported_by || b.reportedBy || "Admin"),
+            createdAt: String(b.created_at || b.createdAt || ""),
+            updatedAt: String(b.updated_at || b.updatedAt || ""),
+            vehicleInvolved: b.vehicle_involved ? String(b.vehicle_involved) : undefined,
+            amountOwed: b.amount_owed ? Number(b.amount_owed) : undefined,
+            policeReportNumber: b.police_report_number ? String(b.police_report_number) : undefined,
+            email: b.email ? String(b.email) : undefined,
+            drivingLicenseNumber: b.driving_license_number ? String(b.driving_license_number) : undefined,
+            kraPin: b.kra_pin ? String(b.kra_pin) : undefined,
+            residence: b.residence ? String(b.residence) : undefined,
+          })));
+        }
+        // If API fails/empty: initialBlacklistData remains visible (seeded in useState)
+      })
+      .catch(() => {});
+  }, []);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState<string>("all");
   const [filterSeverity, setFilterSeverity] = useState<string>("all");

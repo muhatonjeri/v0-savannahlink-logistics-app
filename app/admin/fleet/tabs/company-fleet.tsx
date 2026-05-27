@@ -1,7 +1,8 @@
 "use client";
 
-import { Loader2,
- useState, useEffect } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from 'next/navigation';
+import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -34,6 +35,7 @@ import {
   Truck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -429,6 +431,7 @@ const mockFleetData: FleetVehicle[] = [
     fuelType: "diesel",
     year: 2020,
     color: "Blue",
+    ownershipType: "own",
     status: "maintenance",
     lastServiceDate: "2024-01-05",
     nextServiceDate: "2024-02-05",
@@ -448,6 +451,7 @@ const mockFleetData: FleetVehicle[] = [
     fuelType: "diesel",
     year: 2022,
     color: "Silver",
+    ownershipType: "own",
     status: "assigned",
     assignedStaffName: "Mary Wanjiku",
     assignedStaffPhone: "0711456789",
@@ -556,7 +560,7 @@ export default function CompanyFleetTab() {
         registrationNo: String(v.registration_no || v.registrationNo || ""),
         vehicleType: String(v.vehicle_type || v.vehicleType || "sedan") as FleetVehicle["vehicleType"],
         fuelType: String(v.fuel_type || v.fuelType || "petrol") as FleetVehicle["fuelType"],
-        year: String(v.year || ""),
+        year: Number(v.year || 0),
         color: String(v.color || ""),
         ownershipType: String(v.ownership_type || v.ownershipType || "own") as "own" | "sublet",
         supplierName: String(v.supplier_name || v.supplierName || ""),
@@ -566,8 +570,8 @@ export default function CompanyFleetTab() {
         status: String(v.status || "available") as FleetVehicle["status"],
         currentMileage: Number(v.current_mileage || v.currentMileage || 0),
         notes: String(v.notes || ""),
-        assignments: [],
-        maintenanceHistory: [],
+        createdAt: String(v.created_at || v.createdAt || ""),
+        updatedAt: String(v.updated_at || v.updatedAt || ""),
       })));
     } catch(e) { console.error("Load fleet:", e); toast.error("Failed to load fleet data"); } finally { setLoading(false); }
   };
@@ -595,6 +599,7 @@ export default function CompanyFleetTab() {
     setNotifications(generateNotifications(fleet));
   }, [fleet]);
 
+  const router = useRouter();
   const form = useForm<z.infer<typeof fleetFormSchema>>({
     resolver: zodResolver(fleetFormSchema),
     defaultValues: {
