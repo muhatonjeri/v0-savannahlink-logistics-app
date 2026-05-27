@@ -1058,52 +1058,49 @@ function ClientLookupContent() {
 
           {/* No Results - New Client Option */}
           {!searchResults.client && searchResults.blacklistEntries.length === 0 && (
-            <Card className="border-emerald-500/50 bg-emerald-500/5">
-              <CardContent className="pt-6 pb-6">
-                <div className="space-y-5">
+            <div className="space-y-4">
 
-                  {/* Clear status */}
-                  <div className="flex items-start gap-4">
-                    <div className="rounded-full bg-emerald-500/20 p-3 shrink-0">
-                      <CheckCircle2 className="h-7 w-7 text-emerald-400" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-bold text-emerald-300 text-base">Clear — No Negative Records</h3>
-                      <p className="text-gray-400 text-sm mt-1">
-                        <strong className="text-white">&ldquo;{searchQuery}&rdquo;</strong> has no blacklist entries and is not yet registered.
-                        Register this client first, then proceed to the booking.
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* PRIMARY CTA — navigate to dedicated registration page */}
-                  {(() => {
-                    const prefill = encodeURIComponent(JSON.stringify({
-                      customerName:         searchType === "name"    ? searchQuery : "",
-                      customerPhone:        searchType === "phone"   ? searchQuery : "",
-                      idNumber:             searchType === "id"      ? searchQuery : "",
-                      kraPin:               searchType === "krapin"  ? searchQuery : "",
-                      drivingLicenseNumber: searchType === "license" ? searchQuery : "",
-                    }));
-                    const registerUrl = `/admin/register-client?service=${selectedService || ""}&prefill=${prefill}`;
-                    return (
-                      <Link href={registerUrl}>
-                        <Button className="w-full gap-3 py-6 text-base font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl">
-                          <UserPlus className="h-5 w-5" />
-                          Register New Client
-                          <ArrowRight className="h-5 w-5 ml-auto" />
-                        </Button>
-                      </Link>
-                    );
-                  })()}
-
-                  <p className="text-center text-xs text-gray-500">
-                    Full registration form — ID photo, driving license, fingerprints, passport photo
+              {/* Status banner */}
+              <div className="flex items-start gap-3 px-4 py-3 rounded-xl border border-emerald-500/40 bg-emerald-500/8">
+                <CheckCircle2 className="h-5 w-5 text-emerald-400 shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-bold text-emerald-300 text-sm">Clear — No Negative Records</p>
+                  <p className="text-gray-400 text-xs mt-0.5">
+                    <strong className="text-white">&ldquo;{searchQuery}&rdquo;</strong> has no blacklist entries and is not yet registered.
+                    Select the service below to open the full registration + booking form.
                   </p>
-
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+
+              {/* All 9 service cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {Object.entries(serviceConfig).map(([key, svc]) => {
+                  const prefill = encodeURIComponent(JSON.stringify({
+                    customerName:         searchType === "name"    ? searchQuery : "",
+                    customerPhone:        searchType === "phone"   ? searchQuery : "",
+                    idNumber:             searchType === "id"      ? searchQuery : "",
+                    kraPin:               searchType === "krapin"  ? searchQuery : "",
+                    drivingLicenseNumber: searchType === "license" ? searchQuery : "",
+                  }));
+                  const url = `/admin/register-client?service=${key}&prefill=${prefill}`;
+                  return (
+                    <Link key={key} href={url}>
+                      <div className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all hover:scale-[1.02] ${svc.bgColor} ${svc.hoverColor}`}>
+                        <div className={`rounded-xl p-2.5 bg-[#0a1628] border border-white/10 shrink-0`}>
+                          <svc.icon className={`h-5 w-5 ${svc.color}`} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className={`font-bold text-sm ${svc.color}`}>{svc.title}</p>
+                          <p className="text-gray-400 text-xs mt-0.5">Register &amp; Book</p>
+                        </div>
+                        <ArrowRight className={`h-4 w-4 ${svc.color} shrink-0`} />
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+
+            </div>
           )}
 
           {/* Clear Status (Not Blacklisted) */}
