@@ -1,1535 +1,580 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
+import { useState, useMemo } from "react";
 import {
-  ShieldAlert,
-  Plus,
-  Search,
-  AlertTriangle,
-  User,
-  Phone,
-  CreditCard,
-  Calendar,
-  MapPin,
-  FileText,
-  Trash2,
-  Edit,
-  Eye,
-  X,
-  Car,
-  Ban,
-  AlertOctagon,
-  Fingerprint,
-  Upload,
-  IdCard,
-  Banknote,
-  Skull,
-  Syringe,
-  Sword,
-  CircleAlert,
-  HelpCircle,
-  Hammer,
-  type LucideIcon,
+  ShieldAlert, Search, Plus, Eye, Edit, Trash2, User, Phone, IdCard,
+  Calendar, AlertTriangle, Skull, Banknote, Hammer, CreditCard, Car,
+  Syringe, Sword, CircleAlert, HelpCircle, type LucideIcon,
 } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog, DialogContent, DialogDescription, DialogFooter,
+  DialogHeader, DialogTitle,
+} from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { DatePicker } from "@/components/ui/date-picker";
-import { FileUpload } from "@/components/forms/file-upload";
 
-// Record type configuration with icons
-const recordTypeConfig: Record<string, { label: string; icon: LucideIcon; color: string; bgColor: string }> = {
-  theft:              { label: "Theft",               icon: Skull,       color: "text-white", bgColor: "bg-red-600 border-red-700"        },
-  fraud:              { label: "Fraud",               icon: Banknote,    color: "text-white", bgColor: "bg-orange-600 border-orange-700"   },
-  damage:             { label: "Vehicle Damage",      icon: Hammer,      color: "text-white", bgColor: "bg-yellow-600 border-yellow-700"   },
-  "non-payment":      { label: "Non-Payment",         icon: CreditCard,  color: "text-white", bgColor: "bg-purple-600 border-purple-700"   },
-  accident:           { label: "Accident",            icon: Car,         color: "text-white", bgColor: "bg-blue-600 border-blue-700"       },
-  "drug-related":     { label: "Drug Related",        icon: Syringe,     color: "text-white", bgColor: "bg-emerald-600 border-emerald-700" },
-  "violent-dangerous":{ label: "Violent/Dangerous",   icon: Sword,       color: "text-white", bgColor: "bg-rose-600 border-rose-700"       },
-  suspicious:         { label: "Suspicious Activity", icon: CircleAlert, color: "text-white", bgColor: "bg-amber-600 border-amber-700"     },
-  other:              { label: "Other",               icon: HelpCircle,  color: "text-white", bgColor: "bg-gray-600 border-gray-700"       },
-}
-
-// Types
+// ── Types ─────────────────────────────────────────────────────────────────────
 interface BlacklistEntry {
   id: string;
   fullName: string;
-  clientName?: string;
   idNumber: string;
-  phone?: string;
   phoneNumber: string;
+  residence?: string;
   email?: string;
   drivingLicenseNumber?: string;
   kraPin?: string;
-  residence?: string;
-  recordType: "theft" | "fraud" | "damage" | "non-payment" | "accident" | "drug-related" | "violent-dangerous" | "suspicious" | "other";
-  severity: "low" | "medium" | "high" | "critical";
+  recordType: "theft"|"fraud"|"damage"|"non-payment"|"accident"|"drug-related"|"violent-dangerous"|"suspicious"|"other";
+  severity: "low"|"medium"|"high"|"critical";
   description: string;
   incidentDate: string;
   reportedBy: string;
   vehicleInvolved?: string;
   amountOwed?: number;
   policeReportNumber?: string;
-  // Document URLs
-  idFrontUrl?: string;
-  idBackUrl?: string;
-  drivingLicenseFrontUrl?: string;
-  drivingLicenseBackUrl?: string;
-  policeReportUrl?: string;
-  status: "active" | "resolved" | "under-review";
+  status: "active"|"resolved"|"under-review";
   createdAt: string;
   updatedAt: string;
 }
 
-// Form schema
-const blacklistFormSchema = z.object({
-  fullName: z.string().min(2, "Full name is required"),
-  idNumber: z.string().min(6, "Valid ID number is required"),
-  phoneNumber: z.string().min(10, "Valid phone number is required"),
-  email: z.string().email().optional().or(z.literal("")),
-  drivingLicenseNumber: z.string().optional(),
-  kraPin: z.string().optional(),
-  residence: z.string().optional(),
-  recordType: z.enum(["theft", "fraud", "damage", "non-payment", "accident", "drug-related", "violent-dangerous", "suspicious", "other"]),
-  severity: z.enum(["low", "medium", "high", "critical"]),
-  description: z.string().min(20, "Please provide a detailed description (min 20 characters)"),
-  incidentDate: z.string().min(1, "Incident date is required"),
-  vehicleInvolved: z.string().optional(),
-  amountOwed: z.string().optional(),
-  policeReportNumber: z.string().optional(),
-  // Document uploads
-  idFrontUrl: z.string().optional(),
-  idBackUrl: z.string().optional(),
-  drivingLicenseFrontUrl: z.string().optional(),
-  drivingLicenseBackUrl: z.string().optional(),
-  policeReportUrl: z.string().optional(),
-});
-
-type BlacklistFormValues = z.infer<typeof blacklistFormSchema>;
-
-const severityConfig: Record<string, { label: string; color: string }> = {
-  low: { label: "Low", color: "bg-green-600 text-white" },
-  medium: { label: "Medium", color: "bg-yellow-900/300 text-white" },
-  high: { label: "High", color: "bg-orange-900/300 text-white" },
-  critical: { label: "Critical", color: "bg-red-600 text-white" },
+// ── Config maps ───────────────────────────────────────────────────────────────
+const TYPE_CFG: Record<string, { label: string; icon: LucideIcon; badge: string }> = {
+  "theft":              { label: "Theft",               icon: Skull,       badge: "bg-red-600 text-white"     },
+  "fraud":              { label: "Fraud",               icon: Banknote,    badge: "bg-orange-600 text-white"  },
+  "damage":             { label: "Vehicle Damage",      icon: Hammer,      badge: "bg-yellow-600 text-white"  },
+  "non-payment":        { label: "Non-Payment",         icon: CreditCard,  badge: "bg-purple-600 text-white"  },
+  "accident":           { label: "Accident",            icon: Car,         badge: "bg-blue-600 text-white"    },
+  "drug-related":       { label: "Drug Related",        icon: Syringe,     badge: "bg-emerald-600 text-white" },
+  "violent-dangerous":  { label: "Violent/Dangerous",   icon: Sword,       badge: "bg-rose-600 text-white"    },
+  "suspicious":         { label: "Suspicious Activity", icon: CircleAlert, badge: "bg-amber-600 text-white"   },
+  "other":              { label: "Other",               icon: HelpCircle,  badge: "bg-gray-600 text-white"    },
 };
 
-const statusConfig: Record<string, { label: string; color: string }> = {
-  active: { label: "Active", color: "bg-red-600 text-white" },
-  resolved: { label: "Resolved", color: "bg-green-600 text-white" },
-  "under-review": { label: "Under Review", color: "bg-yellow-900/300 text-white" },
+const SEV_CFG: Record<string, { label: string; badge: string }> = {
+  "low":      { label: "Low",      badge: "bg-green-700 text-white"  },
+  "medium":   { label: "Medium",   badge: "bg-yellow-600 text-white" },
+  "high":     { label: "High",     badge: "bg-orange-600 text-white" },
+  "critical": { label: "Critical", badge: "bg-red-600 text-white"    },
 };
 
-// Blacklist data
-const initialBlacklistData: BlacklistEntry[] = [
-  { id: "INC-001", fullName: "Charles Ikiro Kahuthu", idNumber: "14518266", phoneNumber: "0743143539 / 0702301197", residence: "", recordType: "theft", severity: "critical", description: "Car Theft - Jommu Safaris", status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
-  { id: "INC-002", fullName: "Christine Wambui Muthoni", idNumber: "37445643", phoneNumber: "", residence: "", recordType: "theft", severity: "critical", description: "Car Theft - Accomplice", status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
-  { id: "INC-003", fullName: "Kelvin Sibuor", idNumber: "", phoneNumber: "0717889934", residence: "", recordType: "fraud", severity: "high", description: "Broker Obtaining", status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
-  { id: "INC-004", fullName: "Ezra Kingori", idNumber: "", phoneNumber: "0729222825 / 0707021111", residence: "", recordType: "fraud", severity: "high", description: "Broker Obtaining", status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
-  { id: "INC-005", fullName: "Bonface Osieyo", idNumber: "", phoneNumber: "0718330310", residence: "Kitengela/Riverside/Kilimani", recordType: "fraud", severity: "high", description: "Broker Obtaining - Multiple victims", status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
-  { id: "INC-006", fullName: "Samuel Omondi Audi", idNumber: "28392618", phoneNumber: "", residence: "", recordType: "drug-related", severity: "critical", description: "Drug Transport", status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
-  { id: "INC-007", fullName: "Cyrus Musroka", idNumber: "", phoneNumber: "0722288081 / 0722662244 / 0720500992", residence: "", recordType: "theft", severity: "critical", description: "Car Theft", status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
-  { id: "INC-008", fullName: "Jacklyn Wanjiku", idNumber: "", phoneNumber: "0711521026", residence: "", recordType: "fraud", severity: "high", description: "Broker Obtaining", status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
-  { id: "INC-009", fullName: "Allidan Munyao", idNumber: "", phoneNumber: "0715253242", residence: "", recordType: "fraud", severity: "high", description: "Broker Obtaining", status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
-  { id: "INC-010", fullName: "Oscar Tumuti Njoki", idNumber: "", phoneNumber: "0705061000", residence: "Karen/Ngong Rd/Ruaka", recordType: "violent-dangerous", severity: "critical", description: "Dangerous", status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
-  { id: "INC-011", fullName: "Kelvin Odhiambo Omondi", idNumber: "32214919", phoneNumber: "0706072557", residence: "", recordType: "drug-related", severity: "critical", description: "Changaa Distribution", status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
-  { id: "INC-012", fullName: "Martin Njenga", idNumber: "", phoneNumber: "0715867722", residence: "", recordType: "theft", severity: "critical", description: "Car Theft", status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
-  { id: "INC-013", fullName: "Gabriel Muiruri", idNumber: "", phoneNumber: "0706661422", residence: "", recordType: "theft", severity: "critical", description: "Car Theft", status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
-  { id: "INC-014", fullName: "Oliver Musyoki Mutisya", idNumber: "", phoneNumber: "0732237545 / 0712541354", residence: "", recordType: "theft", severity: "critical", description: "Car Theft", status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
-  { id: "INC-015", fullName: "Humfrey Karimi Wachira", idNumber: "27303133", phoneNumber: "0722960207", residence: "", recordType: "theft", severity: "critical", description: "Car Theft", status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
-  { id: "INC-016", fullName: "Ogeto Car Hire", idNumber: "", phoneNumber: "0733757671", residence: "", recordType: "fraud", severity: "high", description: "Broker Obtaining", status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
-  { id: "INC-017", fullName: "Jackline Wanjiku Kungu", idNumber: "", phoneNumber: "0711521026", residence: "", recordType: "fraud", severity: "high", description: "Broker Obtaining", status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
-  { id: "INC-018", fullName: "Allidan Munyao", idNumber: "", phoneNumber: "0715253242", residence: "", recordType: "fraud", severity: "high", description: "Broker Obtaining - Duplicate entry", status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
-  { id: "INC-019", fullName: "Oscar Tumuti Njoki", idNumber: "", phoneNumber: "0705061000", residence: "", recordType: "fraud", severity: "high", description: "Broker Obtaining - Duplicate entry", status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
-  { id: "INC-020", fullName: "Eliya Waningilo", idNumber: "", phoneNumber: "0722873856", residence: "", recordType: "fraud", severity: "high", description: "Broker Obtaining - Savenger Hire", status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
-  { id: "INC-021", fullName: "Benedict Chacha", idNumber: "", phoneNumber: "0783804680 / 0717509344", residence: "", recordType: "fraud", severity: "high", description: "Broker Obtaining", status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
-  { id: "INC-022", fullName: "Joseph Wandera", idNumber: "", phoneNumber: "0722690518 / 0111050962", residence: "", recordType: "fraud", severity: "high", description: "Broker Obtaining", status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
-  { id: "INC-023", fullName: "Frank Nganga", idNumber: "", phoneNumber: "0739538712 / 0796440037", residence: "", recordType: "fraud", severity: "high", description: "Broker Obtaining", status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
-  { id: "INC-024", fullName: "Israeli 1", idNumber: "", phoneNumber: "+254720245288", residence: "", recordType: "theft", severity: "critical", description: "Car Theft - Alias", status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
-  { id: "INC-025", fullName: "Dan", idNumber: "", phoneNumber: "0724559878", residence: "", recordType: "theft", severity: "critical", description: "Car Theft - Senior", status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
-  { id: "INC-026", fullName: "Peter Munyao", idNumber: "", phoneNumber: "0757354282 / 0782668144", residence: "", recordType: "fraud", severity: "high", description: "Broker Obtaining - Bonnke Logistics", status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
-  { id: "INC-027", fullName: "Godfrey Mwangi", idNumber: "", phoneNumber: "0721372494", residence: "", recordType: "fraud", severity: "high", description: "Broker Obtaining", status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
-  { id: "INC-028", fullName: "Erick Ngarama", idNumber: "", phoneNumber: "0732300444", residence: "", recordType: "fraud", severity: "high", description: "Malice Broker", status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
-  { id: "INC-029", fullName: "Chris Isura", idNumber: "", phoneNumber: "0713985762", residence: "", recordType: "fraud", severity: "high", description: "Con Car Owner - Undercutting", status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
-  { id: "INC-030", fullName: "Simon Nyambura", idNumber: "", phoneNumber: "0790024972", residence: "", recordType: "violent-dangerous", severity: "critical", description: "Criminal - Armed", status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
-  { id: "INC-031", fullName: "Kelvin Kyalo", idNumber: "32249208", phoneNumber: "0729234822", residence: "", recordType: "violent-dangerous", severity: "critical", description: "Criminal - Housebreakins", status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
-  { id: "INC-032", fullName: "George Mutinda", idNumber: "", phoneNumber: "0726599168", residence: "", recordType: "fraud", severity: "high", description: "Fraudster", status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
-  { id: "INC-033", fullName: "Victor Kipng'eno Langat", idNumber: "", phoneNumber: "+254792608358 / +254791776034", residence: "", recordType: "theft", severity: "critical", description: "Car Theft - Multiple numbers", status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
-  { id: "INC-034", fullName: "Benson Kimeu", idNumber: "", phoneNumber: "+254723234943", residence: "", recordType: "suspicious", severity: "medium", description: "Flagged individual", status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
-  { id: "INC-035", fullName: "Sammy Odongo", idNumber: "", phoneNumber: "+254742895551 / 0786565706", residence: "", recordType: "fraud", severity: "high", description: "Broker Obtaining", status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
-  { id: "INC-036", fullName: "Dominic Muendo", idNumber: "", phoneNumber: "0742861626 / 0706142295", residence: "", recordType: "fraud", severity: "high", description: "Obtaining - Turbo Miles", status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
-  { id: "INC-037", fullName: "Margaret Wangari", idNumber: "28445340", phoneNumber: "0722466830", residence: "", recordType: "fraud", severity: "high", description: "Broker Obtaining", status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
-  { id: "INC-038", fullName: "Antony Mahua", idNumber: "", phoneNumber: "0722026950 / +254723026950", residence: "", recordType: "fraud", severity: "high", description: "Broker Obtaining", status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
-  { id: "INC-039", fullName: "Chacha Maroa", idNumber: "", phoneNumber: "+254706821486", residence: "", recordType: "fraud", severity: "high", description: "Broker Obtaining", status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
-  { id: "INC-040", fullName: "David Kimanzi Mutua", idNumber: "", phoneNumber: "+254712852455", residence: "", recordType: "theft", severity: "critical", description: "Owner Obtainer", status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
-  { id: "INC-041", fullName: "Churchill Adipo", idNumber: "", phoneNumber: "0737050363 / 0724815420", residence: "", recordType: "fraud", severity: "high", description: "Obtaining", status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
-  { id: "INC-042", fullName: "Daniel Nyabuti", idNumber: "", phoneNumber: "+254100411895 / 0759298442", residence: "", recordType: "fraud", severity: "high", description: "Conman", status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
+const STATUS_CFG: Record<string, { label: string; badge: string }> = {
+  "active":       { label: "Active",       badge: "bg-red-600 text-white"    },
+  "under-review": { label: "Under Review", badge: "bg-yellow-600 text-white" },
+  "resolved":     { label: "Resolved",     badge: "bg-green-700 text-white"  },
+};
+
+const fmt = (n: number) =>
+  new Intl.NumberFormat("en-KE", { style: "currency", currency: "KES", minimumFractionDigits: 0 }).format(n);
+
+// ── Data (42 real entries from Full_Cleaned_Incident_Log.xlsx) ────────────────
+const BLACKLIST_DATA: BlacklistEntry[] = [
+  { id: "INC-001", fullName: "Charles Ikiro Kahuthu",          idNumber: "14518266",  phoneNumber: "0743143539 / 0702301197",          residence: "",                         recordType: "theft",             severity: "critical", description: "Car Theft - Jommu Safaris",                 status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
+  { id: "INC-002", fullName: "Christine Wambui Muthoni",        idNumber: "37445643",  phoneNumber: "",                                  residence: "",                         recordType: "theft",             severity: "critical", description: "Car Theft - Accomplice",                    status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
+  { id: "INC-003", fullName: "Kelvin Sibuor",                   idNumber: "",          phoneNumber: "0717889934",                        residence: "",                         recordType: "fraud",             severity: "high",     description: "Broker Obtaining",                          status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
+  { id: "INC-004", fullName: "Ezra Kingori",                    idNumber: "",          phoneNumber: "0729222825 / 0707021111",           residence: "",                         recordType: "fraud",             severity: "high",     description: "Broker Obtaining",                          status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
+  { id: "INC-005", fullName: "Bonface Osieyo",                  idNumber: "",          phoneNumber: "0718330310",                        residence: "Kitengela/Riverside/Kilimani", recordType: "fraud",         severity: "high",     description: "Broker Obtaining - Multiple victims",       status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
+  { id: "INC-006", fullName: "Samuel Omondi Audi",              idNumber: "28392618",  phoneNumber: "",                                  residence: "",                         recordType: "drug-related",      severity: "critical", description: "Drug Transport",                            status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
+  { id: "INC-007", fullName: "Cyrus Musroka",                   idNumber: "",          phoneNumber: "0722288081 / 0722662244 / 0720500992", residence: "",                      recordType: "theft",             severity: "critical", description: "Car Theft",                                 status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
+  { id: "INC-008", fullName: "Jacklyn Wanjiku",                 idNumber: "",          phoneNumber: "0711521026",                        residence: "",                         recordType: "fraud",             severity: "high",     description: "Broker Obtaining",                          status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
+  { id: "INC-009", fullName: "Allidan Munyao",                  idNumber: "",          phoneNumber: "0715253242",                        residence: "",                         recordType: "fraud",             severity: "high",     description: "Broker Obtaining",                          status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
+  { id: "INC-010", fullName: "Oscar Tumuti Njoki",              idNumber: "",          phoneNumber: "0705061000",                        residence: "Karen/Ngong Rd/Ruaka",     recordType: "violent-dangerous", severity: "critical", description: "Dangerous",                                 status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
+  { id: "INC-011", fullName: "Kelvin Odhiambo Omondi",         idNumber: "32214919",  phoneNumber: "0706072557",                        residence: "",                         recordType: "drug-related",      severity: "critical", description: "Changaa Distribution",                      status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
+  { id: "INC-012", fullName: "Martin Njenga",                   idNumber: "",          phoneNumber: "0715867722",                        residence: "",                         recordType: "theft",             severity: "critical", description: "Car Theft",                                 status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
+  { id: "INC-013", fullName: "Gabriel Muiruri",                 idNumber: "",          phoneNumber: "0706661422",                        residence: "",                         recordType: "theft",             severity: "critical", description: "Car Theft",                                 status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
+  { id: "INC-014", fullName: "Oliver Musyoki Mutisya",          idNumber: "",          phoneNumber: "0732237545 / 0712541354",           residence: "",                         recordType: "theft",             severity: "critical", description: "Car Theft",                                 status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
+  { id: "INC-015", fullName: "Humfrey Karimi Wachira",          idNumber: "27303133",  phoneNumber: "0722960207",                        residence: "",                         recordType: "theft",             severity: "critical", description: "Car Theft",                                 status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
+  { id: "INC-016", fullName: "Ogeto Car Hire",                  idNumber: "",          phoneNumber: "0733757671",                        residence: "",                         recordType: "fraud",             severity: "high",     description: "Broker Obtaining",                          status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
+  { id: "INC-017", fullName: "Jackline Wanjiku Kungu",          idNumber: "",          phoneNumber: "0711521026",                        residence: "",                         recordType: "fraud",             severity: "high",     description: "Broker Obtaining",                          status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
+  { id: "INC-018", fullName: "Allidan Munyao",                  idNumber: "",          phoneNumber: "0715253242",                        residence: "",                         recordType: "fraud",             severity: "high",     description: "Broker Obtaining - Duplicate entry",        status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
+  { id: "INC-019", fullName: "Oscar Tumuti Njoki",              idNumber: "",          phoneNumber: "0705061000",                        residence: "",                         recordType: "fraud",             severity: "high",     description: "Broker Obtaining - Duplicate entry",        status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
+  { id: "INC-020", fullName: "Eliya Waningilo",                 idNumber: "",          phoneNumber: "0722873856",                        residence: "",                         recordType: "fraud",             severity: "high",     description: "Broker Obtaining - Savenger Hire",          status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
+  { id: "INC-021", fullName: "Benedict Chacha",                 idNumber: "",          phoneNumber: "0783804680 / 0717509344",           residence: "",                         recordType: "fraud",             severity: "high",     description: "Broker Obtaining",                          status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
+  { id: "INC-022", fullName: "Joseph Wandera",                  idNumber: "",          phoneNumber: "0722690518 / 0111050962",           residence: "",                         recordType: "fraud",             severity: "high",     description: "Broker Obtaining",                          status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
+  { id: "INC-023", fullName: "Frank Nganga",                    idNumber: "",          phoneNumber: "0739538712 / 0796440037",           residence: "",                         recordType: "fraud",             severity: "high",     description: "Broker Obtaining",                          status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
+  { id: "INC-024", fullName: "Israeli 1",                       idNumber: "",          phoneNumber: "+254720245288",                     residence: "",                         recordType: "theft",             severity: "critical", description: "Car Theft - Alias",                         status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
+  { id: "INC-025", fullName: "Dan",                             idNumber: "",          phoneNumber: "0724559878",                        residence: "",                         recordType: "theft",             severity: "critical", description: "Car Theft - Senior",                        status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
+  { id: "INC-026", fullName: "Peter Munyao",                    idNumber: "",          phoneNumber: "0757354282 / 0782668144",           residence: "",                         recordType: "fraud",             severity: "high",     description: "Broker Obtaining - Bonnke Logistics",       status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
+  { id: "INC-027", fullName: "Godfrey Mwangi",                  idNumber: "",          phoneNumber: "0721372494",                        residence: "",                         recordType: "fraud",             severity: "high",     description: "Broker Obtaining",                          status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
+  { id: "INC-028", fullName: "Erick Ngarama",                   idNumber: "",          phoneNumber: "0732300444",                        residence: "",                         recordType: "fraud",             severity: "high",     description: "Malice Broker",                             status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
+  { id: "INC-029", fullName: "Chris Isura",                     idNumber: "",          phoneNumber: "0713985762",                        residence: "",                         recordType: "fraud",             severity: "high",     description: "Con Car Owner - Undercutting",              status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
+  { id: "INC-030", fullName: "Simon Nyambura",                  idNumber: "",          phoneNumber: "0790024972",                        residence: "",                         recordType: "violent-dangerous", severity: "critical", description: "Criminal - Armed",                          status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
+  { id: "INC-031", fullName: "Kelvin Kyalo",                    idNumber: "32249208",  phoneNumber: "0729234822",                        residence: "",                         recordType: "violent-dangerous", severity: "critical", description: "Criminal - Housebreaking",                  status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
+  { id: "INC-032", fullName: "George Mutinda",                  idNumber: "",          phoneNumber: "0726599168",                        residence: "",                         recordType: "fraud",             severity: "high",     description: "Fraudster",                                 status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
+  { id: "INC-033", fullName: "Victor Kipng'eno Langat",         idNumber: "",          phoneNumber: "+254792608358 / +254791776034",     residence: "",                         recordType: "theft",             severity: "critical", description: "Car Theft - Multiple numbers",               status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
+  { id: "INC-034", fullName: "Benson Kimeu",                    idNumber: "",          phoneNumber: "+254723234943",                     residence: "",                         recordType: "suspicious",        severity: "medium",   description: "Suspicious Activity",                       status: "under-review", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
+  { id: "INC-035", fullName: "Sammy Odongo",                    idNumber: "",          phoneNumber: "+254742895551 / 0786565706",        residence: "",                         recordType: "fraud",             severity: "high",     description: "Broker Obtaining",                          status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
+  { id: "INC-036", fullName: "Dominic Muendo",                  idNumber: "",          phoneNumber: "0742861626 / 0706142295",           residence: "",                         recordType: "fraud",             severity: "high",     description: "Obtaining - Turbo Miles",                   status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
+  { id: "INC-037", fullName: "Margaret Wangari",                idNumber: "28445340",  phoneNumber: "0722466830",                        residence: "",                         recordType: "fraud",             severity: "high",     description: "Broker Obtaining",                          status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
+  { id: "INC-038", fullName: "Antony Mahua",                    idNumber: "",          phoneNumber: "0722026950 / +254723026950",        residence: "",                         recordType: "fraud",             severity: "high",     description: "Broker Obtaining",                          status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
+  { id: "INC-039", fullName: "Chacha Maroa",                    idNumber: "",          phoneNumber: "+254706821486",                     residence: "",                         recordType: "fraud",             severity: "high",     description: "Broker Obtaining",                          status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
+  { id: "INC-040", fullName: "David Kimanzi Mutua",             idNumber: "",          phoneNumber: "+254712852455",                     residence: "",                         recordType: "theft",             severity: "critical", description: "Owner Obtainer",                            status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
+  { id: "INC-041", fullName: "Churchill Adipo",                  idNumber: "",          phoneNumber: "0737050363 / 0724815420",           residence: "",                         recordType: "fraud",             severity: "high",     description: "Obtaining",                                 status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
+  { id: "INC-042", fullName: "Daniel Nyabuti",                  idNumber: "",          phoneNumber: "+254100411895 / 0759298442",        residence: "",                         recordType: "fraud",             severity: "high",     description: "Conman",                                    status: "active", reportedBy: "Admin", incidentDate: "2024-01-01", createdAt: "2024-01-01", updatedAt: "2024-01-01" },
 ];
 
+// ── Add/Edit form state type ───────────────────────────────────────────────────
+interface EntryForm {
+  fullName: string; idNumber: string; phoneNumber: string; email: string;
+  residence: string; drivingLicenseNumber: string; kraPin: string;
+  recordType: BlacklistEntry["recordType"]; severity: BlacklistEntry["severity"];
+  description: string; incidentDate: string; vehicleInvolved: string;
+  amountOwed: string; policeReportNumber: string;
+}
+
+const EMPTY_FORM: EntryForm = {
+  fullName: "", idNumber: "", phoneNumber: "", email: "",
+  residence: "", drivingLicenseNumber: "", kraPin: "",
+  recordType: "other", severity: "medium",
+  description: "", incidentDate: "", vehicleInvolved: "",
+  amountOwed: "", policeReportNumber: "",
+};
+
+// ── Page ──────────────────────────────────────────────────────────────────────
 export default function BlacklistPage() {
-  const [blacklist, setBlacklist] = useState<BlacklistEntry[]>(initialBlacklistData);
-  const [loading, setLoading] = useState(false);
+  const [entries, setEntries] = useState<BlacklistEntry[]>(BLACKLIST_DATA);
+  const [search, setSearch]   = useState("");
+  const [typeFilter, setTypeFilter]     = useState("all");
+  const [sevFilter,  setSevFilter]      = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
 
-  // Background sync: only replaces seeded data if Supabase returns real records
-  useEffect(() => {
-    fetch("/api/blacklist")
-      .then(r => r.ok ? r.json() : null)
-      .then(raw => {
-        const data = Array.isArray(raw) ? raw : null;
-        if (data && data.length > 0) {
-          setBlacklist(data.map((b: Record<string,unknown>) => ({
-            id: String(b.id || ""),
-            fullName: String(b.client_name || b.fullName || ""),
-            clientName: String(b.client_name || ""),
-            idNumber: String(b.id_number || b.idNumber || ""),
-            phone: String(b.phone || ""),
-            phoneNumber: String(b.phone || b.phoneNumber || ""),
-            recordType: String(b.record_type || b.recordType || "other") as BlacklistEntry["recordType"],
-            severity: String(b.severity || "low") as BlacklistEntry["severity"],
-            status: String(b.status || "active") as BlacklistEntry["status"],
-            incidentDate: String(b.incident_date || b.incidentDate || ""),
-            description: String(b.description || ""),
-            reportedBy: String(b.reported_by || b.reportedBy || "Admin"),
-            createdAt: String(b.created_at || b.createdAt || ""),
-            updatedAt: String(b.updated_at || b.updatedAt || ""),
-            vehicleInvolved: b.vehicle_involved ? String(b.vehicle_involved) : undefined,
-            amountOwed: b.amount_owed ? Number(b.amount_owed) : undefined,
-            policeReportNumber: b.police_report_number ? String(b.police_report_number) : undefined,
-            email: b.email ? String(b.email) : undefined,
-            drivingLicenseNumber: b.driving_license_number ? String(b.driving_license_number) : undefined,
-            kraPin: b.kra_pin ? String(b.kra_pin) : undefined,
-            residence: b.residence ? String(b.residence) : undefined,
-          })));
-        }
-        // If API fails/empty: initialBlacklistData remains visible (seeded in useState)
-      })
-      .catch(() => {});
-  }, []);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filterType, setFilterType] = useState<string>("all");
-  const [filterSeverity, setFilterSeverity] = useState<string>("all");
-  const [filterStatus, setFilterStatus] = useState<string>("all");
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [selectedEntry, setSelectedEntry] = useState<BlacklistEntry | null>(null);
-  const [editingEntry, setEditingEntry] = useState<BlacklistEntry | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  // Dialogs
+  const [viewing,  setViewing]  = useState<BlacklistEntry | null>(null);
+  const [addOpen,  setAddOpen]  = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [editEntry, setEditEntry] = useState<BlacklistEntry | null>(null);
+  const [form, setForm] = useState<EntryForm>(EMPTY_FORM);
+  const [saving, setSaving] = useState(false);
 
-  const form = useForm<BlacklistFormValues>({
-    resolver: zodResolver(blacklistFormSchema),
-    defaultValues: {
-      fullName: "",
-      idNumber: "",
-      phoneNumber: "",
-      email: "",
-      drivingLicenseNumber: "",
-      kraPin: "",
-      residence: "",
-      recordType: "other",
-      severity: "medium",
-      description: "",
-      incidentDate: "",
-      vehicleInvolved: "",
-      amountOwed: "",
-      policeReportNumber: "",
-      idFrontUrl: "",
-      idBackUrl: "",
-      drivingLicenseFrontUrl: "",
-      drivingLicenseBackUrl: "",
-      policeReportUrl: "",
-    },
-  });
+  // ── Filter ──────────────────────────────────────────────────────────────────
+  const filtered = useMemo(() => entries.filter(e => {
+    const q = search.toLowerCase();
+    const matchSearch = !q ||
+      e.fullName.toLowerCase().includes(q) ||
+      e.idNumber.toLowerCase().includes(q) ||
+      e.phoneNumber.includes(q) ||
+      e.description.toLowerCase().includes(q);
+    return (
+      matchSearch &&
+      (typeFilter   === "all" || e.recordType === typeFilter) &&
+      (sevFilter    === "all" || e.severity   === sevFilter)  &&
+      (statusFilter === "all" || e.status     === statusFilter)
+    );
+  }), [entries, search, typeFilter, sevFilter, statusFilter]);
 
-  const editForm = useForm<BlacklistFormValues>({
-    resolver: zodResolver(blacklistFormSchema),
-    defaultValues: {
-      fullName: "",
-      idNumber: "",
-      phoneNumber: "",
-      email: "",
-      drivingLicenseNumber: "",
-      kraPin: "",
-      residence: "",
-      recordType: "other",
-      severity: "medium",
-      description: "",
-      incidentDate: "",
-      vehicleInvolved: "",
-      amountOwed: "",
-      policeReportNumber: "",
-      idFrontUrl: "",
-      idBackUrl: "",
-      drivingLicenseFrontUrl: "",
-      drivingLicenseBackUrl: "",
-      policeReportUrl: "",
-    },
-  });
+  // ── Stats ───────────────────────────────────────────────────────────────────
+  const stats = useMemo(() => ({
+    total:    entries.length,
+    active:   entries.filter(e => e.status === "active").length,
+    critical: entries.filter(e => e.severity === "critical").length,
+    owed:     entries.reduce((s, e) => s + (e.amountOwed || 0), 0),
+  }), [entries]);
 
-  // Filter blacklist entries
-  const filteredBlacklist = blacklist.filter((entry) => {
-    const matchesSearch =
-      (entry.clientName || entry.fullName || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (entry.idNumber || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (entry.phone || entry.phoneNumber || "").includes(searchQuery) ||
-      (entry.description || "").toLowerCase().includes(searchQuery.toLowerCase());
-
-    const matchesType = filterType === "all" || entry.recordType === filterType;
-    const matchesSeverity = filterSeverity === "all" || entry.severity === filterSeverity;
-    const matchesStatus = filterStatus === "all" || entry.status === filterStatus;
-
-    return matchesSearch && matchesType && matchesSeverity && matchesStatus;
-  });
-
-  // Stats
-  const stats = {
-    total: blacklist.length,
-    active: blacklist.filter((e) => e.status === "active").length,
-    critical: blacklist.filter((e) => e.severity === "critical").length,
-    totalOwed: blacklist.reduce((sum, e) => sum + (e.amountOwed || 0), 0),
-  };
-
-  const onSubmit = async (data: BlacklistFormValues) => {
-    setIsSubmitting(true);
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      const newEntry: BlacklistEntry = {
-        id: `BL${String(blacklist.length + 1).padStart(3, "0")}`,
-        ...data,
-        email: data.email || undefined,
-        amountOwed: data.amountOwed ? parseFloat(data.amountOwed) : undefined,
-        reportedBy: "Admin",
-        status: "active",
-        createdAt: new Date().toISOString().split("T")[0],
-        updatedAt: new Date().toISOString().split("T")[0],
-      };
-
-      setBlacklist([newEntry, ...blacklist]);
-      setIsAddDialogOpen(false);
-      form.reset();
-      toast.success("Blacklist entry added successfully");
-    } catch {
-      toast.error("Failed to add blacklist entry");
-    } finally {
-      setIsSubmitting(false);
-    }
+  // ── Handlers ────────────────────────────────────────────────────────────────
+  const handleStatusChange = (id: string, status: BlacklistEntry["status"]) => {
+    setEntries(prev => prev.map(e => e.id === id ? { ...e, status, updatedAt: new Date().toISOString().split("T")[0] } : e));
+    toast.success(`Status updated to ${STATUS_CFG[status]?.label ?? status}`);
   };
 
   const handleDelete = (id: string) => {
-    setBlacklist(blacklist.filter((entry) => entry.id !== id));
-    toast.success("Blacklist entry removed");
+    if (!confirm("Remove this record? This cannot be undone.")) return;
+    setEntries(prev => prev.filter(e => e.id !== id));
+    toast.success("Record removed");
   };
 
-  const handleStatusChange = (id: string, newStatus: BlacklistEntry["status"]) => {
-    setBlacklist(
-      blacklist.map((entry) =>
-        entry.id === id
-          ? { ...entry, status: newStatus, updatedAt: new Date().toISOString().split("T")[0] }
-          : entry
-      )
-    );
-    toast.success(`Status updated to ${statusConfig[newStatus].label}`);
-  };
-
-  const handleEdit = (entry: BlacklistEntry) => {
-    setEditingEntry(entry);
-    editForm.reset({
-      fullName: entry.clientName || entry.fullName || "",
-      idNumber: entry.idNumber || "",
-      phoneNumber: entry.phone || entry.phoneNumber || "",
-      email: entry.email || "",
-      drivingLicenseNumber: entry.drivingLicenseNumber || "",
-      kraPin: entry.kraPin || "",
-      residence: entry.residence || "",
-      recordType: entry.recordType,
-      severity: entry.severity,
-      description: entry.description,
-      incidentDate: entry.incidentDate,
+  const openEdit = (entry: BlacklistEntry) => {
+    setEditEntry(entry);
+    setForm({
+      fullName: entry.fullName, idNumber: entry.idNumber,
+      phoneNumber: entry.phoneNumber, email: entry.email || "",
+      residence: entry.residence || "", drivingLicenseNumber: entry.drivingLicenseNumber || "",
+      kraPin: entry.kraPin || "", recordType: entry.recordType, severity: entry.severity,
+      description: entry.description, incidentDate: entry.incidentDate,
       vehicleInvolved: entry.vehicleInvolved || "",
       amountOwed: entry.amountOwed?.toString() || "",
       policeReportNumber: entry.policeReportNumber || "",
-      idFrontUrl: entry.idFrontUrl || "",
-      idBackUrl: entry.idBackUrl || "",
-      drivingLicenseFrontUrl: entry.drivingLicenseFrontUrl || "",
-      drivingLicenseBackUrl: entry.drivingLicenseBackUrl || "",
-      policeReportUrl: entry.policeReportUrl || "",
     });
-    setIsEditDialogOpen(true);
+    setEditOpen(true);
   };
 
-  const onEditSubmit = async (data: BlacklistFormValues) => {
-    if (!editingEntry) return;
-    setIsSubmitting(true);
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+  const handleSave = async () => {
+    if (!form.fullName.trim() || !form.description.trim()) {
+      toast.error("Full name and description are required"); return;
+    }
+    setSaving(true);
+    await new Promise(r => setTimeout(r, 400));
 
-      const updatedEntry: BlacklistEntry = {
-        ...editingEntry,
-        ...data,
-        email: data.email || undefined,
-        amountOwed: data.amountOwed ? parseFloat(data.amountOwed) : undefined,
+    if (editEntry) {
+      setEntries(prev => prev.map(e => e.id === editEntry.id ? {
+        ...e, ...form,
+        amountOwed: form.amountOwed ? parseFloat(form.amountOwed) : undefined,
+        updatedAt: new Date().toISOString().split("T")[0],
+      } : e));
+      toast.success("Record updated");
+      setEditOpen(false); setEditEntry(null);
+    } else {
+      const newEntry: BlacklistEntry = {
+        id: `BL${String(entries.length + 1).padStart(3, "0")}`,
+        ...form,
+        amountOwed: form.amountOwed ? parseFloat(form.amountOwed) : undefined,
+        reportedBy: "Admin", status: "active",
+        createdAt: new Date().toISOString().split("T")[0],
         updatedAt: new Date().toISOString().split("T")[0],
       };
-
-      setBlacklist(
-        blacklist.map((entry) =>
-          entry.id === editingEntry.id ? updatedEntry : entry
-        )
-      );
-      setIsEditDialogOpen(false);
-      setEditingEntry(null);
-      editForm.reset();
-      toast.success("Blacklist entry updated successfully");
-    } catch {
-      toast.error("Failed to update blacklist entry");
-    } finally {
-      setIsSubmitting(false);
+      setEntries(prev => [newEntry, ...prev]);
+      toast.success("Added to blacklist");
+      setAddOpen(false);
     }
+    setForm(EMPTY_FORM); setSaving(false);
   };
 
+  // ── Form UI (shared for add and edit) ────────────────────────────────────────
+  const EntryFormUI = () => (
+    <div className="space-y-4 py-2">
+      {/* Personal */}
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div>
+          <label className="text-xs font-medium text-gray-300 block mb-1">Full Name *</label>
+          <Input value={form.fullName} onChange={e => setForm(f => ({...f, fullName: e.target.value}))} placeholder="Full legal name" className="bg-[#0a1628] border-white/20 text-white" />
+        </div>
+        <div>
+          <label className="text-xs font-medium text-gray-300 block mb-1">ID / Passport Number</label>
+          <Input value={form.idNumber} onChange={e => setForm(f => ({...f, idNumber: e.target.value}))} placeholder="National ID or Passport" className="bg-[#0a1628] border-white/20 text-white" />
+        </div>
+        <div className="sm:col-span-2">
+          <label className="text-xs font-medium text-gray-300 block mb-1">Phone Number(s)</label>
+          <Input value={form.phoneNumber} onChange={e => setForm(f => ({...f, phoneNumber: e.target.value}))} placeholder="0712 345 678 / 0722 000 000" className="bg-[#0a1628] border-white/20 text-white" />
+        </div>
+        <div>
+          <label className="text-xs font-medium text-gray-300 block mb-1">Driving License</label>
+          <Input value={form.drivingLicenseNumber} onChange={e => setForm(f => ({...f, drivingLicenseNumber: e.target.value}))} placeholder="License number" className="bg-[#0a1628] border-white/20 text-white" />
+        </div>
+        <div>
+          <label className="text-xs font-medium text-gray-300 block mb-1">Residence / Known Area</label>
+          <Input value={form.residence} onChange={e => setForm(f => ({...f, residence: e.target.value}))} placeholder="Westlands / Karen" className="bg-[#0a1628] border-white/20 text-white" />
+        </div>
+      </div>
+      {/* Incident */}
+      <div className="grid gap-3 sm:grid-cols-2 pt-2 border-t border-white/10">
+        <div>
+          <label className="text-xs font-medium text-gray-300 block mb-1">Record Type *</label>
+          <Select value={form.recordType} onValueChange={v => setForm(f => ({...f, recordType: v as BlacklistEntry["recordType"]}))}>
+            <SelectTrigger className="bg-[#0a1628] border-white/20 text-white"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              {Object.entries(TYPE_CFG).map(([k, v]) => <SelectItem key={k} value={k}>{v.label}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <label className="text-xs font-medium text-gray-300 block mb-1">Severity *</label>
+          <Select value={form.severity} onValueChange={v => setForm(f => ({...f, severity: v as BlacklistEntry["severity"]}))}>
+            <SelectTrigger className="bg-[#0a1628] border-white/20 text-white"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              {Object.entries(SEV_CFG).map(([k, v]) => <SelectItem key={k} value={k}>{v.label}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <label className="text-xs font-medium text-gray-300 block mb-1">Incident Date</label>
+          <Input type="date" value={form.incidentDate} onChange={e => setForm(f => ({...f, incidentDate: e.target.value}))} className="bg-[#0a1628] border-white/20 text-white" />
+        </div>
+        <div>
+          <label className="text-xs font-medium text-gray-300 block mb-1">Vehicle Involved</label>
+          <Input value={form.vehicleInvolved} onChange={e => setForm(f => ({...f, vehicleInvolved: e.target.value}))} placeholder="Toyota Prado KCX 123A" className="bg-[#0a1628] border-white/20 text-white" />
+        </div>
+        <div>
+          <label className="text-xs font-medium text-gray-300 block mb-1">Amount Owed (KES)</label>
+          <Input type="number" value={form.amountOwed} onChange={e => setForm(f => ({...f, amountOwed: e.target.value}))} placeholder="0" className="bg-[#0a1628] border-white/20 text-white" />
+        </div>
+        <div>
+          <label className="text-xs font-medium text-gray-300 block mb-1">Police Report / OB No.</label>
+          <Input value={form.policeReportNumber} onChange={e => setForm(f => ({...f, policeReportNumber: e.target.value}))} placeholder="OB/123/2024" className="bg-[#0a1628] border-white/20 text-white" />
+        </div>
+        <div className="sm:col-span-2">
+          <label className="text-xs font-medium text-gray-300 block mb-1">Description *</label>
+          <Textarea value={form.description} onChange={e => setForm(f => ({...f, description: e.target.value}))} placeholder="Detailed incident description..." className="bg-[#0a1628] border-white/20 text-white min-h-[80px]" />
+        </div>
+      </div>
+    </div>
+  );
+
+  // ── Render ───────────────────────────────────────────────────────────────────
   return (
     <div className="space-y-6">
+
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-3">
-            <ShieldAlert className="h-7 w-7 text-rose-500" />
+          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+            <ShieldAlert className="h-6 w-6 text-rose-500" />
             Client Blacklist
           </h1>
-          <p className="text-gray-400 mt-1 text-sm">
-            Track and manage flagged clients to prevent future incidents
+          <p className="text-gray-400 text-sm mt-0.5">
+            {stats.total} flagged individuals · {stats.active} active cases
           </p>
         </div>
-        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-red-600 hover:bg-red-700 text-white">
-              <Plus className="mr-2 h-4 w-4" />
-              Add to Blacklist
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2 text-red-600">
-                <ShieldAlert className="h-5 w-5" />
-                Add Client to Blacklist
-              </DialogTitle>
-              <DialogDescription>
-                Enter the client details and incident information. All blacklisted entries will be
-                checked during new bookings.
-              </DialogDescription>
-            </DialogHeader>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                {/* Personal Information */}
-                <div className="rounded-lg border border-red-500/50 dark:border-red-800 bg-red-900/30/50 dark:bg-red-950/20 p-4">
-                  <h4 className="font-semibold text-red-300 dark:text-red-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
-                    <User className="h-4 w-4" />
-                    Personal Information
-                  </h4>
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <FormField
-                      control={form.control}
-                      name="fullName"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-gray-800 dark:text-gray-200">Full Name *</FormLabel>
-                          <FormControl>
-                            <Input placeholder="John Kamau Mwangi" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="idNumber"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-gray-800 dark:text-gray-200">ID/Passport Number *</FormLabel>
-                          <FormControl>
-                            <Input placeholder="12345678" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="phoneNumber"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-gray-800 dark:text-gray-200">Phone Number *</FormLabel>
-                          <FormControl>
-                            <Input placeholder="0712345678" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="email"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-gray-800 dark:text-gray-200">Email</FormLabel>
-                          <FormControl>
-                            <Input placeholder="email@example.com" type="email" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="drivingLicenseNumber"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-gray-800 dark:text-gray-200">Driving License Number</FormLabel>
-                          <FormControl>
-                            <Input placeholder="DL123456" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="kraPin"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-gray-800 dark:text-gray-200">KRA PIN</FormLabel>
-                          <FormControl>
-                            <Input placeholder="A012345678B" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="residence"
-                      render={({ field }) => (
-                        <FormItem className="sm:col-span-2">
-                          <FormLabel className="text-gray-800 dark:text-gray-200">Residence/Address</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Westlands, Nairobi" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </div>
-
-                {/* Incident Details */}
-                <div className="rounded-lg border border-orange-500/50 dark:border-orange-800 bg-orange-900/30/50 dark:bg-orange-950/20 p-4">
-                  <h4 className="font-semibold text-orange-300 dark:text-orange-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
-                    <AlertTriangle className="h-4 w-4" />
-                    Incident Details
-                  </h4>
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <FormField
-                      control={form.control}
-                      name="recordType"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-gray-800 dark:text-gray-200">Record Type *</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600">
-                                <SelectValue placeholder="Select type" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="theft">Theft</SelectItem>
-                              <SelectItem value="fraud">Fraud</SelectItem>
-                              <SelectItem value="damage">Vehicle Damage</SelectItem>
-                              <SelectItem value="non-payment">Non-Payment</SelectItem>
-                              <SelectItem value="accident">Accident</SelectItem>
-                              <SelectItem value="other">Other</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="severity"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-gray-800 dark:text-gray-200">Severity *</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600">
-                                <SelectValue placeholder="Select severity" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="low">Low</SelectItem>
-                              <SelectItem value="medium">Medium</SelectItem>
-                              <SelectItem value="high">High</SelectItem>
-                              <SelectItem value="critical">Critical</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="incidentDate"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-gray-800 dark:text-gray-200">Incident Date *</FormLabel>
-                          <FormControl>
-                            <DatePicker
-                              value={field.value}
-                              onChange={(date) => field.onChange(date ? date.toISOString().split("T")[0] : "")}
-                              placeholder="Select incident date"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="vehicleInvolved"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-gray-800 dark:text-gray-200">Vehicle Involved</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Toyota Prado KCX 123A" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="amountOwed"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-gray-800 dark:text-gray-200">Amount Owed (KES)</FormLabel>
-                          <FormControl>
-                            <Input type="number" placeholder="150000" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="policeReportNumber"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-gray-800 dark:text-gray-200">Police Report Number</FormLabel>
-                          <FormControl>
-                            <Input placeholder="OB/123/2024" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600" {...field} />
-                          </FormControl>
-                          <FormDescription className="text-xs text-gray-500 dark:text-gray-400">
-                            If a police report was filed
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="description"
-                      render={({ field }) => (
-                        <FormItem className="sm:col-span-2">
-                          <FormLabel className="text-gray-800 dark:text-gray-200">Detailed Description *</FormLabel>
-                          <FormControl>
-                            <Textarea
-                              placeholder="Provide a detailed account of the incident, including dates, amounts, and any relevant circumstances..."
-                              className="min-h-[100px] bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormDescription className="text-xs text-gray-500 dark:text-gray-400">
-                            Be as detailed as possible for future reference
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </div>
-
-                {/* Supporting Documents */}
-                <div className="rounded-lg border border-blue-500/50 dark:border-blue-800 bg-blue-900/30/50 dark:bg-blue-950/20 p-4">
-                  <h4 className="font-semibold text-blue-300 dark:text-blue-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
-                    <Upload className="h-4 w-4" />
-                    Supporting Documents
-                  </h4>
-                  
-                  {/* ID Document Uploads */}
-                  <div className="mb-6">
-                    <h5 className="text-sm font-medium text-blue-600 dark:text-blue-300 mb-3 flex items-center gap-2">
-                      <IdCard className="h-4 w-4" />
-                      National ID / Passport
-                    </h5>
-                    <div className="grid gap-4 sm:grid-cols-2">
-                      <FormField
-                        control={form.control}
-                        name="idFrontUrl"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FileUpload
-                              id="blacklist-id-front"
-                              label="ID Front Side"
-                              accept="image/*,.pdf"
-                              maxSize={5}
-                              value={field.value || null}
-                              onChange={(url) => field.onChange(url || "")}
-                              showCamera
-                            />
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="idBackUrl"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FileUpload
-                              id="blacklist-id-back"
-                              label="ID Back Side"
-                              accept="image/*,.pdf"
-                              maxSize={5}
-                              value={field.value || null}
-                              onChange={(url) => field.onChange(url || "")}
-                              showCamera
-                            />
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Driving License Uploads */}
-                  <div className="mb-6">
-                    <h5 className="text-sm font-medium text-blue-600 dark:text-blue-300 mb-3 flex items-center gap-2">
-                      <CreditCard className="h-4 w-4" />
-                      Driving License
-                    </h5>
-                    <div className="grid gap-4 sm:grid-cols-2">
-                      <FormField
-                        control={form.control}
-                        name="drivingLicenseFrontUrl"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FileUpload
-                              id="blacklist-dl-front"
-                              label="License Front Side"
-                              accept="image/*,.pdf"
-                              maxSize={5}
-                              value={field.value || null}
-                              onChange={(url) => field.onChange(url || "")}
-                              showCamera
-                            />
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="drivingLicenseBackUrl"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FileUpload
-                              id="blacklist-dl-back"
-                              label="License Back Side"
-                              accept="image/*,.pdf"
-                              maxSize={5}
-                              value={field.value || null}
-                              onChange={(url) => field.onChange(url || "")}
-                              showCamera
-                            />
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Police Report Upload */}
-                  <div>
-                    <h5 className="text-sm font-medium text-blue-600 dark:text-blue-300 mb-3 flex items-center gap-2">
-                      <FileText className="h-4 w-4" />
-                      Police Report (OB)
-                    </h5>
-                    <FormField
-                      control={form.control}
-                      name="policeReportUrl"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FileUpload
-                            id="blacklist-police-report"
-                            label="Police Report / OB Document"
-                            accept="image/*,.pdf"
-                            maxSize={10}
-                            value={field.value || null}
-                            onChange={(url) => field.onChange(url || "")}
-                            showCamera
-                          />
-                          <FormDescription className="text-xs text-blue-500">
-                            Upload scanned copy of police report or OB extract
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </div>
-
-                <DialogFooter>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setIsAddDialogOpen(false)}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    type="submit"
-                    className="bg-red-600 hover:bg-red-700"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? "Adding..." : "Add to Blacklist"}
-                  </Button>
-                </DialogFooter>
-              </form>
-            </Form>
-          </DialogContent>
-        </Dialog>
+        <Button className="bg-red-600 hover:bg-red-700 gap-2" onClick={() => { setForm(EMPTY_FORM); setAddOpen(true); }}>
+          <Plus className="h-4 w-4" /> Add to Blacklist
+        </Button>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card className="border-red-500/30 bg-gradient-to-br from-red-500/10 to-red-600/5">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-red-300">Total Blacklisted</CardTitle>
-            <ShieldAlert className="h-5 w-5 text-red-400" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-white">{stats.total}</div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-orange-500/30 bg-gradient-to-br from-orange-500/10 to-orange-600/5">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-orange-300">Active Cases</CardTitle>
-            <AlertTriangle className="h-5 w-5 text-orange-400" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-white">{stats.active}</div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-red-500/30 bg-gradient-to-br from-red-500/10 to-red-600/5">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-red-300">Critical Severity</CardTitle>
-            <AlertOctagon className="h-5 w-5 text-red-400" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-white">{stats.critical}</div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-purple-500/30 bg-gradient-to-br from-purple-500/10 to-purple-600/5">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-purple-300">Total Amount Owed</CardTitle>
-            <CreditCard className="h-5 w-5 text-purple-400" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-white">
-              KES {stats.totalOwed.toLocaleString()}
-            </div>
-          </CardContent>
-        </Card>
+      {/* Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {[
+          { label: "Total Records",     value: stats.total,    color: "text-white"       },
+          { label: "Active Cases",      value: stats.active,   color: "text-red-400"     },
+          { label: "Critical Severity", value: stats.critical, color: "text-orange-400"  },
+          { label: "Total Owed",        value: fmt(stats.owed), color: "text-purple-400", small: true },
+        ].map(({ label, value, color, small }) => (
+          <Card key={label} className="border-white/10 bg-white/5">
+            <CardContent className="pt-4 pb-3">
+              <p className={`font-bold ${small ? "text-lg" : "text-3xl"} ${color}`}>{value}</p>
+              <p className="text-gray-500 text-xs mt-0.5">{label}</p>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
-      {/* Filters and Search */}
-      <Card className="border-border/50">
-        <CardContent className="pt-6">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder="Search by name, ID, phone, or license..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9"
-              />
-            </div>
-            <div className="flex gap-2 flex-wrap">
-              <Select value={filterType} onValueChange={setFilterType}>
-                <SelectTrigger className="w-[140px]">
-                  <SelectValue placeholder="Type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Types</SelectItem>
-                  <SelectItem value="theft">Theft</SelectItem>
-                  <SelectItem value="fraud">Fraud</SelectItem>
-                  <SelectItem value="damage">Damage</SelectItem>
-                  <SelectItem value="non-payment">Non-Payment</SelectItem>
-                  <SelectItem value="accident">Accident</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={filterSeverity} onValueChange={setFilterSeverity}>
-                <SelectTrigger className="w-[140px]">
-                  <SelectValue placeholder="Severity" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Severity</SelectItem>
-                  <SelectItem value="low">Low</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="high">High</SelectItem>
-                  <SelectItem value="critical">Critical</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={filterStatus} onValueChange={setFilterStatus}>
-                <SelectTrigger className="w-[140px]">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="resolved">Resolved</SelectItem>
-                  <SelectItem value="under-review">Under Review</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+      {/* Filters */}
+      <Card className="border-white/10 bg-white/5">
+        <CardContent className="pt-4 pb-4 flex flex-wrap gap-3">
+          <div className="relative flex-1 min-w-[200px]">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input placeholder="Search by name, ID, phone, description..."
+              value={search} onChange={e => setSearch(e.target.value)}
+              className="pl-9 bg-[#0a1628] border-white/20 text-white" />
           </div>
+          <Select value={typeFilter} onValueChange={setTypeFilter}>
+            <SelectTrigger className="w-44 bg-[#0a1628] border-white/20 text-white"><SelectValue placeholder="All Types" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Types</SelectItem>
+              {Object.entries(TYPE_CFG).map(([k, v]) => <SelectItem key={k} value={k}>{v.label}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          <Select value={sevFilter} onValueChange={setSevFilter}>
+            <SelectTrigger className="w-36 bg-[#0a1628] border-white/20 text-white"><SelectValue placeholder="All Severity" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Severity</SelectItem>
+              {Object.entries(SEV_CFG).map(([k, v]) => <SelectItem key={k} value={k}>{v.label}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-36 bg-[#0a1628] border-white/20 text-white"><SelectValue placeholder="All Status" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="active">Active</SelectItem>
+              <SelectItem value="under-review">Under Review</SelectItem>
+              <SelectItem value="resolved">Resolved</SelectItem>
+            </SelectContent>
+          </Select>
         </CardContent>
       </Card>
 
-      {/* Blacklist Table */}
-      <Card className="border-border/50">
-        <CardHeader>
-          <CardTitle>Blacklist Records</CardTitle>
-          <CardDescription>
-            {filteredBlacklist.length} record(s) found
-          </CardDescription>
+      {/* Table */}
+      <Card className="border-white/10">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-white text-sm font-medium">Blacklist Records</CardTitle>
+          <CardDescription>{filtered.length} record{filtered.length !== 1 ? "s" : ""} found</CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="rounded-lg border overflow-hidden">
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="bg-muted/50">
-                  <TableHead>Client</TableHead>
-                  <TableHead>ID Number</TableHead>
-                  <TableHead>Record Type</TableHead>
-                  <TableHead>Severity</TableHead>
-                  <TableHead>Amount Owed</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                <TableRow className="border-white/10 hover:bg-transparent">
+                  <TableHead className="text-gray-400">Client</TableHead>
+                  <TableHead className="text-gray-400">ID Number</TableHead>
+                  <TableHead className="text-gray-400">Record Type</TableHead>
+                  <TableHead className="text-gray-400">Severity</TableHead>
+                  <TableHead className="text-gray-400">Status</TableHead>
+                  <TableHead className="text-gray-400">Date</TableHead>
+                  <TableHead className="text-gray-400 text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredBlacklist.length === 0 ? (
+                {filtered.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                      No blacklist records found
+                    <TableCell colSpan={7} className="text-center py-12 text-gray-500">
+                      {search || typeFilter !== "all" || sevFilter !== "all" || statusFilter !== "all"
+                        ? "No records match your filters"
+                        : "No blacklist records"}
                     </TableCell>
                   </TableRow>
-                ) : (
-                  filteredBlacklist.map((entry) => {
-                    const TypeIcon = recordTypeConfig[entry.recordType].icon;
-                    return (
-                      <TableRow key={entry.id} className="hover:bg-muted/30">
-                        <TableCell>
-                          <div className="flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-900/300/10">
-                              <User className="h-5 w-5 text-red-400" />
-                            </div>
-                            <div>
-                              <p className="font-medium text-foreground">{entry.clientName || entry.fullName || "-"}</p>
-                              <p className="text-sm text-muted-foreground">{entry.phone || entry.phoneNumber || "-"}</p>
-                            </div>
+                ) : filtered.map(entry => {
+                  const tc = TYPE_CFG[entry.recordType] ?? TYPE_CFG["other"];
+                  const Icon = tc.icon;
+                  return (
+                    <TableRow key={entry.id} className="border-white/10 hover:bg-white/5">
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-full bg-red-900/40 border border-red-700/50 flex items-center justify-center shrink-0">
+                            <User className="h-4 w-4 text-red-400" />
                           </div>
-                        </TableCell>
-                        <TableCell className="font-mono text-sm">{entry.idNumber || "-"}</TableCell>
-                        <TableCell>
-                          <Badge 
-                            variant="outline" 
-                            className={`${recordTypeConfig[entry.recordType].color} ${recordTypeConfig[entry.recordType].bgColor} gap-1.5 font-medium`}
-                          >
-                            <TypeIcon className="h-3.5 w-3.5" />
-                            {recordTypeConfig[entry.recordType].label}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Badge className={severityConfig[entry.severity].color}>
-                            {severityConfig[entry.severity].label}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          {entry.amountOwed ? (
-                            <span className="font-semibold text-red-400">
-                              KES {entry.amountOwed.toLocaleString()}
-                            </span>
-                          ) : (
-                            <span className="text-muted-foreground">-</span>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <Select
-                            value={entry.status}
-                            onValueChange={(value: BlacklistEntry["status"]) =>
-                              handleStatusChange(entry.id, value)
-                            }
-                          >
-                            <SelectTrigger className="w-[130px] h-8">
-                              <Badge className={statusConfig[entry.status].color}>
-                                {statusConfig[entry.status].label}
-                              </Badge>
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="active">Active</SelectItem>
-                              <SelectItem value="under-review">Under Review</SelectItem>
-                              <SelectItem value="resolved">Resolved</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex items-center justify-end gap-1">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8"
-                              onClick={() => {
-                                setSelectedEntry(entry);
-                                setIsViewDialogOpen(true);
-                              }}
-                            >
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 text-blue-400 hover:text-blue-300 hover:bg-blue-900/300/10"
-                              onClick={() => handleEdit(entry)}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-8 w-8 text-red-400 hover:text-red-300 hover:bg-red-900/300/10"
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>Remove from Blacklist?</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    Are you sure you want to remove {entry.clientName || entry.fullName || "this person"} from the
-                                    blacklist? This action cannot be undone.
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                  <AlertDialogAction
-                                    onClick={() => handleDelete(entry.id)}
-                                    className="bg-red-600 hover:bg-red-700"
-                                  >
-                                    Remove
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
+                          <div>
+                            <p className="font-medium text-white text-sm">{entry.fullName}</p>
+                            <p className="text-gray-500 text-xs flex items-center gap-1">
+                              <Phone className="h-3 w-3" />{entry.phoneNumber || "—"}
+                            </p>
                           </div>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })
-                )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <span className="font-mono text-sm text-gray-300 flex items-center gap-1">
+                          <IdCard className="h-3 w-3 text-gray-500" />
+                          {entry.idNumber || "—"}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <Badge className={`${tc.badge} gap-1.5 text-xs`}>
+                          <Icon className="h-3 w-3" />{tc.label}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge className={`${SEV_CFG[entry.severity]?.badge ?? "bg-gray-600 text-white"} text-xs`}>
+                          {SEV_CFG[entry.severity]?.label ?? entry.severity}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Select value={entry.status} onValueChange={v => handleStatusChange(entry.id, v as BlacklistEntry["status"])}>
+                          <SelectTrigger className="w-32 h-7 bg-transparent border-white/10 text-xs">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="active">Active</SelectItem>
+                            <SelectItem value="under-review">Under Review</SelectItem>
+                            <SelectItem value="resolved">Resolved</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </TableCell>
+                      <TableCell>
+                        <span className="text-gray-400 text-xs flex items-center gap-1">
+                          <Calendar className="h-3 w-3" />{entry.incidentDate}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end gap-1">
+                          <Button variant="ghost" size="icon" className="h-7 w-7 text-gray-400 hover:text-white" onClick={() => setViewing(entry)}>
+                            <Eye className="h-3.5 w-3.5" />
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-7 w-7 text-blue-400 hover:text-blue-300" onClick={() => openEdit(entry)}>
+                            <Edit className="h-3.5 w-3.5" />
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-7 w-7 text-red-400 hover:text-red-300" onClick={() => handleDelete(entry.id)}>
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </div>
         </CardContent>
       </Card>
 
-      {/* View Details Dialog */}
-      <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-        <DialogContent className="max-w-2xl bg-white dark:bg-gray-900">
+      {/* View Dialog */}
+      <Dialog open={!!viewing} onOpenChange={o => { if (!o) setViewing(null); }}>
+        <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-gray-900 dark:text-white">
-              <ShieldAlert className="h-5 w-5 text-red-500" />
-              Blacklist Entry Details
+            <DialogTitle className="text-red-400 flex items-center gap-2">
+              <ShieldAlert className="h-5 w-5" />Blacklist Record
             </DialogTitle>
+            <DialogDescription>Full details for this flagged individual</DialogDescription>
           </DialogHeader>
-          {selectedEntry && (
-            <div className="space-y-6">
-              {/* Personal Info */}
-              <div className="rounded-lg border-2 border-red-300 dark:border-red-600 bg-white dark:bg-gray-800 p-4">
-                <h4 className="font-bold text-red-600 dark:text-red-400 mb-3 flex items-center gap-2 text-base">
-                  <User className="h-4 w-4" />
-                  Personal Information
-                </h4>
-                <div className="grid gap-3 sm:grid-cols-2 text-sm">
-                  <div>
-                    <span className="text-gray-600 dark:text-gray-300 font-medium">Full Name:</span>
-                    <p className="font-semibold text-gray-900 dark:text-white mt-0.5">{selectedEntry.fullName}</p>
-                  </div>
-                  <div>
-                    <span className="text-gray-600 dark:text-gray-300 font-medium">ID Number:</span>
-                    <p className="font-mono font-semibold text-gray-900 dark:text-white mt-0.5">{selectedEntry.idNumber}</p>
-                  </div>
-                  <div>
-                    <span className="text-gray-600 dark:text-gray-300 font-medium">Phone:</span>
-                    <p className="font-semibold text-gray-900 dark:text-white mt-0.5">{selectedEntry.phoneNumber}</p>
-                  </div>
-                  {selectedEntry.email && (
-                    <div>
-                      <span className="text-gray-600 dark:text-gray-300 font-medium">Email:</span>
-                      <p className="font-semibold text-gray-900 dark:text-white mt-0.5">{selectedEntry.email}</p>
-                    </div>
-                  )}
-                  {selectedEntry.drivingLicenseNumber && (
-                    <div>
-                      <span className="text-gray-600 dark:text-gray-300 font-medium">License:</span>
-                      <p className="font-mono font-semibold text-gray-900 dark:text-white mt-0.5">{selectedEntry.drivingLicenseNumber}</p>
-                    </div>
-                  )}
-                  {selectedEntry.kraPin && (
-                    <div>
-                      <span className="text-gray-600 dark:text-gray-300 font-medium">KRA PIN:</span>
-                      <p className="font-mono font-semibold text-gray-900 dark:text-white mt-0.5">{selectedEntry.kraPin}</p>
-                    </div>
-                  )}
-                  {selectedEntry.residence && (
-                    <div className="sm:col-span-2">
-                      <span className="text-gray-600 dark:text-gray-300 font-medium">Residence:</span>
-                      <p className="font-semibold text-gray-900 dark:text-white mt-0.5">{selectedEntry.residence}</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Incident Info */}
-              <div className="rounded-lg border-2 border-orange-300 dark:border-orange-600 bg-white dark:bg-gray-800 p-4">
-                <h4 className="font-bold text-orange-600 dark:text-orange-400 mb-3 flex items-center gap-2 text-base">
-                  <AlertTriangle className="h-4 w-4" />
-                  Incident Details
-                </h4>
-                <div className="grid gap-3 sm:grid-cols-2 text-sm">
-                  <div>
-                    <span className="text-gray-600 dark:text-gray-300 font-medium">Record Type:</span>
-                    <div className="mt-1">
-                      <Badge className={recordTypeConfig[selectedEntry.recordType].color}>
-                        {recordTypeConfig[selectedEntry.recordType].label}
-                      </Badge>
-                    </div>
-                  </div>
-                  <div>
-                    <span className="text-gray-600 dark:text-gray-300 font-medium">Severity:</span>
-                    <div className="mt-1">
-                      <Badge className={severityConfig[selectedEntry.severity].color}>
-                        {severityConfig[selectedEntry.severity].label}
-                      </Badge>
-                    </div>
-                  </div>
-                  <div>
-                    <span className="text-gray-600 dark:text-gray-300 font-medium">Incident Date:</span>
-                    <p className="font-semibold text-gray-900 dark:text-white mt-0.5">{new Date(selectedEntry.incidentDate).toLocaleDateString()}</p>
-                  </div>
-                  <div>
-                    <span className="text-gray-600 dark:text-gray-300 font-medium">Status:</span>
-                    <div className="mt-1">
-                      <Badge className={statusConfig[selectedEntry.status].color}>
-                        {statusConfig[selectedEntry.status].label}
-                      </Badge>
-                    </div>
-                  </div>
-                  {selectedEntry.vehicleInvolved && (
-                    <div>
-                      <span className="text-gray-600 dark:text-gray-300 font-medium">Vehicle:</span>
-                      <p className="font-mono font-semibold text-gray-900 dark:text-white mt-0.5">{selectedEntry.vehicleInvolved}</p>
-                    </div>
-                  )}
-                  {selectedEntry.amountOwed && (
-                    <div>
-                      <span className="text-gray-600 dark:text-gray-300 font-medium">Amount Owed:</span>
-                      <p className="font-bold text-red-600 dark:text-red-400 mt-0.5">
-                        KES {selectedEntry.amountOwed.toLocaleString()}
-                      </p>
-                    </div>
-                  )}
-                  {selectedEntry.policeReportNumber && (
-                    <div>
-                      <span className="text-gray-600 dark:text-gray-300 font-medium">Police Report:</span>
-                      <p className="font-mono font-semibold text-gray-900 dark:text-white mt-0.5">{selectedEntry.policeReportNumber}</p>
-                    </div>
-                  )}
-                  <div>
-                    <span className="text-gray-600 dark:text-gray-300 font-medium">Reported By:</span>
-                    <p className="font-semibold text-gray-900 dark:text-white mt-0.5">{selectedEntry.reportedBy}</p>
-                  </div>
-                  <div className="sm:col-span-2">
-                    <span className="text-gray-600 dark:text-gray-300 font-medium">Description:</span>
-                    <p className="mt-1 font-medium text-gray-900 dark:text-white leading-relaxed">{selectedEntry.description}</p>
+          {viewing && (() => {
+            const tc = TYPE_CFG[viewing.recordType] ?? TYPE_CFG["other"];
+            const Icon = tc.icon;
+            return (
+              <div className="space-y-4 text-sm">
+                <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 space-y-2">
+                  <h3 className="font-bold text-white text-base">{viewing.fullName}</h3>
+                  <div className="flex flex-wrap gap-2">
+                    <Badge className={`${tc.badge} gap-1.5 text-xs`}><Icon className="h-3.5 w-3.5" />{tc.label}</Badge>
+                    <Badge className={`${SEV_CFG[viewing.severity]?.badge} text-xs`}>{SEV_CFG[viewing.severity]?.label}</Badge>
+                    <Badge className={`${STATUS_CFG[viewing.status]?.badge} text-xs`}>{STATUS_CFG[viewing.status]?.label}</Badge>
                   </div>
                 </div>
+                <div className="grid gap-2 text-xs">
+                  {[
+                    { icon: IdCard,        label: "ID Number",  val: viewing.idNumber     },
+                    { icon: Phone,         label: "Phone",      val: viewing.phoneNumber  },
+                    { icon: Calendar,      label: "Incident",   val: viewing.incidentDate },
+                    { icon: AlertTriangle, label: "Area",       val: viewing.residence    },
+                    { icon: User,          label: "Reported By",val: viewing.reportedBy   },
+                  ].filter(r => r.val).map(({ icon: RI, label, val }) => (
+                    <div key={label} className="flex items-center gap-2">
+                      <RI className="h-3.5 w-3.5 text-gray-500 shrink-0" />
+                      <span className="text-gray-400 shrink-0">{label}:</span>
+                      <span className="text-white">{val}</span>
+                    </div>
+                  ))}
+                  {viewing.amountOwed ? (
+                    <div className="flex items-center gap-2">
+                      <CreditCard className="h-3.5 w-3.5 text-gray-500 shrink-0" />
+                      <span className="text-gray-400 shrink-0">Amount Owed:</span>
+                      <span className="text-red-400 font-bold">{fmt(viewing.amountOwed)}</span>
+                    </div>
+                  ) : null}
+                </div>
+                <div className="bg-white/5 rounded-xl p-3 border border-white/10">
+                  <p className="text-xs text-gray-400 font-semibold mb-1 uppercase tracking-wide">Description</p>
+                  <p className="text-sm text-gray-200">{viewing.description}</p>
+                </div>
               </div>
-
-              <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400">
-                <span>Created: {new Date(selectedEntry.createdAt).toLocaleDateString()}</span>
-                <span>Updated: {new Date(selectedEntry.updatedAt).toLocaleDateString()}</span>
-              </div>
-            </div>
-          )}
+            );
+          })()}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsViewDialogOpen(false)}>
-              Close
+            <Button variant="outline" onClick={() => setViewing(null)}>Close</Button>
+            <Button className="bg-blue-600 hover:bg-blue-700 gap-1.5" onClick={() => { if (viewing) { setViewing(null); openEdit(viewing); } }}>
+              <Edit className="h-3.5 w-3.5" />Edit
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Dialog */}
+      <Dialog open={addOpen} onOpenChange={o => { setAddOpen(o); if (!o) setForm(EMPTY_FORM); }}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-red-400 flex items-center gap-2">
+              <Plus className="h-5 w-5" />Add to Blacklist
+            </DialogTitle>
+            <DialogDescription>Enter the client details and incident information.</DialogDescription>
+          </DialogHeader>
+          <EntryFormUI />
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setAddOpen(false)}>Cancel</Button>
+            <Button className="bg-red-600 hover:bg-red-700" onClick={handleSave} disabled={saving}>
+              {saving ? "Saving..." : "Add to Blacklist"}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       {/* Edit Dialog */}
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900 border-gray-600 dark:border-gray-700">
-          <DialogHeader className="border-b border-gray-600 dark:border-gray-700 pb-4">
-            <DialogTitle className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
-              <Edit className="h-5 w-5" />
-              Edit Blacklist Entry
+      <Dialog open={editOpen} onOpenChange={o => { setEditOpen(o); if (!o) { setEditEntry(null); setForm(EMPTY_FORM); } }}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-blue-400 flex items-center gap-2">
+              <Edit className="h-5 w-5" />Edit Record — {editEntry?.fullName}
             </DialogTitle>
-            <DialogDescription className="text-gray-600 dark:text-gray-400">
-              Update information for this blacklist record. You can add new phone numbers, update crime types, or modify any other details.
-            </DialogDescription>
+            <DialogDescription>Update the blacklist record. Changes apply immediately.</DialogDescription>
           </DialogHeader>
-          {editingEntry && (
-            <Form {...editForm}>
-              <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-6">
-                {/* Personal Information */}
-                <div className="rounded-lg border border-red-300 dark:border-red-700 bg-red-900/30 dark:bg-red-950/50 p-4 shadow-sm">
-                  <h4 className="font-semibold text-red-800 dark:text-red-300 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
-                    <User className="h-4 w-4" />
-                    Personal Information
-                  </h4>
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <FormField control={editForm.control} name="fullName" render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-gray-800 dark:text-gray-200">Full Name *</FormLabel>
-                        <FormControl><Input placeholder="Full legal name" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600" {...field} /></FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )} />
-                    <FormField control={editForm.control} name="idNumber" render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-gray-800 dark:text-gray-200">ID Number *</FormLabel>
-                        <FormControl><Input placeholder="National ID number" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600" {...field} /></FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )} />
-                    <FormField control={editForm.control} name="phoneNumber" render={({ field }) => (
-                      <FormItem className="sm:col-span-2">
-                        <FormLabel className="text-gray-800 dark:text-gray-200">Phone Number(s) *</FormLabel>
-                        <FormControl><Input placeholder="e.g., 0712345678 / 0723456789 (separate multiple with /)" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600" {...field} /></FormControl>
-                        <FormDescription className="text-xs text-blue-600 dark:text-blue-400">
-                          Add multiple phone numbers separated by / if the person uses different numbers
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )} />
-                    <FormField control={editForm.control} name="email" render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-gray-800 dark:text-gray-200">Email</FormLabel>
-                        <FormControl><Input type="email" placeholder="email@example.com" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600" {...field} /></FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )} />
-                    <FormField control={editForm.control} name="drivingLicenseNumber" render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-gray-800 dark:text-gray-200">Driving License</FormLabel>
-                        <FormControl><Input placeholder="License number" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600" {...field} /></FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )} />
-                    <FormField control={editForm.control} name="kraPin" render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-gray-800 dark:text-gray-200">KRA PIN</FormLabel>
-                        <FormControl><Input placeholder="KRA PIN" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600" {...field} /></FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )} />
-                    <FormField control={editForm.control} name="residence" render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-gray-800 dark:text-gray-200">Known Locations/Residence</FormLabel>
-                        <FormControl><Input placeholder="e.g., Westlands / Kilimani / Karen" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600" {...field} /></FormControl>
-                        <FormDescription className="text-xs text-blue-600 dark:text-blue-400">
-                          Add multiple locations separated by / if known
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )} />
-                  </div>
-                </div>
-
-                {/* Incident Details */}
-                <div className="rounded-lg border border-orange-300 dark:border-orange-700 bg-orange-900/30 dark:bg-orange-950/50 p-4 shadow-sm">
-                  <h4 className="font-semibold text-orange-800 dark:text-orange-300 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
-                    <AlertTriangle className="h-4 w-4" />
-                    Incident Details
-                  </h4>
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <FormField control={editForm.control} name="recordType" render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-gray-800 dark:text-gray-200">Record Type *</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <FormControl>
-                            <SelectTrigger className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600">
-                              <SelectValue placeholder="Select type" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="theft">Theft</SelectItem>
-                            <SelectItem value="fraud">Fraud / Broker Obtaining</SelectItem>
-                            <SelectItem value="damage">Vehicle Damage</SelectItem>
-                            <SelectItem value="non-payment">Non-Payment</SelectItem>
-                            <SelectItem value="accident">Accident</SelectItem>
-                            <SelectItem value="drug-related">Drug Related</SelectItem>
-                            <SelectItem value="violent-dangerous">Violent / Dangerous</SelectItem>
-                            <SelectItem value="suspicious">Suspicious Activity</SelectItem>
-                            <SelectItem value="other">Other</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )} />
-                    <FormField control={editForm.control} name="severity" render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-gray-800 dark:text-gray-200">Severity *</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <FormControl>
-                            <SelectTrigger className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600">
-                              <SelectValue placeholder="Select severity" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="low">Low</SelectItem>
-                            <SelectItem value="medium">Medium</SelectItem>
-                            <SelectItem value="high">High</SelectItem>
-                            <SelectItem value="critical">Critical</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )} />
-                    <FormField control={editForm.control} name="incidentDate" render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-gray-800 dark:text-gray-200">Incident Date *</FormLabel>
-                        <FormControl>
-                          <DatePicker
-                            value={field.value}
-                            onChange={(date) => field.onChange(date ? date.toISOString().split("T")[0] : "")}
-                            placeholder="Select incident date"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )} />
-                    <FormField control={editForm.control} name="vehicleInvolved" render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-gray-800 dark:text-gray-200">Vehicle Involved</FormLabel>
-                        <FormControl><Input placeholder="e.g., Toyota Prado KCX 123A" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600" {...field} /></FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )} />
-                    <FormField control={editForm.control} name="amountOwed" render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-gray-800 dark:text-gray-200">Amount Owed (KES)</FormLabel>
-                        <FormControl><Input type="number" placeholder="0" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600" {...field} /></FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )} />
-                    <FormField control={editForm.control} name="policeReportNumber" render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-gray-800 dark:text-gray-200">Police Report / OB Number</FormLabel>
-                        <FormControl><Input placeholder="e.g., OB/123/2024" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600" {...field} /></FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )} />
-                    <FormField control={editForm.control} name="description" render={({ field }) => (
-                      <FormItem className="sm:col-span-2">
-                        <FormLabel className="text-gray-800 dark:text-gray-200">Description *</FormLabel>
-                        <FormControl>
-                          <Textarea 
-                            placeholder="Detailed description of the incident, additional crimes, aliases used, etc." 
-                            className="min-h-[100px] bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
-                            {...field} 
-                          />
-                        </FormControl>
-                        <FormDescription className="text-xs text-orange-600 dark:text-orange-400">
-                          Include any new crimes, additional details, or updates to the original incident
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )} />
-                  </div>
-                </div>
-
-                {/* Document Uploads */}
-                <div className="rounded-lg border border-blue-300 dark:border-blue-700 bg-blue-900/30 dark:bg-blue-950/50 p-4 shadow-sm">
-                  <h4 className="font-semibold text-blue-800 dark:text-blue-300 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
-                    <Upload className="h-4 w-4" />
-                    Supporting Documents
-                  </h4>
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <FormField control={editForm.control} name="idFrontUrl" render={({ field }) => (
-                      <FormItem>
-                        <FileUpload
-                          id="edit-id-front"
-                          label="ID Front Side"
-                          accept="image/*,.pdf"
-                          maxSize={5}
-                          value={field.value || null}
-                          onChange={(url) => field.onChange(url || "")}
-                          showCamera
-                        />
-                        <FormMessage />
-                      </FormItem>
-                    )} />
-                    <FormField control={editForm.control} name="idBackUrl" render={({ field }) => (
-                      <FormItem>
-                        <FileUpload
-                          id="edit-id-back"
-                          label="ID Back Side"
-                          accept="image/*,.pdf"
-                          maxSize={5}
-                          value={field.value || null}
-                          onChange={(url) => field.onChange(url || "")}
-                          showCamera
-                        />
-                        <FormMessage />
-                      </FormItem>
-                    )} />
-                    <FormField control={editForm.control} name="drivingLicenseFrontUrl" render={({ field }) => (
-                      <FormItem>
-                        <FileUpload
-                          id="edit-dl-front"
-                          label="License Front Side"
-                          accept="image/*,.pdf"
-                          maxSize={5}
-                          value={field.value || null}
-                          onChange={(url) => field.onChange(url || "")}
-                          showCamera
-                        />
-                        <FormMessage />
-                      </FormItem>
-                    )} />
-                    <FormField control={editForm.control} name="drivingLicenseBackUrl" render={({ field }) => (
-                      <FormItem>
-                        <FileUpload
-                          id="edit-dl-back"
-                          label="License Back Side"
-                          accept="image/*,.pdf"
-                          maxSize={5}
-                          value={field.value || null}
-                          onChange={(url) => field.onChange(url || "")}
-                          showCamera
-                        />
-                        <FormMessage />
-                      </FormItem>
-                    )} />
-                    <FormField control={editForm.control} name="policeReportUrl" render={({ field }) => (
-                      <FormItem className="sm:col-span-2">
-                        <FileUpload
-                          id="edit-police-report"
-                          label="Police Report / OB Document"
-                          accept="image/*,.pdf"
-                          maxSize={10}
-                          value={field.value || null}
-                          onChange={(url) => field.onChange(url || "")}
-                          showCamera
-                        />
-                        <FormMessage />
-                      </FormItem>
-                    )} />
-                  </div>
-                </div>
-
-                <DialogFooter className="gap-2">
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    onClick={() => {
-                      setIsEditDialogOpen(false);
-                      setEditingEntry(null);
-                    }}
-                  >
-                    Cancel
-                  </Button>
-                  <Button type="submit" className="bg-blue-600 hover:bg-blue-700" disabled={isSubmitting}>
-                    {isSubmitting ? "Saving..." : "Save Changes"}
-                  </Button>
-                </DialogFooter>
-              </form>
-            </Form>
-          )}
+          <EntryFormUI />
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setEditOpen(false)}>Cancel</Button>
+            <Button className="bg-blue-600 hover:bg-blue-700" onClick={handleSave} disabled={saving}>
+              {saving ? "Saving..." : "Save Changes"}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
