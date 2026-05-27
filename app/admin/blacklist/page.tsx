@@ -89,61 +89,16 @@ import { FileUpload } from "@/components/forms/file-upload";
 
 // Record type configuration with icons
 const recordTypeConfig: Record<string, { label: string; icon: LucideIcon; color: string; bgColor: string }> = {
-  theft: { 
-    label: "Theft", 
-    icon: Skull, 
-    color: "text-white",
-    bgColor: "bg-red-600 border-red-700"
-  },
-  fraud: { 
-    label: "Fraud", 
-    icon: Banknote, 
-    color: "text-white",
-    bgColor: "bg-orange-900/300 border-orange-600"
-  },
-  damage: { 
-    label: "Vehicle Damage", 
-    icon: Hammer, 
-    color: "text-white",
-    bgColor: "bg-yellow-900/300 border-yellow-600"
-  },
-  "non-payment": { 
-    label: "Non-Payment", 
-    icon: CreditCard, 
-    color: "text-white",
-    bgColor: "bg-purple-600 border-purple-700"
-  },
-  accident: { 
-    label: "Accident", 
-    icon: Car, 
-    color: "text-white",
-    bgColor: "bg-blue-600 border-blue-700"
-  },
-  "drug-related": { 
-    label: "Drug Related", 
-    icon: Syringe, 
-    color: "text-white",
-    bgColor: "bg-emerald-600 border-emerald-700"
-  },
-  "violent-dangerous": { 
-    label: "Violent / Dangerous", 
-    icon: Sword, 
-    color: "text-white",
-    bgColor: "bg-rose-600 border-rose-700"
-  },
-  suspicious: { 
-    label: "Suspicious Activity", 
-    icon: CircleAlert, 
-    color: "text-amber-300 dark:text-amber-400",
-    bgColor: "bg-amber-100 dark:bg-amber-950/50 border-amber-300 dark:border-amber-800"
-  },
-  other: { 
-    label: "Other", 
-    icon: HelpCircle, 
-    color: "text-gray-700 dark:text-gray-400",
-    bgColor: "bg-gray-100 dark:bg-gray-800/50 border-gray-300 dark:border-gray-700"
-  },
-};
+  theft:              { label: "Theft",               icon: Skull,       color: "text-white", bgColor: "bg-red-600 border-red-700"        },
+  fraud:              { label: "Fraud",               icon: Banknote,    color: "text-white", bgColor: "bg-orange-600 border-orange-700"   },
+  damage:             { label: "Vehicle Damage",      icon: Hammer,      color: "text-white", bgColor: "bg-yellow-600 border-yellow-700"   },
+  "non-payment":      { label: "Non-Payment",         icon: CreditCard,  color: "text-white", bgColor: "bg-purple-600 border-purple-700"   },
+  accident:           { label: "Accident",            icon: Car,         color: "text-white", bgColor: "bg-blue-600 border-blue-700"       },
+  "drug-related":     { label: "Drug Related",        icon: Syringe,     color: "text-white", bgColor: "bg-emerald-600 border-emerald-700" },
+  "violent-dangerous":{ label: "Violent/Dangerous",   icon: Sword,       color: "text-white", bgColor: "bg-rose-600 border-rose-700"       },
+  suspicious:         { label: "Suspicious Activity", icon: CircleAlert, color: "text-white", bgColor: "bg-amber-600 border-amber-700"     },
+  other:              { label: "Other",               icon: HelpCircle,  color: "text-white", bgColor: "bg-gray-600 border-gray-700"       },
+}
 
 // Types
 interface BlacklistEntry {
