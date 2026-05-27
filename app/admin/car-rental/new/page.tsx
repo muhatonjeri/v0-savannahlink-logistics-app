@@ -979,7 +979,7 @@ function NewCarRentalBookingContent() {
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          {/* Section 1: Personal Details */}
+          {/* ── SECTION 1: PERSONAL DETAILS ────────────────────────────────── */}
           <Card className="border-l-4 border-l-blue-500 shadow-md">
             <CardHeader className="bg-gradient-to-r from-blue-900/40 to-transparent">
               <div className="flex items-center gap-3">
@@ -990,640 +990,436 @@ function NewCarRentalBookingContent() {
                   <CardTitle className="text-blue-400 flex items-center gap-2">
                     1. Customer Registration
                     {selectedClient && (
-                      <span className="ml-2 text-xs font-normal text-green-600 bg-green-500/10 px-2 py-1 rounded-full">
+                      <span className="ml-2 text-xs font-normal text-green-400 bg-green-500/10 px-2 py-1 rounded-full">
                         Auto-filled from saved client
                       </span>
                     )}
                   </CardTitle>
                   <CardDescription className="text-gray-400">
-                    Customer identification and contact information
+                    Personal identification, contact, biometrics and documents
                   </CardDescription>
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="pt-6 space-y-6">
-              {/* Existing Client Banner - Shows when returning client is loaded */}
+            <CardContent className="pt-6 space-y-7">
+
+              {/* ── Returning client banner ──────────────────────────────── */}
               {selectedClient && !isNewClient && (
-                <div className={`rounded-lg border-2 p-4 ${
-                  selectedClient.riskLevel === "blocked" 
-                    ? "border-red-500 bg-red-50 dark:bg-red-950/50" 
-                    : selectedClient.riskLevel === "high"
-                    ? "border-orange-500 bg-orange-50 dark:bg-orange-950/50"
-                    : selectedClient.riskLevel === "medium"
-                    ? "border-yellow-500 bg-yellow-50 dark:bg-yellow-950/50"
-                    : "border-green-500 bg-green-50 dark:bg-green-950/50"
+                <div className={`rounded-xl border-2 p-4 ${
+                  selectedClient.riskLevel === "blocked"  ? "border-red-500 bg-red-950/30"     :
+                  selectedClient.riskLevel === "high"     ? "border-orange-500 bg-orange-950/30":
+                  selectedClient.riskLevel === "medium"   ? "border-yellow-500 bg-yellow-950/30":
+                  "border-green-500 bg-green-950/20"
                 }`}>
                   <div className="flex items-center justify-between flex-wrap gap-4">
                     <div className="flex items-center gap-3">
                       <div className={`flex h-12 w-12 items-center justify-center rounded-full text-white ${
-                        selectedClient.riskLevel === "blocked" 
-                          ? "bg-red-600" 
-                          : selectedClient.riskLevel === "high"
-                          ? "bg-orange-500"
-                          : selectedClient.riskLevel === "medium"
-                          ? "bg-yellow-500"
-                          : "bg-green-500"
+                        selectedClient.riskLevel === "blocked" ? "bg-red-600" :
+                        selectedClient.riskLevel === "high"    ? "bg-orange-500" :
+                        selectedClient.riskLevel === "medium"  ? "bg-yellow-500" : "bg-green-500"
                       }`}>
-                        {selectedClient.riskLevel === "blocked" ? (
-                          <Ban className="h-6 w-6" />
-                        ) : (
-                          <UserCheck className="h-6 w-6" />
-                        )}
+                        {selectedClient.riskLevel === "blocked" ? <Ban className="h-6 w-6" /> : <UserCheck className="h-6 w-6" />}
                       </div>
                       <div>
-                        <h3 className="font-bold text-lg text-white flex items-center gap-2">
-                          {selectedClient.fullName}
-                          <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
-                            selectedClient.riskLevel === "blocked" 
-                              ? "bg-red-600 text-white" 
-                              : selectedClient.riskLevel === "high"
-                              ? "bg-orange-500 text-white"
-                              : selectedClient.riskLevel === "medium"
-                              ? "bg-yellow-500 text-black"
-                              : "bg-green-500 text-white"
-                          }`}>
-                            {selectedClient.riskLevel === "blocked" ? "BLOCKED" : `${selectedClient.riskLevel?.toUpperCase()} RISK`}
-                          </span>
-                        </h3>
-                        <p className="text-sm text-gray-300 dark:text-gray-400">
-                          ID: {selectedClient.idNumber} | Phone: {selectedClient.phone}
-                        </p>
+                        <h3 className="font-bold text-lg text-white">{selectedClient.fullName}</h3>
+                        <p className="text-sm text-gray-400">ID: {selectedClient.idNumber} · {selectedClient.phone}</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-4">
-                      <div className="text-center px-4 py-2 bg-[#0f1d32] rounded-lg shadow-sm">
-                        <p className="text-2xl font-bold text-blue-600">{selectedClient.totalBookings || 0}</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">Previous Bookings</p>
-                      </div>
-                      {clientBookingHistory.length > 0 && (
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setShowClientHistory(!showClientHistory)}
-                          className="gap-2 border-[#e67e22] text-[#e67e22] hover:bg-[#e67e22] hover:text-white"
-                        >
-                          <History className="h-4 w-4" />
-                          View History
-                        </Button>
-                      )}
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          setSelectedClient(null);
-                          setIsNewClient(true);
-                          setClientBookingHistory([]);
-                          form.reset();
-                          router.push("/admin/car-rental/new");
-                        }}
-                        className="gap-2 border-blue-500 text-blue-400 hover:bg-blue-500 hover:text-white"
-                      >
-                        <User className="h-4 w-4" />
-                        Different Client
-                      </Button>
-                    </div>
+                    <Button type="button" variant="outline" size="sm" onClick={() => { setSelectedClient(null); setIsNewClient(true); form.reset(); router.push("/admin/car-rental/new"); }} className="gap-2 border-blue-500 text-blue-400 hover:bg-blue-500 hover:text-white">
+                      <User className="h-4 w-4" />Different Client
+                    </Button>
                   </div>
                   {selectedClient.riskLevel === "blocked" && (
-                    <div className="mt-4 p-3 bg-red-600 text-white rounded-lg flex items-center gap-3 animate-pulse">
-                      <Ban className="h-6 w-6 flex-shrink-0" />
-                      <div>
-                        <p className="font-bold uppercase">DO NOT RENT TO THIS CLIENT</p>
-                        <p className="text-sm opacity-90">This client has been blacklisted. Contact management immediately.</p>
-                      </div>
-                    </div>
-                  )}
-                  {selectedClient.totalDebt && selectedClient.totalDebt > 0 && (
-                    <div className="mt-4 p-3 bg-orange-900/40 border border-orange-500 rounded-lg flex items-center gap-3">
-                      <DollarSign className="h-5 w-5 text-orange-600 flex-shrink-0" />
-                      <div>
-                        <p className="font-semibold text-orange-400">Outstanding Debt: KES {selectedClient.totalDebt.toLocaleString()}</p>
-                        <p className="text-sm text-orange-400">Client must clear balance before new rental</p>
-                      </div>
+                    <div className="mt-3 p-3 bg-red-600 text-white rounded-lg flex items-center gap-3 animate-pulse">
+                      <Ban className="h-5 w-5 flex-shrink-0" />
+                      <p className="font-bold uppercase text-sm">DO NOT RENT — Client is Blacklisted</p>
                     </div>
                   )}
                 </div>
               )}
 
-              {/* Contact Information Block */}
-              <div className="rounded-lg border-2 border-blue-300 dark:border-blue-700 bg-[#0f1d32] p-4 shadow-sm">
-                <h4 className="font-semibold text-blue-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
-                  <Phone className="h-4 w-4" />
-                  Contact Information
+              {/* ── A. BASIC PERSONAL INFO ───────────────────────────────── */}
+              <div className="rounded-xl border-2 border-blue-500/40 bg-[#0f1d32] p-5 space-y-5">
+                <h4 className="font-semibold text-blue-400 text-sm uppercase tracking-widest flex items-center gap-2">
+                  <User className="h-4 w-4" />A. Personal Information
                 </h4>
 
-                {/* Resident / Foreign Toggle */}
-                <div className="mb-5">
-                  <FormLabel className="text-gray-200 block mb-2">Client Type *</FormLabel>
+                {/* Client Type Toggle */}
+                <div>
+                  <p className="text-sm text-gray-300 font-medium mb-2">Client Type *</p>
                   <div className="grid grid-cols-2 gap-3">
-                    <button
-                      type="button"
-                      onClick={() => { form.setValue("clientType", "citizen"); form.setValue("countryCode", "+254"); form.setValue("countryName", "Kenya"); form.setValue("idType", "national_id"); }}
-                      className={form.watch("clientType") === "citizen" ? "py-2.5 rounded-lg border-2 border-blue-500 bg-blue-500/10 text-blue-300 text-sm font-semibold" : "py-2.5 rounded-lg border-2 border-white/10 bg-white/5 text-gray-400 text-sm font-semibold hover:border-blue-500/40"}
-                    >
-                      Kenyan Resident
+                    <button type="button"
+                      onClick={() => { form.setValue("clientType","citizen"); form.setValue("countryCode","+254"); form.setValue("countryName","Kenya"); form.setValue("idType","national_id"); }}
+                      className={form.watch("clientType")==="citizen" ? "py-2.5 rounded-xl border-2 border-blue-500 bg-blue-500/10 text-blue-300 text-sm font-semibold" : "py-2.5 rounded-xl border-2 border-white/10 bg-white/5 text-gray-400 text-sm font-semibold hover:border-blue-500/40"}>
+                      🇰🇪 Kenyan Resident
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => { form.setValue("clientType", "foreigner"); form.setValue("idType", "passport"); }}
-                      className={form.watch("clientType") === "foreigner" ? "py-2.5 rounded-lg border-2 border-amber-500 bg-amber-500/10 text-amber-300 text-sm font-semibold" : "py-2.5 rounded-lg border-2 border-white/10 bg-white/5 text-gray-400 text-sm font-semibold hover:border-amber-500/40"}
-                    >
-                      Foreign National
+                    <button type="button"
+                      onClick={() => { form.setValue("clientType","foreigner"); form.setValue("idType","passport"); }}
+                      className={form.watch("clientType")==="foreigner" ? "py-2.5 rounded-xl border-2 border-amber-500 bg-amber-500/10 text-amber-300 text-sm font-semibold" : "py-2.5 rounded-xl border-2 border-white/10 bg-white/5 text-gray-400 text-sm font-semibold hover:border-amber-500/40"}>
+                      🌍 Foreign National
                     </button>
                   </div>
                 </div>
 
-                {/* Country + Phone Code — foreigners only */}
-                {form.watch("clientType") === "foreigner" && (
-                  <div className="grid gap-4 sm:grid-cols-2 mb-5 p-3 rounded-lg border border-amber-500/30 bg-amber-500/5">
+                {/* Foreign country selector */}
+                {form.watch("clientType")==="foreigner" && (
+                  <div className="grid gap-4 sm:grid-cols-2 p-3 rounded-xl border border-amber-500/30 bg-amber-500/5">
                     <div>
-                      <FormLabel className="text-gray-200 block mb-2">Country of Origin *</FormLabel>
-                      <select
-                        className="w-full rounded-lg bg-[#0a1628] border border-amber-500/50 text-white p-2 text-sm"
+                      <p className="text-xs text-gray-400 mb-1">Country of Origin *</p>
+                      <select className="w-full rounded-lg bg-[#0a1628] border border-amber-500/50 text-white p-2 text-sm"
                         value={form.watch("countryName")}
-                        onChange={(e) => {
-                          const name = e.target.value;
-                          form.setValue("countryName", name);
-                          const codes: Record<string, string> = {
-                            Uganda: "+256", Tanzania: "+255", Rwanda: "+250", Ethiopia: "+251",
-                            Nigeria: "+234", "South Africa": "+27", "United Kingdom": "+44",
-                            "United States": "+1", Germany: "+49", France: "+33", China: "+86",
-                            India: "+91", UAE: "+971", "Saudi Arabia": "+966", Canada: "+1",
-                            Australia: "+61", Japan: "+81", Italy: "+39", Netherlands: "+31",
-                          };
-                          form.setValue("countryCode", codes[name] || "+000");
-                        }}
-                      >
+                        onChange={e => {
+                          const n = e.target.value; form.setValue("countryName",n);
+                          const c: Record<string,string> = {Uganda:"+256",Tanzania:"+255",Rwanda:"+250",Ethiopia:"+251",Nigeria:"+234","South Africa":"+27","United Kingdom":"+44","United States":"+1",Germany:"+49",France:"+33",China:"+86",India:"+91",UAE:"+971","Saudi Arabia":"+966",Canada:"+1",Australia:"+61",Japan:"+81",Italy:"+39",Netherlands:"+31"};
+                          form.setValue("countryCode",c[n]||"+000");
+                        }}>
                         <option value="">Select country...</option>
-                        <option value="Uganda">Uganda</option>
-                        <option value="Tanzania">Tanzania</option>
-                        <option value="Rwanda">Rwanda</option>
-                        <option value="Ethiopia">Ethiopia</option>
-                        <option value="Nigeria">Nigeria</option>
-                        <option value="South Africa">South Africa</option>
-                        <option value="United Kingdom">United Kingdom</option>
-                        <option value="United States">United States</option>
-                        <option value="Germany">Germany</option>
-                        <option value="France">France</option>
-                        <option value="China">China</option>
-                        <option value="India">India</option>
-                        <option value="UAE">UAE</option>
-                        <option value="Saudi Arabia">Saudi Arabia</option>
-                        <option value="Canada">Canada</option>
-                        <option value="Australia">Australia</option>
-                        <option value="Japan">Japan</option>
-                        <option value="Italy">Italy</option>
-                        <option value="Netherlands">Netherlands</option>
+                        {["Uganda","Tanzania","Rwanda","Ethiopia","Nigeria","South Africa","United Kingdom","United States","Germany","France","China","India","UAE","Saudi Arabia","Canada","Australia","Japan","Italy","Netherlands"].map(c=><option key={c} value={c}>{c}</option>)}
                       </select>
                     </div>
                     <div>
-                      <FormLabel className="text-gray-200 block mb-2">Phone Country Code</FormLabel>
-                      <div className="flex items-center gap-3 rounded-lg bg-[#0a1628] border border-amber-500/50 px-3 py-2.5 h-[38px]">
-                        <span className="text-amber-400 font-mono font-bold text-sm">{form.watch("countryCode") || "+---"}</span>
+                      <p className="text-xs text-gray-400 mb-1">Phone Country Code</p>
+                      <div className="flex items-center gap-2 rounded-lg bg-[#0a1628] border border-amber-500/50 px-3 py-2.5 h-[38px]">
+                        <span className="text-amber-400 font-mono font-bold">{form.watch("countryCode")||"+---"}</span>
                         <span className="text-gray-400 text-sm">{form.watch("countryName")}</span>
                       </div>
                     </div>
                   </div>
                 )}
 
-                {/* Standard contact fields */}
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <FormField
-                    control={form.control}
-                    name="fullName"
-                    render={({ field }) => (
+                {/* Row 1: Full name */}
+                <FormField control={form.control} name="fullName" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-gray-200 font-semibold">Full Name *</FormLabel>
+                    <FormControl><Input placeholder="John Kamau Mwangi" className="bg-[#0a1628] border-blue-500/50 text-white h-11 text-base" {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+
+                {/* Row 2: ID / Passport */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <FormLabel className="text-gray-200 font-semibold">
+                      {form.watch("idType")==="passport" ? "Passport Number *" : "National ID / Passport No. *"}
+                    </FormLabel>
+                    {form.watch("clientType")==="citizen" && (
+                      <div className="flex gap-1">
+                        {(["national_id","passport","alien_id","military_id"] as const).map(t => (
+                          <button key={t} type="button"
+                            onClick={() => form.setValue("idType",t)}
+                            className={`text-xs px-2 py-1 rounded-md border transition-all ${form.watch("idType")===t ? "border-blue-500 bg-blue-500/20 text-blue-300" : "border-white/10 text-gray-500 hover:border-white/30"}`}>
+                            {t==="national_id"?"ID":t==="passport"?"Passport":t==="alien_id"?"Alien":t==="military_id"?"Military":""}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <FormField control={form.control} name="idNumber" render={({ field }) => (
+                    <FormItem>
+                      <FormControl><Input placeholder={form.watch("idType")==="passport"?"AB1234567":"12345678"} className="bg-[#0a1628] border-blue-500/50 text-white font-mono h-11 text-base" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  {/* ID Photo uploads */}
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <FormField control={form.control} name="idPhotoFrontUrl" render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-200">Full Name *</FormLabel>
-                        <FormControl>
-                          <Input placeholder="John Kamau Mwangi" className="bg-[#0a1628] border-blue-500/50 focus:border-blue-400 text-white" {...field} />
-                        </FormControl>
+                        <FileUpload id="id-front" label={form.watch("idType")==="passport"?"Passport — Photo Page":"National ID — Front"} accept="image/*" maxSize={5} value={field.value} onChange={field.onChange} showCamera />
                         <FormMessage />
                       </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="phone"
-                    render={({ field }) => (
+                    )} />
+                    <FormField control={form.control} name="idPhotoBackUrl" render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-200">
-                          Phone Number {form.watch("clientType") === "foreigner" && form.watch("countryCode") ? "(" + form.watch("countryCode") + ")" : "(M-Pesa)"} *
-                        </FormLabel>
-                        <FormControl>
-                          <Input placeholder={form.watch("clientType") === "foreigner" ? "Local number" : "+254 7XX XXX XXX"} className="bg-[#0a1628] border-blue-500/50 focus:border-blue-400 text-white" {...field} />
-                        </FormControl>
+                        <FileUpload id="id-back" label={form.watch("idType")==="passport"?"Passport — Visa/Entry Page":"National ID — Back"} accept="image/*" maxSize={5} value={field.value} onChange={field.onChange} showCamera />
                         <FormMessage />
                       </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="alternativePhone"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-gray-200">Alternative Phone</FormLabel>
-                        <FormControl>
-                          <Input placeholder="+254 7XX XXX XXX" className="bg-[#0a1628] border-blue-500/50 focus:border-blue-400 text-white" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-gray-200">Email Address</FormLabel>
-                        <FormControl>
-                          <Input type="email" placeholder="john@example.com" className="bg-[#0a1628] border-blue-500/50 focus:border-blue-400 text-white" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="residence"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-gray-200">Residence / Address *</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Westlands, Nairobi" className="bg-[#0a1628] border-blue-500/50 focus:border-blue-400 text-white" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="placeOfWork"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-gray-200">Place of Work / Employer</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Company or organization" className="bg-[#0a1628] border-blue-500/50 focus:border-blue-400 text-white" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                    )} />
+                  </div>
                 </div>
 
-                {/* KRA PIN — residents only */}
-                {form.watch("clientType") === "citizen" && (
-                  <div className="mt-4">
-                    <FormField
-                      control={form.control}
-                      name="kraPin"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-gray-200 flex items-center gap-2">
-                            KRA PIN
-                            <span className="text-xs text-violet-400 font-normal">(auto-fills client details)</span>
-                          </FormLabel>
-                          <div className="flex gap-2">
-                            <FormControl>
-                              <Input
-                                placeholder="A012345678A"
-                                className={kraVerified ? "bg-[#0a1628] border-green-500 text-white font-mono" : "bg-[#0a1628] border-violet-500/50 focus:border-violet-400 text-white font-mono"}
-                                {...field}
-                                onChange={(e) => { field.onChange(e); setKraVerified(false); }}
-                              />
-                            </FormControl>
-                            <Button
-                              type="button"
-                              onClick={lookupKraPin}
-                              disabled={kraLookupLoading}
-                              className="bg-violet-600 hover:bg-violet-700 text-white shrink-0 gap-2"
-                            >
-                              {kraLookupLoading ? <><Loader2 className="h-4 w-4 animate-spin" />Searching...</> : kraVerified ? <><CheckCircle2 className="h-4 w-4 text-green-300" />Verified</> : "Lookup"}
-                            </Button>
-                          </div>
-                          {kraVerified && <p className="text-xs text-green-400 mt-1">KRA PIN verified - details auto-filled</p>}
-                          {!kraVerified && <FormDescription className="text-violet-400 text-xs">Format: A012345678A</FormDescription>}
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                {/* Row 3: Driving License */}
+                <div className="space-y-3">
+                  <FormField control={form.control} name="drivingLicenseNumber" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-200 font-semibold">Driving License No.</FormLabel>
+                      <FormControl><Input placeholder="DL-XXXXXXXX" className="bg-[#0a1628] border-blue-500/50 text-white font-mono h-11" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <FormField control={form.control} name="drivingLicenseFrontUrl" render={({ field }) => (
+                      <FormItem>
+                        <FileUpload id="dl-front" label="Driving License — Front" accept="image/*" maxSize={5} value={field.value} onChange={field.onChange} showCamera />
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={form.control} name="drivingLicenseBackUrl" render={({ field }) => (
+                      <FormItem>
+                        <FileUpload id="dl-back" label="Driving License — Back" accept="image/*" maxSize={5} value={field.value} onChange={field.onChange} showCamera />
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                  </div>
+                </div>
+
+                {/* Row 4: Place of Work */}
+                <FormField control={form.control} name="placeOfWork" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-gray-200 font-semibold">Place of Work / Employer</FormLabel>
+                    <FormControl><Input placeholder="Company or organisation name" className="bg-[#0a1628] border-blue-500/50 text-white h-11" {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+
+                {/* Row 5: KRA PIN with Verify */}
+                {form.watch("clientType")==="citizen" && (
+                  <div className="space-y-2">
+                    <FormField control={form.control} name="kraPin" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-gray-200 font-semibold flex items-center gap-2">
+                          KRA PIN
+                          <span className="text-xs text-violet-400 font-normal">(auto-fills details from iTax)</span>
+                          {kraVerified && <span className="flex items-center gap-1 text-xs text-green-400 font-normal"><CheckCircle2 className="h-3.5 w-3.5"/>Verified</span>}
+                        </FormLabel>
+                        <div className="flex gap-2">
+                          <FormControl>
+                            <Input placeholder="A012345678A" className={`bg-[#0a1628] text-white font-mono h-11 flex-1 ${kraVerified?"border-green-500":"border-violet-500/50"}`} {...field} onChange={e => { field.onChange(e); setKraVerified(false); }} />
+                          </FormControl>
+                          <Button type="button" onClick={lookupKraPin} disabled={kraLookupLoading} className="bg-violet-600 hover:bg-violet-700 text-white gap-2 h-11 px-5 shrink-0">
+                            {kraLookupLoading ? <><Loader2 className="h-4 w-4 animate-spin"/>Searching...</> : "Verify"}
+                          </Button>
+                        </div>
+                        <FormDescription className="text-violet-400 text-xs">Format: A012345678A (letter, 9 digits, letter)</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
                   </div>
                 )}
+
+                {/* Row 6: Residence */}
+                <FormField control={form.control} name="residence" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-gray-200 font-semibold">Residence — Estate & House No. *</FormLabel>
+                    <FormControl><Input placeholder="e.g. Westlands, Apt 12B" className="bg-[#0a1628] border-blue-500/50 text-white h-11" {...field} /></FormControl>
+                    <FormDescription className="text-gray-500 text-xs">Include estate name, house/apartment number</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+
+                {/* Row 7: Phone (M-Pesa) */}
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <FormField control={form.control} name="phone" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-200 font-semibold flex items-center gap-2">
+                        Primary Phone *
+                        <span className="text-xs font-normal text-green-400 bg-green-500/10 px-1.5 py-0.5 rounded">M-Pesa</span>
+                      </FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-green-400 font-mono text-sm font-bold">
+                            {form.watch("clientType")==="foreigner" ? form.watch("countryCode") : "+254"}
+                          </span>
+                          <Input placeholder="7XX XXX XXX" className="bg-[#0a1628] border-green-500/50 text-white h-11 pl-14 font-mono" {...field} />
+                        </div>
+                      </FormControl>
+                      <FormDescription className="text-gray-500 text-xs">Must be the M-Pesa registered number for payments</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+
+                  {/* Row 8: Alternative Phone */}
+                  <FormField control={form.control} name="alternativePhone" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-200 font-semibold">Alternative Phone</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-mono text-sm">+254</span>
+                          <Input placeholder="7XX XXX XXX" className="bg-[#0a1628] border-blue-500/50 text-white h-11 pl-14 font-mono" {...field} />
+                        </div>
+                      </FormControl>
+                      <FormDescription className="text-gray-500 text-xs">Optional backup contact number</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                </div>
+
+                {/* Email */}
+                <FormField control={form.control} name="email" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-gray-200 font-semibold">Email Address</FormLabel>
+                    <FormControl><Input type="email" placeholder="john@example.com" className="bg-[#0a1628] border-blue-500/50 text-white h-11" {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+
               </div>
 
-              {/* Next of Kin Block */}              {/* Next of Kin Block */}
-              <div className="rounded-lg border border-rose-200 dark:border-rose-800 bg-rose-50/50 dark:bg-rose-950/20 p-4">
-                <h4 className="font-semibold text-rose-700 dark:text-rose-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
-                  <Users className="h-4 w-4" />
-                  Emergency Contact / Next of Kin
+              {/* ── B. NEXT OF KIN ───────────────────────────────────────── */}
+              <div className="rounded-xl border-2 border-rose-500/40 bg-[#0f1d32] p-5 space-y-4">
+                <h4 className="font-semibold text-rose-400 text-sm uppercase tracking-widest flex items-center gap-2">
+                  <Users className="h-4 w-4" />B. Next of Kin / Emergency Contact
                 </h4>
                 <div className="grid gap-4 sm:grid-cols-3">
-                  <FormField
-                    control={form.control}
-                    name="nextOfKinName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Name *</FormLabel>
+                  <FormField control={form.control} name="nextOfKinName" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-200 font-semibold">Full Name *</FormLabel>
+                      <FormControl><Input placeholder="Jane Wanjiku" className="bg-[#0a1628] border-rose-500/40 text-white h-11" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={form.control} name="nextOfKinPhone" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-200 font-semibold">Phone Number *</FormLabel>
+                      <FormControl><Input type="tel" placeholder="0712 345 678" className="bg-[#0a1628] border-rose-500/40 text-white h-11 font-mono" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={form.control} name="nextOfKinRelationship" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-200 font-semibold">Relationship *</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
-                          <Input placeholder="Jane Wanjiku" {...field} />
+                          <SelectTrigger className="bg-[#0a1628] border-rose-500/40 text-white h-11">
+                            <SelectValue placeholder="Select..." />
+                          </SelectTrigger>
                         </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="nextOfKinPhone"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Phone *</FormLabel>
-                        <FormControl>
-                          <Input type="tel" placeholder="0712345678" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="nextOfKinRelationship"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Relationship *</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="Spouse">Spouse</SelectItem>
-                            <SelectItem value="Parent">Parent</SelectItem>
-                            <SelectItem value="Sibling">Sibling</SelectItem>
-                            <SelectItem value="Child">Child</SelectItem>
-                            <SelectItem value="Friend">Friend</SelectItem>
-                            <SelectItem value="Other">Other</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                        <SelectContent>
+                          {["Spouse","Parent","Sibling","Child","Friend","Colleague","Other"].map(r => <SelectItem key={r} value={r}>{r}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
                 </div>
               </div>
-            </CardContent>
-          </Card>
 
-          {/* Section 2: Biometric & Photo */}
-          <Card className="border-l-4 border-l-purple-500 shadow-md">
-            <CardHeader className="bg-gradient-to-r from-purple-900/40 to-transparent">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-500 text-white">
-                  <Fingerprint className="h-5 w-5" />
-                </div>
-                <div>
-                  <CardTitle className="text-purple-400">
-                    2. Biometric & Photo Verification
-                  </CardTitle>
-                  <CardDescription>
-                    Scan fingerprints and capture passport photo for verification
-                  </CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="pt-6">
-              <div className="rounded-lg border-2 border-purple-300 dark:border-purple-700 bg-[#0f1d32] p-4 shadow-sm">
-                <div className="grid gap-6 sm:grid-cols-3">
-                  {/* Left Thumb Fingerprint Scanner */}
-                  <div className="space-y-3">
-                    <label className="text-sm font-medium text-purple-700 dark:text-purple-300">Left Thumb Print *</label>
-                    <div className={`relative flex flex-col items-center justify-center rounded-xl border-2 p-6 transition-all ${
-                      leftThumbCaptured 
-                        ? "border-green-500 bg-green-50 dark:bg-green-950/30" 
-                        : leftThumbScanning
-                        ? "border-purple-500 bg-purple-900/20 animate-pulse"
-                        : "border-dashed border-gray-600 bg-[#0a1628] hover:border-purple-400"
-                    }`}>
-                      {leftThumbCaptured ? (
-                        <>
-                          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-500 text-white mb-3">
-                            <CheckCircle2 className="h-8 w-8" />
-                          </div>
-                          <p className="text-sm font-medium text-green-700 dark:text-green-400">Captured Successfully</p>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => {
-                              setLeftThumbCaptured(false);
-                              form.setValue("fingerprintLeftUrl", "");
-                            }}
-                            className="mt-2 text-green-600 hover:text-green-800"
-                          >
-                            Re-scan
-                          </Button>
-                        </>
-                      ) : leftThumbScanning ? (
-                        <>
-                          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-purple-500 text-white mb-3">
-                            <Fingerprint className="h-8 w-8 animate-pulse" />
-                          </div>
-                          <p className="text-sm font-medium text-purple-700 dark:text-purple-400">Scanning...</p>
-                          <p className="text-xs text-purple-600 dark:text-purple-500">Place left thumb on scanner</p>
-                          <div className="mt-2 h-2 w-full max-w-[120px] rounded-full bg-purple-900 overflow-hidden">
-                            <div className="h-full bg-purple-500 animate-[scan_2s_ease-in-out_infinite]" style={{width: '100%'}} />
-                          </div>
-                        </>
-                      ) : (
-                        <>
-                          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#0f1d32] text-gray-400 mb-3">
-                            <Fingerprint className="h-8 w-8" />
-                          </div>
-                          <Button
-                            type="button"
-                            onClick={() => handleCaptureFingerprint("left")}
-                            className="bg-purple-600 hover:bg-purple-700 text-white"
-                          >
-                            <ScanLine className="h-4 w-4 mr-2" />
-                            Scan Left Thumb
-                          </Button>
-                        </>
-                      )}
-                    </div>
-                  </div>
+              {/* ── C. BIOMETRICS & PASSPORT PHOTO ──────────────────────── */}
+              <div className="rounded-xl border-2 border-purple-500/40 bg-[#0f1d32] p-5 space-y-5">
+                <h4 className="font-semibold text-purple-400 text-sm uppercase tracking-widest flex items-center gap-2">
+                  <Fingerprint className="h-4 w-4" />C. Biometrics &amp; Passport Photo
+                </h4>
 
-                  {/* Right Thumb Fingerprint Scanner */}
-                  <div className="space-y-3">
-                    <label className="text-sm font-medium text-purple-700 dark:text-purple-300">Right Thumb Print *</label>
-                    <div className={`relative flex flex-col items-center justify-center rounded-xl border-2 p-6 transition-all ${
-                      rightThumbCaptured 
-                        ? "border-green-500 bg-green-50 dark:bg-green-950/30" 
-                        : rightThumbScanning
-                        ? "border-purple-500 bg-purple-900/20 animate-pulse"
-                        : "border-dashed border-gray-600 bg-[#0a1628] hover:border-purple-400"
+                <div className="grid gap-4 sm:grid-cols-3">
+                  {/* Right Thumb */}
+                  <div className="space-y-2">
+                    <p className="text-sm font-semibold text-gray-200">Right Thumb Print *</p>
+                    <div className={`flex flex-col items-center justify-center rounded-xl border-2 p-5 min-h-[160px] transition-all cursor-pointer ${
+                      rightThumbCaptured  ? "border-green-500 bg-green-950/30" :
+                      rightThumbScanning  ? "border-purple-500 bg-purple-900/20 animate-pulse" :
+                      "border-dashed border-purple-500/40 bg-[#0a1628] hover:border-purple-400"
                     }`}>
                       {rightThumbCaptured ? (
-                        <>
-                          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-500 text-white mb-3">
-                            <CheckCircle2 className="h-8 w-8" />
+                        <div className="text-center space-y-2">
+                          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-green-500 text-white">
+                            <CheckCircle2 className="h-7 w-7" />
                           </div>
-                          <p className="text-sm font-medium text-green-700 dark:text-green-400">Captured Successfully</p>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => {
-                              setRightThumbCaptured(false);
-                              form.setValue("fingerprintRightUrl", "");
-                            }}
-                            className="mt-2 text-green-600 hover:text-green-800"
-                          >
-                            Re-scan
-                          </Button>
-                        </>
+                          <p className="text-xs font-semibold text-green-400">Captured ✓</p>
+                          <Button type="button" variant="ghost" size="sm" onClick={() => { setRightThumbCaptured(false); form.setValue("fingerprintRightUrl",""); }} className="text-xs text-green-500 hover:text-green-400 p-0 h-auto">Re-scan</Button>
+                        </div>
                       ) : rightThumbScanning ? (
-                        <>
-                          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-purple-500 text-white mb-3">
-                            <Fingerprint className="h-8 w-8 animate-pulse" />
-                          </div>
-                          <p className="text-sm font-medium text-purple-700 dark:text-purple-400">Scanning...</p>
-                          <p className="text-xs text-purple-600 dark:text-purple-500">Place right thumb on scanner</p>
-                          <div className="mt-2 h-2 w-full max-w-[120px] rounded-full bg-purple-900 overflow-hidden">
-                            <div className="h-full bg-purple-500 animate-[scan_2s_ease-in-out_infinite]" style={{width: '100%'}} />
-                          </div>
-                        </>
+                        <div className="text-center space-y-2">
+                          <Fingerprint className="mx-auto h-12 w-12 text-purple-400 animate-pulse" />
+                          <p className="text-xs text-purple-300">Scanning right thumb...</p>
+                          <p className="text-xs text-purple-400">Place thumb on scanner</p>
+                        </div>
                       ) : (
-                        <>
-                          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#0f1d32] text-gray-400 mb-3">
-                            <Fingerprint className="h-8 w-8" />
-                          </div>
-                          <Button
-                            type="button"
-                            onClick={() => handleCaptureFingerprint("right")}
-                            className="bg-purple-600 hover:bg-purple-700 text-white"
-                          >
-                            <ScanLine className="h-4 w-4 mr-2" />
-                            Scan Right Thumb
+                        <div className="text-center space-y-3">
+                          <Fingerprint className="mx-auto h-10 w-10 text-purple-400/60" />
+                          <p className="text-xs text-gray-400">Right Thumb</p>
+                          <Button type="button" onClick={() => handleCaptureFingerprint("right")} className="bg-purple-600 hover:bg-purple-700 text-white text-xs gap-1.5 h-8 px-3">
+                            <ScanLine className="h-3.5 w-3.5" />Scan / Upload
                           </Button>
-                        </>
+                        </div>
                       )}
                     </div>
+                    {/* Upload fallback for right thumb */}
+                    {!rightThumbCaptured && (
+                      <FormField control={form.control} name="fingerprintRightUrl" render={({ field }) => (
+                        <FormItem>
+                          <FileUpload id="fp-right" label="" accept="image/*" maxSize={2} value={field.value} onChange={(v) => { field.onChange(v); if (v) setRightThumbCaptured(true); }} showCamera />
+                          <FormMessage />
+                        </FormItem>
+                      )} />
+                    )}
                   </div>
 
-                  {/* Passport Photo - Keep as upload/camera */}
-                  <FormField
-                    control={form.control}
-                    name="passportPhotoUrl"
-                    render={({ field }) => (
+                  {/* Left Thumb */}
+                  <div className="space-y-2">
+                    <p className="text-sm font-semibold text-gray-200">Left Thumb Print *</p>
+                    <div className={`flex flex-col items-center justify-center rounded-xl border-2 p-5 min-h-[160px] transition-all cursor-pointer ${
+                      leftThumbCaptured  ? "border-green-500 bg-green-950/30" :
+                      leftThumbScanning  ? "border-purple-500 bg-purple-900/20 animate-pulse" :
+                      "border-dashed border-purple-500/40 bg-[#0a1628] hover:border-purple-400"
+                    }`}>
+                      {leftThumbCaptured ? (
+                        <div className="text-center space-y-2">
+                          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-green-500 text-white">
+                            <CheckCircle2 className="h-7 w-7" />
+                          </div>
+                          <p className="text-xs font-semibold text-green-400">Captured ✓</p>
+                          <Button type="button" variant="ghost" size="sm" onClick={() => { setLeftThumbCaptured(false); form.setValue("fingerprintLeftUrl",""); }} className="text-xs text-green-500 hover:text-green-400 p-0 h-auto">Re-scan</Button>
+                        </div>
+                      ) : leftThumbScanning ? (
+                        <div className="text-center space-y-2">
+                          <Fingerprint className="mx-auto h-12 w-12 text-purple-400 animate-pulse" />
+                          <p className="text-xs text-purple-300">Scanning left thumb...</p>
+                          <p className="text-xs text-purple-400">Place thumb on scanner</p>
+                        </div>
+                      ) : (
+                        <div className="text-center space-y-3">
+                          <Fingerprint className="mx-auto h-10 w-10 text-purple-400/60" />
+                          <p className="text-xs text-gray-400">Left Thumb</p>
+                          <Button type="button" onClick={() => handleCaptureFingerprint("left")} className="bg-purple-600 hover:bg-purple-700 text-white text-xs gap-1.5 h-8 px-3">
+                            <ScanLine className="h-3.5 w-3.5" />Scan / Upload
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                    {/* Upload fallback for left thumb */}
+                    {!leftThumbCaptured && (
+                      <FormField control={form.control} name="fingerprintLeftUrl" render={({ field }) => (
+                        <FormItem>
+                          <FileUpload id="fp-left" label="" accept="image/*" maxSize={2} value={field.value} onChange={(v) => { field.onChange(v); if (v) setLeftThumbCaptured(true); }} showCamera />
+                          <FormMessage />
+                        </FormItem>
+                      )} />
+                    )}
+                  </div>
+
+                  {/* Passport Photo */}
+                  <div className="space-y-2">
+                    <p className="text-sm font-semibold text-gray-200">Passport Photo *</p>
+                    <FormField control={form.control} name="passportPhotoUrl" render={({ field }) => (
                       <FormItem>
-                        <FileUpload
-                          id="passport-photo"
-                          label="Passport Photo"
-                          accept="image/*"
-                          maxSize={2}
-                          value={field.value}
-                          onChange={field.onChange}
-                          showCamera
-                        />
+                        <div className="min-h-[160px] flex flex-col justify-center">
+                          <FileUpload id="passport-photo" label="Photo (Upload / Camera)" accept="image/*" maxSize={2} value={field.value} onChange={field.onChange} showCamera />
+                        </div>
                         <FormMessage />
                       </FormItem>
-                    )}
-                  />
-                </div>
-
-                {/* ID Document Photos */}
-                <div className="mt-5 border-t border-purple-500/20 pt-5">
-                  <p className="text-purple-400 font-semibold text-sm uppercase tracking-wide mb-4 flex items-center gap-2">
-                    <span className="inline-block w-2 h-2 rounded-full bg-purple-400" />
-                    ID / Passport Document Photos
-                  </p>
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <FormField
-                      control={form.control}
-                      name="idPhotoFrontUrl"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FileUpload
-                            id="id-front"
-                            label={form.watch("idType") === "passport" ? "Passport — Photo Page (Front)" : "National ID — Front Side"}
-                            accept="image/*"
-                            maxSize={5}
-                            value={field.value}
-                            onChange={field.onChange}
-                            showCamera
-                          />
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="idPhotoBackUrl"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FileUpload
-                            id="id-back"
-                            label={form.watch("idType") === "passport" ? "Passport — Visa / Entry Page (Back)" : "National ID — Back Side"}
-                            accept="image/*"
-                            maxSize={5}
-                            value={field.value}
-                            onChange={field.onChange}
-                            showCamera
-                          />
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    )} />
                   </div>
                 </div>
 
-                {/* Driving License Photos */}
-                <div className="mt-5 border-t border-purple-500/20 pt-5">
-                  <p className="text-purple-400 font-semibold text-sm uppercase tracking-wide mb-4 flex items-center gap-2">
-                    <span className="inline-block w-2 h-2 rounded-full bg-purple-400" />
-                    Driving License Photos
-                  </p>
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <FormField
-                      control={form.control}
-                      name="drivingLicenseFrontUrl"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FileUpload
-                            id="dl-front"
-                            label="Driving License — Front"
-                            accept="image/*"
-                            maxSize={5}
-                            value={field.value}
-                            onChange={field.onChange}
-                            showCamera
-                          />
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="drivingLicenseBackUrl"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FileUpload
-                            id="dl-back"
-                            label="Driving License — Back"
-                            accept="image/*"
-                            maxSize={5}
-                            value={field.value}
-                            onChange={field.onChange}
-                            showCamera
-                          />
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+                {/* Biometric status summary */}
+                <div className="flex flex-wrap gap-2 pt-2 border-t border-white/10">
+                  <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${rightThumbCaptured?"bg-green-700 text-white":"bg-white/5 text-gray-500"}`}>
+                    {rightThumbCaptured?"✓":"○"} Right Thumb
+                  </span>
+                  <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${leftThumbCaptured?"bg-green-700 text-white":"bg-white/5 text-gray-500"}`}>
+                    {leftThumbCaptured?"✓":"○"} Left Thumb
+                  </span>
+                  <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${form.watch("passportPhotoUrl")?"bg-green-700 text-white":"bg-white/5 text-gray-500"}`}>
+                    {form.watch("passportPhotoUrl")?"✓":"○"} Passport Photo
+                  </span>
+                  <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${form.watch("idPhotoFrontUrl")?"bg-green-700 text-white":"bg-white/5 text-gray-500"}`}>
+                    {form.watch("idPhotoFrontUrl")?"✓":"○"} ID Front
+                  </span>
+                  <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${form.watch("drivingLicenseFrontUrl")?"bg-green-700 text-white":"bg-white/5 text-gray-500"}`}>
+                    {form.watch("drivingLicenseFrontUrl")?"✓":"○"} Driving License
+                  </span>
                 </div>
-
               </div>
+
             </CardContent>
           </Card>
 
