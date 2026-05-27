@@ -17,6 +17,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
 import type { ServiceInfo } from "@/lib/service-data";
+import { CurrencyConverter } from "@/components/currency-converter";
 
 // ── Types ─────────────────────────────────────────────────────────
 interface Booking {
