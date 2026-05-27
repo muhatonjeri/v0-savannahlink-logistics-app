@@ -542,12 +542,11 @@ function generateNotifications(fleet: FleetVehicle[]): Notification[] {
 }
 
 export default function CompanyFleetTab() {
-  const [fleet, setFleet] = useState<FleetVehicle[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [fleet, setFleet] = useState<FleetVehicle[]>(mockFleetData);
+  const [loading, setLoading] = useState(false);
   const [editVehicle, setEditVehicle] = useState<FleetVehicle | null>(null);
 
   const loadFleet = async () => {
-    setLoading(true);
     try {
       const res = await fetch("/api/fleet");
       const data = await res.json();

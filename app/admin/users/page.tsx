@@ -36,23 +36,37 @@ import { FieldGroup, Field, FieldLabel } from "@/components/ui/field";
 import { toast } from "sonner";
 import type { AdminUser, UserRole } from "@/types";
 
+
+const DEMO_USERS: AdminUser[] = [
+  { id: "usr-001", name: "Moventra Admin",       email: "admin@moventrasafarislogisticsltd.com", role: "admin", phone: "+254727247032", department: "Management", isActive: true, createdAt: "2024-01-01" },
+  { id: "usr-002", name: "Operations Manager",   email: "ops@moventrasafarislogisticsltd.com",   role: "admin", phone: "+254722000001", department: "Operations", isActive: true, createdAt: "2024-01-15" },
+  { id: "usr-003", name: "Booking Agent 1",       email: "agent1@moventrasafarislogisticsltd.com",role: "staff", phone: "+254733000002", department: "Bookings",   isActive: true, createdAt: "2024-02-01" },
+  { id: "usr-004", name: "Booking Agent 2",       email: "agent2@moventrasafarislogisticsltd.com",role: "staff", phone: "+254744000003", department: "Bookings",   isActive: true, createdAt: "2024-02-15" },
+  { id: "usr-005", name: "Fleet Manager",         email: "fleet@moventrasafarislogisticsltd.com", role: "staff", phone: "+254755000004", department: "Fleet",      isActive: true, createdAt: "2024-03-01" },
+];
+
 export default function UsersPage() {
-  const [users, setUsers] = useState<AdminUser[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [users, setUsers] = useState<AdminUser[]>(DEMO_USERS);
+  const [loading, setLoading] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<AdminUser | null>(null);
   const [formData, setFormData] = useState({ name: "", email: "", role: "staff" as UserRole });
 
   useEffect(() => {
-    setLoading(true);
-    fetch("/api/staff").then(r => r.json()).then(data => {
-      if (Array.isArray(data) && data.length > 0) setUsers(data.map((u: Record<string,unknown>) => ({
-        id: String(u.id || ""), name: String(u.full_name || u.name || ""),
-        email: String(u.email || ""), phone: String(u.phone || ""),
-        role: String(u.role || "staff") as "admin" | "staff", department: String(u.department || ""),
-        isActive: u.is_active !== false, createdAt: String(u.created_at || ""),
-      })));
-    }).catch(e => console.error("Load users:", e)).finally(() => setLoading(false));
+    fetch("/api/staff")
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          setUsers(data.map((u: Record<string,unknown>) => ({
+            id: String(u.id || ""), name: String(u.full_name || u.name || ""),
+            email: String(u.email || ""), phone: String(u.phone || ""),
+            role: String(u.role || "staff") as "admin" | "staff", department: String(u.department || ""),
+            isActive: u.is_active !== false, createdAt: String(u.created_at || ""),
+          })));
+        }
+        // If API returns empty/error: DEMO_USERS remain visible
+      })
+      .catch(() => {}); // Silently keep demo data
   }, []);
 
   const handleSubmit = () => {

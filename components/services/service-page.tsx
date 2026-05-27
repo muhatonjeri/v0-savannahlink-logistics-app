@@ -63,7 +63,7 @@ interface ServicePageProps {
 function ServicePageInner({ service, accentColor = "blue" }: ServicePageProps) {
   const searchParams = useSearchParams();
   const [bookings, setBookings] = useState<Booking[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const toggleSelect = (id: string) => {
     setSelected(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
@@ -188,8 +188,10 @@ function ServicePageInner({ service, accentColor = "blue" }: ServicePageProps) {
   });
 
   const loadBookings = async () => {
+    setLoading(true);
     try {
       const res = await fetch(`/api/bookings?service=${service.id}`);
+      if (!res.ok) { setLoading(false); return; }
       const data = await res.json();
       if (Array.isArray(data)) {
         setBookings(data.map((b: Record<string, unknown>) => ({

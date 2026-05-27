@@ -248,17 +248,100 @@ const companyInfo = {
   mpesaAccountNo: "Invoice Number",
 };
 
+
+// Demo invoices — visible immediately, replaced when Supabase connects
+const DEMO_INVOICES: Invoice[] = [
+  {
+    id: "inv-demo-001",
+    invoiceNumber: "INV-2024-001",
+    customerName: "Peter Mwangi Kariuki",
+    customerEmail: "peter.kariuki@gmail.com",
+    customerPhone: "+254712345678",
+    customerAddress: "Kilimani, Nairobi",
+    customerKraPin: "A012345678B",
+    serviceType: "car-rental",
+    items: [{ id: "1", description: "Toyota Prado — 3 Days Self-Drive", quantity: 3, unitPrice: 12000, amount: 36000 }],
+    subtotal: 36000, vatRate: 16, vatAmount: 5760, total: 41760,
+    amountPaid: 41760, payments: [{ id: "p1", date: "2024-05-03", amount: 41760, method: "mpesa", reference: "QK7X2ABZ1P" }],
+    status: "paid", issueDate: "2024-05-03", dueDate: "2024-05-17",
+    paymentTerms: "Net 14", notes: "Full payment received via M-Pesa",
+    createdAt: "2024-05-03",
+  },
+  {
+    id: "inv-demo-002",
+    invoiceNumber: "INV-2024-002",
+    customerName: "Sarah Wanjiku Njoroge",
+    customerEmail: "sarah.njoroge@company.co.ke",
+    customerPhone: "+254722987654",
+    customerAddress: "Westlands, Nairobi",
+    serviceType: "safari-tours",
+    items: [{ id: "1", description: "Maasai Mara 3-Day Safari — 2 Pax", quantity: 2, unitPrice: 45000, amount: 90000 }],
+    subtotal: 90000, vatRate: 16, vatAmount: 14400, total: 104400,
+    amountPaid: 52200, payments: [{ id: "p1", date: "2024-05-10", amount: 52200, method: "bank", reference: "NCBA-TXN-8821" }],
+    status: "partial", issueDate: "2024-05-10", dueDate: "2024-05-24",
+    paymentTerms: "Net 14", notes: "50% deposit received. Balance due before departure.", createdAt: "2024-05-10",
+  },
+  {
+    id: "inv-demo-003",
+    invoiceNumber: "INV-2024-003",
+    customerName: "James Otieno Odhiambo",
+    customerEmail: "james.otieno@logistics.co.ke",
+    customerPhone: "+254733112233",
+    customerAddress: "Industrial Area, Nairobi",
+    serviceType: "cargo-transport",
+    items: [
+      { id: "1", description: "Cargo Transport — Nairobi to Mombasa", quantity: 1, unitPrice: 25000, amount: 25000 },
+      { id: "2", description: "Loading & Unloading Fee", quantity: 1, unitPrice: 3500, amount: 3500 },
+    ],
+    subtotal: 28500, vatRate: 16, vatAmount: 4560, total: 33060,
+    amountPaid: 0, payments: [],
+    status: "overdue", issueDate: "2024-04-20", dueDate: "2024-05-04",
+    paymentTerms: "Net 14", notes: "Payment overdue. Please contact client.", createdAt: "2024-04-20",
+  },
+  {
+    id: "inv-demo-004",
+    invoiceNumber: "INV-2024-004",
+    customerName: "Amina Hassan Mwanaisha",
+    customerEmail: "amina.hassan@outlook.com",
+    customerPhone: "+254711445566",
+    customerAddress: "Nyali, Mombasa",
+    serviceType: "airport-transfers",
+    items: [{ id: "1", description: "JKIA Airport Transfer — Luxury SUV", quantity: 1, unitPrice: 8500, amount: 8500 }],
+    subtotal: 8500, vatRate: 16, vatAmount: 1360, total: 9860,
+    amountPaid: 0, payments: [],
+    status: "sent", issueDate: "2024-05-18", dueDate: "2024-06-01",
+    paymentTerms: "Net 14", createdAt: "2024-05-18",
+  },
+  {
+    id: "inv-demo-005",
+    invoiceNumber: "INV-2024-005",
+    customerName: "Equity Bank Kenya Ltd",
+    customerEmail: "procurement@equitybank.co.ke",
+    customerPhone: "+254763000000",
+    customerAddress: "Equity Centre, Upper Hill, Nairobi",
+    customerKraPin: "P051234567A",
+    serviceType: "tour-bus",
+    items: [
+      { id: "1", description: "Corporate Staff Transport — Monthly Contract", quantity: 1, unitPrice: 180000, amount: 180000 },
+    ],
+    subtotal: 180000, vatRate: 16, vatAmount: 28800, total: 208800,
+    amountPaid: 208800, payments: [{ id: "p1", date: "2024-05-01", amount: 208800, method: "bank", reference: "EQB-REF-7741" }],
+    status: "paid", issueDate: "2024-05-01", dueDate: "2024-05-15",
+    paymentTerms: "Net 14", notes: "Monthly corporate contract — renewed automatically.", createdAt: "2024-05-01",
+  },
+];
+
 export default function InvoicesPage() {
     const [loading, setLoading] = useState(false);
-const [invoices, setInvoices] = useState<Invoice[]>([]);
-  const [dbLoading, setDbLoading] = useState(true);
+const [invoices, setInvoices] = useState<Invoice[]>(DEMO_INVOICES);
 
   const loadInvoices = async () => {
-    setLoading(true);
     try {
       const res = await fetch("/api/invoices");
+      if (!res.ok) return; // Keep demo data on API error
       const data = await res.json();
-      if (!Array.isArray(data) || data.length === 0) { setDbLoading(false); return; }
+      if (!Array.isArray(data) || data.length === 0) return; // Keep demo data when empty
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       setInvoices(data.map((inv: any) => ({
         id: inv.id,
         invoiceNumber: inv.invoice_number,
@@ -282,7 +365,7 @@ const [invoices, setInvoices] = useState<Invoice[]>([]);
         notes: inv.notes || "",
         createdAt: inv.created_at,
       })));
-    } catch(e) { console.error("loadInvoices:", e); } finally { setLoading(false); }
+    } catch(e) { console.error("loadInvoices:", e); }
   };
 
   // Load invoices from Supabase on mount

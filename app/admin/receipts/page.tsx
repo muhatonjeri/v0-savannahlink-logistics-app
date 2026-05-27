@@ -92,10 +92,11 @@ import { receiptsApi } from "@/lib/api";
 
 // Receipt interface
 interface ReceiptItem {
+  id?: string;
   description: string;
   quantity: number;
   unitPrice: number;
-  taxRate: number;
+  taxRate?: number;
   amount: number;
 }
 
@@ -331,12 +332,64 @@ function numberToWords(num: number): string {
   return result;
 }
 
+
+// Demo receipts — visible immediately, replaced when Supabase connects
+const DEMO_RECEIPTS: ReceiptData[] = [
+  {
+    id: "rcp-demo-001",
+    receiptNumber: "RCP-2024-0001",
+    etimsDeviceNumber: "VSC-001",
+    etimsReceiptNumber: "ETM-2024-0001",
+    etimsQrCode: "",
+    etimsVerificationUrl: "https://etims.kra.go.ke/verify/ETM-2024-0001",
+    customerName: "Peter Mwangi Kariuki",
+    customerPhone: "+254712345678",
+    customerEmail: "peter.kariuki@gmail.com",
+    customerAddress: "Kilimani, Nairobi",
+    customerKraPin: "A012345678B",
+    paymentMethod: "mpesa",
+    transactionCode: "QK7X2ABZ1P",
+    items: [{ id: "1", description: "Toyota Prado — 3 Days Self-Drive", quantity: 3, unitPrice: 12000, amount: 36000 }],
+    subtotal: 36000, taxAmount: 5760, totalAmount: 41760,
+    currency: "KES",
+    serviceType: "Car Rental",
+    bookingReference: "BK-2024-001",
+    issuedBy: "Admin",
+    issuedAt: "2024-05-03T09:30:00Z",
+    status: "issued",
+    notes: "Payment received in full via M-Pesa",
+  },
+  {
+    id: "rcp-demo-002",
+    receiptNumber: "RCP-2024-0002",
+    etimsDeviceNumber: "VSC-001",
+    etimsReceiptNumber: "ETM-2024-0002",
+    etimsQrCode: "",
+    etimsVerificationUrl: "https://etims.kra.go.ke/verify/ETM-2024-0002",
+    customerName: "Equity Bank Kenya Ltd",
+    customerPhone: "+254763000000",
+    customerEmail: "procurement@equitybank.co.ke",
+    customerAddress: "Equity Centre, Upper Hill, Nairobi",
+    customerKraPin: "P051234567A",
+    paymentMethod: "bank",
+    transactionCode: "EQB-REF-7741",
+    bankName: "Equity Bank",
+    items: [{ id: "1", description: "Corporate Staff Transport — Monthly", quantity: 1, unitPrice: 180000, amount: 180000 }],
+    subtotal: 180000, taxAmount: 28800, totalAmount: 208800,
+    currency: "KES",
+    serviceType: "Corporate Rental",
+    bookingReference: "BK-2024-002",
+    issuedBy: "Admin",
+    issuedAt: "2024-05-01T08:00:00Z",
+    status: "issued",
+  },
+];
+
 export default function ReceiptsPage() {
-  const [receipts, setReceipts] = useState<ReceiptData[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [receipts, setReceipts] = useState<ReceiptData[]>(DEMO_RECEIPTS);
+  const [loading, setLoading] = useState(false);
 
   const loadReceipts = async () => {
-    setLoading(true);
     try {
       const res = await fetch("/api/receipts");
       const json = await res.json();

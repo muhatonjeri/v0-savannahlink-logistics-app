@@ -442,11 +442,12 @@ const emptyBForm = {
 
 export default function SubletAssetsTab() {
   const [vehicles, setVehicles] = useState<SubletVehicle[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [editAsset, setEditAsset] = useState<SubletVehicle | null>(null);
   const [bookings, setBookings] = useState<SubletBooking[]>([]);
 
   const loadData = async () => {
+    setLoading(true);
     setLoading(true);
     try {
       const [vRes, bRes] = await Promise.all([

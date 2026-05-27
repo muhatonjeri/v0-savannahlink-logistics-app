@@ -29,8 +29,16 @@ const emptyForm = {
   clientType: "citizen", countryOfOrigin: "Kenya",
 };
 
+
+const DEMO_CLIENTS: Client[] = [
+  { id: "cli-001", fullName: "Peter Mwangi Kariuki",   idNumber: "24567891", phone: "+254712345678", alternativePhone: "", email: "peter.kariuki@gmail.com",     residence: "Kilimani, Nairobi",    placeOfWork: "Safaricom PLC",        kraPin: "A012345678B", drivingLicenseNumber: "DL-2019-112233", riskLevel: "low",    totalBookings: 7,  totalSpent: 285000, totalDebt: 0,     notes: "Regular client. Preferred: Prado or Land Cruiser.", createdAt: "2024-01-10", updatedAt: "2024-05-03" },
+  { id: "cli-002", fullName: "Sarah Wanjiku Njoroge",  idNumber: "35678902", phone: "+254722987654", alternativePhone: "+254733001122", email: "sarah.njoroge@company.co.ke",  residence: "Westlands, Nairobi",   placeOfWork: "KCB Bank",             kraPin: "A098765432C", drivingLicenseNumber: "",               riskLevel: "low",    totalBookings: 3,  totalSpent: 156000, totalDebt: 52200, notes: "Corporate client. Invoices to company.", createdAt: "2024-02-14", updatedAt: "2024-05-10" },
+  { id: "cli-003", fullName: "James Otieno Odhiambo", idNumber: "19234560", phone: "+254733112233", alternativePhone: "",              email: "james.otieno@logistics.co.ke", residence: "Industrial Area, NBI", placeOfWork: "Otieno Logistics Ltd", kraPin: "A112233445D", drivingLicenseNumber: "DL-2016-998877", riskLevel: "medium", totalBookings: 12, totalSpent: 412000, totalDebt: 33060, notes: "Outstanding balance on INV-2024-003. Follow up required.", createdAt: "2023-11-05", updatedAt: "2024-04-20" },
+  { id: "cli-004", fullName: "Amina Hassan Mwanaisha", idNumber: "42198763", phone: "+254711445566", alternativePhone: "",              email: "amina.hassan@outlook.com",     residence: "Nyali, Mombasa",       placeOfWork: "Coast Hotels",         kraPin: "",            drivingLicenseNumber: "",               riskLevel: "low",    totalBookings: 2,  totalSpent: 19720,  totalDebt: 0,     notes: "", createdAt: "2024-03-22", updatedAt: "2024-05-18" },
+];
+
 export default function ClientsPage() {
-  const [clients, setClients] = useState<Client[]>([]);
+  const [clients, setClients] = useState<Client[]>(DEMO_CLIENTS);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<string>("all");
   const [viewClient, setViewClient] = useState<Client | null>(null);
@@ -100,7 +108,7 @@ export default function ClientsPage() {
     try {
       const res = await fetch("/api/clients");
       const data = await res.json().then((d: unknown) => Array.isArray(d) ? d : (d as any)?.data ?? []);
-      if (Array.isArray(data)) {
+      if (Array.isArray(data) && data.length > 0) {
         setClients(data.map((c: Record<string, unknown>) => ({
           id: String(c.id || ""),
           fullName: String(c.full_name || c.fullName || ""),
