@@ -73,7 +73,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -190,16 +190,20 @@ const blacklistEditSchema = z.object({
 
 type BlacklistEditFormValues = z.infer<typeof blacklistEditSchema>;
 
-// New client registration schema
+// New client registration schema — all fields from requirements
 const newClientSchema = z.object({
-  fullName: z.string().min(2, "Full name is required"),
-  idNumber: z.string().min(6, "ID/Passport number is required"),
-  phone: z.string().min(10, "Phone number is required"),
-  email: z.string().email().optional().or(z.literal("")),
-  kraPin: z.string().optional(),
-  residence: z.string().optional(),
-  placeOfWork: z.string().optional(),
-  drivingLicenseNumber: z.string().optional(),
+  fullName:              z.string().min(2,  "Full name is required"),
+  idNumber:              z.string().min(6,  "ID/Passport number is required"),
+  phone:                 z.string().min(10, "Primary phone required (must be M-Pesa number)"),
+  alternativePhone:      z.string().optional(),
+  email:                 z.string().email().optional().or(z.literal("")),
+  kraPin:                z.string().optional(),
+  residence:             z.string().min(2,  "Residence is required"),
+  placeOfWork:           z.string().optional(),
+  drivingLicenseNumber:  z.string().optional(),
+  nextOfKinName:         z.string().optional(),
+  nextOfKinPhone:        z.string().optional(),
+  nextOfKinRelationship: z.string().optional(),
 });
 
 type NewClientFormValues = z.infer<typeof newClientSchema>;
@@ -373,6 +377,7 @@ const sampleTransactions: TransactionHistory[] = [
 ];
 
 function ClientLookupContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const selectedService = searchParams.get("service");
   const currentService = selectedService && serviceConfig[selectedService] ? serviceConfig[selectedService] : null;
@@ -519,24 +524,54 @@ function ClientLookupContent() {
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      // Create new client
+      // Save to Supabase via API
+      let savedId = `CLT-${Date.now()}`;
+      try {
+        const res = await fetch("/api/clients", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            fullName:             data.fullName,
+            idNumber:             data.idNumber,
+            phone:                data.phone,
+            alternativePhone:     data.alternativePhone || null,
+            email:                data.email || null,
+            kraPin:               data.kraPin || null,
+            residence:            data.residence || null,
+            placeOfWork:          data.placeOfWork || null,
+            drivingLicenseNumber: data.drivingLicenseNumber || null,
+            nextOfKinName:        data.nextOfKinName || null,
+            nextOfKinPhone:       data.nextOfKinPhone || null,
+            nextOfKinRelationship:data.nextOfKinRelationship || null,
+          }),
+        });
+        if (res.ok) {
+          const saved = await res.json();
+          if (saved?.id) savedId = saved.id;
+        }
+      } catch { /* Supabase not connected — use local ID */ }
+
+      // Create local client object
       const newClient = {
-        id: `CLT-${Date.now()}`,
-        fullName: data.fullName,
-        idNumber: data.idNumber,
-        phone: data.phone,
-        email: data.email || undefined,
-        kraPin: data.kraPin || undefined,
-        residence: data.residence || undefined,
-        placeOfWork: data.placeOfWork || undefined,
+        id: savedId,
+        fullName:             data.fullName,
+        idNumber:             data.idNumber,
+        phone:                data.phone,
+        alternativePhone:     data.alternativePhone || undefined,
+        email:                data.email || undefined,
+        kraPin:               data.kraPin || undefined,
+        residence:            data.residence || undefined,
+        placeOfWork:          data.placeOfWork || undefined,
         drivingLicenseNumber: data.drivingLicenseNumber || undefined,
+        nextOfKin:            data.nextOfKinName ? { name: data.nextOfKinName, phone: data.nextOfKinPhone || "", relationship: data.nextOfKinRelationship || "" } : undefined,
         totalBookings: 0,
         totalSpent: 0,
         createdAt: new Date().toISOString().split("T")[0],
         riskLevel: "low" as const,
+        status: "active" as const,
       };
 
-      // Update search results to show the new client
+      // Show the new client in search results
       setSearchResults({
         client: newClient,
         blacklistEntries: [],
@@ -545,9 +580,33 @@ function ClientLookupContent() {
 
       setIsRegisterDialogOpen(false);
       registerForm.reset();
-      toast.success("Client registered successfully", {
-        description: `${data.fullName} has been added to the system.`,
+      toast.success(`${data.fullName} registered successfully`, {
+        description: "Redirecting to booking form...",
       });
+
+      // Redirect to booking form with client details pre-filled
+      if (selectedService && serviceConfig[selectedService]) {
+        const svc = serviceConfig[selectedService];
+        const prefill = encodeURIComponent(JSON.stringify({
+          clientId:      savedId,
+          customerName:  data.fullName,
+          customerPhone: data.phone,
+          customerEmail: data.email || "",
+          idNumber:      data.idNumber,
+          kraPin:        data.kraPin || "",
+          drivingLicenseNumber: data.drivingLicenseNumber || "",
+          residence:     data.residence || "",
+          placeOfWork:   data.placeOfWork || "",
+          alternativePhone: data.alternativePhone || "",
+          nextOfKinName: data.nextOfKinName || "",
+          nextOfKinPhone: data.nextOfKinPhone || "",
+          nextOfKinRelationship: data.nextOfKinRelationship || "",
+        }));
+        const bookingUrl = selectedService === "car-rental"
+          ? `/admin/car-rental/new?prefill=${prefill}`
+          : `${svc.href}?prefill=${prefill}`;
+        setTimeout(() => router.push(bookingUrl), 800);
+      }
     } catch {
       toast.error("Failed to register client");
     } finally {
@@ -999,83 +1058,65 @@ function ClientLookupContent() {
 
           {/* No Results - New Client Option */}
           {!searchResults.client && searchResults.blacklistEntries.length === 0 && (
-            <Card className="border-blue-500/40 bg-blue-500/5">
-              <CardContent className="pt-6">
+            <Card className="border-emerald-500/50 bg-emerald-500/5">
+              <CardContent className="pt-6 pb-6">
                 <div className="space-y-5">
-                  {/* Status */}
+
+                  {/* Clear status */}
                   <div className="flex items-start gap-4">
-                    <div className="rounded-full bg-blue-500/20 p-3 shrink-0">
-                      <CheckCircle2 className="h-7 w-7 text-blue-400" />
+                    <div className="rounded-full bg-emerald-500/20 p-3 shrink-0">
+                      <CheckCircle2 className="h-7 w-7 text-emerald-400" />
                     </div>
-                    <div>
-                      <h3 className="font-bold text-blue-300 text-base">No Negative Records Found</h3>
+                    <div className="flex-1">
+                      <h3 className="font-bold text-emerald-300 text-base">Clear — No Negative Records</h3>
                       <p className="text-gray-400 text-sm mt-1">
-                        <strong className="text-white">&ldquo;{searchQuery}&rdquo;</strong> has no blacklist records.
-                        Proceed to the service booking form to register this client — the full registration form
-                        includes fingerprint scanning and photo capture.
+                        <strong className="text-white">&ldquo;{searchQuery}&rdquo;</strong> has no blacklist entries and is not yet registered.
+                        Register this client first, then proceed to the service.
                       </p>
                     </div>
                   </div>
 
-                  {/* Primary CTA — go to the selected service booking form */}
-                  {currentService ? (
-                    <div className="space-y-2">
-                      <p className="text-xs text-gray-400 uppercase tracking-wide font-semibold">
-                        Register client &amp; proceed to {currentService.title}
-                      </p>
-                      {(() => {
-                        const prefill = encodeURIComponent(JSON.stringify({
-                          customerName:        searchType === "name"    ? searchQuery : "",
-                          customerPhone:       searchType === "phone"   ? searchQuery : "",
-                          idNumber:            searchType === "id"      ? searchQuery : "",
-                          kraPin:              searchType === "krapin"  ? searchQuery : "",
-                          drivingLicenseNumber:searchType === "license" ? searchQuery : "",
-                        }));
-                        // car-rental has a dedicated /new booking form with fingerprints
-                        // all other services use their main page with ?prefill
-                        const bookingUrl = selectedService === "car-rental"
-                          ? `/admin/car-rental/new?prefill=${prefill}`
-                          : `${currentService.href}?prefill=${prefill}`;
-                        return (
-                          <Link href={bookingUrl}>
-                            <Button className="w-full gap-2 py-5 text-sm font-semibold text-white" style={{background:"#e67e22"}}>
-                              <currentService.icon className="h-5 w-5" />
-                              Open {currentService.title} Registration &amp; Booking Form
-                              <ArrowRight className="h-4 w-4 ml-auto" />
-                            </Button>
-                          </Link>
-                        );
-                      })()}
-                      <p className="text-xs text-gray-500 text-center">
-                        The booking form includes fingerprint scanning, ID photo upload and passport photo capture
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="space-y-3">
-                      <p className="text-xs text-gray-400 uppercase tracking-wide font-semibold">
-                        Select a service to open the full registration form:
-                      </p>
-                      <div className="grid grid-cols-3 gap-2">
-                        {Object.entries(serviceConfig).map(([key, svc]) => (
-                          <Link key={key} href={(() => {
-                            const pf = encodeURIComponent(JSON.stringify({
-                              customerName:  searchType === "name"  ? searchQuery : "",
-                              customerPhone: searchType === "phone" ? searchQuery : "",
-                              idNumber:      searchType === "id"    ? searchQuery : "",
-                            }));
-                            return key === "car-rental"
-                              ? `/admin/car-rental/new?prefill=${pf}`
-                              : `${svc.href}?prefill=${pf}`;
-                          })()}>
-                            <button className={"w-full flex flex-col items-center gap-1.5 p-3 rounded-xl border transition-all text-center hover:scale-105 " + svc.bgColor + " " + svc.hoverColor}>
-                              <svc.icon className={"h-5 w-5 " + svc.color} />
-                              <span className={"text-xs font-medium " + svc.color}>{svc.title}</span>
-                            </button>
-                          </Link>
-                        ))}
-                      </div>
+                  {/* PRIMARY: Register New Client button */}
+                  <Button
+                    type="button"
+                    onClick={openRegisterDialog}
+                    className="w-full gap-3 py-6 text-base font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl"
+                  >
+                    <UserPlus className="h-5 w-5" />
+                    Register New Client
+                  </Button>
+
+                  {/* Divider */}
+                  {currentService && (
+                    <div className="flex items-center gap-3">
+                      <div className="flex-1 h-px bg-white/10" />
+                      <span className="text-xs text-gray-500">or if client already exists elsewhere</span>
+                      <div className="flex-1 h-px bg-white/10" />
                     </div>
                   )}
+
+                  {/* Secondary: skip registration and go directly to booking form */}
+                  {currentService && (() => {
+                    const prefill = encodeURIComponent(JSON.stringify({
+                      customerName:        searchType === "name"    ? searchQuery : "",
+                      customerPhone:       searchType === "phone"   ? searchQuery : "",
+                      idNumber:            searchType === "id"      ? searchQuery : "",
+                      kraPin:              searchType === "krapin"  ? searchQuery : "",
+                      drivingLicenseNumber:searchType === "license" ? searchQuery : "",
+                    }));
+                    const bookingUrl = selectedService === "car-rental"
+                      ? `/admin/car-rental/new?prefill=${prefill}`
+                      : `${currentService.href}?prefill=${prefill}`;
+                    return (
+                      <Link href={bookingUrl}>
+                        <Button variant="outline" className="w-full gap-2 py-3 text-sm border-white/20 text-gray-400 hover:text-white hover:border-white/40">
+                          <currentService.icon className="h-4 w-4" />
+                          Skip registration — go directly to {currentService.title} booking
+                          <ArrowRight className="h-4 w-4 ml-auto" />
+                        </Button>
+                      </Link>
+                    );
+                  })()}
                 </div>
               </CardContent>
             </Card>
@@ -1958,93 +1999,178 @@ function ClientLookupContent() {
       </Dialog>
 
       {/* Register New Client Dialog */}
-      <Dialog open={isRegisterDialogOpen} onOpenChange={setIsRegisterDialogOpen}>
-        <DialogContent className="max-w-2xl bg-white dark:bg-gray-900 border-gray-600 dark:border-gray-700">
-          <DialogHeader className="border-b border-gray-600 dark:border-gray-700 pb-4">
-            <DialogTitle className="flex items-center gap-2 text-green-600 dark:text-green-400">
+      <Dialog open={isRegisterDialogOpen} onOpenChange={v => { if (!v) { setIsRegisterDialogOpen(false); registerForm.reset(); } }}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-[#0d1b2e] border-emerald-500/30">
+          <DialogHeader className="border-b border-white/10 pb-4">
+            <DialogTitle className="flex items-center gap-2 text-emerald-400 text-lg">
               <UserPlus className="h-5 w-5" />
               Register New Client
             </DialogTitle>
-            <DialogDescription className="text-gray-600 dark:text-gray-400">
-              Add a new client to the system. This client has no negative records on the blacklist.
+            <DialogDescription className="text-gray-400">
+              Complete all fields. The client will be saved and you can proceed to booking.
             </DialogDescription>
           </DialogHeader>
-          
+
           <Form {...registerForm}>
-            <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-6">
-              <div className="rounded-lg border border-green-300 dark:border-green-700 bg-green-900/30 dark:bg-green-950/50 p-4 shadow-sm">
-                <h4 className="font-semibold text-green-800 dark:text-green-300 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
-                  <User className="h-4 w-4" />
-                  Personal Information
-                </h4>
-                <div className="grid gap-4 sm:grid-cols-2">
+            <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-5 pt-2">
+
+              {/* ── Personal Details ─────────────────────────────────────── */}
+              <div className="rounded-xl border border-blue-500/30 bg-blue-500/5 p-4 space-y-4">
+                <p className="text-xs font-bold uppercase tracking-widest text-blue-400 flex items-center gap-2">
+                  <User className="h-3.5 w-3.5" />Personal Details
+                </p>
+                <div className="grid gap-3 sm:grid-cols-2">
                   <FormField control={registerForm.control} name="fullName" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Full Name *</FormLabel>
-                      <FormControl><Input placeholder="Full legal name" {...field} /></FormControl>
+                    <FormItem className="sm:col-span-2">
+                      <FormLabel className="text-gray-200">Full Name <span className="text-red-400">*</span></FormLabel>
+                      <FormControl><Input placeholder="Full legal name" className="bg-[#0a1628] border-white/20 text-white h-11" {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )} />
                   <FormField control={registerForm.control} name="idNumber" render={({ field }) => (
                     <FormItem>
-                      <FormLabel>ID Number *</FormLabel>
-                      <FormControl><Input placeholder="National ID / Passport" {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )} />
-                  <FormField control={registerForm.control} name="phone" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Phone Number *</FormLabel>
-                      <FormControl><Input placeholder="0712345678" {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )} />
-                  <FormField control={registerForm.control} name="email" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl><Input type="email" placeholder="email@example.com" {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )} />
-                  <FormField control={registerForm.control} name="kraPin" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>KRA PIN</FormLabel>
-                      <FormControl><Input placeholder="A012345678B" {...field} /></FormControl>
+                      <FormLabel className="text-gray-200">ID / Passport No. <span className="text-red-400">*</span></FormLabel>
+                      <FormControl><Input placeholder="12345678" className="bg-[#0a1628] border-white/20 text-white font-mono h-11" {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )} />
                   <FormField control={registerForm.control} name="drivingLicenseNumber" render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Driving License</FormLabel>
-                      <FormControl><Input placeholder="License number" {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )} />
-                  <FormField control={registerForm.control} name="residence" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Residence</FormLabel>
-                      <FormControl><Input placeholder="City / Area" {...field} /></FormControl>
+                      <FormLabel className="text-gray-200">Driving License No.</FormLabel>
+                      <FormControl><Input placeholder="DL-XXXXXXXX" className="bg-[#0a1628] border-white/20 text-white font-mono h-11" {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )} />
                   <FormField control={registerForm.control} name="placeOfWork" render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Place of Work</FormLabel>
-                      <FormControl><Input placeholder="Employer / Company" {...field} /></FormControl>
+                      <FormLabel className="text-gray-200">Place of Work</FormLabel>
+                      <FormControl><Input placeholder="Employer / Company name" className="bg-[#0a1628] border-white/20 text-white h-11" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={registerForm.control} name="kraPin" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-200">KRA PIN</FormLabel>
+                      <FormControl><Input placeholder="A012345678A" className="bg-[#0a1628] border-white/20 text-white font-mono h-11" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={registerForm.control} name="residence" render={({ field }) => (
+                    <FormItem className="sm:col-span-2">
+                      <FormLabel className="text-gray-200">Residence — Estate &amp; House No. <span className="text-red-400">*</span></FormLabel>
+                      <FormControl><Input placeholder="e.g. Westlands, Apt 12B" className="bg-[#0a1628] border-white/20 text-white h-11" {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )} />
                 </div>
               </div>
 
-              <DialogFooter className="gap-2">
-                <Button 
-                  type="button" 
-                  variant="outline" 
+              {/* ── Contact ──────────────────────────────────────────────── */}
+              <div className="rounded-xl border border-green-500/30 bg-green-500/5 p-4 space-y-4">
+                <p className="text-xs font-bold uppercase tracking-widest text-green-400 flex items-center gap-2">
+                  <Phone className="h-3.5 w-3.5" />Contact Details
+                </p>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <FormField control={registerForm.control} name="phone" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-200 flex items-center gap-2">
+                        Primary Phone <span className="text-red-400">*</span>
+                        <span className="text-xs font-normal text-green-400 bg-green-500/10 px-1.5 py-0.5 rounded">M-Pesa</span>
+                      </FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-green-400 font-mono text-sm font-bold">+254</span>
+                          <Input placeholder="712 345 678" className="bg-[#0a1628] border-green-500/40 text-white h-11 pl-14 font-mono" {...field} />
+                        </div>
+                      </FormControl>
+                      <FormDescription className="text-gray-500 text-xs">Must be the M-Pesa registered number</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={registerForm.control} name="alternativePhone" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-200">Alternative Phone</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-mono text-sm">+254</span>
+                          <Input placeholder="722 000 000" className="bg-[#0a1628] border-white/20 text-white h-11 pl-14 font-mono" {...field} />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={registerForm.control} name="email" render={({ field }) => (
+                    <FormItem className="sm:col-span-2">
+                      <FormLabel className="text-gray-200">Email Address <span className="text-gray-500 font-normal text-xs">(optional)</span></FormLabel>
+                      <FormControl><Input type="email" placeholder="email@example.com" className="bg-[#0a1628] border-white/20 text-white h-11" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                </div>
+              </div>
+
+              {/* ── Next of Kin ───────────────────────────────────────────── */}
+              <div className="rounded-xl border border-rose-500/30 bg-rose-500/5 p-4 space-y-4">
+                <p className="text-xs font-bold uppercase tracking-widest text-rose-400 flex items-center gap-2">
+                  <User className="h-3.5 w-3.5" />Next of Kin / Emergency Contact
+                </p>
+                <div className="grid gap-3 sm:grid-cols-3">
+                  <FormField control={registerForm.control} name="nextOfKinName" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-200">Full Name</FormLabel>
+                      <FormControl><Input placeholder="Jane Wanjiku" className="bg-[#0a1628] border-white/20 text-white h-11" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={registerForm.control} name="nextOfKinPhone" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-200">Phone Number</FormLabel>
+                      <FormControl><Input placeholder="0712 345 678" className="bg-[#0a1628] border-white/20 text-white h-11 font-mono" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={registerForm.control} name="nextOfKinRelationship" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-200">Relationship</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value || ""}>
+                        <FormControl>
+                          <SelectTrigger className="bg-[#0a1628] border-white/20 text-white h-11">
+                            <SelectValue placeholder="Select..." />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {["Spouse","Parent","Sibling","Child","Friend","Colleague","Other"].map(r => (
+                            <SelectItem key={r} value={r}>{r}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                </div>
+              </div>
+
+              {/* Note about fingerprints/photos */}
+              <div className="flex items-start gap-3 rounded-xl border border-purple-500/30 bg-purple-500/5 p-3">
+                <Fingerprint className="h-5 w-5 text-purple-400 shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm text-purple-300 font-semibold">Fingerprints &amp; Photos</p>
+                  <p className="text-xs text-gray-400 mt-0.5">
+                    Fingerprint scanning, ID photo, driving license photo, and passport photo are captured in the
+                    full booking form. After registering, you will be directed there automatically.
+                  </p>
+                </div>
+              </div>
+
+              <DialogFooter className="gap-2 pt-2">
+                <Button
+                  type="button"
+                  variant="outline"
                   onClick={() => {
                     setIsRegisterDialogOpen(false);
                     registerForm.reset();
                   }}
+                  className="border-white/20 text-gray-300"
                 >
                   Cancel
                 </Button>
