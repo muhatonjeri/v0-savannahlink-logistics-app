@@ -101,7 +101,7 @@ const adminCarRentalSchema = z.object({
   residence: z.string().min(2, "Residence/Address is required"),
   phone: z.string().min(10, "Phone number is required"),
   alternativePhone: z.string().optional(),
-  email: z.string().email("Invalid email address"),
+  email: z.string().email("Invalid email address").optional().or(z.literal("")),
   
   // Next of Kin
   nextOfKinName: z.string().optional().default(""),
@@ -211,6 +211,13 @@ function NewCarRentalBookingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const clientIdFromUrl = searchParams.get("clientId");
+  // Read prefill JSON sent by client-lookup page
+  const prefillParam = searchParams.get("prefill");
+  const prefillData = (() => {
+    if (!prefillParam) return null;
+    try { return JSON.parse(decodeURIComponent(prefillParam)); }
+    catch { return null; }
+  })();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [bookingComplete, setBookingComplete] = useState(false);
   const [currentBooking, setCurrentBooking] = useState<CarRentalBooking | null>(null);
@@ -256,19 +263,42 @@ function NewCarRentalBookingContent() {
     initializeDemoBookingHistory();
   }, []);
 
-  // Load existing client from URL parameter
+  // Load client from URL: ?clientId= (direct) or ?prefill=JSON (from client-lookup)
   useEffect(() => {
-    if (clientIdFromUrl) {
+    const idToFetch = prefillData?.clientId || clientIdFromUrl;
+    if (idToFetch) {
       (async () => {
-        const clientRes = await fetch("/api/clients?id=" + clientIdFromUrl);
-        const existingClient = await clientRes.json();
-        if (existingClient && existingClient.id) {
-          setSelectedClient(existingClient);
-          setIsNewClient(false);
-          toast.success("Existing client loaded: " + (existingClient.full_name || existingClient.fullName || ""));
+        try {
+          const res = await fetch("/api/clients?id=" + idToFetch);
+          const client = await res.json();
+          if (client && client.id) {
+            setSelectedClient(client);
+            setIsNewClient(false);
+            toast.success("Client loaded: " + (client.full_name || client.fullName || prefillData?.customerName || ""));
+            return;
+          }
+        } catch {}
+        // Supabase not connected — use prefill data to pre-fill form directly
+        if (prefillData?.customerName) {
+          form.setValue("fullName",   prefillData.customerName  || "");
+          form.setValue("phone",      prefillData.customerPhone || "");
+          if (prefillData.customerEmail) form.setValue("email", prefillData.customerEmail);
+          if (prefillData.idNumber)      form.setValue("idNumber", prefillData.idNumber);
+          if (prefillData.kraPin)        form.setValue("kraPin", prefillData.kraPin);
+          if (prefillData.drivingLicenseNumber) form.setValue("drivingLicenseNumber", prefillData.drivingLicenseNumber);
+          toast.info("Client details pre-filled from lookup");
         }
       })();
+    } else if (prefillData?.customerName) {
+      // No clientId but has name/phone from search query
+      form.setValue("fullName",   prefillData.customerName  || "");
+      form.setValue("phone",      prefillData.customerPhone || "");
+      if (prefillData.customerEmail) form.setValue("email", prefillData.customerEmail);
+      if (prefillData.idNumber)      form.setValue("idNumber", prefillData.idNumber);
+      if (prefillData.kraPin)        form.setValue("kraPin", prefillData.kraPin);
+      if (prefillData.drivingLicenseNumber) form.setValue("drivingLicenseNumber", prefillData.drivingLicenseNumber);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clientIdFromUrl]);
   
   // Fingerprint capture state for new clients
@@ -416,7 +446,7 @@ function NewCarRentalBookingContent() {
         serviceType: "car-rental",
         customerName: data.fullName,
         customerPhone: data.phone,
-        customerEmail: data.email,
+        customerEmail: data.email || "",
         status: "pending",
         paymentStatus: "pending",
         paymentMethod: data.paymentMethod,
@@ -1246,7 +1276,7 @@ function NewCarRentalBookingContent() {
                 {/* Email */}
                 <FormField control={form.control} name="email" render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-gray-200 font-semibold">Email Address</FormLabel>
+                    <FormLabel className="text-gray-200 font-semibold">Email Address <span className="text-gray-500 font-normal text-xs">(optional)</span></FormLabel>
                     <FormControl><Input type="email" placeholder="john@example.com" className="bg-[#0a1628] border-blue-500/50 text-white h-11" {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
