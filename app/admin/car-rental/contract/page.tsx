@@ -2,7 +2,7 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { Printer, ArrowLeft, Car, ExternalLink } from "lucide-react";
+import { Printer, Download, ArrowLeft, Car, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import QRCode from "qrcode";
 
@@ -179,21 +179,44 @@ function ContractContent() {
   const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement>) => setF(p => ({ ...p, [k]: e.target.value }));
 
   // ── Print ──────────────────────────────────────────────────────────────────
-  const handlePrint = () => {
-    const content = document.getElementById("contract-print")?.innerHTML;
-    if (!content) return;
-    const win = window.open("", "_blank", "width=900,height=1200");
-    if (!win) return;
-    win.document.write(`<!DOCTYPE html><html><head>
+  const buildHTML = () => {
+    const content = document.getElementById("contract-print")?.innerHTML || "";
+    return `<!DOCTYPE html><html><head>
+<meta charset="UTF-8">
 <title>Hire Agreement — ${contractNo}</title>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
-body { font-family:Arial,Helvetica,sans-serif; background:white; color:#111; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
-input { border:none; outline:none; background:transparent; font-family:Arial,sans-serif; width:100%; }
-@media print { @page { margin:6mm; size:A4; } }
-</style></head><body>${content}</body></html>`);
+body { font-family:Arial,Helvetica,sans-serif; background:white; color:#111;
+  -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+input { border:none; outline:none; background:transparent;
+  font-family:Arial,sans-serif; width:100%; font-size:9px; }
+@media print {
+  @page { margin:6mm; size:A4; }
+  .no-print { display:none !important; }
+}
+</style></head><body>${content}</body></html>`;
+  };
+
+  const handlePrint = () => {
+    const html = buildHTML();
+    const win = window.open("", "_blank", "width=960,height=1100");
+    if (!win) { alert("Please allow popups to print"); return; }
+    win.document.write(html);
     win.document.close();
-    setTimeout(() => { win.focus(); win.print(); }, 500);
+    setTimeout(() => { win.focus(); win.print(); }, 600);
+  };
+
+  const handleDownload = () => {
+    const html = buildHTML();
+    const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement("a");
+    a.href     = url;
+    a.download = `Moventra-HireAgreement-${contractNo}.html`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   // ── Shared styles ──────────────────────────────────────────────────────────
@@ -233,9 +256,13 @@ input { border:none; outline:none; background:transparent; font-family:Arial,san
             style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 16px", borderRadius: 8, background: "white", border: "1px solid #D1D5DB", color: "#374151", fontSize: 13, textDecoration: "none", fontFamily: "system-ui" }}>
             <ExternalLink style={{ width: 13, height: 13 }} />Terms Page
           </a>
+          <button onClick={handleDownload}
+            style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 18px", borderRadius: 8, background: "#1E2D42", border: "1px solid rgba(255,255,255,.15)", color: "white", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "system-ui" }}>
+            <Download style={{ width: 14, height: 14 }} />Download
+          </button>
           <button onClick={handlePrint}
             style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 20px", borderRadius: 8, background: "#050A14", border: "none", color: "white", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "system-ui" }}>
-            <Printer style={{ width: 14, height: 14 }} />Print Contract
+            <Printer style={{ width: 14, height: 14 }} />Print / Save PDF
           </button>
         </div>
       </div>
