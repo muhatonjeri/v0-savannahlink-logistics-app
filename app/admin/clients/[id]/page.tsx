@@ -9,11 +9,10 @@ import {
   Bus, Wrench, Package, Ship, HardHat, ShieldCheck, ShieldAlert,
   ShieldX, Calendar, TrendingUp, Clock, AlertCircle, Building2,
   Loader2, Activity, Printer, Fingerprint, Globe, Hash, Star,
-  CheckCircle2, QrCode, ExternalLink, ChevronRight, Banknote,
+  CheckCircle2, ExternalLink, ChevronRight, Banknote,
   type LucideIcon,
 } from "lucide-react";
 import { toast } from "sonner";
-import QRCode from "qrcode";
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
 const T = {
@@ -83,16 +82,7 @@ const RISK = {
   low:    { label: "Verified",    color: "#34D399", bg: "rgba(52,211,153,.12)",  Icon: ShieldCheck },
 };
 
-// ─── QR hook ─────────────────────────────────────────────────────────────────
-function useQR(url: string) {
-  const [src, setSrc] = useState("");
-  useEffect(() => {
-    if (!url) return;
-    QRCode.toDataURL(url, { width: 160, margin: 1, color: { dark: "#050A14", light: "#FFFFFF" } })
-      .then(setSrc).catch(() => {});
-  }, [url]);
-  return src;
-}
+
 
 // ─── Stat card ────────────────────────────────────────────────────────────────
 function StatCard({ label, value, sub, color, icon: Icon }: {
@@ -422,10 +412,7 @@ export default function ClientProfilePage() {
   const [tab, setTab] = useState<"overview"|"timeline"|"bookings"|"invoices"|"receipts"|"ledger">("overview");
   const [printing, setPrinting] = useState(false);
 
-  const termsUrl = typeof window !== "undefined"
-    ? `${window.location.origin}/car-rental-terms`
-    : "https://www.savannalink.com/car-rental-terms";
-  const qrSrc = useQR(termsUrl);
+
 
   useEffect(() => {
     fetch(`/api/client-profile?id=${id}`)
@@ -438,24 +425,21 @@ export default function ClientProfilePage() {
     if (!data) return;
     setPrinting(true);
     // Generate a larger QR for print
-    let printQR = "";
-    try {
-      printQR = await QRCode.toDataURL(termsUrl, { width: 100, margin: 1, color: { dark: "#050A14", light: "#FFFFFF" } });
-    } catch {}
+
     const html = buildPrint(
       (data.client as Record<string,unknown>) || {},
       (data.summary as Record<string,unknown>) || {},
       (data.bookings     as Record<string,unknown>[]) || [],
       (data.invoices     as Record<string,unknown>[]) || [],
       (data.receipts     as Record<string,unknown>[]) || [],
-      printQR,
+      "",
     );
     const win = window.open("", "_blank", "width=960,height=800");
     if (!win) { toast.error("Allow popups to print"); setPrinting(false); return; }
     win.document.write(html);
     win.document.close();
     setTimeout(() => { win.focus(); win.print(); setPrinting(false); }, 600);
-  }, [data, termsUrl]);
+  }, [data]);
 
   // ── Loading ────────────────────────────────────────────────────────────────
   if (loading) return (
@@ -653,21 +637,7 @@ export default function ClientProfilePage() {
             ))}
           </div>
 
-          {/* QR code */}
-          {qrSrc && (
-            <div style={{ flexShrink:0, textAlign:"center" }}>
-              <a href="/car-rental-terms" target="_blank" style={{ textDecoration:"none", display:"block" }}>
-                <div style={{ background:"white", padding:6, borderRadius:10, display:"inline-block",
-                  border:`1px solid rgba(255,255,255,.1)`, boxShadow:"0 4px 16px rgba(0,0,0,.4)" }}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={qrSrc} alt="QR — Car Rental T&Cs" style={{ width:72, height:72, display:"block", borderRadius:4 }} />
-                </div>
-              </a>
-              <div style={{ fontSize:9, color:T.muted, marginTop:4, lineHeight:1.3 }}>
-                Scan · Car Rental<br/>T&Cs
-              </div>
-            </div>
-          )}
+
         </div>
       </div>
 
@@ -725,39 +695,6 @@ export default function ClientProfilePage() {
                 )}
               </div>
             )}
-          </Sec>
-
-          {/* Car Rental T&C QR */}
-          <Sec title="Car Rental — Scan for T&Cs" icon={QrCode} accent="#C084FC">
-            <div style={{ display:"flex", gap:16, alignItems:"center" }}>
-              {qrSrc ? (
-                <a href="/car-rental-terms" target="_blank" style={{ textDecoration:"none", flexShrink:0 }}>
-                  <div style={{ background:"white", padding:8, borderRadius:12, border:`1px solid ${T.border}`,
-                    boxShadow:"0 4px 24px rgba(0,0,0,.4)" }}>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={qrSrc} alt="QR" style={{ width:110, height:110, display:"block", borderRadius:4 }} />
-                  </div>
-                </a>
-              ) : (
-                <div style={{ width:126, height:126, background:T.elevated, borderRadius:12, display:"flex",
-                  alignItems:"center", justifyContent:"center" }}>
-                  <Loader2 style={{ width:24, height:24, color:T.muted, animation:"spin 1s linear infinite" }} />
-                </div>
-              )}
-              <div style={{ flex:1 }}>
-                <div style={{ fontSize:13, color:"white", fontWeight:600, marginBottom:8 }}>
-                  Car Rental Terms & Conditions
-                </div>
-                <div style={{ fontSize:11, color:T.muted, lineHeight:1.7 }}>
-                  Ask the client to scan this QR code to read the full hire agreement terms and conditions before signing.
-                </div>
-                <a href="/car-rental-terms" target="_blank"
-                  style={{ display:"inline-flex", alignItems:"center", gap:5, marginTop:10,
-                    fontSize:12, color:"#C084FC", textDecoration:"none", fontWeight:600 }}>
-                  <ExternalLink style={{ width:12, height:12 }} />View Terms Page
-                </a>
-              </div>
-            </div>
           </Sec>
 
           {/* Biometrics if any */}

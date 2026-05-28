@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Car, Calendar, User, CreditCard, ArrowLeft } from "lucide-react";
+import { Car, Calendar, User, CreditCard, ArrowLeft, QrCode, ExternalLink, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 
 import { Header } from "@/components/layout/header";

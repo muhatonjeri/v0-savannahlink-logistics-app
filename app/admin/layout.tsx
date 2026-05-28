@@ -8,7 +8,7 @@ import {
   Car, Compass, Plane, Truck, Bus, Wrench, Package, Ship, HardHat,
   Eye, EyeOff, Loader2,
   LogOut, User as UserIcon, Gauge, UsersRound, Users, Fingerprint,
-  ShieldX, ReceiptText, BadgeDollarSign, FileBadge, Sliders, Anchor, Calculator,
+  ShieldX, ReceiptText, BadgeDollarSign, FileBadge, Sliders, Anchor, Calculator, FileSignature,
   Menu, X, Bell, Search, Settings, BarChart3, ShieldCheck,
   ChevronRight, type LucideIcon,
 } from "lucide-react";
@@ -46,7 +46,8 @@ const NAV_MAIN: { title:string; href:string; icon:LucideIcon; color:string }[] =
 ];
 
 const NAV_SERVICES: { title:string; href:string; icon:LucideIcon; color:string }[] = [
-  { title:"Car Rental",              href:"/admin/car-rental",             icon:Car,     color:"#818CF8" },
+  { title:"Car Rental",              href:"/admin/car-rental",             icon:Car,         color:"#818CF8" },
+  { title:"Hire Agreement",          href:"/admin/car-rental/contract",    icon:FileSignature, color:"#F97316" },
   { title:"Safari Tours",            href:"/admin/safari-tours",           icon:Compass, color:"#FBBF24" },
   { title:"Transfers",               href:"/admin/transfers",              icon:Plane,   color:"#38BDF8" },
   { title:"Movers",                  href:"/admin/movers",                 icon:Package, color:"#A78BFA" },
