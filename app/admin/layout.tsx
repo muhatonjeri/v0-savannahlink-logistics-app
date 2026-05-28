@@ -8,7 +8,7 @@ import {
   Car, Compass, Plane, Truck, Bus, Wrench, Package, Ship, HardHat,
   Eye, EyeOff, Loader2,
   LogOut, User as UserIcon, Gauge, UsersRound, Users, Fingerprint,
-  ShieldX, ReceiptText, BadgeDollarSign, FileBadge, Sliders, Anchor,
+  ShieldX, ReceiptText, BadgeDollarSign, FileBadge, Sliders, Anchor, Calculator,
   Menu, X, Bell, Search, Settings, BarChart3, ShieldCheck,
   ChevronRight, type LucideIcon,
 } from "lucide-react";
@@ -42,6 +42,7 @@ const NAV_MAIN: { title:string; href:string; icon:LucideIcon; color:string }[] =
   { title:"Invoices",       href:"/admin/invoices",       icon:FileBadge,      color:"#FB923C" },
   { title:"Reports",        href:"/admin/reports",        icon:BarChart3,      color:"#C084FC" },
   { title:"Services",       href:"/admin/services",       icon:Sliders,        color:"#F472B6" },
+  { title:"Business Tools",   href:"/admin/tools",          icon:Calculator,     color:"#34D399" },
 ];
 
 const NAV_SERVICES: { title:string; href:string; icon:LucideIcon; color:string }[] = [
