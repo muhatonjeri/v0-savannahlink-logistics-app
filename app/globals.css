@@ -1193,3 +1193,63 @@ html.light header {
 }
 html.light header .text-white { color: #0f172a !important; }
 html.light header .text-gray-400 { color: #64748b !important; }
+
+/* ── Moventra Admin Design System ──────────────────────────────────────── */
+/* Input / select improvements for dark admin */
+.admin-font input,
+.admin-font select,
+.admin-font textarea {
+  font-family: 'Outfit', system-ui, sans-serif;
+}
+
+/* Remove autofill yellow background */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px #0B1220 inset !important;
+  -webkit-text-fill-color: #F1F5F9 !important;
+  caret-color: #F97316;
+}
+
+/* Custom select arrow hidden — we use our own */
+select.no-arrow { appearance: none; -webkit-appearance: none; }
+
+/* Smooth page transitions */
+.admin-font { transition: background 0.2s; }
+
+/* Card hover depth effect */
+.card-hover {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.card-hover:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 32px rgba(0,0,0,.3);
+}
+
+/* Table row hover */
+.admin-table tr:hover td {
+  background: rgba(255,255,255,0.025);
+}
+
+/* Badge animations */
+.badge-pulse {
+  animation: badge-pulse 2s ease infinite;
+}
+@keyframes badge-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* Focus ring — orange */
+.admin-font input:focus,
+.admin-font select:focus,
+.admin-font textarea:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(249,115,22,0.3);
+}
+
+/* Scrollbar */
+.admin-font ::-webkit-scrollbar { width: 4px; height: 4px; }
+.admin-font ::-webkit-scrollbar-track { background: transparent; }
+.admin-font ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 99px; }
+.admin-font ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.18); }
