@@ -6,6 +6,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   Car, Compass, Plane, Truck, Bus, Wrench, Package, Ship, HardHat,
+  Eye, EyeOff, Loader2,
   LogOut, User as UserIcon, Gauge, UsersRound, Users, Fingerprint,
   ShieldX, ReceiptText, BadgeDollarSign, FileBadge, Sliders, Anchor,
   Menu, X, Bell, Search, Settings, BarChart3, ShieldCheck,
@@ -73,6 +74,27 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [alerts,       setAlerts]       = useState<{severity:string;message:string;href:string}[]>([]);
   const [adminName,    setAdminName]    = useState("Admin");
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [settingsTab,  setSettingsTab]  = useState<"profile"|"security"|"appearance"|"notifications"|"system">("profile");
+  const [adminEmail,   setAdminEmail]   = useState("admin@moventrasafarislogisticsltd.com");
+  const [adminPhone,   setAdminPhone]   = useState("+254 727 247 032");
+  const [adminRole,    setAdminRole]    = useState("admin");
+  const [pwForm,       setPwForm]       = useState({current:"",newPw:"",confirm:""});
+  const [pwShow,       setPwShow]       = useState(false);
+  const [pwError,      setPwError]      = useState("");
+  const [pwSuccess,    setPwSuccess]    = useState(false);
+  const [theme,        setTheme]        = useState<"dark"|"system">("dark");
+  const [accentColor,  setAccentColor]  = useState("#F97316");
+  const [sidebarCollapsedPref, setSidebarCollapsedPref] = useState(false);
+  const [notifPrefs,   setNotifPrefs]   = useState({ email:true, sms:true, overdue:true, payments:true, bookings:true, fleet:false });
+  const [twoFactor,    setTwoFactor]    = useState(false);
+  const [sessionTimeout, setSessionTimeout] = useState("24");
+  const [companyName,  setCompanyName]  = useState("Moventra Safaris & Logistics Ltd");
+  const [companyPhone, setCompanyPhone] = useState("+254 727 247 032");
+  const [companyEmail, setCompanyEmail] = useState("info@moventrasafarislogisticsltd.com");
+  const [taxRate,      setTaxRate]      = useState("16");
+  const [currency,     setCurrency]     = useState("KES");
+  const [saving,       setSaving]       = useState(false);
+  const [saveSuccess,  setSaveSuccess]  = useState("");
   const searchRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -442,55 +464,444 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       {/* ── Settings modal ────────────────────────────────────────────────── */}
       {mounted && settingsOpen && (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center px-4 fade-in"
-          style={{background:"rgba(0,0,0,.7)", backdropFilter:"blur(8px)"}}
+        <div className="fixed inset-0 z-[70] flex items-center justify-center px-4 py-4 fade-in"
+          style={{background:"rgba(0,0,0,.8)", backdropFilter:"blur(12px)"}}
           onClick={() => setSettingsOpen(false)}>
-          <div className="w-full max-w-md rounded-2xl overflow-hidden shadow-2xl scale-in"
-            style={{background:T.elevated, border:`1px solid ${T.borderHover}`}}
+          <div className="w-full max-w-2xl max-h-[90vh] rounded-2xl overflow-hidden shadow-2xl scale-in flex flex-col"
+            style={{background:T.surface, border:`1px solid ${T.borderHover}`}}
             onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between px-5 py-4" style={{borderBottom:`1px solid ${T.border}`}}>
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-xl flex items-center justify-center font-bold text-sm"
-                  style={{background:`${T.accent}20`, color:T.accent}}>
+
+            {/* ── Header ── */}
+            <div className="flex items-center gap-4 px-6 py-4 shrink-0" style={{borderBottom:`1px solid ${T.border}`}}>
+              <div className="relative">
+                <div className="h-12 w-12 rounded-2xl flex items-center justify-center font-bold text-base"
+                  style={{background:`${T.accent}20`, color:T.accent, fontFamily:"'Syne', sans-serif"}}>
                   {adminName.slice(0,2).toUpperCase()}
                 </div>
-                <div>
-                  <p className="text-white font-semibold text-sm">{adminName}</p>
-                  <p className="text-slate-500 text-xs">Administrator · Moventra</p>
+                <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-400 border-2"
+                  style={{borderColor:T.surface}} />
+              </div>
+              <div className="flex-1">
+                <p className="text-white font-bold text-base">{adminName}</p>
+                <div className="flex items-center gap-2 mt-0.5">
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
+                    style={{background:`${T.accent}15`, color:T.accent}}>
+                    {adminRole === "admin" ? "Administrator" : "Staff Member"}
+                  </span>
+                  <span className="text-slate-600 text-[10px]">Moventra Safaris & Logistics</span>
                 </div>
               </div>
               <button onClick={() => setSettingsOpen(false)}
-                className="p-1.5 rounded-lg text-slate-500 hover:text-white hover:bg-white/8 transition-colors">
+                className="p-2 rounded-xl text-slate-500 hover:text-white hover:bg-white/8 transition-colors">
                 <X className="h-4 w-4" />
               </button>
             </div>
-            <div className="p-5 space-y-3">
-              {[
-                { href:"/admin/users",   icon:UserIcon,  label:"Manage Users",       sub:"Add, edit, remove admin users" },
-                { href:"/admin/services",icon:Sliders,   label:"Services Config",     sub:"Edit service packages & pricing" },
-                { href:"/admin/reports", icon:BarChart3,  label:"Reports & Analytics", sub:"Revenue, bookings, performance" },
-              ].map(({ href, icon:Icon, label, sub }) => (
-                <Link key={href} href={href} onClick={() => setSettingsOpen(false)}
-                  className="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all group"
-                  style={{border:`1px solid ${T.border}`}}>
-                  <div className="h-9 w-9 rounded-xl flex items-center justify-center shrink-0"
-                    style={{background:T.subtle}}>
-                    <Icon className="h-4 w-4" style={{color:T.accent}} />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-white text-sm font-medium">{label}</p>
-                    <p className="text-slate-500 text-xs">{sub}</p>
-                  </div>
-                  <ChevronRight className="h-4 w-4 text-slate-600 group-hover:text-slate-400 transition-colors" />
-                </Link>
+
+            {/* ── Tabs ── */}
+            <div className="flex gap-0.5 px-4 py-2 shrink-0" style={{borderBottom:`1px solid ${T.border}`, overflowX:"auto"}}>
+              {([
+                {k:"profile",       label:"Profile"},
+                {k:"security",      label:"Security"},
+                {k:"appearance",    label:"Appearance"},
+                {k:"notifications", label:"Notifications"},
+                {k:"system",        label:"System"},
+              ] as const).map(({k, label}) => (
+                <button key={k} onClick={() => setSettingsTab(k)}
+                  className="px-4 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all"
+                  style={{
+                    background: settingsTab===k ? `${T.accent}18` : "transparent",
+                    color: settingsTab===k ? T.accent : "#64748B",
+                    border: settingsTab===k ? `1px solid ${T.accent}30` : "1px solid transparent",
+                  }}>
+                  {label}
+                </button>
               ))}
             </div>
-            <div className="px-5 pb-5">
+
+            {/* ── Content ── */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-5" style={{scrollbarWidth:"thin"}}>
+
+              {/* PROFILE */}
+              {settingsTab === "profile" && (
+                <div className="space-y-5 slide-in">
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-4">Personal Information</p>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      {[
+                        {label:"Display Name",   value:adminName,   set:(v:string)=>setAdminName(v),   type:"text",  ph:"Your name"},
+                        {label:"Email Address",  value:adminEmail,  set:(v:string)=>setAdminEmail(v),  type:"email", ph:"admin@example.com"},
+                        {label:"Phone Number",   value:adminPhone,  set:(v:string)=>setAdminPhone(v),  type:"tel",   ph:"+254 700 000 000"},
+                      ].map(({label,value,set,type,ph}) => (
+                        <div key={label} className={label==="Email Address"?"sm:col-span-2":""}>
+                          <label className="text-xs font-medium text-slate-400 block mb-1.5">{label}</label>
+                          <input type={type} value={value} onChange={e=>set(e.target.value)} placeholder={ph}
+                            className="w-full rounded-xl h-10 px-3 text-sm text-white outline-none transition-all"
+                            style={{background:T.elevated, border:`1px solid ${T.border}`, fontFamily:"'Outfit', sans-serif"}}
+                            onFocus={e=>e.target.style.border=`1px solid ${T.accent}50`}
+                            onBlur={e=>e.target.style.border=`1px solid ${T.border}`} />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div style={{borderTop:`1px solid ${T.border}`, paddingTop:20}}>
+                    <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-4">Role & Access</p>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      {([
+                        {k:"admin", label:"Administrator", sub:"Full system access — all modules"},
+                        {k:"staff", label:"Staff Member",  sub:"Limited access — bookings & clients"},
+                      ] as const).map(({k,label,sub}) => (
+                        <button key={k} type="button" onClick={()=>setAdminRole(k)}
+                          className="text-left p-3 rounded-xl border transition-all"
+                          style={{
+                            background: adminRole===k ? `${T.accent}10` : T.elevated,
+                            border: adminRole===k ? `1.5px solid ${T.accent}40` : `1px solid ${T.border}`,
+                          }}>
+                          <div className="flex items-center gap-2 mb-1">
+                            <div className="w-3 h-3 rounded-full border-2 flex items-center justify-center"
+                              style={{borderColor: adminRole===k ? T.accent : "#64748B"}}>
+                              {adminRole===k && <div className="w-1.5 h-1.5 rounded-full" style={{background:T.accent}} />}
+                            </div>
+                            <span className="text-white text-sm font-semibold">{label}</span>
+                          </div>
+                          <p className="text-slate-500 text-xs pl-5">{sub}</p>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div style={{borderTop:`1px solid ${T.border}`, paddingTop:20}}>
+                    <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-4">Session Activity</p>
+                    <div className="rounded-xl p-4 space-y-3" style={{background:T.elevated, border:`1px solid ${T.border}`}}>
+                      {[
+                        {label:"Last Login",      val:"Today, 9:14 AM · Nairobi, KE"},
+                        {label:"Device",          val:"Windows 11 · Chrome 124"},
+                        {label:"IP Address",      val:"197.136.xxx.xxx"},
+                        {label:"Session Expires", val:"In 23 hours 46 minutes"},
+                      ].map(({label,val}) => (
+                        <div key={label} className="flex items-center justify-between">
+                          <span className="text-slate-500 text-xs">{label}</span>
+                          <span className="text-slate-300 text-xs font-mono">{val}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* SECURITY */}
+              {settingsTab === "security" && (
+                <div className="space-y-5 slide-in">
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-4">Change Password</p>
+                    <div className="space-y-3">
+                      {[
+                        {label:"Current Password", key:"current" as const, ph:"Enter current password"},
+                        {label:"New Password",      key:"newPw"   as const, ph:"At least 8 characters"},
+                        {label:"Confirm New",       key:"confirm" as const, ph:"Repeat new password"},
+                      ].map(({label,key,ph}) => (
+                        <div key={key}>
+                          <label className="text-xs font-medium text-slate-400 block mb-1.5">{label}</label>
+                          <div className="relative">
+                            <input type={pwShow?"text":"password"} value={pwForm[key]}
+                              onChange={e=>setPwForm(p=>({...p,[key]:e.target.value}))} placeholder={ph}
+                              className="w-full rounded-xl h-10 px-3 pr-10 text-sm text-white outline-none transition-all"
+                              style={{background:T.elevated, border:`1px solid ${T.border}`, fontFamily:"'Outfit', sans-serif"}}
+                              onFocus={e=>e.target.style.border=`1px solid ${T.accent}50`}
+                              onBlur={e=>e.target.style.border=`1px solid ${T.border}`} />
+                            {key==="current" && (
+                              <button type="button" onClick={()=>setPwShow(v=>!v)}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition-colors">
+                                {pwShow ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                      {pwError && <p className="text-red-400 text-xs">{pwError}</p>}
+                      {pwSuccess && <p className="text-emerald-400 text-xs">Password changed successfully ✓</p>}
+                      <button type="button"
+                        onClick={() => {
+                          setPwError("");
+                          if (!pwForm.current) { setPwError("Enter current password"); return; }
+                          if (pwForm.newPw.length < 8) { setPwError("New password must be 8+ characters"); return; }
+                          if (pwForm.newPw !== pwForm.confirm) { setPwError("Passwords do not match"); return; }
+                          setPwSuccess(true);
+                          setTimeout(() => { setPwSuccess(false); setPwForm({current:"",newPw:"",confirm:""}); }, 3000);
+                        }}
+                        className="w-full py-2.5 rounded-xl text-sm font-semibold transition-all text-white"
+                        style={{background:`${T.accent}`, border:`1px solid ${T.accent}`}}>
+                        Update Password
+                      </button>
+                    </div>
+                  </div>
+                  <div style={{borderTop:`1px solid ${T.border}`, paddingTop:20}}>
+                    <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-4">Two-Factor Authentication</p>
+                    <div className="flex items-center justify-between p-4 rounded-xl"
+                      style={{background:T.elevated, border:`1px solid ${T.border}`}}>
+                      <div>
+                        <p className="text-white text-sm font-semibold">Authenticator App</p>
+                        <p className="text-slate-500 text-xs mt-0.5">Generate one-time codes for each login</p>
+                      </div>
+                      <button type="button" onClick={() => setTwoFactor(v=>!v)}
+                        className="relative w-11 h-6 rounded-full transition-all"
+                        style={{background: twoFactor ? T.accent : T.subtle}}>
+                        <div className="absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all"
+                          style={{left: twoFactor ? "calc(100% - 22px)" : 2}} />
+                      </button>
+                    </div>
+                  </div>
+                  <div style={{borderTop:`1px solid ${T.border}`, paddingTop:20}}>
+                    <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-4">Session Management</p>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="text-xs font-medium text-slate-400 block mb-1.5">Session Timeout</label>
+                        <select value={sessionTimeout} onChange={e=>setSessionTimeout(e.target.value)}
+                          className="w-full rounded-xl h-10 px-3 text-sm text-white outline-none"
+                          style={{background:T.elevated, border:`1px solid ${T.border}`, fontFamily:"'Outfit', sans-serif", appearance:"none"}}>
+                          {[["1","1 hour"],["8","8 hours"],["24","24 hours"],["168","7 days"]].map(([v,l])=>(
+                            <option key={v} value={v}>{l}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <button type="button"
+                        className="w-full py-2.5 rounded-xl text-sm font-semibold text-red-400 transition-all"
+                        style={{background:"rgba(248,113,113,.08)", border:"1px solid rgba(248,113,113,.2)"}}>
+                        Sign Out All Other Sessions
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* APPEARANCE */}
+              {settingsTab === "appearance" && (
+                <div className="space-y-5 slide-in">
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-4">Theme</p>
+                    <div className="grid grid-cols-2 gap-3">
+                      {([
+                        {k:"dark",   label:"Dark Mode",   sub:"Deep obsidian — default"},
+                        {k:"system", label:"System",      sub:"Follows OS preference"},
+                      ] as const).map(({k,label,sub})=>(
+                        <button key={k} type="button" onClick={()=>setTheme(k)}
+                          className="text-left p-4 rounded-xl border transition-all"
+                          style={{
+                            background: theme===k ? `${T.accent}10` : T.elevated,
+                            border: theme===k ? `1.5px solid ${T.accent}40` : `1px solid ${T.border}`,
+                          }}>
+                          <div className="flex items-center gap-2 mb-1.5">
+                            <div className="w-3 h-3 rounded-full border-2 flex items-center justify-center"
+                              style={{borderColor: theme===k ? T.accent : "#64748B"}}>
+                              {theme===k && <div className="w-1.5 h-1.5 rounded-full" style={{background:T.accent}} />}
+                            </div>
+                            <span className="text-white text-sm font-semibold">{label}</span>
+                          </div>
+                          <p className="text-slate-500 text-xs pl-5">{sub}</p>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div style={{borderTop:`1px solid ${T.border}`, paddingTop:20}}>
+                    <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-4">Accent Color</p>
+                    <div className="flex gap-3 flex-wrap">
+                      {[
+                        {c:"#F97316",label:"Moventra Orange"},
+                        {c:"#38BDF8",label:"Sky Blue"},
+                        {c:"#34D399",label:"Emerald"},
+                        {c:"#A78BFA",label:"Violet"},
+                        {c:"#FB7185",label:"Rose"},
+                        {c:"#FBBF24",label:"Amber"},
+                      ].map(({c,label})=>(
+                        <button key={c} type="button" onClick={()=>setAccentColor(c)}
+                          title={label}
+                          className="w-9 h-9 rounded-xl transition-all"
+                          style={{
+                            background:c,
+                            boxShadow: accentColor===c ? `0 0 0 2px ${T.surface}, 0 0 0 4px ${c}` : "none",
+                            transform: accentColor===c ? "scale(1.1)" : "scale(1)",
+                          }} />
+                      ))}
+                    </div>
+                    <p className="text-slate-600 text-[10px] mt-2">Current: {accentColor}</p>
+                  </div>
+                  <div style={{borderTop:`1px solid ${T.border}`, paddingTop:20}}>
+                    <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-4">Layout</p>
+                    <div className="flex items-center justify-between p-4 rounded-xl"
+                      style={{background:T.elevated, border:`1px solid ${T.border}`}}>
+                      <div>
+                        <p className="text-white text-sm font-semibold">Collapsed Sidebar by Default</p>
+                        <p className="text-slate-500 text-xs mt-0.5">Start with icon-only rail on load</p>
+                      </div>
+                      <button type="button" onClick={()=>setSidebarCollapsedPref(v=>!v)}
+                        className="relative w-11 h-6 rounded-full transition-all"
+                        style={{background: sidebarCollapsedPref ? T.accent : T.subtle}}>
+                        <div className="absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all"
+                          style={{left: sidebarCollapsedPref ? "calc(100% - 22px)" : 2}} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* NOTIFICATIONS */}
+              {settingsTab === "notifications" && (
+                <div className="space-y-5 slide-in">
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-4">Notification Channels</p>
+                    <div className="space-y-3">
+                      {([
+                        {k:"email",    label:"Email Notifications",    sub:"Receive alerts via email"},
+                        {k:"sms",      label:"SMS Alerts",             sub:"Critical alerts via SMS"},
+                      ] as const).map(({k,label,sub})=>(
+                        <div key={k} className="flex items-center justify-between p-4 rounded-xl"
+                          style={{background:T.elevated, border:`1px solid ${T.border}`}}>
+                          <div>
+                            <p className="text-white text-sm font-semibold">{label}</p>
+                            <p className="text-slate-500 text-xs mt-0.5">{sub}</p>
+                          </div>
+                          <button type="button" onClick={()=>setNotifPrefs(p=>({...p,[k]:!p[k]}))}
+                            className="relative w-11 h-6 rounded-full transition-all"
+                            style={{background: notifPrefs[k] ? T.accent : T.subtle}}>
+                            <div className="absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all"
+                              style={{left: notifPrefs[k] ? "calc(100% - 22px)" : 2}} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div style={{borderTop:`1px solid ${T.border}`, paddingTop:20}}>
+                    <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-4">Alert Types</p>
+                    <div className="space-y-2">
+                      {([
+                        {k:"overdue",  label:"Overdue Payments",      sub:"Alert when invoice is past due"},
+                        {k:"payments", label:"Payment Received",       sub:"M-Pesa & bank confirmations"},
+                        {k:"bookings", label:"New Bookings",           sub:"When a booking is created"},
+                        {k:"fleet",    label:"Fleet Due for Service",  sub:"Vehicle maintenance reminders"},
+                      ] as const).map(({k,label,sub})=>(
+                        <label key={k} className="flex items-center justify-between p-3 rounded-xl cursor-pointer hover:bg-white/3 transition-colors"
+                          style={{border:`1px solid ${T.border}`}}>
+                          <div>
+                            <p className="text-white text-sm font-medium">{label}</p>
+                            <p className="text-slate-500 text-xs">{sub}</p>
+                          </div>
+                          <div className="relative shrink-0">
+                            <input type="checkbox" className="sr-only" checked={notifPrefs[k]}
+                              onChange={()=>setNotifPrefs(p=>({...p,[k]:!p[k]}))} />
+                            <div className="w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all"
+                              style={{
+                                background: notifPrefs[k] ? T.accent : "transparent",
+                                borderColor: notifPrefs[k] ? T.accent : "#475569",
+                              }}>
+                              {notifPrefs[k] && <svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l3 3 5-6" stroke="white" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                            </div>
+                          </div>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* SYSTEM */}
+              {settingsTab === "system" && (
+                <div className="space-y-5 slide-in">
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-4">Company Information</p>
+                    <div className="space-y-3">
+                      {[
+                        {label:"Company Name",  value:companyName,  set:setCompanyName,  ph:"Moventra Safaris & Logistics Ltd"},
+                        {label:"Phone",         value:companyPhone, set:setCompanyPhone, ph:"+254 727 247 032"},
+                        {label:"Email",         value:companyEmail, set:setCompanyEmail, ph:"info@company.com"},
+                      ].map(({label,value,set,ph})=>(
+                        <div key={label}>
+                          <label className="text-xs font-medium text-slate-400 block mb-1.5">{label}</label>
+                          <input value={value} onChange={e=>set(e.target.value)} placeholder={ph}
+                            className="w-full rounded-xl h-10 px-3 text-sm text-white outline-none transition-all"
+                            style={{background:T.elevated, border:`1px solid ${T.border}`, fontFamily:"'Outfit', sans-serif"}}
+                            onFocus={e=>e.target.style.border=`1px solid ${T.accent}50`}
+                            onBlur={e=>e.target.style.border=`1px solid ${T.border}`} />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div style={{borderTop:`1px solid ${T.border}`, paddingTop:20}}>
+                    <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-4">Financial Defaults</p>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <div>
+                        <label className="text-xs font-medium text-slate-400 block mb-1.5">Default Currency</label>
+                        <select value={currency} onChange={e=>setCurrency(e.target.value)}
+                          className="w-full rounded-xl h-10 px-3 text-sm text-white outline-none"
+                          style={{background:T.elevated, border:`1px solid ${T.border}`, fontFamily:"'Outfit', sans-serif", appearance:"none"}}>
+                          {["KES","USD","EUR","GBP","TZS","UGX"].map(c=><option key={c} value={c}>{c}</option>)}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="text-xs font-medium text-slate-400 block mb-1.5">VAT / Tax Rate (%)</label>
+                        <input type="number" min="0" max="100" value={taxRate} onChange={e=>setTaxRate(e.target.value)}
+                          className="w-full rounded-xl h-10 px-3 text-sm text-white outline-none"
+                          style={{background:T.elevated, border:`1px solid ${T.border}`, fontFamily:"'JetBrains Mono', monospace"}}
+                          onFocus={e=>e.target.style.border=`1px solid ${T.accent}50`}
+                          onBlur={e=>e.target.style.border=`1px solid ${T.border}`} />
+                      </div>
+                    </div>
+                  </div>
+                  <div style={{borderTop:`1px solid ${T.border}`, paddingTop:20}}>
+                    <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-4">System Info</p>
+                    <div className="rounded-xl p-4 space-y-2.5" style={{background:T.elevated, border:`1px solid ${T.border}`}}>
+                      {[
+                        {label:"Version",       val:"v2.1.0 · Build 267f1f4"},
+                        {label:"Database",      val:"Supabase PostgreSQL"},
+                        {label:"Environment",   val:"Development"},
+                        {label:"Framework",     val:"Next.js 15.3.2 · Turbopack"},
+                        {label:"Last Deploy",   val:"May 2025"},
+                      ].map(({label,val})=>(
+                        <div key={label} className="flex justify-between text-xs">
+                          <span className="text-slate-500">{label}</span>
+                          <span className="text-slate-300 font-mono">{val}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div style={{borderTop:`1px solid ${T.border}`, paddingTop:20}}>
+                    <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">Danger Zone</p>
+                    <div className="rounded-xl p-4 space-y-3" style={{border:"1px solid rgba(248,113,113,.2)", background:"rgba(248,113,113,.04)"}}>
+                      <p className="text-slate-400 text-xs">These actions are permanent and cannot be undone.</p>
+                      <button type="button"
+                        onClick={()=>{ if(confirm("Clear browser cache and reload?")){ window.location.reload(); } }}
+                        className="w-full py-2 rounded-xl text-xs font-semibold text-amber-400 hover:bg-amber-500/10 transition-all"
+                        style={{border:"1px solid rgba(251,191,36,.2)"}}>
+                        Clear Cache & Reload
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+            </div>
+
+            {/* ── Footer ── */}
+            <div className="flex items-center justify-between gap-3 px-6 py-4 shrink-0" style={{borderTop:`1px solid ${T.border}`}}>
               <button onClick={signOut}
-                className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-medium text-red-400 hover:bg-red-500/10 transition-all"
-                style={{border:`1px solid rgba(248,113,113,.2)`}}>
-                <LogOut className="h-4 w-4" />Sign Out
+                className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold text-red-400 hover:bg-red-500/10 transition-all"
+                style={{border:"1px solid rgba(248,113,113,.2)"}}>
+                <LogOut className="h-3.5 w-3.5" />Sign Out
               </button>
+              <div className="flex items-center gap-2">
+                {saveSuccess && <p className="text-emerald-400 text-xs">{saveSuccess}</p>}
+                <button type="button"
+                  onClick={async () => {
+                    setSaving(true);
+                    await new Promise(r=>setTimeout(r,800));
+                    localStorage.setItem("moventra-admin-name", adminName);
+                    localStorage.setItem("moventra-theme", theme);
+                    setSaving(false);
+                    setSaveSuccess("Saved ✓");
+                    setTimeout(()=>setSaveSuccess(""),2500);
+                  }}
+                  className="flex items-center gap-2 px-5 py-2 rounded-xl text-xs font-bold text-white transition-all"
+                  style={{background:T.accent}}>
+                  {saving ? <><Loader2 className="h-3.5 w-3.5 animate-spin" />Saving...</> : "Save Changes"}
+                </button>
+              </div>
             </div>
           </div>
         </div>
