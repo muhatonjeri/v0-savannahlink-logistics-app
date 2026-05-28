@@ -1,770 +1,696 @@
 "use client";
-
 import { useState, useEffect, useCallback } from "react";
-import {
-  RefreshCw, Globe, Calculator, Fuel, Car, ArrowRight,
-  MapPin, DollarSign, Clock, TrendingUp, Zap, RotateCcw,
-  ChevronDown, Building2, Plane,
-} from "lucide-react";
+import { RefreshCw, ArrowLeftRight, ChevronDown, Zap } from "lucide-react";
 
-// ── Fonts & keyframes ──────────────────────────────────────────────────────────
-const STYLES = `
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Syne:wght@700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
-@keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
-@keyframes spin   { to{transform:rotate(360deg)} }
-@keyframes pulse  { 0%,100%{opacity:1} 50%{opacity:.5} }
-.tool-card { animation: fadeUp .35s ease both; }
-.tool-card:nth-child(2) { animation-delay:.06s }
-.tool-card:nth-child(3) { animation-delay:.12s }
-.tool-card:nth-child(4) { animation-delay:.18s }
-.tool-card:nth-child(5) { animation-delay:.24s }
-.tool-card:nth-child(6) { animation-delay:.30s }
-`;
+/* ═══════════════════════════════════════════════════════════════
+   DATA
+═══════════════════════════════════════════════════════════════ */
+const CURRENCIES = [
+  { code:"KES", sym:"KES ",  flag:"🇰🇪", name:"Kenyan Shilling"     },
+  { code:"USD", sym:"$",     flag:"🇺🇸", name:"US Dollar"           },
+  { code:"EUR", sym:"€",     flag:"🇪🇺", name:"Euro"                },
+  { code:"GBP", sym:"£",     flag:"🇬🇧", name:"British Pound"       },
+  { code:"AED", sym:"AED ",  flag:"🇦🇪", name:"UAE Dirham"          },
+  { code:"TZS", sym:"TZS ",  flag:"🇹🇿", name:"Tanzanian Shilling"  },
+  { code:"UGX", sym:"UGX ",  flag:"🇺🇬", name:"Ugandan Shilling"    },
+  { code:"INR", sym:"₹",     flag:"🇮🇳", name:"Indian Rupee"        },
+  { code:"ZAR", sym:"R",     flag:"🇿🇦", name:"South African Rand"  },
+  { code:"CNY", sym:"¥",     flag:"🇨🇳", name:"Chinese Yuan"        },
+  { code:"RWF", sym:"RWF ",  flag:"🇷🇼", name:"Rwandan Franc"       },
+  { code:"ETB", sym:"ETB ",  flag:"🇪🇹", name:"Ethiopian Birr"      },
+  { code:"GHS", sym:"₵",     flag:"🇬🇭", name:"Ghanaian Cedi"       },
+  { code:"NGN", sym:"₦",     flag:"🇳🇬", name:"Nigerian Naira"      },
+];
 
-// ── Token system ───────────────────────────────────────────────────────────────
-const T = {
-  bg:       "#050A14",
-  surface:  "#0B1220",
-  elevated: "#0F1929",
-  subtle:   "#1A2740",
-  border:   "rgba(255,255,255,0.07)",
-  text:     "#F1F5F9",
-  muted:    "#64748B",
-  accent:   "#F97316",
+const ZONES = [
+  { city:"Nairobi",       tz:"Africa/Nairobi",        flag:"🇰🇪", utc:"+3"    },
+  { city:"Dubai",         tz:"Asia/Dubai",            flag:"🇦🇪", utc:"+4"    },
+  { city:"London",        tz:"Europe/London",         flag:"🇬🇧", utc:"±0"    },
+  { city:"New York",      tz:"America/New_York",      flag:"🇺🇸", utc:"-5"    },
+  { city:"Kampala",       tz:"Africa/Kampala",        flag:"🇺🇬", utc:"+3"    },
+  { city:"Dar es Salaam", tz:"Africa/Dar_es_Salaam",  flag:"🇹🇿", utc:"+3"    },
+  { city:"Kigali",        tz:"Africa/Kigali",         flag:"🇷🇼", utc:"+2"    },
+  { city:"Johannesburg",  tz:"Africa/Johannesburg",   flag:"🇿🇦", utc:"+2"    },
+  { city:"Mumbai",        tz:"Asia/Kolkata",          flag:"🇮🇳", utc:"+5:30" },
+  { city:"Beijing",       tz:"Asia/Shanghai",         flag:"🇨🇳", utc:"+8"    },
+  { city:"Frankfurt",     tz:"Europe/Berlin",         flag:"🇩🇪", utc:"+1"    },
+  { city:"Tokyo",         tz:"Asia/Tokyo",            flag:"🇯🇵", utc:"+9"    },
+];
+
+const ROUTES = [
+  { to:"Mombasa",     km:490  }, { to:"Kisumu",       km:350  },
+  { to:"Nakuru",      km:160  }, { to:"Naivasha",     km:90   },
+  { to:"Maasai Mara", km:270  }, { to:"Malindi",      km:580  },
+  { to:"Eldoret",     km:310  }, { to:"Amboseli",     km:230  },
+  { to:"Kampala",     km:680  }, { to:"Arusha",       km:273  },
+  { to:"Zanzibar",    km:935  }, { to:"Kigali",       km:880  },
+  { to:"JKIA",        km:18   }, { to:"Thika",        km:42   },
+  { to:"Machakos",    km:64   },
+];
+
+const VEHICLES = [
+  { label:"Vitz / Axio",      kpl:13, e:"🚗" },
+  { label:"Corolla / Premio", kpl:12, e:"🚗" },
+  { label:"RAV4 / Fielder",   kpl:11, e:"🚙" },
+  { label:"Prado / Fortuner", kpl:9,  e:"🚙" },
+  { label:"Land Cruiser V8",  kpl:7,  e:"🚐" },
+  { label:"Hilux / D-Max",    kpl:8,  e:"🛻" },
+];
+
+/* ═══════════════════════════════════════════════════════════════
+   UTILS
+═══════════════════════════════════════════════════════════════ */
+const fmtN  = (n:number, d=0) => new Intl.NumberFormat("en-KE",{minimumFractionDigits:d,maximumFractionDigits:d}).format(n);
+const fmtK  = (n:number) => `KES ${fmtN(Math.round(n))}`;
+const tzTime = (tz:string,sec=false) => {
+  try { return new Date().toLocaleTimeString("en-US",{timeZone:tz,hour12:false,hour:"2-digit",minute:"2-digit",...(sec?{second:"2-digit"}:{})}); }
+  catch { return "--:--"; }
+};
+const tzHour = (tz:string) => {
+  try { return parseInt(new Date().toLocaleString("en-US",{timeZone:tz,hour:"numeric",hour12:false})); }
+  catch { return 12; }
+};
+const tzDate = (tz:string) => {
+  try { return new Date().toLocaleDateString("en-US",{timeZone:tz,weekday:"short",month:"short",day:"numeric"}); }
+  catch { return ""; }
 };
 
-// ── Helper components ──────────────────────────────────────────────────────────
-function Card({ children, accent = T.accent, style }: { children: React.ReactNode; accent?: string; style?: React.CSSProperties }) {
+/* ═══════════════════════════════════════════════════════════════
+   SHARED ATOMS
+═══════════════════════════════════════════════════════════════ */
+const C = {
+  bg:     "#03080f",
+  panel:  "#07111e",
+  card:   "#091828",
+  rim:    "rgba(255,255,255,.07)",
+  muted:  "#2a3a50",
+  dim:    "#4a6278",
+  soft:   "#8ba3b8",
+  text:   "#c8dae8",
+  white:  "#e8f0f8",
+};
+
+function Label({children}:{children:React.ReactNode}) {
+  return <div style={{fontSize:9,fontWeight:700,textTransform:"uppercase" as const,letterSpacing:".1em",color:C.dim,marginBottom:5}}>{children}</div>;
+}
+
+function NumInput({label,value,onChange,prefix,suffix,placeholder,wide}:{
+  label?:string;value:string;onChange:(v:string)=>void;
+  prefix?:string;suffix?:string;placeholder?:string;wide?:boolean;
+}) {
   return (
-    <div className="tool-card" style={{
-      background: T.surface, borderRadius: 20,
-      border: `1px solid rgba(255,255,255,.07)`,
-      boxShadow: `0 0 0 1px ${accent}18, 0 8px 32px rgba(0,0,0,.4)`,
-      overflow: "hidden", ...style,
-    }}>
-      {children}
+    <div style={{flex:wide?2:1,minWidth:0}}>
+      {label && <Label>{label}</Label>}
+      <div style={{position:"relative",display:"flex",alignItems:"center"}}>
+        {prefix && <span style={{position:"absolute",left:10,fontSize:11,color:C.dim,pointerEvents:"none",fontFamily:"'JetBrains Mono',monospace"}}>{prefix}</span>}
+        <input type="number" value={value} onChange={e=>onChange(e.target.value)} placeholder={placeholder}
+          style={{
+            width:"100%",background:C.bg,border:"1px solid "+C.muted,borderRadius:8,
+            padding:`8px ${suffix?"30px":10}px 8px ${prefix?"32px":10}px`,
+            color:C.white,fontSize:13,outline:"none",fontFamily:"'JetBrains Mono',monospace",
+            transition:"border-color .15s",
+          }}
+          onFocus={e=>e.target.style.borderColor="rgba(249,115,22,.6)"}
+          onBlur={e=>e.target.style.borderColor=C.muted}/>
+        {suffix && <span style={{position:"absolute",right:9,fontSize:10,color:C.dim,pointerEvents:"none"}}>{suffix}</span>}
+      </div>
     </div>
   );
 }
 
-function CardHeader({ icon: Icon, title, subtitle, accent }: { icon: React.ElementType; title: string; subtitle?: string; accent: string }) {
+function Dropdown({label,value,onChange,options}:{
+  label?:string;value:string;onChange:(v:string)=>void;options:{value:string;label:string}[];
+}) {
+  return (
+    <div>
+      {label && <Label>{label}</Label>}
+      <div style={{position:"relative"}}>
+        <select value={value} onChange={e=>onChange(e.target.value)} style={{
+          width:"100%",background:C.bg,border:"1px solid "+C.muted,borderRadius:8,
+          padding:"8px 28px 8px 10px",color:C.white,fontSize:12,appearance:"none",
+          outline:"none",cursor:"pointer",fontFamily:"'Space Grotesk',sans-serif",
+          transition:"border-color .15s",
+        }}
+        onFocus={e=>e.target.style.borderColor="rgba(249,115,22,.6)"}
+        onBlur={e=>e.target.style.borderColor=C.muted}>
+          {options.map(o=><option key={o.value} value={o.value}>{o.label}</option>)}
+        </select>
+        <ChevronDown style={{position:"absolute",right:9,top:"50%",transform:"translateY(-50%)",width:12,height:12,color:C.dim,pointerEvents:"none"}}/>
+      </div>
+    </div>
+  );
+}
+
+function Toggle({on,onChange,label}:{on:boolean;onChange:(v:boolean)=>void;label:string}) {
+  return (
+    <label style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer",userSelect:"none" as const}}>
+      <div onClick={()=>onChange(!on)} style={{
+        width:34,height:18,borderRadius:9,background:on?"#F97316":C.muted,
+        position:"relative",transition:"background .2s",cursor:"pointer",flexShrink:0,
+      }}>
+        <div style={{position:"absolute",top:2,left:on?16:2,width:14,height:14,borderRadius:"50%",background:"white",transition:"left .2s",boxShadow:"0 1px 3px rgba(0,0,0,.4)"}}/>
+      </div>
+      <span style={{fontSize:11,color:C.soft,lineHeight:1}}>{label}</span>
+    </label>
+  );
+}
+
+function Chip({label,active,onClick,color}:{label:string;active:boolean;onClick:()=>void;color:string}) {
+  return (
+    <button onClick={onClick} style={{
+      padding:"4px 10px",borderRadius:6,border:`1px solid ${active?color:C.muted}`,
+      background:active?`${color}18`:"transparent",color:active?color:C.dim,
+      fontSize:11,cursor:"pointer",transition:"all .12s",fontFamily:"'Space Grotesk',sans-serif",
+    }}>{label}</button>
+  );
+}
+
+function ResultLine({label,value,color,size,top}:{label:string;value:string;color?:string;size?:number;top?:boolean}) {
+  return (
+    <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",padding:"6px 0",borderTop:top?"1px solid "+C.rim:"none"}}>
+      <span style={{fontSize:11,color:C.dim}}>{label}</span>
+      <span style={{fontSize:size||12,fontWeight:size&&size>14?800:600,color:color||C.text,fontFamily:"'JetBrains Mono',monospace"}}>{value}</span>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   INSTRUMENT CARD WRAPPER
+═══════════════════════════════════════════════════════════════ */
+function Instrument({title,subtitle,accent,children,span2}:{
+  title:string;subtitle:string;accent:string;children:React.ReactNode;span2?:boolean;
+}) {
   return (
     <div style={{
-      padding: "14px 18px", borderBottom: `1px solid rgba(255,255,255,.06)`,
-      background: `linear-gradient(90deg, ${accent}10 0%, transparent 60%)`,
-      display: "flex", alignItems: "center", gap: 10,
+      background:C.card,borderRadius:16,overflow:"hidden",
+      border:"1px solid "+C.rim,
+      boxShadow:`0 0 0 1px ${accent}18, 0 12px 40px rgba(0,0,0,.6)`,
+      gridColumn:span2?"span 2":undefined,
     }}>
-      <div style={{ width: 32, height: 32, borderRadius: 10, background: `${accent}18`, border: `1px solid ${accent}28`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-        <Icon style={{ width: 15, height: 15, color: accent }} />
-      </div>
-      <div>
-        <div style={{ fontSize: 13, fontWeight: 700, color: "white", letterSpacing: "-.01em" }}>{title}</div>
-        {subtitle && <div style={{ fontSize: 11, color: T.muted, marginTop: 1 }}>{subtitle}</div>}
-      </div>
-    </div>
-  );
-}
-
-function Input({ value, onChange, type = "text", placeholder, prefix, suffix, style }: {
-  value: string | number; onChange: (v: string) => void;
-  type?: string; placeholder?: string; prefix?: string; suffix?: string; style?: React.CSSProperties;
-}) {
-  return (
-    <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
-      {prefix && <span style={{ position: "absolute", left: 12, fontSize: 12, color: T.muted, pointerEvents: "none", userSelect: "none" }}>{prefix}</span>}
-      <input type={type} value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder}
-        style={{
-          width: "100%", background: T.elevated, border: `1px solid ${T.border}`, borderRadius: 10,
-          padding: `9px ${suffix ? 36 : 12}px 9px ${prefix ? 28 : 12}px`,
-          color: "white", fontSize: 13, outline: "none", fontFamily: "'JetBrains Mono', monospace",
-          transition: "border-color .15s", ...style,
-        }}
-        onFocus={e => e.target.style.borderColor = "rgba(249,115,22,.5)"}
-        onBlur={e => e.target.style.borderColor = T.border} />
-      {suffix && <span style={{ position: "absolute", right: 12, fontSize: 11, color: T.muted, pointerEvents: "none" }}>{suffix}</span>}
-    </div>
-  );
-}
-
-function Select({ value, onChange, options, style }: {
-  value: string; onChange: (v: string) => void; options: {value:string;label:string}[]; style?: React.CSSProperties;
-}) {
-  return (
-    <div style={{ position: "relative" }}>
-      <select value={value} onChange={e => onChange(e.target.value)} style={{
-        width: "100%", background: T.elevated, border: `1px solid ${T.border}`, borderRadius: 10,
-        padding: "9px 36px 9px 12px", color: "white", fontSize: 13, outline: "none",
-        appearance: "none", fontFamily: "'Outfit', sans-serif", cursor: "pointer", ...style,
+      {/* Instrument top strip */}
+      <div style={{height:2,background:`linear-gradient(90deg, ${accent}, ${accent}60 60%, transparent)`}}/>
+      <div style={{
+        padding:"12px 18px",borderBottom:"1px solid "+C.rim,
+        background:`linear-gradient(180deg, ${accent}0c 0%, transparent 100%)`,
+        display:"flex",alignItems:"center",justifyContent:"space-between",
       }}>
-        {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-      </select>
-      <ChevronDown style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", width: 14, height: 14, color: T.muted, pointerEvents: "none" }} />
+        <div>
+          <div style={{fontSize:11,fontWeight:700,color:accent,textTransform:"uppercase" as const,letterSpacing:".1em"}}>{title}</div>
+          <div style={{fontSize:10,color:C.dim,marginTop:1}}>{subtitle}</div>
+        </div>
+        {/* Corner indicator light */}
+        <div style={{width:6,height:6,borderRadius:"50%",background:accent,boxShadow:`0 0 8px ${accent}`,opacity:.7}}/>
+      </div>
+      <div style={{padding:"16px 18px"}}>{children}</div>
     </div>
   );
 }
 
-function ResultRow({ label, value, accent, bold }: { label: string; value: string; accent?: string; bold?: boolean }) {
-  return (
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "7px 0", borderBottom: `1px solid rgba(255,255,255,.04)` }}>
-      <span style={{ fontSize: 12, color: T.muted }}>{label}</span>
-      <span style={{ fontSize: bold ? 16 : 13, fontWeight: bold ? 700 : 500, color: accent || "white", fontFamily: "'JetBrains Mono', monospace" }}>{value}</span>
-    </div>
-  );
-}
+/* ═══════════════════════════════════════════════════════════════
+   1. CURRENCY CONVERTER
+═══════════════════════════════════════════════════════════════ */
+function CurrencyTool() {
+  const [amt,  setAmt]  = useState("10000");
+  const [from, setFrom] = useState("USD");
+  const [to,   setTo]   = useState("KES");
+  const [rates,setRates]= useState<Record<string,number>>({KES:130,USD:1,EUR:.92,GBP:.79,AED:3.67,TZS:2600,UGX:3800,INR:83.5,ZAR:18.7,CNY:7.24,RWF:1310,ETB:110,GHS:12.5,NGN:1550});
+  const [spin, setSpin] = useState(false);
+  const [ts,   setTs]   = useState("approx.");
 
-const fmtKES = (n: number) => `KES ${Math.round(n).toLocaleString("en-KE")}`;
-const fmtCur = (n: number, sym: string, dec = 2) => `${sym}${n.toLocaleString("en", { minimumFractionDigits: dec, maximumFractionDigits: dec })}`;
-
-// ── CURRENCIES ────────────────────────────────────────────────────────────────
-const CURRENCIES = [
-  { code: "KES", name: "Kenyan Shilling",     symbol: "KES " },
-  { code: "USD", name: "US Dollar",           symbol: "$"    },
-  { code: "EUR", name: "Euro",                symbol: "€"    },
-  { code: "GBP", name: "British Pound",       symbol: "£"    },
-  { code: "TZS", name: "Tanzanian Shilling",  symbol: "TZS " },
-  { code: "UGX", name: "Ugandan Shilling",    symbol: "UGX " },
-  { code: "AED", name: "UAE Dirham",          symbol: "AED " },
-  { code: "INR", name: "Indian Rupee",        symbol: "₹"    },
-  { code: "ZAR", name: "South African Rand",  symbol: "R"    },
-  { code: "CNY", name: "Chinese Yuan",        symbol: "¥"    },
-  { code: "RWF", name: "Rwandan Franc",       symbol: "RWF " },
-  { code: "ETB", name: "Ethiopian Birr",      symbol: "ETB " },
-];
-
-// ── WORLD ZONES ────────────────────────────────────────────────────────────────
-const ZONES = [
-  { city: "Nairobi",      flag: "🇰🇪", tz: "Africa/Nairobi",     offset: "+3"  },
-  { city: "Dubai",        flag: "🇦🇪", tz: "Asia/Dubai",         offset: "+4"  },
-  { city: "London",       flag: "🇬🇧", tz: "Europe/London",      offset: "+0/+1"},
-  { city: "New York",     flag: "🇺🇸", tz: "America/New_York",   offset: "-5/-4"},
-  { city: "Kampala",      flag: "🇺🇬", tz: "Africa/Kampala",     offset: "+3"  },
-  { city: "Dar es Salaam",flag: "🇹🇿", tz: "Africa/Dar_es_Salaam",offset: "+3"  },
-  { city: "Kigali",       flag: "🇷🇼", tz: "Africa/Kigali",      offset: "+2"  },
-  { city: "Johannesburg", flag: "🇿🇦", tz: "Africa/Johannesburg", offset: "+2"  },
-  { city: "Mumbai",       flag: "🇮🇳", tz: "Asia/Kolkata",       offset: "+5:30"},
-  { city: "Beijing",      flag: "🇨🇳", tz: "Asia/Shanghai",      offset: "+8"  },
-  { city: "Frankfurt",    flag: "🇩🇪", tz: "Europe/Berlin",      offset: "+1/+2"},
-  { city: "Tokyo",        flag: "🇯🇵", tz: "Asia/Tokyo",         offset: "+9"  },
-];
-
-// ── KENYA ROUTES ───────────────────────────────────────────────────────────────
-const ROUTES = [
-  { from: "Nairobi", to: "Mombasa",    km: 490  },
-  { from: "Nairobi", to: "Kisumu",     km: 350  },
-  { from: "Nairobi", to: "Nakuru",     km: 160  },
-  { from: "Nairobi", to: "Naivasha",   km: 90   },
-  { from: "Nairobi", to: "Maasai Mara",km: 270  },
-  { from: "Nairobi", to: "Malindi",    km: 580  },
-  { from: "Nairobi", to: "Eldoret",    km: 310  },
-  { from: "Nairobi", to: "Nyeri",      km: 150  },
-  { from: "Nairobi", to: "Amboseli",   km: 230  },
-  { from: "Nairobi", to: "Kampala",    km: 680  },
-  { from: "Nairobi", to: "Arusha",     km: 273  },
-  { from: "Nairobi", to: "Zanzibar",   km: 935  },
-  { from: "Nairobi", to: "JKIA",       km: 18   },
-  { from: "Nairobi", to: "Thika",      km: 42   },
-  { from: "Nairobi", to: "Machakos",   km: 64   },
-];
-
-// ══════════════════════════════════════════════════════════════════════════════
-// WIDGET 1 — Currency Converter
-// ══════════════════════════════════════════════════════════════════════════════
-function CurrencyConverter() {
-  const [amount, setAmount]   = useState("1000");
-  const [from,   setFrom]     = useState("USD");
-  const [to,     setTo]       = useState("KES");
-  const [rates,  setRates]    = useState<Record<string,number>>({});
-  const [loading,setLoading]  = useState(false);
-  const [lastUpdated, setLastUpdated] = useState("");
-
-  const fetchRates = useCallback(async () => {
-    setLoading(true);
+  const load = useCallback(async()=>{
+    setSpin(true);
     try {
-      // Use a free open exchange rates API (no key needed for latest)
-      const res = await fetch("https://open.er-api.com/v6/latest/USD");
-      const json = await res.json();
-      if (json.rates) {
-        setRates(json.rates);
-        setLastUpdated(new Date().toLocaleTimeString("en-KE"));
-      }
-    } catch {
-      // Fallback hardcoded rates (approximate)
-      setRates({ KES:130, USD:1, EUR:0.92, GBP:0.79, TZS:2600, UGX:3800, AED:3.67, INR:83.5, ZAR:18.7, CNY:7.24, RWF:1310, ETB:110 });
-      setLastUpdated("Approx. rates");
-    }
-    setLoading(false);
-  }, []);
+      const r = await fetch("https://open.er-api.com/v6/latest/USD");
+      const d = await r.json();
+      if(d.rates){setRates(d.rates);setTs(new Date().toLocaleTimeString("en-KE",{hour:"2-digit",minute:"2-digit"}));}
+    } catch {}
+    setSpin(false);
+  },[]);
 
-  useEffect(() => { fetchRates(); }, [fetchRates]);
+  useEffect(()=>{load();},[load]);
 
-  const fromRate = rates[from] || 1;
-  const toRate   = rates[to]   || 1;
-  const result   = (parseFloat(amount) || 0) * (toRate / fromRate);
-
-  const fromSym  = CURRENCIES.find(c => c.code === from)?.symbol || "";
-  const toSym    = CURRENCIES.find(c => c.code === to)?.symbol   || "";
-
-  const popularPairs = [
-    { from:"USD", to:"KES" }, { from:"EUR", to:"KES" },
-    { from:"GBP", to:"KES" }, { from:"AED", to:"KES" },
-  ];
-
-  const curOpts = CURRENCIES.map(c => ({ value: c.code, label: `${c.code} — ${c.name}` }));
+  const fr = rates[from]||1, tr = rates[to]||1;
+  const res = (parseFloat(amt)||0)*(tr/fr);
+  const fSym = CURRENCIES.find(c=>c.code===from)?.sym||"";
+  const tSym = CURRENCIES.find(c=>c.code===to)?.sym||"";
+  const opts = CURRENCIES.map(c=>({value:c.code,label:`${c.flag} ${c.code} — ${c.name}`}));
+  const pairs:[string,string][] = [["USD","KES"],["EUR","KES"],["GBP","KES"],["AED","KES"],["TZS","KES"],["UGX","KES"]];
 
   return (
-    <Card accent="#38BDF8">
-      <CardHeader icon={DollarSign} title="Currency Converter" subtitle="Live exchange rates" accent="#38BDF8" />
-      <div style={{ padding: "16px 18px", display: "flex", flexDirection: "column", gap: 12 }}>
-        <Input type="number" value={amount} onChange={setAmount} placeholder="1000" prefix={fromSym} />
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 36px 1fr", alignItems: "center", gap: 8 }}>
-          <Select value={from} onChange={setFrom} options={curOpts} />
-          <button onClick={() => { setFrom(to); setTo(from); }}
-            style={{ width: 36, height: 36, borderRadius: 10, background: T.subtle, border: `1px solid ${T.border}`, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <RefreshCw style={{ width: 14, height: 14, color: "#38BDF8" }} />
-          </button>
-          <Select value={to} onChange={setTo} options={curOpts} />
-        </div>
+    <div style={{display:"flex",flexDirection:"column",gap:14}}>
+      <NumInput label="Amount" value={amt} onChange={setAmt} placeholder="10 000" prefix={fSym} wide/>
 
-        {/* Result */}
-        <div style={{ background: "rgba(56,189,248,.08)", border: "1px solid rgba(56,189,248,.2)", borderRadius: 14, padding: "14px 16px", textAlign: "center" }}>
-          <p style={{ fontSize: 11, color: T.muted, margin: "0 0 6px" }}>{amount} {from} =</p>
-          <p style={{ fontSize: 28, fontWeight: 800, color: "#38BDF8", margin: 0, fontFamily: "'JetBrains Mono', monospace" }}>
-            {loading ? "..." : `${toSym}${result.toLocaleString("en", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
-          </p>
-          <p style={{ fontSize: 10, color: T.muted, margin: "6px 0 0" }}>
-            1 {from} = {toSym}{(toRate / fromRate).toFixed(4)} {to}
-          </p>
-        </div>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 32px 1fr",gap:8,alignItems:"end"}}>
+        <Dropdown label="From" value={from} onChange={setFrom} options={opts}/>
+        <button onClick={()=>{const t=from;setFrom(to);setTo(t);}} style={{
+          width:32,height:34,borderRadius:8,background:C.bg,border:"1px solid "+C.muted,
+          cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",marginTop:14,
+        }}>
+          <ArrowLeftRight style={{width:13,height:13,color:"#F97316"}}/>
+        </button>
+        <Dropdown label="To" value={to} onChange={setTo} options={opts}/>
+      </div>
 
-        {/* Quick pairs */}
-        <div>
-          <p style={{ fontSize: 10, color: T.muted, textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 8 }}>Quick Pairs (1 unit)</p>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
-            {popularPairs.map(p => {
-              const r1 = rates[p.from] || 1;
-              const r2 = rates[p.to]   || 1;
-              const sym2 = CURRENCIES.find(c => c.code === p.to)?.symbol || "";
-              return (
-                <div key={`${p.from}-${p.to}`} style={{ background: T.elevated, border: `1px solid ${T.border}`, borderRadius: 10, padding: "8px 12px" }}>
-                  <p style={{ fontSize: 10, color: T.muted, margin: "0 0 2px" }}>1 {p.from}</p>
-                  <p style={{ fontSize: 14, fontWeight: 700, color: "white", margin: 0, fontFamily: "'JetBrains Mono', monospace" }}>
-                    {sym2}{(r2/r1).toLocaleString("en", { maximumFractionDigits: 0 })} {p.to}
-                  </p>
-                </div>
-              );
-            })}
-          </div>
+      {/* Big readout */}
+      <div style={{background:C.bg,border:"1px solid rgba(56,189,248,.2)",borderRadius:12,padding:"16px 18px",textAlign:"center"}}>
+        <div style={{fontSize:10,color:C.dim,fontFamily:"'JetBrains Mono',monospace",marginBottom:4}}>
+          {fSym}{fmtN(parseFloat(amt)||0,2)} {from} =
         </div>
-
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <span style={{ fontSize: 10, color: T.muted }}>Updated: {lastUpdated}</span>
-          <button onClick={fetchRates} style={{ background: "none", border: "none", cursor: "pointer", color: "#38BDF8", fontSize: 11, display: "flex", alignItems: "center", gap: 4 }}>
-            <RefreshCw style={{ width: 11, height: 11, animation: loading ? "spin 1s linear infinite" : "none" }} />
-            Refresh
-          </button>
+        <div style={{fontSize:34,fontWeight:800,color:"#38BDF8",fontFamily:"'JetBrains Mono',monospace",letterSpacing:"-.03em",lineHeight:1}}>
+          {spin?"···":`${tSym}${fmtN(res,2)}`}
+        </div>
+        <div style={{fontSize:10,color:C.muted,marginTop:6,fontFamily:"'JetBrains Mono',monospace"}}>
+          rate: 1 {from} = {tSym}{(tr/fr).toFixed(4)} {to}
         </div>
       </div>
-    </Card>
-  );
-}
 
-// ══════════════════════════════════════════════════════════════════════════════
-// WIDGET 2 — Rental Cost Calculator
-// ══════════════════════════════════════════════════════════════════════════════
-function RentalCalculator() {
-  const [days,         setDays]         = useState("3");
-  const [rate,         setRate]         = useState("8000");
-  const [chauffeur,    setChauffeur]    = useState(false);
-  const [deposit,      setDeposit]      = useState("50");  // percent
-  const [vatRate,      setVatRate]      = useState("16");
-  const [includeVat,   setIncludeVat]   = useState(false);
-  const [extraKm,      setExtraKm]      = useState("0");
-  const [kmRate,       setKmRate]       = useState("50");
-
-  const d        = parseInt(days)    || 0;
-  const r        = parseFloat(rate)  || 0;
-  const base     = d * r;
-  const chauffSur= chauffeur ? d * 2000 : 0;
-  const extraCost= (parseFloat(extraKm)||0) * (parseFloat(kmRate)||0);
-  const subtotal = base + chauffSur + extraCost;
-  const vat      = includeVat ? subtotal * (parseFloat(vatRate)/100) : 0;
-  const total    = subtotal + vat;
-  const dep      = total * (parseFloat(deposit)/100);
-  const balance  = total - dep;
-
-  const toggle = (fn: (v: boolean) => void, cur: boolean) => () => fn(!cur);
-
-  return (
-    <Card accent="#F97316">
-      <CardHeader icon={Calculator} title="Rental Cost Calculator" subtitle="Car hire pricing breakdown" accent="#F97316" />
-      <div style={{ padding: "16px 18px", display: "flex", flexDirection: "column", gap: 12 }}>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-          <div>
-            <label style={{ fontSize: 11, color: T.muted, display: "block", marginBottom: 5 }}>Number of Days</label>
-            <Input type="number" value={days} onChange={setDays} suffix="days" />
-          </div>
-          <div>
-            <label style={{ fontSize: 11, color: T.muted, display: "block", marginBottom: 5 }}>Daily Rate</label>
-            <Input type="number" value={rate} onChange={setRate} prefix="KES" />
-          </div>
-        </div>
-
-        {/* Toggles */}
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          {[
-            { label: "Chauffeured (+KES 2k/day)", val: chauffeur, fn: toggle(setChauffeur, chauffeur) },
-            { label: `Include VAT (${vatRate}%)`,  val: includeVat, fn: toggle(setIncludeVat, includeVat) },
-          ].map(({ label, val, fn }) => (
-            <button key={label} onClick={fn} style={{
-              padding: "6px 12px", borderRadius: 8, border: `1px solid ${val ? "#F97316" : T.border}`,
-              background: val ? "rgba(249,115,22,.12)" : T.elevated, color: val ? "#F97316" : T.muted,
-              fontSize: 12, cursor: "pointer", fontFamily: "'Outfit', sans-serif", fontWeight: 500,
-            }}>{label}</button>
-          ))}
-        </div>
-
-        {/* Extra KM */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-          <div>
-            <label style={{ fontSize: 11, color: T.muted, display: "block", marginBottom: 5 }}>Extra KM</label>
-            <Input type="number" value={extraKm} onChange={setExtraKm} suffix="km" />
-          </div>
-          <div>
-            <label style={{ fontSize: 11, color: T.muted, display: "block", marginBottom: 5 }}>Rate/KM</label>
-            <Input type="number" value={kmRate} onChange={setKmRate} prefix="KES" />
-          </div>
-        </div>
-
-        {/* Deposit % */}
-        <div>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-            <label style={{ fontSize: 11, color: T.muted }}>Deposit / Down Payment</label>
-            <span style={{ fontSize: 12, color: "#F97316", fontFamily: "'JetBrains Mono', monospace" }}>{deposit}%</span>
-          </div>
-          <input type="range" min="0" max="100" value={deposit} onChange={e => setDeposit(e.target.value)}
-            style={{ width: "100%", accentColor: "#F97316" }} />
-        </div>
-
-        {/* Results */}
-        <div style={{ background: T.elevated, borderRadius: 12, padding: "12px 14px", border: `1px solid ${T.border}` }}>
-          <ResultRow label={`Base (${d}d × ${fmtKES(r)})`} value={fmtKES(base)} />
-          {chauffeur  && <ResultRow label={`Chauffeur (${d}d × KES 2,000)`} value={fmtKES(chauffSur)} accent="#FBBF24" />}
-          {parseFloat(extraKm) > 0 && <ResultRow label={`Extra KM (${extraKm}km × KES${kmRate})`} value={fmtKES(extraCost)} />}
-          {includeVat && <ResultRow label={`VAT (${vatRate}%)`} value={fmtKES(vat)} />}
-          <ResultRow label="TOTAL" value={fmtKES(total)} bold accent="#F97316" />
-          <div style={{ marginTop: 10, padding: "10px 0 0", borderTop: `1px solid rgba(255,255,255,.06)`, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-            <div style={{ background: "rgba(52,211,153,.08)", borderRadius: 8, padding: "8px 10px", border: "1px solid rgba(52,211,153,.15)" }}>
-              <p style={{ fontSize: 10, color: "#34D399", margin: "0 0 2px" }}>Deposit ({deposit}%)</p>
-              <p style={{ fontSize: 15, fontWeight: 700, color: "#34D399", margin: 0, fontFamily: "'JetBrains Mono',monospace" }}>{fmtKES(dep)}</p>
-            </div>
-            <div style={{ background: "rgba(251,191,36,.08)", borderRadius: 8, padding: "8px 10px", border: "1px solid rgba(251,191,36,.15)" }}>
-              <p style={{ fontSize: 10, color: "#FBBF24", margin: "0 0 2px" }}>Balance Due</p>
-              <p style={{ fontSize: 15, fontWeight: 700, color: "#FBBF24", margin: 0, fontFamily: "'JetBrains Mono',monospace" }}>{fmtKES(balance)}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </Card>
-  );
-}
-
-// ══════════════════════════════════════════════════════════════════════════════
-// WIDGET 3 — World Time Zones
-// ══════════════════════════════════════════════════════════════════════════════
-function WorldTime() {
-  const [tick, setTick] = useState(0);
-  const [highlighted, setHighlighted] = useState("Africa/Nairobi");
-
-  useEffect(() => {
-    const t = setInterval(() => setTick(n => n + 1), 1000);
-    return () => clearInterval(t);
-  }, []);
-
-  const getTime = (tz: string) => {
-    try {
-      return new Date().toLocaleTimeString("en-US", { timeZone: tz, hour12: false, hour: "2-digit", minute: "2-digit", second: "2-digit" });
-    } catch { return "--:--:--"; }
-  };
-  const getDate = (tz: string) => {
-    try {
-      return new Date().toLocaleDateString("en-KE", { timeZone: tz, weekday: "short", month: "short", day: "numeric" });
-    } catch { return ""; }
-  };
-  const isDay = (tz: string) => {
-    try {
-      const h = parseInt(new Date().toLocaleString("en-US", { timeZone: tz, hour: "numeric", hour12: false }));
-      return h >= 6 && h < 20;
-    } catch { return true; }
-  };
-
-  return (
-    <Card accent="#A78BFA">
-      <CardHeader icon={Globe} title="World Time Zones" subtitle={`Live · ${tick > 0 ? "synced" : "syncing..."}`} accent="#A78BFA" />
-      <div style={{ padding: "12px 18px 16px" }}>
-        {/* Highlighted city big display */}
-        {(() => {
-          const z = ZONES.find(z => z.tz === highlighted) || ZONES[0];
-          const time = getTime(z.tz);
-          const day = isDay(z.tz);
+      {/* Quick grid */}
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:5}}>
+        {pairs.map(([f,t])=>{
+          const r=(rates[t]||1)/(rates[f]||1);
+          const fc=CURRENCIES.find(c=>c.code===f);
+          const tc=CURRENCIES.find(c=>c.code===t);
           return (
-            <div style={{ background: "rgba(167,139,250,.08)", border: "1px solid rgba(167,139,250,.2)", borderRadius: 14, padding: "14px 18px", marginBottom: 14, textAlign: "center" }}>
-              <div style={{ fontSize: 18 }}>{z.flag}</div>
-              <div style={{ fontSize: 11, color: T.muted, margin: "4px 0 2px" }}>{z.city}</div>
-              <div style={{ fontSize: 32, fontWeight: 800, color: "#A78BFA", fontFamily: "'JetBrains Mono', monospace", lineHeight: 1 }}>{time}</div>
-              <div style={{ fontSize: 11, color: T.muted, marginTop: 4 }}>{getDate(z.tz)} · {day ? "☀️ Day" : "🌙 Night"}</div>
-            </div>
+            <button key={f+t} onClick={()=>{setFrom(f);setTo(t);}} style={{
+              background:C.bg,border:"1px solid "+C.muted,borderRadius:8,
+              padding:"8px 10px",cursor:"pointer",textAlign:"left",transition:"border-color .12s",
+            }}
+            onMouseEnter={e=>e.currentTarget.style.borderColor="rgba(56,189,248,.4)"}
+            onMouseLeave={e=>e.currentTarget.style.borderColor=C.muted}>
+              <div style={{fontSize:9,color:C.dim,marginBottom:2}}>{fc?.flag} 1 {f}</div>
+              <div style={{fontSize:13,fontWeight:700,color:C.white,fontFamily:"'JetBrains Mono',monospace"}}>{tc?.sym}{fmtN(r,0)}</div>
+            </button>
           );
-        })()}
-        {/* Grid of all zones */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
-          {ZONES.map(z => {
-            const time = getTime(z.tz);
-            const day  = isDay(z.tz);
-            const active = highlighted === z.tz;
-            return (
-              <button key={z.tz} onClick={() => setHighlighted(z.tz)} style={{
-                display: "flex", alignItems: "center", gap: 8, padding: "8px 10px", borderRadius: 10,
-                background: active ? "rgba(167,139,250,.12)" : T.elevated,
-                border: `1px solid ${active ? "rgba(167,139,250,.35)" : T.border}`,
-                cursor: "pointer", textAlign: "left", transition: "all .15s",
-              }}>
-                <span style={{ fontSize: 16, flexShrink: 0 }}>{z.flag}</span>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 10, color: T.muted, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{z.city}</div>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: active ? "#A78BFA" : "white", fontFamily: "'JetBrains Mono', monospace" }}>{time.slice(0,5)}</div>
-                </div>
-                <span style={{ fontSize: 10 }}>{day ? "☀️" : "🌙"}</span>
-              </button>
-            );
-          })}
-        </div>
+        })}
       </div>
-    </Card>
+
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+        <span style={{fontSize:10,color:C.muted}}>Updated {ts}</span>
+        <button onClick={load} style={{background:"none",border:"none",cursor:"pointer",color:"#38BDF8",fontSize:11,display:"flex",alignItems:"center",gap:4}}>
+          <RefreshCw style={{width:10,height:10,animation:spin?"spin 1s linear infinite":"none"}}/> refresh
+        </button>
+      </div>
+    </div>
   );
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-// WIDGET 4 — Fuel Cost Estimator
-// ══════════════════════════════════════════════════════════════════════════════
-function FuelEstimator() {
-  const [distance,     setDistance]     = useState("270");
-  const [consumption,  setConsumption]  = useState("10");
-  const [pricePerLitre,setPricePerLitre] = useState("205");
-  const [returnTrip,   setReturnTrip]   = useState(false);
-  const [selectedRoute,setSelectedRoute] = useState("");
+/* ═══════════════════════════════════════════════════════════════
+   2. RENTAL CALCULATOR
+═══════════════════════════════════════════════════════════════ */
+function RentalTool() {
+  const [days,  setDays]  = useState("3");
+  const [rate,  setRate]  = useState("8000");
+  const [ch,    setCh]    = useState(false);
+  const [vat,   setVat]   = useState(false);
+  const [ekm,   setEkm]   = useState("0");
+  const [kmr,   setKmr]   = useState("50");
+  const [dep,   setDep]   = useState(50);
 
-  const dist = (parseFloat(distance) || 0) * (returnTrip ? 2 : 1);
-  const litres = dist / (parseFloat(consumption) || 10);
-  const cost   = litres * (parseFloat(pricePerLitre) || 0);
-
-  const vehiclePresets = [
-    { label: "Vitz / Axio",        l: "13" },
-    { label: "Corolla / Premio",   l: "12" },
-    { label: "RAV4 / Fielder",     l: "11" },
-    { label: "Prado / Fortuner",   l: "9"  },
-    { label: "Land Cruiser V8",    l: "7"  },
-    { label: "Hilux / D-Max",      l: "8"  },
-  ];
+  const d=parseInt(days)||0, r=parseFloat(rate)||0;
+  const base=d*r, chg=ch?d*2000:0, ext=(parseFloat(ekm)||0)*(parseFloat(kmr)||0);
+  const sub=base+chg+ext, tax=vat?sub*.16:0, tot=sub+tax;
+  const depAmt=tot*(dep/100), bal=tot-depAmt;
 
   return (
-    <Card accent="#34D399">
-      <CardHeader icon={Fuel} title="Fuel Cost Estimator" subtitle="Distance · Consumption · Price" accent="#34D399" />
-      <div style={{ padding: "16px 18px", display: "flex", flexDirection: "column", gap: 12 }}>
-        {/* Route quick-select */}
-        <div>
-          <label style={{ fontSize: 11, color: T.muted, display: "block", marginBottom: 6 }}>Quick Route</label>
-          <Select value={selectedRoute} onChange={v => { setSelectedRoute(v); if (v) setDistance(v); }}
-            options={[{ value: "", label: "Select a route..." }, ...ROUTES.map(r => ({ value: String(r.km), label: `${r.from} → ${r.to} (${r.km} km)` }))]} />
-        </div>
-
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
-          <div>
-            <label style={{ fontSize: 11, color: T.muted, display: "block", marginBottom: 5 }}>Distance</label>
-            <Input type="number" value={distance} onChange={setDistance} suffix="km" />
-          </div>
-          <div>
-            <label style={{ fontSize: 11, color: T.muted, display: "block", marginBottom: 5 }}>Consumption</label>
-            <Input type="number" value={consumption} onChange={setConsumption} suffix="km/L" />
-          </div>
-          <div>
-            <label style={{ fontSize: 11, color: T.muted, display: "block", marginBottom: 5 }}>Price/Litre</label>
-            <Input type="number" value={pricePerLitre} onChange={setPricePerLitre} prefix="KES" />
-          </div>
-        </div>
-
-        {/* Vehicle presets */}
-        <div>
-          <label style={{ fontSize: 11, color: T.muted, display: "block", marginBottom: 6 }}>Vehicle Preset (consumption)</label>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
-            {vehiclePresets.map(p => (
-              <button key={p.label} onClick={() => setConsumption(p.l)} style={{
-                padding: "4px 10px", borderRadius: 7, fontSize: 11, cursor: "pointer",
-                background: consumption === p.l ? "rgba(52,211,153,.15)" : T.elevated,
-                border: `1px solid ${consumption === p.l ? "rgba(52,211,153,.4)" : T.border}`,
-                color: consumption === p.l ? "#34D399" : T.muted, fontFamily: "'Outfit',sans-serif",
-              }}>{p.label}</button>
-            ))}
-          </div>
-        </div>
-
-        {/* Return trip toggle */}
-        <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontSize: 12, color: T.muted }}>
-          <div onClick={() => setReturnTrip(v => !v)} style={{ width: 38, height: 22, borderRadius: 11, background: returnTrip ? "#34D399" : T.subtle, position: "relative", transition: "background .2s", cursor: "pointer", flexShrink: 0 }}>
-            <div style={{ position: "absolute", top: 3, left: returnTrip ? 18 : 3, width: 16, height: 16, borderRadius: "50%", background: "white", transition: "left .2s" }} />
-          </div>
-          Round trip ({returnTrip ? `${parseFloat(distance)*2} km total` : "one way"})
-        </label>
-
-        {/* Result */}
-        <div style={{ background: "rgba(52,211,153,.06)", border: "1px solid rgba(52,211,153,.2)", borderRadius: 12, padding: "14px 16px" }}>
-          <ResultRow label="Total Distance" value={`${dist.toFixed(0)} km`} />
-          <ResultRow label="Litres Required" value={`${litres.toFixed(1)} L`} />
-          <ResultRow label="Fuel Cost" value={fmtKES(cost)} bold accent="#34D399" />
-          <p style={{ fontSize: 10, color: T.muted, marginTop: 8 }}>
-            Add 10–15% buffer for traffic and AC usage.
-            Approx. cost including buffer: <span style={{ color: "#34D399" }}>{fmtKES(cost * 1.13)}</span>
-          </p>
-        </div>
+    <div style={{display:"flex",flexDirection:"column",gap:14}}>
+      <div style={{display:"flex",gap:10}}>
+        <NumInput label="Days"       value={days} onChange={setDays} suffix="d"   placeholder="3"/>
+        <NumInput label="Daily Rate" value={rate} onChange={setRate} prefix="KES" placeholder="8000" wide/>
       </div>
-    </Card>
+
+      <div style={{display:"flex",gap:10,flexWrap:"wrap" as const}}>
+        <Toggle on={ch}  onChange={setCh}  label="Chauffeured +KES 2,000/day"/>
+        <Toggle on={vat} onChange={setVat} label="Include VAT 16%"/>
+      </div>
+
+      <div style={{display:"flex",gap:10}}>
+        <NumInput label="Extra KM"  value={ekm} onChange={setEkm} suffix="km"/>
+        <NumInput label="Rate / KM" value={kmr} onChange={setKmr} prefix="KES"/>
+      </div>
+
+      {/* Breakdown panel */}
+      <div style={{background:C.bg,border:"1px solid rgba(249,115,22,.18)",borderRadius:12,padding:"12px 14px"}}>
+        <ResultLine label={`${d}d × ${fmtK(r)}`} value={fmtK(base)}/>
+        {ch  && <ResultLine label={`Chauffeur ${d}d × KES 2,000`} value={fmtK(chg)} color="#FBBF24"/>}
+        {(parseFloat(ekm)||0)>0 && <ResultLine label={`Extra ${ekm} km × KES ${kmr}`} value={fmtK(ext)}/>}
+        {vat && <ResultLine label="VAT 16%" value={fmtK(tax)}/>}
+        <ResultLine label="TOTAL" value={fmtK(tot)} color="#F97316" size={18} top/>
+      </div>
+
+      {/* Deposit */}
+      <div>
+        <div style={{display:"flex",justifyContent:"space-between",marginBottom:6}}>
+          <Label>Deposit</Label>
+          <span style={{fontSize:12,color:"#F97316",fontFamily:"'JetBrains Mono',monospace",fontWeight:700}}>{dep}%</span>
+        </div>
+        <input type="range" min={0} max={100} value={dep} onChange={e=>setDep(+e.target.value)}
+          style={{width:"100%",accentColor:"#F97316"}}/>
+      </div>
+
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+        {[{l:"Deposit Due",v:fmtK(depAmt),c:"#34D399"},{l:"Balance",v:fmtK(bal),c:"#FBBF24"}].map(({l,v,c})=>(
+          <div key={l} style={{background:C.bg,border:`1px solid ${c}22`,borderRadius:10,padding:"10px 12px"}}>
+            <div style={{fontSize:9,color:c,textTransform:"uppercase" as const,letterSpacing:".08em",marginBottom:4}}>{l}</div>
+            <div style={{fontSize:15,fontWeight:800,color:c,fontFamily:"'JetBrains Mono',monospace"}}>{v}</div>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-// WIDGET 5 — Invoice / VAT Calculator
-// ══════════════════════════════════════════════════════════════════════════════
-function VatCalculator() {
-  const [amount,   setAmount]   = useState("50000");
-  const [vatPct,   setVatPct]   = useState("16");
-  const [mode,     setMode]     = useState<"add"|"extract">("add");
-  const [currency, setCurrency] = useState("KES");
+/* ═══════════════════════════════════════════════════════════════
+   3. WORLD TIME
+═══════════════════════════════════════════════════════════════ */
+function WorldTimeTool() {
+  const [, setTick] = useState(0);
+  const [focus, setFocus] = useState("Africa/Nairobi");
+  useEffect(()=>{const t=setInterval(()=>setTick(n=>n+1),1000);return()=>clearInterval(t);},[]);
 
-  const a   = parseFloat(amount) || 0;
-  const pct = parseFloat(vatPct) || 0;
-
-  let excl = 0, vat = 0, incl = 0;
-  if (mode === "add") {
-    excl = a; vat = a * pct / 100; incl = a + vat;
-  } else {
-    incl = a; excl = a / (1 + pct/100); vat = a - excl;
-  }
-
-  const sym = CURRENCIES.find(c => c.code === currency)?.symbol || "";
-  const fmt = (n: number) => `${sym}${Math.round(n).toLocaleString("en")}`;
-
-  const commonRates = [
-    { label: "Kenya VAT",    pct: "16" },
-    { label: "Uganda VAT",   pct: "18" },
-    { label: "Tanzania VAT", pct: "18" },
-    { label: "No VAT",       pct: "0"  },
-  ];
+  const fz = ZONES.find(z=>z.tz===focus)||ZONES[0];
+  const isDay = (tz:string) => { const h=tzHour(tz); return h>=6&&h<20; };
 
   return (
-    <Card accent="#FB923C">
-      <CardHeader icon={TrendingUp} title="VAT & Invoice Calculator" subtitle="Add or extract tax" accent="#FB923C" />
-      <div style={{ padding: "16px 18px", display: "flex", flexDirection: "column", gap: 12 }}>
-        {/* Mode toggle */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
-          {([["add", "Add VAT to amount"], ["extract", "Extract VAT from amount"]] as const).map(([m, label]) => (
-            <button key={m} onClick={() => setMode(m)} style={{
-              padding: "8px 10px", borderRadius: 10, border: `1px solid ${mode===m ? "#FB923C" : T.border}`,
-              background: mode===m ? "rgba(251,146,60,.12)" : T.elevated, color: mode===m ? "#FB923C" : T.muted,
-              fontSize: 11, cursor: "pointer", fontFamily: "'Outfit',sans-serif", fontWeight: 500,
-            }}>{label}</button>
+    <div style={{display:"flex",flexDirection:"column",gap:12}}>
+      {/* Hero display */}
+      <div style={{background:C.bg,border:"1px solid rgba(167,139,250,.22)",borderRadius:14,padding:"16px 20px",textAlign:"center"}}>
+        <div style={{fontSize:18,marginBottom:4}}>{fz.flag}</div>
+        <div style={{fontSize:10,color:C.dim,fontWeight:600,marginBottom:6,textTransform:"uppercase" as const,letterSpacing:".08em"}}>{fz.city} · UTC{fz.utc}</div>
+        <div style={{fontSize:42,fontWeight:800,color:"#A78BFA",fontFamily:"'JetBrains Mono',monospace",letterSpacing:"-.04em",lineHeight:1}}>
+          {tzTime(fz.tz,true)}
+        </div>
+        <div style={{fontSize:11,color:C.dim,marginTop:8}}>{tzDate(fz.tz)} · {isDay(fz.tz)?"☀️ Daytime":"🌙 Night"}</div>
+      </div>
+
+      {/* Grid */}
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:5}}>
+        {ZONES.map(z=>{
+          const active=focus===z.tz, day=isDay(z.tz);
+          return (
+            <button key={z.tz} onClick={()=>setFocus(z.tz)} style={{
+              display:"flex",alignItems:"center",gap:8,padding:"8px 10px",borderRadius:9,
+              background:active?"rgba(167,139,250,.1)":C.bg,
+              border:`1px solid ${active?"rgba(167,139,250,.35)":C.muted}`,
+              cursor:"pointer",textAlign:"left",transition:"all .12s",
+            }}>
+              <span style={{fontSize:15,flexShrink:0}}>{z.flag}</span>
+              <div style={{flex:1,minWidth:0}}>
+                <div style={{fontSize:10,color:C.dim,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{z.city}</div>
+                <div style={{fontSize:13,fontWeight:700,color:active?"#A78BFA":C.text,fontFamily:"'JetBrains Mono',monospace"}}>{tzTime(z.tz)}</div>
+              </div>
+              <span style={{fontSize:11}}>{day?"☀️":"🌙"}</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   4. FUEL ESTIMATOR
+═══════════════════════════════════════════════════════════════ */
+function FuelTool() {
+  const [dist, setDist]  = useState("270");
+  const [kpl,  setKpl]   = useState("9");
+  const [ppl,  setPpl]   = useState("205");
+  const [rt,   setRt]    = useState(false);
+  const [selV, setSelV]  = useState("");
+
+  const km   = (parseFloat(dist)||0)*(rt?2:1);
+  const L    = km/(parseFloat(kpl)||1);
+  const cost = L*(parseFloat(ppl)||0);
+
+  return (
+    <div style={{display:"flex",flexDirection:"column",gap:14}}>
+      <Dropdown label="Quick Route"
+        value={selV}
+        onChange={v=>{setSelV(v);if(v)setDist(v);}}
+        options={[{value:"",label:"Select a route (Nairobi →)"},...ROUTES.map(r=>({value:String(r.km),label:`→ ${r.to}  (${r.km} km)`}))]}/>
+
+      <div style={{display:"flex",gap:10}}>
+        <NumInput label="Distance" value={dist} onChange={setDist} suffix="km"/>
+        <NumInput label="Fuel Use"  value={kpl}  onChange={setKpl}  suffix="km/L"/>
+        <NumInput label="Price/L"   value={ppl}  onChange={setPpl}  prefix="KES"/>
+      </div>
+
+      {/* Vehicle presets */}
+      <div>
+        <Label>Vehicle Type</Label>
+        <div style={{display:"flex",flexWrap:"wrap" as const,gap:5}}>
+          {VEHICLES.map(v=>(
+            <Chip key={v.label} label={`${v.e} ${v.label}`} active={kpl===String(v.kpl)} onClick={()=>setKpl(String(v.kpl))} color="#34D399"/>
           ))}
         </div>
-
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 100px 80px", gap: 10, alignItems: "end" }}>
-          <div>
-            <label style={{ fontSize: 11, color: T.muted, display: "block", marginBottom: 5 }}>
-              {mode === "add" ? "Amount (Exc. VAT)" : "Amount (Inc. VAT)"}
-            </label>
-            <Input type="number" value={amount} onChange={setAmount} prefix={sym} />
-          </div>
-          <div>
-            <label style={{ fontSize: 11, color: T.muted, display: "block", marginBottom: 5 }}>VAT %</label>
-            <Input type="number" value={vatPct} onChange={setVatPct} suffix="%" />
-          </div>
-          <div>
-            <label style={{ fontSize: 11, color: T.muted, display: "block", marginBottom: 5 }}>Currency</label>
-            <Select value={currency} onChange={setCurrency} options={CURRENCIES.map(c => ({ value: c.code, label: c.code }))} />
-          </div>
-        </div>
-
-        {/* Common rates */}
-        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-          {commonRates.map(r => (
-            <button key={r.label} onClick={() => setVatPct(r.pct)} style={{
-              padding: "4px 10px", borderRadius: 7, fontSize: 11, cursor: "pointer",
-              background: vatPct === r.pct ? "rgba(251,146,60,.12)" : T.elevated,
-              border: `1px solid ${vatPct === r.pct ? "rgba(251,146,60,.4)" : T.border}`,
-              color: vatPct === r.pct ? "#FB923C" : T.muted, fontFamily: "'Outfit',sans-serif",
-            }}>{r.label}</button>
-          ))}
-        </div>
-
-        <div style={{ background: T.elevated, borderRadius: 12, padding: "12px 14px", border: `1px solid ${T.border}` }}>
-          <ResultRow label="Excl. VAT"     value={fmt(excl)} />
-          <ResultRow label={`VAT (${vatPct}%)`} value={fmt(vat)} accent="#FB923C" />
-          <ResultRow label="Incl. VAT"     value={fmt(incl)} bold accent="#FB923C" />
-        </div>
       </div>
-    </Card>
+
+      <Toggle on={rt} onChange={setRt} label={`Round trip${rt?` — ${fmtN((parseFloat(dist)||0)*2)} km total`:""}`}/>
+
+      {/* Result strip */}
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8}}>
+        {[
+          {l:"Distance", v:`${fmtN(km)} km`, c:C.text},
+          {l:"Litres",   v:`${fmtN(L,1)} L`, c:"#FBBF24"},
+          {l:"Cost",     v:fmtK(cost),        c:"#34D399"},
+        ].map(({l,v,c})=>(
+          <div key={l} style={{background:C.bg,border:"1px solid "+C.muted,borderRadius:10,padding:"10px 12px",textAlign:"center"}}>
+            <div style={{fontSize:9,color:C.dim,textTransform:"uppercase" as const,letterSpacing:".07em",marginBottom:4}}>{l}</div>
+            <div style={{fontSize:14,fontWeight:800,color:c,fontFamily:"'JetBrains Mono',monospace"}}>{v}</div>
+          </div>
+        ))}
+      </div>
+      <div style={{fontSize:10,color:C.muted,fontFamily:"'JetBrains Mono',monospace"}}>
+        +13% buffer: <span style={{color:"#34D399"}}>{fmtK(cost*1.13)}</span>
+      </div>
+    </div>
   );
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-// WIDGET 6 — Distance & Route Planner
-// ══════════════════════════════════════════════════════════════════════════════
-function RouteCalculator() {
-  const [from, setFrom] = useState("Nairobi");
-  const [to,   setTo]   = useState("");
-  const [days, setDays] = useState("1");
-  const [dailyRate, setDailyRate] = useState("8000");
+/* ═══════════════════════════════════════════════════════════════
+   5. VAT CALCULATOR
+═══════════════════════════════════════════════════════════════ */
+function VatTool() {
+  const [amt,  setAmt]  = useState("50000");
+  const [pct,  setPct]  = useState("16");
+  const [mode, setMode] = useState<"add"|"ext">("add");
+  const [cur,  setCur]  = useState("KES");
 
-  const route = ROUTES.find(r =>
-    r.from.toLowerCase() === from.toLowerCase() &&
-    r.to.toLowerCase() === to.toLowerCase()
-  );
-  const km = route?.km || 0;
-  const fuelCost = km > 0 ? km / 9 * 205 : 0; // Prado avg
-  const rentalTotal = parseInt(days) * parseFloat(dailyRate);
+  const a=parseFloat(amt)||0, p=parseFloat(pct)||0;
+  let excl=0, tax=0, incl=0;
+  if(mode==="add") { excl=a; tax=a*p/100; incl=a+tax; }
+  else             { incl=a; excl=a/(1+p/100); tax=a-excl; }
 
-  const destinations = [...new Set(ROUTES.map(r => r.to))];
+  const sym = CURRENCIES.find(c=>c.code===cur)?.sym||"";
+  const fmt = (n:number) => `${sym}${fmtN(Math.round(n))}`;
 
   return (
-    <Card accent="#C084FC">
-      <CardHeader icon={MapPin} title="Route & Trip Planner" subtitle="Kenya routes · Rental cost included" accent="#C084FC" />
-      <div style={{ padding: "16px 18px", display: "flex", flexDirection: "column", gap: 12 }}>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 28px 1fr", alignItems: "center", gap: 8 }}>
-          <div>
-            <label style={{ fontSize: 11, color: T.muted, display: "block", marginBottom: 5 }}>From</label>
-            <Input value={from} onChange={setFrom} placeholder="Nairobi" />
-          </div>
-          <ArrowRight style={{ width: 16, height: 16, color: "#C084FC", marginTop: 18, flexShrink: 0 }} />
-          <div>
-            <label style={{ fontSize: 11, color: T.muted, display: "block", marginBottom: 5 }}>To</label>
-            <Select value={to} onChange={setTo} options={[{ value: "", label: "Select destination..." }, ...destinations.map(d => ({ value: d, label: d }))]} />
-          </div>
-        </div>
-
-        {/* Quick route tiles */}
-        <div>
-          <label style={{ fontSize: 11, color: T.muted, display: "block", marginBottom: 6 }}>Popular Routes from Nairobi</label>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
-            {ROUTES.slice(0, 8).map(r => (
-              <button key={r.to} onClick={() => { setFrom(r.from); setTo(r.to); }} style={{
-                padding: "4px 10px", borderRadius: 7, fontSize: 11, cursor: "pointer",
-                background: to === r.to ? "rgba(192,132,252,.12)" : T.elevated,
-                border: `1px solid ${to === r.to ? "rgba(192,132,252,.4)" : T.border}`,
-                color: to === r.to ? "#C084FC" : T.muted, fontFamily: "'Outfit',sans-serif",
-              }}>{r.to} ({r.km}km)</button>
-            ))}
-          </div>
-        </div>
-
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-          <div>
-            <label style={{ fontSize: 11, color: T.muted, display: "block", marginBottom: 5 }}>Hire Days</label>
-            <Input type="number" value={days} onChange={setDays} suffix="days" />
-          </div>
-          <div>
-            <label style={{ fontSize: 11, color: T.muted, display: "block", marginBottom: 5 }}>Daily Rate</label>
-            <Input type="number" value={dailyRate} onChange={setDailyRate} prefix="KES" />
-          </div>
-        </div>
-
-        {km > 0 ? (
-          <div style={{ background: "rgba(192,132,252,.06)", border: "1px solid rgba(192,132,252,.2)", borderRadius: 12, padding: "12px 14px" }}>
-            <ResultRow label="Distance (one way)" value={`${km} km`} />
-            <ResultRow label="Round trip" value={`${km * 2} km`} />
-            <ResultRow label="Est. fuel cost (Prado)" value={fmtKES(fuelCost)} />
-            <ResultRow label={`Rental (${days}d)`} value={fmtKES(rentalTotal)} />
-            <ResultRow label="Trip Total (est.)" value={fmtKES(rentalTotal + fuelCost * 1.13)} bold accent="#C084FC" />
-          </div>
-        ) : (
-          <div style={{ textAlign: "center", padding: "20px 0", color: T.muted, fontSize: 13 }}>
-            Select a destination to see distance & cost estimates
-          </div>
-        )}
+    <div style={{display:"flex",flexDirection:"column",gap:14}}>
+      {/* Mode tabs */}
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
+        {(["add","ext"] as const).map(m=>(
+          <button key={m} onClick={()=>setMode(m)} style={{
+            padding:"9px",borderRadius:9,border:`1px solid ${mode===m?"#FB923C":C.muted}`,
+            background:mode===m?"rgba(251,146,60,.12)":"transparent",
+            color:mode===m?"#FB923C":C.dim,fontSize:12,cursor:"pointer",fontWeight:600,
+            fontFamily:"'Space Grotesk',sans-serif",
+          }}>{m==="add"?"➕ Add VAT":"➖ Extract VAT"}</button>
+        ))}
       </div>
-    </Card>
+
+      <div style={{display:"flex",gap:10,alignItems:"end"}}>
+        <NumInput label={mode==="add"?"Amount (excl. VAT)":"Amount (incl. VAT)"} value={amt} onChange={setAmt} prefix={sym} wide/>
+        <NumInput label="VAT %" value={pct} onChange={setPct} suffix="%"/>
+        <div style={{minWidth:80}}>
+          <Label>Currency</Label>
+          <Dropdown value={cur} onChange={setCur} options={CURRENCIES.map(c=>({value:c.code,label:c.code}))}/>
+        </div>
+      </div>
+
+      {/* Preset rates */}
+      <div style={{display:"flex",gap:5,flexWrap:"wrap" as const}}>
+        {[{l:"Kenya 16%",v:"16"},{l:"Uganda 18%",v:"18"},{l:"Tanzania 18%",v:"18"},{l:"No Tax",v:"0"}].map(({l,v})=>(
+          <Chip key={l} label={l} active={pct===v} onClick={()=>setPct(v)} color="#FB923C"/>
+        ))}
+      </div>
+
+      {/* Result */}
+      <div style={{background:C.bg,border:"1px solid rgba(251,146,60,.2)",borderRadius:12,padding:"12px 14px"}}>
+        <ResultLine label="Excl. VAT"      value={fmt(excl)}/>
+        <ResultLine label={`VAT (${pct}%)`} value={fmt(tax)} color="#FB923C"/>
+        <ResultLine label="Incl. VAT"      value={fmt(incl)} color="#FB923C" size={18} top/>
+      </div>
+    </div>
   );
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-// MAIN PAGE
-// ══════════════════════════════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════════════
+   6. ROUTE PLANNER
+═══════════════════════════════════════════════════════════════ */
+function RouteTool() {
+  const [dest, setDest] = useState("");
+  const [days, setDays] = useState("2");
+  const [rate, setRate] = useState("12000");
+
+  const route = ROUTES.find(r=>r.to===dest);
+  const km    = route?.km||0;
+  const fuel  = km>0?km/9*205:0;
+  const rental= (parseInt(days)||0)*(parseFloat(rate)||0);
+  const total = rental+fuel*1.13;
+
+  return (
+    <div style={{display:"flex",flexDirection:"column",gap:14}}>
+      <Dropdown label="Destination (from Nairobi)"
+        value={dest} onChange={setDest}
+        options={[{value:"",label:"Select destination..."},...ROUTES.map(r=>({value:r.to,label:`${r.to} — ${r.km} km`}))]}/>
+
+      {/* Quick tiles */}
+      <div style={{display:"flex",flexWrap:"wrap" as const,gap:5}}>
+        {ROUTES.slice(0,10).map(r=>(
+          <Chip key={r.to} label={`${r.to} ${r.km}km`} active={dest===r.to} onClick={()=>setDest(r.to)} color="#C084FC"/>
+        ))}
+      </div>
+
+      <div style={{display:"flex",gap:10}}>
+        <NumInput label="Hire Days"  value={days} onChange={setDays} suffix="d"/>
+        <NumInput label="Daily Rate" value={rate} onChange={setRate} prefix="KES" wide/>
+      </div>
+
+      {km>0 ? (
+        <div style={{background:C.bg,border:"1px solid rgba(192,132,252,.2)",borderRadius:12,padding:"12px 14px"}}>
+          <ResultLine label="One way"         value={`${km} km`}/>
+          <ResultLine label="Round trip"      value={`${km*2} km`} color={C.soft}/>
+          <ResultLine label="Fuel (Prado)"   value={fmtK(fuel)} color="#FBBF24"/>
+          <ResultLine label={`Rental (${days}d)`} value={fmtK(rental)} color="#34D399"/>
+          <ResultLine label="Trip Total"      value={fmtK(total)} color="#C084FC" size={18} top/>
+        </div>
+      ) : (
+        <div style={{textAlign:"center",padding:"28px 0",color:C.muted,fontSize:13}}>
+          Pick a destination above
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PAGE
+═══════════════════════════════════════════════════════════════ */
 export default function ToolsPage() {
-  const [nairobiTime, setNairobiTime] = useState("");
-  useEffect(() => {
-    const update = () => setNairobiTime(
-      new Date().toLocaleTimeString("en-KE", { timeZone: "Africa/Nairobi", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false })
-    );
-    update();
-    const t = setInterval(update, 1000);
-    return () => clearInterval(t);
-  }, []);
+  const [nbi,  setNbi]  = useState("--:--:--");
+  const [filt, setFilt] = useState("all");
+
+  useEffect(()=>{
+    const up=()=>setNbi(tzTime("Africa/Nairobi",true));
+    up(); const t=setInterval(up,1000); return()=>clearInterval(t);
+  },[]);
+
+  const tools = [
+    { id:"currency", label:"Currency",    short:"FX",      accent:"#38BDF8", sub:"Live exchange rates",      Widget:CurrencyTool  },
+    { id:"rental",   label:"Rental Calc", short:"RENTAL",  accent:"#F97316", sub:"Days × rate breakdown",    Widget:RentalTool    },
+    { id:"time",     label:"World Time",  short:"TIME",    accent:"#A78BFA", sub:"12 cities, live clock",    Widget:WorldTimeTool },
+    { id:"fuel",     label:"Fuel Cost",   short:"FUEL",    accent:"#34D399", sub:"Distance & consumption",   Widget:FuelTool      },
+    { id:"vat",      label:"VAT / Tax",   short:"TAX",     accent:"#FB923C", sub:"Add or extract tax",       Widget:VatTool       },
+    { id:"routes",   label:"Route Plan",  short:"ROUTE",   accent:"#C084FC", sub:"Kenya trip cost planner",  Widget:RouteTool     },
+  ];
+
+  const visible = filt==="all" ? tools : tools.filter(t=>t.id===filt);
 
   return (
-    <div style={{ fontFamily: "'Outfit', system-ui, sans-serif", color: T.text }}>
-      <style>{STYLES}</style>
+    <div style={{fontFamily:"'Space Grotesk', system-ui, sans-serif",color:C.text,minHeight:"100vh"}}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+        @keyframes spin    { to{transform:rotate(360deg)} }
+        @keyframes fadeUp  { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes ticker  { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+        *{box-sizing:border-box}
+        input,select,button{font-family:'Space Grotesk',system-ui,sans-serif}
+        input[type=number]::-webkit-inner-spin-button{opacity:.3}
+        ::-webkit-scrollbar{width:4px;height:4px}
+        ::-webkit-scrollbar-thumb{background:${C.muted};border-radius:99px}
+      `}</style>
 
-      {/* Page header */}
-      <div style={{ marginBottom: 24 }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+      {/* ── PAGE HEADER ── */}
+      <div style={{marginBottom:24}}>
+        {/* Ticker bar */}
+        <div style={{
+          background:C.panel,borderRadius:10,overflow:"hidden",marginBottom:16,
+          border:"1px solid "+C.rim,height:32,display:"flex",alignItems:"center",
+          position:"relative",
+        }}>
+          <div style={{flexShrink:0,padding:"0 14px",fontSize:9,fontWeight:700,color:"#F97316",
+            textTransform:"uppercase",letterSpacing:".1em",borderRight:"1px solid "+C.rim,height:"100%",
+            display:"flex",alignItems:"center",gap:6,background:C.bg,whiteSpace:"nowrap"}}>
+            <Zap style={{width:10,height:10}}/> LIVE
+          </div>
+          <div style={{overflow:"hidden",flex:1,height:"100%",display:"flex",alignItems:"center"}}>
+            <div style={{display:"flex",gap:0,animation:"ticker 30s linear infinite",whiteSpace:"nowrap"}}>
+              {[...tools,...tools].map((t,i)=>(
+                <span key={i} style={{padding:"0 20px",fontSize:10,color:C.dim,fontFamily:"'JetBrains Mono',monospace",borderRight:"1px solid "+C.rim,height:32,display:"inline-flex",alignItems:"center",gap:8}}>
+                  <span style={{color:t.accent,fontWeight:700}}>{t.short}</span> {t.sub}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Title row */}
+        <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",flexWrap:"wrap",gap:12,marginBottom:16}}>
           <div>
-            <h1 style={{ fontSize: 24, fontWeight: 800, color: "white", margin: 0, fontFamily: "'Syne', sans-serif", letterSpacing: "-.01em" }}>
+            <h1 style={{fontSize:28,fontWeight:800,color:C.white,margin:"0 0 4px",letterSpacing:"-.02em",fontFamily:"'Space Grotesk',sans-serif"}}>
               Business Tools
             </h1>
-            <p style={{ fontSize: 13, color: T.muted, margin: "4px 0 0" }}>
-              Currency · Calculator · World Time · Fuel Estimator · VAT · Route Planner
+            <p style={{fontSize:13,color:C.dim,margin:0}}>
+              Six precision instruments for Moventra operations
             </p>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 16px", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12 }}>
-            <Clock style={{ width: 14, height: 14, color: "#34D399" }} />
-            <span style={{ fontSize: 12, color: T.muted }}>Nairobi</span>
-            <span style={{ fontSize: 14, fontWeight: 700, color: "#34D399", fontFamily: "'JetBrains Mono', monospace" }}>{nairobiTime}</span>
+          {/* Live Nairobi clock */}
+          <div style={{display:"flex",alignItems:"center",gap:10,padding:"10px 16px",
+            background:C.panel,border:"1px solid "+C.rim,borderRadius:12}}>
+            <div>
+              <div style={{fontSize:9,color:C.dim,textTransform:"uppercase",letterSpacing:".1em",marginBottom:2}}>Nairobi</div>
+              <div style={{fontSize:20,fontWeight:800,color:"#34D399",fontFamily:"'JetBrains Mono',monospace",lineHeight:1,letterSpacing:".02em"}}>{nbi}</div>
+            </div>
+            <div style={{width:8,height:8,borderRadius:"50%",background:"#34D399",boxShadow:"0 0 10px #34D399",flexShrink:0}}/>
           </div>
         </div>
 
-        {/* Tool strip */}
-        <div style={{ display: "flex", gap: 8, marginTop: 14, flexWrap: "wrap" }}>
-          {[
-            { icon: DollarSign, label: "Currency",    color: "#38BDF8", href: "#currency"   },
-            { icon: Calculator, label: "Rental Calc", color: "#F97316", href: "#rental"     },
-            { icon: Globe,      label: "World Time",  color: "#A78BFA", href: "#time"       },
-            { icon: Fuel,       label: "Fuel Cost",   color: "#34D399", href: "#fuel"       },
-            { icon: TrendingUp, label: "VAT Calc",    color: "#FB923C", href: "#vat"        },
-            { icon: MapPin,     label: "Routes",      color: "#C084FC", href: "#routes"     },
-          ].map(({ icon: Icon, label, color, href }) => (
-            <a key={label} href={href} style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 14px", borderRadius: 99, background: T.surface, border: `1px solid rgba(255,255,255,.08)`, textDecoration: "none", fontSize: 12, fontWeight: 500, color: T.muted, transition: "all .15s" }}
-              onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.color = color; (e.currentTarget as HTMLAnchorElement).style.borderColor = `${color}40`; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.color = T.muted; (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(255,255,255,.08)"; }}>
-              <Icon style={{ width: 12, height: 12, color }} />
-              {label}
-            </a>
+        {/* Filter bar */}
+        <div style={{display:"flex",gap:5,flexWrap:"wrap"}}>
+          <button onClick={()=>setFilt("all")} style={{
+            padding:"7px 16px",borderRadius:8,border:"none",cursor:"pointer",fontWeight:600,
+            background:filt==="all"?"rgba(249,115,22,.15)":"transparent",
+            color:filt==="all"?"#F97316":C.dim,fontSize:12,
+            outline:filt==="all"?"1px solid rgba(249,115,22,.3)":"none",transition:"all .15s",
+          }}>All Tools</button>
+          {tools.map(t=>(
+            <button key={t.id} onClick={()=>setFilt(filt===t.id?"all":t.id)} style={{
+              padding:"7px 16px",borderRadius:8,border:"none",cursor:"pointer",fontWeight:600,
+              background:filt===t.id?`${t.accent}18`:"transparent",
+              color:filt===t.id?t.accent:C.dim,fontSize:12,
+              outline:filt===t.id?`1px solid ${t.accent}35`:"none",transition:"all .15s",
+            }}>{t.label}</button>
           ))}
         </div>
       </div>
 
-      {/* Grid layout */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(380px, 1fr))", gap: 18 }}>
-        <div id="currency"><CurrencyConverter /></div>
-        <div id="rental"><RentalCalculator /></div>
-        <div id="time"><WorldTime /></div>
-        <div id="fuel"><FuelEstimator /></div>
-        <div id="vat"><VatCalculator /></div>
-        <div id="routes"><RouteCalculator /></div>
+      {/* ── INSTRUMENT GRID ── */}
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(340px,1fr))",gap:16}}>
+        {visible.map((t,i)=>(
+          <div key={t.id} style={{animation:`fadeUp .3s ease ${i*.07}s both`}}>
+            <Instrument title={t.label} subtitle={t.sub} accent={t.accent}>
+              <t.Widget/>
+            </Instrument>
+          </div>
+        ))}
       </div>
 
-      {/* Footer note */}
-      <div style={{ marginTop: 24, padding: "14px 18px", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 14, display: "flex", alignItems: "center", gap: 10 }}>
-        <Zap style={{ width: 14, height: 14, color: T.accent, flexShrink: 0 }} />
-        <p style={{ fontSize: 11, color: T.muted, margin: 0 }}>
-          Currency rates update live from open.er-api.com. Fuel prices and route distances are estimates — verify before quoting clients.
-          Kenya fuel price default: KES 205/L. Vehicle consumption based on typical Prado (9 km/L).
-        </p>
+      {/* ── FOOTER ── */}
+      <div style={{marginTop:24,padding:"12px 18px",background:C.panel,border:"1px solid "+C.rim,
+        borderRadius:12,display:"flex",alignItems:"center",gap:10}}>
+        <div style={{width:5,height:5,borderRadius:"50%",background:"#F97316",flexShrink:0}}/>
+        <span style={{fontSize:11,color:C.muted,fontFamily:"'JetBrains Mono',monospace"}}>
+          FX: open.er-api.com · Fuel: KES 205/L default · Consumption: Prado avg 9 km/L · Distances: approximate
+        </span>
       </div>
     </div>
   );
