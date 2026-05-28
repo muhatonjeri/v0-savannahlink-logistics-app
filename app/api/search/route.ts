@@ -28,6 +28,6 @@ export async function GET(req: NextRequest) {
     (receipts.data || []).forEach(r => results.push({ type: "receipt", label: r.receipt_number,  sub: `${r.customer_name} · KES ${Number(r.total_amount||0).toLocaleString()}`,        href: "/admin/receipts" }));
     (blacklist.data || []).forEach(b => results.push({ type: "blacklist", label: b.client_name, sub: `${b.record_type} · ${b.severity}`, href: "/admin/blacklist", flag: "blacklisted" }));
 
-    return NextResponse.json({ results });
+    return NextResponse.json({ results: results || [] });
   } catch (e) { return NextResponse.json({ error: String(e) }, { status: 500 }); }
 }

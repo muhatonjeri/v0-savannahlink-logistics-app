@@ -358,3 +358,14 @@ create index idx_blacklist_phone on blacklist(phone);
 -- Add form_data to bookings if not exists
 -- ALTER TABLE bookings ADD COLUMN IF NOT EXISTS form_data jsonb DEFAULT '{}';
 -- ALTER TABLE bookings ADD COLUMN IF NOT EXISTS booking_date date;
+
+-- =====================================================
+-- MIGRATION: Add columns for register-client page
+-- Run this if you already ran 001 without these columns
+-- =====================================================
+alter table clients add column if not exists nationality text default 'Kenyan';
+alter table clients add column if not exists id_type text default 'national_id' check (id_type in ('national_id','passport','alien_id','military_id'));
+alter table clients add column if not exists id_photo_back_url text;
+alter table clients add column if not exists driving_license_back_url text;
+alter table clients add column if not exists fingerprint_right_url text;
+alter table clients add column if not exists next_of_kin_relationship text;

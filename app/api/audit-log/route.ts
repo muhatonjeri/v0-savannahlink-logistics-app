@@ -14,6 +14,7 @@ export async function GET(req: NextRequest) {
     if (table) q = q.eq("table_name", table);
 
     const { data, error } = await q;
+    if (error?.message?.includes("not configured")) return NextResponse.json([]);
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     return NextResponse.json(data || []);
   } catch (e) { return NextResponse.json({ error: String(e) }, { status: 500 }); }

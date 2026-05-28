@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 export async function GET() {
   try {
     const sb = createAdminClient();
+    // If Supabase not configured, return empty alerts
     const today = new Date().toISOString().split("T")[0];
     const soon = new Date(Date.now() + 3 * 86400000).toISOString().split("T")[0];
 

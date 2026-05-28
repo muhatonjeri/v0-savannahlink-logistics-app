@@ -60,13 +60,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "phone and amount are required" }, { status: 400 });
     }
 
-    // Check credentials configured
+    // When credentials not configured — return mock STK push so UI flow works
     if (!CONSUMER_KEY || !CONSUMER_SECRET || !PASSKEY) {
+      const mockId = `MOCK-${Date.now().toString(36).toUpperCase()}`;
+      console.log(`[M-PESA MOCK] STK push to ${body.phone} for KES ${body.amount}`);
       return NextResponse.json({
-        error: "M-Pesa not configured",
-        message: "Add MPESA_CONSUMER_KEY, MPESA_CONSUMER_SECRET, MPESA_PASSKEY to .env.local",
-        setup_url: "https://developer.safaricom.co.ke",
-      }, { status: 503 });
+        success: true,
+        mock: true,
+        checkoutRequestId: mockId,
+        merchantRequestId: mockId,
+        customerMessage: `Demo: STK push simulated to ${body.phone}. Add M-Pesa credentials to .env.local for live payments.`,
+      });
     }
 
     const token     = await getAccessToken();

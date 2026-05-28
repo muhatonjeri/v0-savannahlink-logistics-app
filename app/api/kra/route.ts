@@ -5,6 +5,16 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
+  // Mock response when KRA eTIMS not configured
+  if (!process.env.ETIMS_API_KEY) {
+    const pin = new URL(req.url).searchParams.get("pin") || "";
+    return NextResponse.json({
+      valid: /^[A-Za-z]\d{9}[A-Za-z]$/.test(pin),
+      pin,
+      name: pin ? "KRA PIN valid (mock — add ETIMS_API_KEY to verify live)" : "",
+      mock: true,
+    });
+  }
   try {
     const pin = new URL(req.url).searchParams.get("pin");
     if (!pin) return NextResponse.json({ error: "pin required" }, { status: 400 });

@@ -10,6 +10,9 @@ export async function GET(req: NextRequest) {
   const authErr = requireAuth(req); if (authErr) return authErr;
   try {
     const sb  = createAdminClient();
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL.includes("placeholder")) {
+      return NextResponse.json([]);
+    }
     const ref = new URL(req.url).searchParams.get("ref")?.trim();
     if (!ref || ref.length < 3) return NextResponse.json({ error: "ref required (min 3 chars)" }, { status: 400 });
 

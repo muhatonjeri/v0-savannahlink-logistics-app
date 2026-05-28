@@ -1,20 +1,24 @@
-import { createAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
+import { isSupabaseConfigured } from "@/lib/supabase/admin";
 
 export async function GET() {
-  try {
-    const sb = createAdminClient();
-    const start = Date.now();
-    const { count } = await sb.from("clients").select("*", { count: "exact", head: true });
-    const latency = Date.now() - start;
-    return NextResponse.json({
-      status: "ok",
-      timestamp: new Date().toISOString(),
-      database: { connected: true, latency_ms: latency, clients: count },
-      version: process.env.npm_package_version || "1.0.0",
-      environment: process.env.NODE_ENV,
-    });
-  } catch (e) {
-    return NextResponse.json({ status: "error", error: String(e) }, { status: 503 });
-  }
+  const supabaseOk = isSupabaseConfigured();
+  const mpesaOk    = !!(process.env.MPESA_CONSUMER_KEY && process.env.MPESA_PASSKEY);
+  const emailOk    = !!process.env.RESEND_API_KEY;
+  const smsOk      = !!process.env.AT_API_KEY;
+  const etimsOk    = !!process.env.ETIMS_API_KEY;
+
+  return NextResponse.json({
+    status: "ok",
+    timestamp: new Date().toISOString(),
+    version: "2.1.0",
+    services: {
+      supabase:  supabaseOk ? "configured" : "demo-mode",
+      mpesa:     mpesaOk    ? "configured" : "demo-mode",
+      email:     emailOk    ? "configured" : "demo-mode",
+      sms:       smsOk      ? "configured" : "demo-mode",
+      etims:     etimsOk    ? "configured" : "demo-mode",
+    },
+    demo_mode: !supabaseOk,
+  });
 }

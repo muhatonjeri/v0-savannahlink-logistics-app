@@ -5,6 +5,7 @@ import { requireAuth } from "@/lib/api-auth";
 export async function GET() {
   try {
     const sb = createAdminClient();
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL?.includes("supabase.co")) return NextResponse.json([]);
     const { data, error } = await sb.from("sublet_bookings").select("*").order("created_at", { ascending: false });
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     return NextResponse.json(data);

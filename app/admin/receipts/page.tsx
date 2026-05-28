@@ -657,7 +657,21 @@ export default function ReceiptsPage() {
 
   // Handle print
   const handlePrint = () => {
-    window.print();
+    if (!printRef.current) { window.print(); return; }
+    const content = printRef.current.innerHTML;
+    const win = window.open("", "_blank", "width=800,height=900");
+    if (!win) { window.print(); return; }
+    win.document.write(`<!DOCTYPE html>
+<html><head>
+<title>Receipt — ${selectedReceipt?.receiptNumber || "Moventra"}</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Segoe UI',Arial,sans-serif; background:#fff; color:#1a1a1a; padding:24px; }
+  @media print { body { padding:0; } button { display:none; } }
+</style>
+</head><body>${content}</body></html>`);
+    win.document.close();
+    setTimeout(() => { win.focus(); win.print(); }, 400);
   };
 
   // State for sending receipts

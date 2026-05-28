@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
         message: "Add AT_API_KEY and AT_USERNAME to .env.local. Register at africastalking.com",
         mock: true,
         wouldSend: { phone, message: message || buildSmsMessage(type, data) },
-      }, { status: 503 });
+      });
     }
 
     const smsText = message || buildSmsMessage(type, data);

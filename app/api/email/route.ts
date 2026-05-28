@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
         message: "Add RESEND_API_KEY to .env.local. Get it free at resend.com",
         mock: true,
         wouldSend: { to, subject, type },
-      }, { status: 503 });
+      });
     }
 
     // Build HTML based on type
