@@ -207,7 +207,9 @@ const generateMockTransactions = (): Transaction[] => {
 };
 
 export default function AccountsPage() {
-  const [transactions, setTransactions] = useState<Transaction[]>(() => generateMockTransactions());
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setTransactions(generateMockTransactions()); setMounted(true); }, []);
   const [loading, setLoading] = useState(false);
 
   const loadTransactions = async () => {
