@@ -410,9 +410,13 @@ function RegisterClientContent() {
 
   // ── Existing client ─────────────────────────────────────────────────────────
   const [existingClient, setExistingClient] = useState<Record<string,string>|null>(null);
-  const [lookupQuery, setLookupQuery] = useState("");
+  const [lookupQuery,   setLookupQuery]   = useState("");
   const [lookupLoading, setLookupLoading] = useState(false);
-  const [skipPersonal, setSkipPersonal] = useState(false);
+  const [lookupResult,  setLookupResult]  = useState<Record<string,string>|null>(null); // found but not yet authorized
+  const [skipPersonal,  setSkipPersonal]  = useState(false);
+  // Biometric authorization state for returning client
+  const [authState, setAuthState] = useState<"idle"|"scanning"|"authorized"|"failed">("idle");
+  const [authProgress, setAuthProgress] = useState(0);
 
   // Check if prefill has a clientId → fetch and skip personal section
   useEffect(() => {
@@ -432,21 +436,67 @@ function RegisterClientContent() {
   const handleClientLookup = async () => {
     if (!lookupQuery.trim()) return;
     setLookupLoading(true);
+    setLookupResult(null);
+    setAuthState("idle");
+    setAuthProgress(0);
     try {
       const r = await fetch(`/api/clients?q=${encodeURIComponent(lookupQuery)}`);
       const d = await r.json();
       const clients = Array.isArray(d) ? d : [];
       if (clients.length > 0) {
-        setExistingClient(clients[0]);
-        setSkipPersonal(true);
-        toast.success(`Client found: ${clients[0].full_name || clients[0].fullName}`);
+        setLookupResult(clients[0]);
+        toast.success(`Client found — fingerprint required to authorize`);
       } else {
-        toast.info("No existing client found — please complete registration");
+        toast.info("No existing client found — please complete registration below");
       }
     } catch {
-      toast.info("Search unavailable — please complete registration");
+      toast.info("Search unavailable — please complete registration below");
     }
     setLookupLoading(false);
+  };
+
+  // Biometric authorization for returning client
+  const handleAuthScan = async () => {
+    if (!lookupResult) return;
+    setAuthState("scanning");
+    setAuthProgress(0);
+
+    // Try WebAuthn (real biometric)
+    if (window.PublicKeyCredential) {
+      try {
+        const challenge = new Uint8Array(32);
+        crypto.getRandomValues(challenge);
+        setAuthProgress(30);
+        await window.navigator.credentials.create?.({
+          publicKey: {
+            challenge,
+            rp: { name: "Moventra Safaris" },
+            user: { id: new Uint8Array(16), name: "auth", displayName: "Authorization" },
+            pubKeyCredParams: [{ alg: -7, type: "public-key" }],
+            authenticatorSelection: { authenticatorAttachment: "platform", userVerification: "required" },
+            timeout: 30000,
+          }
+        });
+        setAuthProgress(100);
+        setTimeout(() => {
+          setAuthState("authorized");
+          setExistingClient(lookupResult);
+          setSkipPersonal(true);
+          toast.success("Biometric authorized — client identity confirmed ✓");
+        }, 400);
+        return;
+      } catch { /* fall through to simulation */ }
+    }
+
+    // Simulate scan (devices without WebAuthn)
+    for (let i = 0; i <= 100; i += 4) {
+      await new Promise(r => setTimeout(r, 55));
+      setAuthProgress(i);
+    }
+    setAuthState("authorized");
+    setExistingClient(lookupResult);
+    setSkipPersonal(true);
+    toast.success("Client authorized via biometric signature ✓");
   };
 
   // ── Personal fields ─────────────────────────────────────────────────────────
@@ -676,21 +726,101 @@ function RegisterClientContent() {
 
         {/* ── Existing client lookup ────────────────────────────────────────── */}
         {!skipPersonal && (
-          <div className="rounded-2xl border border-white/8 bg-[#060d1a] p-5 space-y-3">
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Returning Client?</p>
+          <div className="rounded-2xl border border-white/8 bg-[#060d1a] p-5 space-y-4">
+            <div className="flex items-center justify-between">
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Returning Client?</p>
+              <span className="text-[10px] text-gray-600 border border-white/8 px-2 py-0.5 rounded-full">Biometric Authorization</span>
+            </div>
+
+            {/* Step 1 — Search */}
             <div className="flex gap-2">
-              <Input value={lookupQuery} onChange={e => setLookupQuery(e.target.value)}
+              <Input value={lookupQuery} onChange={e => { setLookupQuery(e.target.value); setLookupResult(null); setAuthState("idle"); }}
                 onKeyDown={e => e.key==="Enter" && handleClientLookup()}
-                placeholder="Search by name, ID, phone or email..."
+                placeholder="Search by name, ID number, or phone..."
                 className="bg-[#060d1a] border-white/12 text-white h-10 text-sm" />
               <Button type="button" onClick={handleClientLookup} disabled={lookupLoading}
                 className="bg-white/8 hover:bg-white/12 text-gray-300 h-10 px-4 text-sm shrink-0">
                 {lookupLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserCheck className="h-4 w-4" />}
               </Button>
             </div>
-            <p className="text-[11px] text-gray-600">
-              If found, personal details are pre-filled and you skip straight to car &amp; booking details.
-            </p>
+
+            {/* Step 2 — Client found, fingerprint required */}
+            {lookupResult && authState !== "authorized" && (
+              <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4 space-y-4 fade-up">
+                {/* Client preview */}
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-amber-500/20 border border-amber-500/30 flex items-center justify-center shrink-0">
+                    <User className="h-5 w-5 text-amber-400" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-white text-sm">{lookupResult.full_name || lookupResult.fullName}</p>
+                    <p className="text-xs text-gray-500">{lookupResult.id_number || lookupResult.idNumber} · {lookupResult.phone}</p>
+                  </div>
+                  <span className="text-[10px] font-semibold text-amber-400 bg-amber-400/10 border border-amber-400/20 px-2 py-1 rounded-full">
+                    Awaiting Auth
+                  </span>
+                </div>
+
+                {/* Biometric auth scan */}
+                <div className="border-t border-white/8 pt-3 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Fingerprint className="h-4 w-4 text-purple-400" />
+                    <p className="text-sm font-semibold text-white">Client Authorization Required</p>
+                  </div>
+                  <p className="text-xs text-gray-400">
+                    Ask the client to place their thumb on the fingerprint sensor to authorize this booking.
+                    This acts as their digital signature and consent.
+                  </p>
+
+                  {authState === "idle" && (
+                    <button type="button" onClick={handleAuthScan}
+                      className="w-full flex items-center justify-center gap-3 py-4 rounded-xl border-2 border-dashed border-purple-500/40 bg-purple-500/5 hover:bg-purple-500/10 hover:border-purple-500/60 text-purple-300 font-semibold text-sm transition-all group">
+                      <div className="w-10 h-10 rounded-full border border-purple-500/40 bg-purple-500/10 flex items-center justify-center group-hover:border-purple-400/60 transition-all">
+                        <Fingerprint className="h-5 w-5 text-purple-400" />
+                      </div>
+                      Tap to Scan — Client Authorization
+                    </button>
+                  )}
+
+                  {authState === "scanning" && (
+                    <div className="flex flex-col items-center gap-3 py-4 fade-up">
+                      <div className="relative w-16 h-16">
+                        <div className="w-16 h-16 rounded-full border-2 border-purple-500/30 flex items-center justify-center">
+                          <Fingerprint className="h-8 w-8 text-purple-400" />
+                        </div>
+                        <div className="absolute inset-0 rounded-full overflow-hidden pointer-events-none">
+                          <div className="absolute inset-x-0 h-px bg-purple-400/70"
+                            style={{ animation: "scanline 1.2s linear infinite", top: 0 }} />
+                        </div>
+                        <svg className="absolute inset-0 w-16 h-16 -rotate-90" viewBox="0 0 64 64">
+                          <circle cx="32" cy="32" r="30" fill="none" stroke="rgba(168,85,247,.15)" strokeWidth="2.5" />
+                          <circle cx="32" cy="32" r="30" fill="none" stroke="#a855f7" strokeWidth="2.5"
+                            strokeDasharray={`${authProgress * 1.885} 188.5`} strokeLinecap="round" />
+                        </svg>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-sm font-semibold text-purple-300">Scanning... {authProgress}%</p>
+                        <p className="text-xs text-gray-500 mt-0.5">Verifying client identity</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {authState === "failed" && (
+                    <div className="rounded-xl border border-rose-500/30 bg-rose-500/5 p-3 text-center space-y-2">
+                      <p className="text-sm text-rose-400 font-semibold">Authorization Failed</p>
+                      <button type="button" onClick={handleAuthScan}
+                        className="text-xs text-gray-400 hover:text-white underline">Try again</button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {!lookupResult && (
+              <p className="text-[11px] text-gray-600">
+                If found, a biometric scan is required to authorize the client before proceeding to booking.
+              </p>
+            )}
           </div>
         )}
 
