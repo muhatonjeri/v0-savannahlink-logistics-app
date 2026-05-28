@@ -334,6 +334,11 @@ export default function CarRentalDetailPage() {
           <Printer className="h-4 w-4" />
           Print Document
         </Button>
+        <Button variant="outline" className="gap-2 border-orange-500/40 text-orange-400 hover:bg-orange-500/10" asChild>
+          <a href={`/admin/car-rental/contract?prefill=${encodeURIComponent(JSON.stringify({ totalAmount: (booking as unknown as Record<string,unknown>)?.total_amount || (booking as unknown as Record<string,unknown>)?.totalAmount || "" }))}`} target="_blank">
+            <FileText className="h-4 w-4" />Print Contract
+          </a>
+        </Button>
       </div>
 
       {/* Printable Content */}
