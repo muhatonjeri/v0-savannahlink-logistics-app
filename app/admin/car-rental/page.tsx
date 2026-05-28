@@ -21,16 +21,16 @@ function Content() {
           </p>
         </div>
         <div className="flex gap-2 shrink-0">
-          <Link href="/admin/car-rental/contract"
+          <a href="/moventra-contract.html" target="_blank"
             className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white"
             style={{ background:"#F97316" }}>
-            <Printer className="h-4 w-4" />Print Contract
-          </Link>
-          <Link href="/admin/car-rental/contract"
+            <Printer className="h-4 w-4" />Open Contract Form
+          </a>
+          <a href="/moventra-contract.html" download="Moventra-HireAgreement.html"
             className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border"
             style={{ color:"#F97316", borderColor:"rgba(249,115,22,.3)", background:"rgba(249,115,22,.08)" }}>
-            <Download className="h-4 w-4" />Download
-          </Link>
+            <Download className="h-4 w-4" />Save to Device
+          </a>
         </div>
       </div>
       <ServicePage service={service} />

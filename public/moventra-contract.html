@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Moventra — Hire / Lease Agreement</title>
+<style>
+/* ── Reset ── */
+*{margin:0;padding:0;box-sizing:border-box}
+html{font-family:Arial,Helvetica,sans-serif;font-size:10px;color:#111;background:#F0F2F5}
+body{min-height:100vh;padding:16px}
+
+/* ── Toolbar ── */
+#toolbar{max-width:860px;margin:0 auto 12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+#toolbar h2{font-size:13px;font-weight:700;color:#374151}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border-radius:8px;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:Arial,sans-serif;text-decoration:none}
+.btn-print{background:#050A14;color:white}
+.btn-reset{background:#F3F4F6;color:#374151;border:1px solid #D1D5DB}
+.btn-save{background:#F97316;color:white}
+@media print{#toolbar{display:none!important}}
+
+/* ── Page ── */
+.sheet{max-width:860px;margin:0 auto;background:white;padding:18px 22px;box-shadow:0 2px 12px rgba(0,0,0,.1)}
+
+/* ── Header ── */
+.hdr{display:flex;align-items:center;justify-content:space-between;padding-bottom:10px;border-bottom:1.5px solid #111;margin-bottom:10px}
+.hdr-logo{width:54px;height:54px;border-radius:8px;object-fit:cover;border:1.5px solid #F97316}
+.hdr-brand{margin-left:10px}
+.brand-name{font-size:20px;font-weight:900;letter-spacing:-.01em;color:#111;line-height:1}
+.brand-sub{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:#F97316}
+.brand-contact{font-size:7.5px;color:#555;margin-top:2px}
+.hdr-title{text-align:center;flex:1}
+.hdr-title h1{font-size:14px;font-weight:900;text-transform:uppercase;letter-spacing:.05em;color:#111}
+.hdr-title .sub{font-size:11px;font-weight:700;color:#555}
+.hdr-no{display:flex;align-items:center;gap:6px;margin-top:6px;justify-content:center}
+.contract-no{font-family:monospace;font-size:12px;font-weight:900;border-bottom:1.5px solid #111;padding-bottom:1px;color:#F97316}
+.hdr-qr{width:70px;height:70px;flex-shrink:0}
+
+/* ── Section title ── */
+.sec-title{background:#050A14;color:white;font-size:8.5px;font-weight:900;text-transform:uppercase;letter-spacing:.07em;padding:3px 8px;margin:10px 0 7px}
+.sec-title-orange{background:#F97316;color:white;font-size:8.5px;font-weight:900;text-transform:uppercase;letter-spacing:.07em;padding:3px 8px;margin:10px 0 7px}
+
+/* ── Fields ── */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 22px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0 16px}
+.grid4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:0 12px}
+.field{display:flex;align-items:flex-end;gap:5px;margin-bottom:6px}
+.field label{font-size:8.5px;font-weight:700;white-space:nowrap;flex-shrink:0;color:#111}
+.field-line{flex:1;border-bottom:1px solid #111;min-width:50px}
+.field input{border:none;outline:none;background:transparent;font-size:8.5px;width:100%;font-family:Arial,sans-serif;color:#111;padding-bottom:1px}
+
+/* ── Checklist tables ── */
+.check-wrap{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+table.checklist{border-collapse:collapse;width:100%;font-size:7.5px}
+table.checklist th{background:#F0F0F0;padding:2px 4px;border:0.5px solid #AAA;font-weight:700;text-align:center;font-size:7px}
+table.checklist th.lbl{text-align:left}
+table.checklist td{padding:1.5px 4px;border:0.5px solid #CCC;vertical-align:middle}
+table.checklist td.item{font-size:7.5px}
+table.checklist td.chk{width:20px;text-align:center}
+table.checklist input[type=checkbox]{width:12px;height:12px;cursor:pointer}
+
+/* ── Centre panel ── */
+.centre{display:grid;grid-template-columns:1fr 100px;gap:6px;margin:0}
+
+/* ── Fuel gauges ── */
+.gauge-wrap{border:0.75px solid #AAA;padding:5px 6px}
+.gauge-row{display:flex;justify-content:space-between;margin-bottom:5px}
+.gauge-label{font-size:7px;font-weight:700;margin-bottom:3px;text-align:center;color:#111}
+.gauge-boxes{display:flex;gap:1px;justify-content:center}
+.gauge-box{width:20px;height:16px;border:0.75px solid #555;display:flex;align-items:center;justify-content:center;font-size:5.5px;font-weight:700;cursor:pointer;user-select:none;transition:background .1s}
+.gauge-box.active{background:#333;color:white}
+.gauge-box:not(.active){background:white;color:#333}
+
+/* ── Mileage ── */
+.mileage-wrap{border:0.75px solid #AAA;padding:4px 5px;margin-top:4px}
+.mileage-row{display:flex;justify-content:space-between;border-bottom:0.5px solid #CCC;margin-bottom:2px;padding-bottom:1px;font-size:7.5px}
+.mileage-row:last-child{border-bottom:none;margin-bottom:0}
+.mileage-val{border-bottom:0.5px solid #AAA;min-width:60px;text-align:right}
+.mileage-val input{border:none;outline:none;background:transparent;font-size:7.5px;width:100%;font-family:Arial,sans-serif;text-align:right}
+
+/* ── Car diagram ── */
+.diagram-wrap{border:0.75px solid #AAA;padding:4px;display:flex;flex-direction:column;gap:6px}
+
+/* ── Fingerprints ── */
+.fp-wrap{border:0.75px solid #AAA;padding:5px 6px}
+.fp-box{height:72px;border:0.5px solid #CCC;background:#FAFAFA;display:flex;align-items:center;justify-content:center}
+.fp-label{font-size:7.5px;font-weight:700;margin-bottom:4px;color:#111}
+.fp-note{font-size:6px;color:#AAA;text-align:center}
+
+/* ── Hire period ── */
+.renewal-note{font-size:8px;font-style:italic;color:#555;margin:5px 0 8px}
+
+/* ── Signatures ── */
+.sig-row{display:grid;grid-template-columns:repeat(3,1fr);gap:0 16px;margin-top:8px;border-top:0.75px solid #111;padding-top:7px}
+.sig-row2{display:grid;grid-template-columns:repeat(4,1fr);gap:0 12px;margin-top:5px}
+
+/* ── Footer ── */
+.footer{margin-top:8px;padding-top:5px;border-top:0.5px solid #CCC;display:flex;justify-content:space-between;align-items:center}
+.footer-text{font-size:7px;color:#555}
+.page-num{font-size:7px;color:#AAA}
+
+/* ── Page 2 ── */
+.page-break{page-break-before:always}
+.terms-title{font-size:13px;font-weight:900;text-decoration:underline;text-underline-offset:3px;margin-bottom:10px;color:#111}
+.terms-list{padding-left:16px;list-style:decimal}
+.terms-list li{font-size:8px;color:#222;line-height:1.7;margin-bottom:5px}
+.agree-text{font-size:9px;font-style:italic;color:#333;margin:14px 0 8px;border-top:0.5px solid #CCC;padding-top:8px}
+.stamp-box{width:90px;height:60px;border:0.75px dashed #AAA;display:flex;align-items:center;justify-content:center;font-size:7px;color:#BBB;margin-left:auto;margin-top:8px}
+
+/* ── Print ── */
+@media print{
+  html{background:white;font-size:10px}
+  body{padding:0}
+  .sheet{max-width:none;box-shadow:none;padding:10px 14px}
+  @page{margin:6mm;size:A4}
+  input{color:#111!important}
+  .gauge-box.active{background:#333!important;color:white!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .sec-title{background:#050A14!important;color:white!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .sec-title-orange{background:#F97316!important;color:white!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+
+<!-- ── TOOLBAR (hidden on print) ── -->
+<div id="toolbar">
+  <h2>📄 Moventra Hire / Lease Agreement</h2>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <button class="btn btn-reset" onclick="resetForm()">🔄 New Contract</button>
+    <button class="btn btn-save" onclick="window.print()">⬇ Save as PDF / Print</button>
+    <button class="btn btn-print" onclick="window.print()">🖨 Print</button>
+  </div>
+</div>
+
+<div class="sheet">
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- PAGE 1 — FRONT                                                 -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+
+<!-- HEADER -->
+<div class="hdr">
+  <div style="display:flex;align-items:center">
+    <img src="images/logo.png" alt="Moventra" class="hdr-logo"
+      onerror="this.style.display='none';document.getElementById('logo-fallback').style.display='flex'">
+    <div id="logo-fallback" style="display:none;width:54px;height:54px;border-radius:8px;background:#F97316;align-items:center;justify-content:center;font-size:18px;font-weight:900;color:white">M</div>
+    <div class="hdr-brand">
+      <div class="brand-name">MOVENTRA</div>
+      <div class="brand-sub">Safaris &amp; Logistics Ltd</div>
+      <div class="brand-contact">Muthaiga Square, off Thika Rd, Nairobi</div>
+      <div class="brand-contact">www.savannalink.com · info@savannalink.com · 0727 247 032</div>
+    </div>
+  </div>
+  <div class="hdr-title">
+    <h1>Hire / Lease Agreement</h1>
+    <div class="sub">of a Vehicle</div>
+    <div class="hdr-no">
+      <span style="font-size:9px;font-weight:700">Contract No:</span>
+      <span class="contract-no" id="contract-no-display"></span>
+    </div>
+  </div>
+  <!-- QR code (loads from internet when available, skips gracefully offline) -->
+  <img class="hdr-qr"
+    src="https://api.qrserver.com/v1/create-qr-code/?size=70x70&data=https://www.savannalink.com/car-rental-terms&color=050A14&bgcolor=FFFFFF"
+    alt="Scan for T&Cs"
+    title="Scan to read full Terms & Conditions"
+    onerror="this.style.display='none'"
+    style="border:0.5px solid #CCC;border-radius:4px">
+</div>
+
+<!-- HIRER DETAILS -->
+<div class="sec-title-orange">Hirer Details</div>
+<div class="grid2">
+  <div>
+    <div class="field"><label>Name</label><div class="field-line"><input id="f-name" placeholder="Full legal name"></div></div>
+    <div class="field"><label>ID / Passport No</label><div class="field-line"><input id="f-id" placeholder="12345678" style="font-family:monospace"></div></div>
+    <div class="field"><label>Place of Work</label><div class="field-line"><input id="f-work" placeholder="Employer / Company"></div></div>
+    <div class="field"><label>Primary Phone No</label><div class="field-line"><input id="f-phone" placeholder="+254 712 345 678" style="font-family:monospace"></div></div>
+    <div class="field"><label>Reference Name</label><div class="field-line"><input id="f-ref" placeholder="Next of kin / guarantor"></div></div>
+  </div>
+  <div>
+    <div class="field"><label>Driver's Name</label><div class="field-line"><input id="f-driver" placeholder="If different from hirer"></div></div>
+    <div class="field"><label>Nationality</label><div class="field-line"><input id="f-nat" placeholder="Kenyan" value="Kenyan"></div></div>
+    <div class="field"><label>Residence</label><div class="field-line"><input id="f-res" placeholder="Estate, House / Apt No."></div></div>
+    <div class="field"><label>Secondary Phone No</label><div class="field-line"><input id="f-phone2" placeholder="+254 722 000 000" style="font-family:monospace"></div></div>
+    <div class="field"><label>Contact No</label><div class="field-line"><input id="f-contact" placeholder="Alternative contact"></div></div>
+  </div>
+</div>
+
+<!-- CAR DETAILS -->
+<div class="sec-title">Car Details</div>
+<div class="grid2">
+  <div>
+    <div class="field"><label>Make / Model</label><div class="field-line"><input id="f-car" placeholder="e.g. Toyota Land Cruiser Prado"></div></div>
+    <div class="field"><label>Plate No</label><div class="field-line"><input id="f-plate" placeholder="KCA 123A" style="font-family:monospace;text-transform:uppercase"></div></div>
+  </div>
+  <div>
+    <div class="field"><label>Car Checked Out</label><div class="field-line"><input id="f-checkout" type="date"></div></div>
+    <div class="field"><label>Destination</label><div class="field-line"><input id="f-dest" placeholder="e.g. Naivasha / Maasai Mara"></div></div>
+  </div>
+</div>
+
+<!-- EQUIPMENT CHECKLIST + DIAGRAM + FINGERPRINTS -->
+<div style="display:grid;grid-template-columns:1fr 1fr 200px 98px;gap:6px;margin-top:10px">
+
+  <!-- Left checklist -->
+  <table class="checklist">
+    <thead><tr><th class="lbl" style="width:88px">Detail</th><th>Out</th><th>In</th></tr></thead>
+    <tbody id="cl-left"></tbody>
+  </table>
+
+  <!-- Right checklist -->
+  <table class="checklist">
+    <thead><tr><th class="lbl">Detail</th><th>Out</th><th>In</th></tr></thead>
+    <tbody id="cl-right"></tbody>
+  </table>
+
+  <!-- Fuel + Mileage + Diagram -->
+  <div style="display:flex;flex-direction:column;gap:4px">
+    <div class="gauge-wrap">
+      <div class="gauge-row">
+        <div>
+          <div class="gauge-label">FUEL OUT</div>
+          <div class="gauge-boxes" id="fuel-out">
+            <div class="gauge-box" data-group="fuel-out" data-val="E" onclick="selectGauge(this)">E</div>
+            <div class="gauge-box" data-group="fuel-out" data-val="¼" onclick="selectGauge(this)">¼</div>
+            <div class="gauge-box" data-group="fuel-out" data-val="½" onclick="selectGauge(this)">½</div>
+            <div class="gauge-box" data-group="fuel-out" data-val="¾" onclick="selectGauge(this)">¾</div>
+            <div class="gauge-box active" data-group="fuel-out" data-val="F" onclick="selectGauge(this)">F</div>
+          </div>
+        </div>
+        <div>
+          <div class="gauge-label">FUEL BACK</div>
+          <div class="gauge-boxes" id="fuel-back">
+            <div class="gauge-box" data-group="fuel-back" data-val="E" onclick="selectGauge(this)">E</div>
+            <div class="gauge-box" data-group="fuel-back" data-val="¼" onclick="selectGauge(this)">¼</div>
+            <div class="gauge-box" data-group="fuel-back" data-val="½" onclick="selectGauge(this)">½</div>
+            <div class="gauge-box" data-group="fuel-back" data-val="¾" onclick="selectGauge(this)">¾</div>
+            <div class="gauge-box" data-group="fuel-back" data-val="F" onclick="selectGauge(this)">F</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="mileage-wrap">
+      <div style="font-size:7.5px;font-weight:700;margin-bottom:3px">MILEAGE</div>
+      <div class="mileage-row"><span>Km Back</span><div class="mileage-val"><input id="km-back" placeholder=""></div></div>
+      <div class="mileage-row"><span>Km Out</span><div class="mileage-val"><input id="km-out" placeholder=""></div></div>
+      <div class="mileage-row"><span>Km Driven</span><div class="mileage-val"><input id="km-driven" placeholder=""></div></div>
+    </div>
+    <div style="border:0.75px solid #AAA;flex:1;padding:3px">
+      <svg viewBox="0 0 180 220" style="width:100%;height:auto;display:block">
+        <rect x="22" y="28" width="136" height="164" rx="24" fill="none" stroke="#333" stroke-width="1.5"/>
+        <rect x="38" y="46" width="104" height="28" rx="4" fill="none" stroke="#666" stroke-width="1"/>
+        <rect x="38" y="148" width="104" height="28" rx="4" fill="none" stroke="#666" stroke-width="1"/>
+        <rect x="48" y="29" width="84" height="17" rx="3" fill="#ECECEC" stroke="#AAA" stroke-width="0.8"/>
+        <rect x="48" y="163" width="84" height="17" rx="3" fill="#ECECEC" stroke="#AAA" stroke-width="0.8"/>
+        <ellipse cx="22" cy="82" rx="10" ry="14" fill="#333" stroke="#111" stroke-width="1"/>
+        <ellipse cx="158" cy="82" rx="10" ry="14" fill="#333" stroke="#111" stroke-width="1"/>
+        <ellipse cx="22" cy="146" rx="10" ry="14" fill="#333" stroke="#111" stroke-width="1"/>
+        <ellipse cx="158" cy="146" rx="10" ry="14" fill="#333" stroke="#111" stroke-width="1"/>
+        <rect x="22" y="88" width="14" height="30" rx="2" fill="#E0E0E0" stroke="#999" stroke-width="0.8"/>
+        <rect x="22" y="124" width="14" height="26" rx="2" fill="#E0E0E0" stroke="#999" stroke-width="0.8"/>
+        <rect x="144" y="88" width="14" height="30" rx="2" fill="#E0E0E0" stroke="#999" stroke-width="0.8"/>
+        <rect x="144" y="124" width="14" height="26" rx="2" fill="#E0E0E0" stroke="#999" stroke-width="0.8"/>
+        <rect x="42" y="78" width="96" height="66" rx="3" fill="#F8F8F8" stroke="#DDD" stroke-width="0.8"/>
+        <rect x="47" y="83" width="30" height="22" rx="3" fill="#D8D8D8" stroke="#AAA" stroke-width="0.8"/>
+        <rect x="103" y="83" width="30" height="22" rx="3" fill="#D8D8D8" stroke="#AAA" stroke-width="0.8"/>
+        <rect x="47" y="116" width="86" height="20" rx="3" fill="#D8D8D8" stroke="#AAA" stroke-width="0.8"/>
+        <circle cx="62" cy="96" r="6" fill="none" stroke="#666" stroke-width="1.2"/>
+        <text x="90" y="24" text-anchor="middle" font-size="6.5" font-weight="700" fill="#333">FRONT</text>
+        <text x="90" y="196" text-anchor="middle" font-size="6.5" font-weight="700" fill="#333">TAIL</text>
+        <text x="10" y="114" text-anchor="middle" font-size="5.5" fill="#555" transform="rotate(-90 10 114)">PASSENGER</text>
+        <text x="170" y="114" text-anchor="middle" font-size="5.5" fill="#555" transform="rotate(90 170 114)">DRIVER</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Fingerprints -->
+  <div class="fp-wrap" style="display:flex;flex-direction:column;gap:4px">
+    <div>
+      <div class="fp-label">RIGHT FINGER PRINT</div>
+      <div class="fp-box"><div class="fp-note">Place right<br>thumb here</div></div>
+    </div>
+    <div style="margin-top:6px">
+      <div class="fp-label">LEFT FINGER PRINT</div>
+      <div class="fp-box"><div class="fp-note">Place left<br>thumb here</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- HIRE PERIOD -->
+<div class="sec-title-orange">Hire Period</div>
+<div class="grid3" style="margin-bottom:5px">
+  <div class="field"><label>No. of Days</label><div class="field-line"><input id="f-days" type="number" min="1" oninput="calcTotal()"></div></div>
+  <div class="field"><label>Pay per Day (KES)</label><div class="field-line"><input id="f-rate" type="number" oninput="calcTotal()"></div></div>
+  <div class="field"><label>Total Amount (KES)</label><div class="field-line"><input id="f-total" placeholder="Auto-calculated" readonly style="font-family:monospace;font-weight:700;color:#F97316"></div></div>
+</div>
+<div class="grid4" style="margin-bottom:4px">
+  <div class="field"><label>Date Out</label><div class="field-line"><input id="f-dout" type="date"></div></div>
+  <div class="field"><label>Time Out</label><div class="field-line"><input id="f-tout" type="time"></div></div>
+  <div class="field"><label>Date In</label><div class="field-line"><input id="f-din" type="date"></div></div>
+  <div class="field"><label>Time In</label><div class="field-line"><input id="f-tin" type="time"></div></div>
+</div>
+<p class="renewal-note">b) <em>(with an option of renewal on expiry of the said period. Later return fees Ksh. 300/= per Hr)</em></p>
+
+<!-- PAGE 1 SIGNATURE -->
+<div class="sig-row">
+  <div class="field"><label>Date</label><div class="field-line"></div></div>
+  <div class="field"><label>Signature</label><div class="field-line"></div></div>
+  <div class="field"><label>Name</label><div class="field-line"></div></div>
+</div>
+<div style="margin-top:4px">
+  <div class="field" style="max-width:200px"><label>Time</label><div class="field-line"></div></div>
+</div>
+
+<!-- PAGE 1 FOOTER -->
+<div class="footer">
+  <span class="footer-text"><strong>Moventra Safaris &amp; Logistics Ltd</strong> · Muthaiga Square, off Thika Road, Nairobi · www.savannalink.com · info@savannalink.com · 0727 247 032</span>
+  <span class="page-num">Page 1 of 2</span>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- PAGE 2 — TERMS & CONDITIONS                                    -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<div class="page-break" style="padding-top:14px">
+
+  <!-- Page 2 header -->
+  <div class="hdr" style="padding-bottom:7px;margin-bottom:10px">
+    <div style="display:flex;align-items:center">
+      <img src="images/logo.png" alt="Moventra" style="width:36px;height:36px;border-radius:6px;object-fit:cover;border:1px solid #F97316"
+        onerror="this.style.display='none'">
+      <div style="margin-left:8px">
+        <div style="font-size:13px;font-weight:900;color:#111">MOVENTRA <span style="font-weight:400;font-size:9px;color:#555">Safaris &amp; Logistics Ltd</span></div>
+        <div style="font-size:7px;color:#777">Contract No: <strong id="contract-no-p2" style="font-family:monospace"></strong> · Hire/Lease Agreement — Terms &amp; Conditions</div>
+      </div>
+    </div>
+    <img src="https://api.qrserver.com/v1/create-qr-code/?size=50x50&data=https://www.savannalink.com/car-rental-terms&color=050A14&bgcolor=FFFFFF"
+      alt="QR" style="width:50px;height:50px;border:0.5px solid #CCC;border-radius:3px" onerror="this.style.display='none'">
+  </div>
+
+  <div class="terms-title">Further Terms and Conditions</div>
+  <ol class="terms-list">
+    <li>The Vehicle is and remains the property of the owner and the hirer shall return it in the order and condition as when received, exception ordinary wear and tear, to the place the owner will communicate or such other place and at such other time as the owner was direct.</li>
+    <li>The Hirer will not affect any major services notice and consent of the agent. The hirer is however still fully liable and responsible for the car.</li>
+    <li>The vehicle should NEVER be used: (a) By any person without a valid driving licence recognised in this country. (b) For any illegal or immoral purpose. (c) To propel or tow a vehicle or trailer. (d) Transport or carry NARCOTICS or other forbidden substances. (e) If the vehicle does not have a valid insurance. (f) In a rally speed or contest.</li>
+    <li>The hirer is the authorized person to use the car and the specified period. If the period is exceeded, immediate contact or owner or other written agreement is needed else the vehicle will be considered stolen and or in unlawful use of motor vehicle and may report to the police.</li>
+    <li>The owner shall insure the vehicle so as to comply with the laws of the land.</li>
+    <li>The agent/owner shall not be liable to meet any claims in respect of death or of bodily harm to persons being carried in or getting on or alighting the vehicle.</li>
+    <li>The hirer shall meet all the expenses which may result as a result of loss of minor parts at any one time during the period of the contract. This will include daily rates as agreed on the contract during repair period in case of an accident involving the client as well as the cost of repairing the damage.</li>
+    <li>The hirer must pay KES 100,000 on top of what insurance will add and it will start for those days the car will be at the garage. The hirer will pay the excess fee for the insurance company when a claim is made as a result of an incident/accident while hirer was using the car.</li>
+    <li>The hirer is solely responsible for all fines, penalties and for features imposed by reason of bleach by persons in control of vehicle of any law or by-law or other regulations of any competent authority. The hirer shall on completion of the hire, hand over to the agent/owner all demands, summon and notifications arising out of any offence in relation to the use of the vehicle as well as notification of any penalty and charges incurred during the period of hire.</li>
+    <li>The hirer shall not during the hiring or thereafter sell or otherwise part with the possession or ownership of the vehicle otherwise than to the company.</li>
+    <li>The owner may vary the vehicle hired provided the hirer has been given reasonable notice as to the intention by the owner.</li>
+    <li>The hirer can terminate the contract by giving a 30-day notice or paying one month's equivalent — pay on immediate cancellation of the contract before agreed time. (*If contract longer than a month).</li>
+    <li>The hirer will pay on demand all charges in accordance with this agreement.</li>
+    <li>In the event of the Hirer breaching any terms of the agreement set out herein, the owner has the right to terminate the contract and take possession of the vehicle without recourse to court and the hirer shall be liable for all costs of such repossession.</li>
+    <li>No waiver or variation of the terms hereof shall be binding to the owner unless authorized and signed by the owner.</li>
+    <li>It is understood and agreed that any dispute under this contract shall be subject to the jurisdiction of the court of Kenya.</li>
+  </ol>
+
+  <div class="agree-text">I hereby agree to all items on this page and overleaf.</div>
+
+  <p style="font-size:9px;font-weight:700;margin-bottom:7px">Hirer</p>
+  <div class="sig-row">
+    <div class="field"><label>Name</label><div class="field-line"></div></div>
+    <div class="field"><label>Signature</label><div class="field-line"></div></div>
+    <div class="field" style="max-width:200px"><label>Date</label><div class="field-line"><span style="font-size:8px;padding-left:3px">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/20</span></div></div>
+  </div>
+
+  <p style="font-size:9px;font-weight:700;margin:10px 0 7px">Authorised Agent / Owner</p>
+  <div class="sig-row">
+    <div class="field"><label>Name</label><div class="field-line"></div></div>
+    <div class="field"><label>Signature</label><div class="field-line"></div></div>
+    <div class="field" style="max-width:200px"><label>Date</label><div class="field-line"><span style="font-size:8px;padding-left:3px">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/20</span></div></div>
+  </div>
+  <div class="stamp-box">Company Stamp</div>
+
+  <!-- Page 2 footer -->
+  <div class="footer" style="margin-top:10px">
+    <div class="footer-text">
+      <strong>Moventra Safaris &amp; Logistics Ltd</strong><br>
+      Muthaiga Square, off Thika Road, Nairobi · www.savannalink.com · info@savannalink.com · 0727 247 032
+    </div>
+    <span class="page-num">Page 2 of 2</span>
+  </div>
+</div><!-- end page 2 -->
+
+</div><!-- end .sheet -->
+
+<script>
+// ── Contract number ──
+const contractNo = 'MVT-' + Date.now().toString(36).toUpperCase().slice(-7);
+document.getElementById('contract-no-display').textContent = contractNo;
+document.getElementById('contract-no-p2').textContent = contractNo;
+
+// ── Build checklists ──
+const leftItems = [
+  'S/WHEEL','JACK','W/SPANNER','LIFESAVER','FIRST AID KIT',
+  'FIRE EXTINGUISHER','FRONT WSCREEN','REAR WSCREEN','MUDGUARDS',
+  'FRONT RIGHT','FRONT LEFT','REAR RIGHT','REAR LEFT','ENGINE',
+  'OIL CAP','WATER CAP','RADIATOR','ALARM','OTHERS','JUMPER CABLES',
+  'TOWEL','TOW ROPE'
+];
+const rightItems = [
+  'WINDOWS','FRONT RIGHT','FRONT LEFT','REAR RIGHT','REAR LEFT',
+  'WHEEL CAPS','FRONT RIGHT (M)','FRONT LEFT (M)','REAR RIGHT (M)','REAR LEFT (M)',
+  'NORMAL','FLOORMAT','PLASTICS','SPEAKERS','FRONT','REAR',
+  'CD PLAYER','OTHERS','SPANNER No.10','SPECIAL NUT'
+];
+function buildChecklist(id, items) {
+  const tbody = document.getElementById(id);
+  items.forEach(function(item, i) {
+    const tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td class="item">' + item + '</td>' +
+      '<td class="chk"><input type="checkbox" id="' + id + '-out-' + i + '"></td>' +
+      '<td class="chk"><input type="checkbox" id="' + id + '-in-' + i + '"></td>';
+    tbody.appendChild(tr);
+  });
+}
+buildChecklist('cl-left', leftItems);
+buildChecklist('cl-right', rightItems);
+
+// ── Fuel gauge toggle ──
+function selectGauge(el) {
+  const group = el.dataset.group;
+  document.querySelectorAll('[data-group="' + group + '"]').forEach(function(b) {
+    b.classList.remove('active');
+  });
+  el.classList.add('active');
+}
+
+// ── Auto-calculate total ──
+function calcTotal() {
+  const days = parseInt(document.getElementById('f-days').value) || 0;
+  const rate = parseFloat(document.getElementById('f-rate').value) || 0;
+  const total = days * rate;
+  document.getElementById('f-total').value = total > 0
+    ? 'KES ' + total.toLocaleString('en-KE') : '';
+}
+
+// ── Reset form ──
+function resetForm() {
+  if (!confirm('Clear all fields and start a new contract?')) return;
+  document.querySelectorAll('input[type=text], input[type=number], input[type=date], input[type=time]').forEach(function(el) {
+    if (!el.readOnly) el.value = '';
+  });
+  document.querySelectorAll('input[type=checkbox]').forEach(function(el) { el.checked = false; });
+  document.querySelectorAll('.gauge-box').forEach(function(el) { el.classList.remove('active'); });
+  document.querySelectorAll('[data-group="fuel-out"]').forEach(function(el) {
+    if (el.dataset.val === 'F') el.classList.add('active');
+  });
+  document.getElementById('f-nat').value = 'Kenyan';
+  document.getElementById('f-total').value = '';
+  // New contract number
+  const newNo = 'MVT-' + Date.now().toString(36).toUpperCase().slice(-7);
+  document.getElementById('contract-no-display').textContent = newNo;
+  document.getElementById('contract-no-p2').textContent = newNo;
+}
+
+// ── Auto-set today's date ──
+const today = new Date().toISOString().split('T')[0];
+document.getElementById('f-dout').value = today;
+const now = new Date().toTimeString().slice(0,5);
+document.getElementById('f-tout').value = now;
+</script>
+</body>
+</html>
