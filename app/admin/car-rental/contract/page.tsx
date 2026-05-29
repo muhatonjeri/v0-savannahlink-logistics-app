@@ -145,7 +145,10 @@ function ContractContent() {
   const qrSrc     = useQRCode(termsUrl);
 
   // Contract number
-  const [contractNo] = useState(`MVT-${Date.now().toString(36).toUpperCase().slice(-7)}`);
+  const [contractNo, setContractNo] = useState("MVT-LOADING");
+  useEffect(() => {
+    setContractNo(`MVT-${Date.now().toString(36).toUpperCase().slice(-7)}`);
+  }, []);
 
   // Form state
   const [f, setF] = useState({

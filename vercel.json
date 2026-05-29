@@ -1,0 +1,22 @@
+{
+  "framework": "nextjs",
+  "buildCommand": "pnpm build",
+  "devCommand": "pnpm dev",
+  "installCommand": "pnpm install",
+  "regions": ["fra1"],
+  "env": {
+    "NEXT_PUBLIC_SUPABASE_URL": "@supabase-url",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "@supabase-anon-key",
+    "SUPABASE_SERVICE_ROLE_KEY": "@supabase-service-role-key",
+    "MPESA_CONSUMER_KEY": "@mpesa-consumer-key",
+    "MPESA_CONSUMER_SECRET": "@mpesa-consumer-secret",
+    "MPESA_PASSKEY": "@mpesa-passkey",
+    "MPESA_CALLBACK_URL": "@mpesa-callback-url",
+    "MPESA_ENV": "@mpesa-env",
+    "RESEND_API_KEY": "@resend-api-key",
+    "AT_API_KEY": "@at-api-key",
+    "AT_USERNAME": "@at-username",
+    "ETIMS_API_KEY": "@etims-api-key",
+    "API_INTERNAL_SECRET": "@api-internal-secret"
+  }
+}
