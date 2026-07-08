@@ -148,21 +148,34 @@
   }
 }
 
-/* Professional Print Styles */
+/* ══════════════════════════════════════════════════════════════════
+   PRINT STYLES — Invoices, Receipts & Contracts
+   Single source of truth for @media print. Do not add more print
+   blocks elsewhere in this file — extend this one instead.
+
+   Reveal strategy: hide everything on the page, then re-show only the
+   printable target (.print-receipt / [data-print-area="true"]) and
+   pin it to the top of the page. This works no matter how deeply the
+   target is nested (e.g. inside a Radix Dialog portal) and does not
+   depend on any particular root element existing — a previous version
+   of this file relied on a `#__next` id, which only exists in the
+   Next.js Pages Router. This project uses the App Router, so that id
+   is never present, and the old rule ended up hiding the entire page
+   — including the printable content — hence the blank print preview.
+   ══════════════════════════════════════════════════════════════════ */
 @media print {
   /* Page setup */
   @page {
     size: A4;
     margin: 15mm 10mm;
   }
-  
-  /* Reset everything for print */
+
   * {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
     color-adjust: exact !important;
   }
-  
+
   html, body {
     background: white !important;
     color: #1f2937 !important;
@@ -171,254 +184,55 @@
     font-family: 'Helvetica Neue', Arial, sans-serif !important;
     margin: 0 !important;
     padding: 0 !important;
+    height: auto !important;
+    overflow: visible !important;
   }
-  
-  /* Hide non-printable elements */
-  .no-print,
-  nav,
-  aside,
-  [data-radix-dialog-overlay],
-  button:not(.print-button),
+
+  /* Hide the whole page, then reveal only the printable target below.
+     Robust regardless of DOM nesting/root ids. */
+  body * {
+    visibility: hidden !important;
+  }
+  .print-receipt, .print-receipt *,
+  [data-print-area="true"], [data-print-area="true"] * {
+    visibility: visible !important;
+  }
+
+  /* Explicit opt-outs even inside the printable target */
+  .no-print, .print\:hidden,
   [role="dialog"] > button,
-  footer:not(.print-footer) {
+  [data-radix-dialog-overlay] {
     display: none !important;
     visibility: hidden !important;
   }
-  
-  /* Dialog content for printing */
-  [role="dialog"],
-  [data-state="open"] {
+
+  /* Pin the printable target to the top of the printed page.
+     Note: invoices/receipts fully theme themselves via inline styles
+     (navy/orange brand colors), so nothing below forces colors that
+     would fight with those — this block only handles layout/behavior. */
+  .print-receipt,
+  [data-print-area="true"] {
     position: absolute !important;
-    inset: 0 !important;
-    max-width: 100% !important;
-    max-height: none !important;
+    left: 0 !important;
+    top: 0 !important;
     width: 100% !important;
-    height: auto !important;
-    padding: 20px !important;
+    max-width: 100% !important;
     margin: 0 !important;
+    padding: 0 !important;
     border: none !important;
     border-radius: 0 !important;
     box-shadow: none !important;
     overflow: visible !important;
-    background: white !important;
-    transform: none !important;
   }
-  
-  /* Professional Receipt/Invoice Styling */
-  .print-receipt,
-  [data-print-area="true"] {
-    max-width: 100% !important;
-    padding: 0 !important;
-    margin: 0 auto !important;
-    background: white !important;
-    font-size: 10pt !important;
-    color: #1f2937 !important;
-  }
-  
-  /* Company header */
-  .print-header {
-    text-align: center !important;
-    border-bottom: 3px solid #047857 !important;
-    padding-bottom: 15pt !important;
-    margin-bottom: 15pt !important;
-  }
-  
-  .print-header h1,
-  .print-header h2 {
-    font-size: 18pt !important;
-    font-weight: 700 !important;
-    color: #047857 !important;
-    margin: 0 0 4pt 0 !important;
-  }
-  
-  .print-header p {
-    font-size: 9pt !important;
-    color: #4b5563 !important;
-    margin: 2pt 0 !important;
-  }
-  
-  /* Receipt title banner */
-  .print-title,
-  .bg-emerald-50 {
-    background: #ecfdf5 !important;
-    border: 2px solid #a7f3d0 !important;
-    padding: 10pt 20pt !important;
-    text-align: center !important;
-    margin: 15pt 0 !important;
-    border-radius: 4pt !important;
-  }
-  
-  .print-title h3 {
-    font-size: 16pt !important;
-    font-weight: 700 !important;
-    color: #047857 !important;
-    letter-spacing: 3pt !important;
-    text-transform: uppercase !important;
-    margin: 0 !important;
-  }
-  
-  /* Section headers */
-  h3, h4 {
-    color: #1f2937 !important;
-    font-weight: 600 !important;
-    margin-bottom: 8pt !important;
-    font-size: 11pt !important;
-  }
-  
-  /* Info grid */
-  .grid {
-    display: grid !important;
-  }
-  
-  .grid-cols-2 {
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 10pt !important;
-  }
-  
-  /* Tables */
-  table {
+
+  .print-receipt table, [data-print-area="true"] table {
     width: 100% !important;
     border-collapse: collapse !important;
-    font-size: 9pt !important;
-    margin: 10pt 0 !important;
   }
-  
-  thead tr {
-    background: #047857 !important;
-  }
-  
-  th {
-    background: #047857 !important;
-    font-weight: 600 !important;
-    color: white !important;
-    padding: 10pt 8pt !important;
-    text-align: left !important;
-    border: 1px solid #047857 !important;
-    font-size: 9pt !important;
-  }
-  
-  td {
-    padding: 8pt !important;
-    border: 1px solid #e5e7eb !important;
-    color: #374151 !important;
-    font-size: 9pt !important;
-    background: white !important;
-  }
-  
-  tbody tr:nth-child(even) td {
-    background: #f9fafb !important;
-  }
-  
-  /* Totals section */
-  .print-totals {
-    background: #f3f4f6 !important;
-    border: 2px solid #e5e7eb !important;
-    border-radius: 6pt !important;
-    padding: 12pt !important;
-    margin: 15pt 0 !important;
-  }
-  
-  .print-total-final,
-  .font-bold.text-lg {
-    font-size: 14pt !important;
-    font-weight: 700 !important;
-    color: #047857 !important;
-    border-top: 2px solid #047857 !important;
-    padding-top: 10pt !important;
-    margin-top: 8pt !important;
-  }
-  
-  /* eTIMS verification box */
-  .print-etims {
-    background: #ecfdf5 !important;
-    border: 2px solid #a7f3d0 !important;
-    border-radius: 6pt !important;
-    padding: 12pt !important;
-    text-align: center !important;
-    margin: 15pt 0 !important;
-  }
-  
-  /* Footer */
-  .print-footer {
-    text-align: center !important;
-    border-top: 2px solid #e5e7eb !important;
-    padding-top: 12pt !important;
-    margin-top: 20pt !important;
-    font-size: 9pt !important;
-    color: #6b7280 !important;
-  }
-  
-  /* Signature lines */
-  .print-signature {
-    margin-top: 30pt !important;
-    display: flex !important;
-    justify-content: space-between !important;
-    page-break-inside: avoid !important;
-  }
-  
-  .print-signature-box {
-    width: 45% !important;
-    text-align: center !important;
-  }
-  
-  .print-signature-line {
-    border-top: 1px solid #374151 !important;
-    margin-top: 50pt !important;
-    padding-top: 6pt !important;
-    font-size: 9pt !important;
-    color: #4b5563 !important;
-  }
-  
-  /* Text colors for print */
-  .text-emerald-700,
-  .text-emerald-600,
-  .text-emerald-400 {
-    color: #047857 !important;
-  }
-  
-  .text-gray-600,
-  .text-gray-500,
-  .text-muted-foreground {
-    color: #4b5563 !important;
-  }
-  
-  .text-gray-900,
-  .font-semibold,
-  .font-medium {
-    color: #1f2937 !important;
-  }
-  
-  /* Separators */
-  hr, [role="separator"] {
-    border: none !important;
-    border-top: 1px dashed #9ca3af !important;
-    margin: 10pt 0 !important;
-  }
-  
-  /* Images */
-  img {
-    max-width: 100px !important;
-    height: auto !important;
-  }
-  
+
   /* Page breaks */
-  .page-break {
-    page-break-before: always !important;
-  }
-  
-  .no-page-break {
-    page-break-inside: avoid !important;
-  }
-  
-  /* Badge styles */
-  [class*="Badge"],
-  .inline-flex.items-center.rounded-full {
-    background: #f3f4f6 !important;
-    color: #374151 !important;
-    border: 1px solid #d1d5db !important;
-    padding: 2pt 8pt !important;
-    font-size: 8pt !important;
-  }
+  .page-break { page-break-before: always !important; }
+  .no-page-break { page-break-inside: avoid !important; }
 }
 
 /* ========================================
@@ -680,17 +494,6 @@ td, th, tr, thead, tbody {
   color: white !important;
 }
 
-/* Keep invoice/receipt print areas white for printing */
-@media print {
-  .bg-white, .bg-gray-50 {
-    background-color: white !important;
-    color: black !important;
-  }
-  .bg-white *, .bg-gray-50 * {
-    color: black !important;
-  }
-}
-
 /* Dialog/modal white backgrounds */
 .bg-white.dark\:bg-gray-900,
 [class*="bg-white dark:bg-gray-900"] {
@@ -755,17 +558,6 @@ input, textarea, select {
   background-color: oklch(0.20 0.02 250) !important;
   color: white !important;
   border-color: oklch(0.30 0.02 250) !important;
-}
-
-/* Print area stays white for printing */
-@media print {
-  .bg-white, .print-receipt {
-    background-color: white !important;
-    color: black !important;
-  }
-  .bg-white *, .print-receipt * {
-    color: black !important;
-  }
 }
 
 /* ── Sidebar fixes - restore colored icons and proper text ── */
@@ -939,47 +731,17 @@ table thead th,
 [data-slot="sidebar-menu-button"] .text-emerald-400 { color: rgb(52 211 153)   !important; }
 [data-slot="sidebar-menu-button"] .text-rose-400    { color: rgb(251 113 133)  !important; }
 
-/* ── Receipt & Invoice preview: always white bg, dark text ── */
-.print-receipt,
-.print-receipt *,
-[data-print-area],
-[data-print-area] * {
-  color: #0a1628 !important;
-  background-color: white !important;
-}
-
-
-/* ══════════════════════════════════════
-   PRINT STYLES — Invoice & Receipt
+/* Note: invoice/receipt printable areas theme themselves via inline
+   styles (navy/orange brand palette) — see the consolidated
+   `@media print` block near the top of this file for print handling.
+   No always-on or duplicate print rules here anymore; a stray rule
+   that forced every element inside .print-receipt to navy-on-white
+   at all times (even on screen) and a broken print block that hid
+   the whole page via a Pages-Router-only `#__next` selector (which
+   doesn't exist in this App Router project) used to live here — both
+   have been removed as the root causes of the blank print preview.
    ══════════════════════════════════════ */
-@media print {
-  /* Hide everything except the document */
-  body > *:not(#__next) { display: none !important; }
-  .print-receipt,
-  [data-print-area] {
-    display: block !important;
-    position: fixed !important;
-    top: 0; left: 0;
-    width: 100% !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    box-shadow: none !important;
-    border: none !important;
-  }
-  /* Force white backgrounds and dark text in print */
-  .print-receipt *,
-  [data-print-area] * {
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-  }
-  /* Hide screen-only elements */
-  .print\:hidden { display: none !important; }
-  /* Page setup */
-  @page {
-    size: A4;
-    margin: 12mm;
-  }
-}
+
 
 /* Mobile overflow fixes */
 html, body { overflow-x: hidden; }
