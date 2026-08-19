@@ -142,6 +142,8 @@ const companyDetails = {
   email: "info@moventrasafarislogisticsltd.com",
   website: "www.Moventra Safaris & Logistics Ltd.com",
   etimsDeviceNumber: "ETIMS-2024-00123",
+  mpesaPaybill: "542542",
+  mpesaAccount: "247032",
 };
 
 // Form schema
@@ -1466,7 +1468,7 @@ export default function ReceiptsPage() {
                       </TableRow>
                     );
                   })
-                )}
+                )}git
               </TableBody>
             </Table>
           </div>
@@ -1475,9 +1477,10 @@ export default function ReceiptsPage() {
 
       {/* View Receipt Dialog */}
       <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto" style={{backgroundColor:"#ffffff",color:"#1a1a2e"}}>
           {selectedReceipt && (
-            <div ref={printRef} className="print-receipt" data-print-area="true" style={{backgroundColor:"white",color:"#0a1628"}}>
+        
+            <div ref={printRef} className="print-receipt" style={{backgroundColor:"#ffffff",color:"#1a1a2e"}}>
               {/* Screen-only header */}
               <DialogHeader className="print:hidden mb-4">
                 <DialogTitle className="flex items-center justify-between text-white">
