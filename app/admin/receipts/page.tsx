@@ -34,6 +34,8 @@ import {
   QrCode,
   Send,
   MessageSquare,
+  Pencil,
+  Lock,
   Loader2,
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -453,7 +455,11 @@ export default function ReceiptsPage() {
           etimsQrCode: String(r.etims_qr_code || ""),
           currency: String(r.currency || "KES"),
           issuedBy: String(r.issued_by || "Admin"),
-          status: String(r.status || "issued") as ReceiptData["status"],
+          status: (r.status === "cancelled" ? "voided" : String(r.status || "issued")) as ReceiptData["status"],
+          invoiceId: r.invoice_id ? String(r.invoice_id) : undefined,
+          invoiceRef: r.invoice_ref ? String(r.invoice_ref) : undefined,
+          bookingReference: r.booking_ref ? String(r.booking_ref) : undefined,
+          bankName: r.bank_name ? String(r.bank_name) : undefined,
           notes: String(r.notes || ""),
           sendEmail: false,
           sendSms: false,
@@ -761,8 +767,14 @@ export default function ReceiptsPage() {
       etimsDeviceNumber: newReceipt.etimsDeviceNumber,
       etimsVerificationUrl: newReceipt.etimsVerificationUrl,
       issuedBy: newReceipt.issuedBy,
-    }).then(async () => {
+    }).then(async (saved) => {
       toast.success(`Receipt ${newReceipt.receiptNumber} issued`);
+      // Use the database id from now on, so editing/voiding this receipt right away is saved
+      const savedId = (saved as { id?: string } | null)?.id;
+      if (savedId) {
+        newReceipt.id = savedId;
+        setSelectedReceipt((prev) => (prev && prev.receiptNumber === newReceipt.receiptNumber ? { ...prev, id: savedId } : prev));
+      }
       if (invoice && isUuid(invoice.id)) {
         const newPaid = round2(invoice.amountPaid + newReceipt.totalAmount);
         try {
@@ -804,14 +816,121 @@ export default function ReceiptsPage() {
     setViewDialogOpen(true);
   };
 
-  // Handle void receipt
-  const handleVoidReceipt = (receiptId: string) => {
-    setReceipts((prev) =>
-      prev.map((r) => (r.id === receiptId ? { ...r, status: "voided" as const } : r))
-    );
-    toast.success("Receipt voided", {
-      description: "The receipt has been marked as voided.",
+  // Remove (or re-point) this receipt's payment on its invoice, then recompute the balance
+  const syncInvoicePayment = async (receipt: ReceiptData, change: { remove?: boolean; reference?: string }) => {
+    if (!receipt.invoiceId || !isUuid(receipt.invoiceId)) return;
+    const inv = await invoicesApi.getById(receipt.invoiceId) as Record<string, unknown>;
+    const total = Number(inv.total) || 0;
+    const marker = `Receipt ${receipt.receiptNumber}`;
+    let payments = (Array.isArray(inv.payments) ? inv.payments : []) as Record<string, unknown>[];
+    if (change.remove) payments = payments.filter((pm) => pm.note !== marker);
+    if (change.reference !== undefined) payments = payments.map((pm) => (pm.note === marker ? { ...pm, reference: change.reference } : pm));
+    const paid = round2(payments.reduce((sum, pm) => sum + (Number(pm.amount) || 0), 0));
+    const status = paid <= 0 ? "sent" : paid >= total - 0.01 ? "paid" : "partial";
+    await invoicesApi.update(receipt.invoiceId, change.remove ? { payments, amount_paid: paid, status } : { payments });
+  };
+
+  // Void: saved to the database, and any invoice payment from this receipt is taken off
+  const handleVoidReceipt = async (receiptId: string) => {
+    const receipt = receipts.find((r) => r.id === receiptId);
+    if (!receipt) return;
+    setReceipts((prev) => prev.map((r) => (r.id === receiptId ? { ...r, status: "voided" as const } : r)));
+    if (selectedReceipt?.id === receiptId) setSelectedReceipt({ ...receipt, status: "voided" });
+    if (!isUuid(receipt.id)) { toast.success("Demo receipt voided (not saved — demo data)"); return; }
+    try {
+      await receiptsApi.update(receipt.id, { status: "voided" });
+      toast.success(`Receipt ${receipt.receiptNumber} voided`);
+    } catch (err) {
+      toast.error("Void failed — receipt is still valid", { description: err instanceof Error ? err.message : String(err) });
+      loadReceipts();
+      return;
+    }
+    if (receipt.invoiceId) {
+      try {
+        await syncInvoicePayment(receipt, { remove: true });
+        toast.success(`Payment removed from invoice ${receipt.invoiceRef || ""}`.trim());
+      } catch (err) {
+        toast.error(`Receipt voided, but invoice ${receipt.invoiceRef || ""} still shows the payment`, {
+          description: "Correct the invoice manually. " + (err instanceof Error ? err.message : ""),
+        });
+      }
+    }
+  };
+
+  // ── Edit receipt (wording and contact details only — never amounts) ──
+  const [editingReceipt, setEditingReceipt] = useState<ReceiptData | null>(null);
+  const [editForm, setEditForm] = useState({
+    customerName: "", customerPhone: "", customerEmail: "", customerKraPin: "",
+    serviceType: "", description: "", transactionCode: "", bankName: "",
+  });
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
+
+  const openEditReceipt = (receipt: ReceiptData) => {
+    if (receipt.status === "voided") { toast.error("Voided receipts can't be edited"); return; }
+    setEditForm({
+      customerName: receipt.customerName || "",
+      customerPhone: receipt.customerPhone || "",
+      customerEmail: receipt.customerEmail || "",
+      customerKraPin: receipt.customerKraPin || "",
+      serviceType: receipt.serviceType || "",
+      description: receipt.items[0]?.description || "",
+      transactionCode: receipt.transactionCode || "",
+      bankName: receipt.bankName || "",
     });
+    setViewDialogOpen(false);
+    setEditingReceipt(receipt);
+  };
+
+  const saveEditReceipt = async () => {
+    const r = editingReceipt;
+    if (!r) return;
+    if (editForm.customerName.trim().length < 2) { toast.error("Customer name is required"); return; }
+    if (editForm.customerPhone.replace(/\D/g, "").length < 9) { toast.error("Enter a valid phone number"); return; }
+    if (!editForm.transactionCode.trim()) { toast.error("Transaction code is required"); return; }
+
+    const items = r.items.map((item, i) => (i === 0 ? { ...item, description: editForm.description.trim() } : item));
+    const updated: ReceiptData = {
+      ...r,
+      customerName: editForm.customerName.trim(),
+      customerPhone: editForm.customerPhone.trim(),
+      customerEmail: editForm.customerEmail.trim() || undefined,
+      customerKraPin: editForm.customerKraPin.trim() || undefined,
+      serviceType: editForm.serviceType,
+      transactionCode: editForm.transactionCode.trim(),
+      bankName: editForm.bankName.trim() || undefined,
+      items,
+    };
+    const codeChanged = updated.transactionCode !== r.transactionCode;
+
+    setIsSavingEdit(true);
+    try {
+      if (isUuid(r.id)) {
+        await receiptsApi.update(r.id, {
+          customer_name: updated.customerName,
+          customer_phone: updated.customerPhone,
+          customer_email: updated.customerEmail || "",
+          customer_kra_pin: updated.customerKraPin || "",
+          service_type: updated.serviceType,
+          items,
+          transaction_code: updated.transactionCode,
+          payment_reference: updated.transactionCode,
+          bank_name: updated.bankName || "",
+        });
+      }
+      setReceipts((prev) => prev.map((x) => (x.id === r.id ? updated : x)));
+      setSelectedReceipt(updated);
+      setEditingReceipt(null);
+      toast.success(`Receipt ${r.receiptNumber} updated${isUuid(r.id) ? "" : " (demo — not saved)"}`);
+      if (codeChanged && r.invoiceId) {
+        try { await syncInvoicePayment(updated, { reference: updated.transactionCode }); }
+        catch { toast.error(`Invoice ${r.invoiceRef || ""} still shows the old transaction code — update it there.`); }
+      }
+      setViewDialogOpen(true); // show the corrected receipt
+    } catch (err) {
+      toast.error("Update failed", { description: err instanceof Error ? err.message : String(err) });
+    } finally {
+      setIsSavingEdit(false);
+    }
   };
 
   // Print / Save as PDF. A copy of the receipt is rendered directly under <body>
@@ -1135,7 +1254,7 @@ export default function ReceiptsPage() {
             <Receipt className="h-7 w-7 text-teal-400" />
             Receipt Management
           </h1>
-          <p className="text-gray-400 mt-1 text-sm">Issue eTIMS compliant receipts with M-Pesa and bank references</p>
+          <p className="text-gray-400 mt-1 text-sm">Issue official receipts with M-Pesa and bank references</p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={(open) => { setIsDialogOpen(open); if (!open) clearInvoiceLink(); }}>
           <DialogTrigger asChild>
@@ -1586,23 +1705,6 @@ export default function ReceiptsPage() {
                   </div>
                 </div>
 
-                {/* eTIMS Compliance Notice */}
-                <div className="rounded-lg border border-emerald-200 dark:border-emerald-800 bg-emerald-900/30/50 dark:bg-emerald-950/20 p-4">
-                  <div className="flex items-start gap-3">
-                    <BadgeCheck className="h-5 w-5 text-emerald-500 mt-0.5" />
-                    <div>
-                      <h4 className="font-semibold text-emerald-300 dark:text-emerald-400 text-sm">
-                        eTIMS Compliance
-                      </h4>
-                      <p className="text-xs text-emerald-600 dark:text-emerald-300 mt-1">
-                        {companyDetails.etimsDeviceNumber
-                          ? <>This receipt will be registered with KRA&apos;s eTIMS system. Device Number: {companyDetails.etimsDeviceNumber}</>
-                          : <>KRA eTIMS is not connected yet, so this receipt will be issued without an eTIMS number. Once eTIMS is connected, new receipts are registered automatically.</>}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
                 <DialogFooter>
                   <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                     Cancel
@@ -1749,9 +1851,9 @@ export default function ReceiptsPage() {
                       <TableRow key={receipt.id}>
                         <TableCell>
                           <div className="font-mono text-sm">{receipt.receiptNumber}</div>
-                          <div className="text-xs text-muted-foreground">
-                            {receipt.etimsReceiptNumber}
-                          </div>
+                          {receipt.invoiceRef && (
+                            <div className="text-xs text-muted-foreground">For {receipt.invoiceRef}</div>
+                          )}
                         </TableCell>
                         <TableCell>
                           <div className="font-medium">{receipt.customerName}</div>
@@ -1819,6 +1921,11 @@ export default function ReceiptsPage() {
                             >
                               {isSendingSms ? <Loader2 className="h-4 w-4 animate-spin" /> : <MessageSquare className="h-4 w-4" />}
                             </Button>
+                            {receipt.status === "issued" && (
+                              <Button variant="ghost" size="icon" title="Edit receipt" onClick={() => openEditReceipt(receipt)}>
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                            )}
                             <Button variant="ghost" size="icon" title="Print receipt" onClick={() => { setSelectedReceipt(receipt); setTimeout(() => handlePrint(receipt), 300); }}>
                               <Printer className="h-4 w-4" />
                             </Button>
@@ -1833,8 +1940,8 @@ export default function ReceiptsPage() {
                                   <AlertDialogHeader>
                                     <AlertDialogTitle>Void Receipt?</AlertDialogTitle>
                                     <AlertDialogDescription>
-                                      This will mark the receipt as voided. This action cannot be undone
-                                      and will be reported to KRA eTIMS.
+                                      This marks the receipt as void and can&apos;t be undone.
+                                      {receipt.invoiceRef ? ` The payment will also be removed from invoice ${receipt.invoiceRef}.` : ""}
                                     </AlertDialogDescription>
                                   </AlertDialogHeader>
                                   <AlertDialogFooter>
@@ -1954,6 +2061,17 @@ export default function ReceiptsPage() {
               </div>
 
               <div className="print:hidden mt-4 flex justify-end gap-2">
+                {selectedReceipt?.status === "issued" && (
+                  <button
+                    type="button"
+                    onClick={() => selectedReceipt && openEditReceipt(selectedReceipt)}
+                    className="inline-flex items-center gap-2 rounded-lg border bg-[#ffffff] hover:bg-[#f1f5f9] px-4 py-2 text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400"
+                    style={{borderColor:"#cbd5e1",color:"#0a1628"}}
+                  >
+                    <Pencil className="h-4 w-4" style={{color:"#0a1628"}} />
+                    Edit
+                  </button>
+                )}
                 <button
                   type="button"
                   onClick={() => setViewDialogOpen(false)}
@@ -1974,6 +2092,78 @@ export default function ReceiptsPage() {
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Receipt Dialog */}
+      <Dialog open={!!editingReceipt} onOpenChange={(open) => { if (!open) setEditingReceipt(null); }}>
+        <DialogContent className="max-w-2xl sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Pencil className="h-5 w-5 text-emerald-500" />
+              Edit Receipt {editingReceipt?.receiptNumber}
+            </DialogTitle>
+            <DialogDescription>
+              Correct contact details, wording or the transaction code. The receipt number and date stay the same.
+            </DialogDescription>
+          </DialogHeader>
+
+          {editingReceipt && (
+            <div className="space-y-4">
+              <div className="grid gap-4 sm:grid-cols-2">
+                {([
+                  ["customerName", "Customer Name *", "text"],
+                  ["customerPhone", "Phone Number *", "tel"],
+                  ["customerEmail", "Email", "email"],
+                  ["customerKraPin", "KRA PIN", "text"],
+                  ["transactionCode", editingReceipt.paymentMethod === "mpesa" ? "M-Pesa Transaction Code *" : "Transaction / Reference *", "text"],
+                  ...(editingReceipt.paymentMethod === "bank" ? [["bankName", "Bank Name", "text"]] : []),
+                ] as [keyof typeof editForm, string, string][]).map(([key, label, type]) => (
+                  <div key={key} className="space-y-1.5">
+                    <label className="text-sm font-medium">{label}</label>
+                    <Input type={type} value={editForm[key]}
+                      onChange={(e) => setEditForm((f) => ({ ...f, [key]: e.target.value }))} />
+                  </div>
+                ))}
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium">Service Type</label>
+                  <Select value={editForm.serviceType} onValueChange={(v) => setEditForm((f) => ({ ...f, serviceType: v }))}>
+                    <SelectTrigger><SelectValue placeholder="Select service type" /></SelectTrigger>
+                    <SelectContent>
+                      {serviceTypes.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1.5 sm:col-span-2">
+                  <label className="text-sm font-medium">Description</label>
+                  <Textarea value={editForm.description}
+                    onChange={(e) => setEditForm((f) => ({ ...f, description: e.target.value }))} />
+                </div>
+              </div>
+
+              {/* Money is locked */}
+              <div className="flex items-start gap-3 rounded-lg border border-white/10 bg-white/5 p-3 text-sm">
+                <Lock className="h-4 w-4 mt-0.5 text-amber-400 shrink-0" />
+                <div>
+                  <div className="font-semibold">
+                    {formatCurrency(editingReceipt.totalAmount)} · {paymentMethodConfig[editingReceipt.paymentMethod]?.label || editingReceipt.paymentMethod}
+                    {editingReceipt.invoiceRef ? ` · for ${editingReceipt.invoiceRef}` : ""}
+                  </div>
+                  <div className="text-xs text-gray-400 mt-0.5">
+                    The amount and payment method can&apos;t be edited. If they&apos;re wrong, void this receipt and issue a new one.
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <DialogFooter className="gap-2 mt-2">
+            <Button type="button" variant="outline" onClick={() => setEditingReceipt(null)}>Cancel</Button>
+            <Button type="button" onClick={saveEditReceipt} disabled={isSavingEdit} className="gap-2">
+              {isSavingEdit ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
+              Save Changes
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 

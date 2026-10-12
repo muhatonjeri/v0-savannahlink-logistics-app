@@ -47,11 +47,49 @@ export async function POST(req: NextRequest) {
   } catch (e) { return NextResponse.json({ error: String(e) }, { status: 500 }); }
 }
 
+// Fields a receipt edit may change. Money fields (amounts, payment method),
+// the receipt number and the invoice link are deliberately absent: once money is
+// recorded it isn't edited — the receipt is voided and a new one issued.
+const EDITABLE = new Set([
+  "customer_name", "customer_phone", "customer_email", "customer_kra_pin",
+  "service_type", "items", "transaction_code", "payment_reference", "bank_name",
+]);
+
 export async function PUT(req: NextRequest) {
   const authErr = requireAuth(req); if (authErr) return authErr;
   try {
     const sb = createAdminClient();
-    const { id, ...updates } = await req.json();
+    const { id, ...body } = await req.json();
+    if (!id) return NextResponse.json({ error: "Missing receipt id" }, { status: 400 });
+
+    const { data: current, error: readErr } = await sb.from("receipts").select("status, items").eq("id", id).single();
+    if (readErr || !current) return NextResponse.json({ error: "Receipt not found" }, { status: 404 });
+    if (current.status === "cancelled") {
+      return NextResponse.json({ error: "This receipt has been voided and can't be changed." }, { status: 409 });
+    }
+
+    const updates: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(body)) {
+      if (EDITABLE.has(key)) updates[key] = value;
+    }
+    // Voiding: the UI says "voided"; the database calls it "cancelled"
+    if (body.status === "voided" || body.status === "cancelled") updates.status = "cancelled";
+
+    // Items may only change their wording — never quantities, prices or tax
+    if (Array.isArray(updates.items) && Array.isArray(current.items)) {
+      const before = current.items as Record<string, unknown>[];
+      const after = updates.items as Record<string, unknown>[];
+      const sameMoney = before.length === after.length && before.every((item, i) =>
+        Number(item.quantity) === Number(after[i]?.quantity) &&
+        Number(item.unitPrice) === Number(after[i]?.unitPrice) &&
+        Number(item.amount) === Number(after[i]?.amount));
+      if (!sameMoney) {
+        return NextResponse.json({ error: "Amounts on a receipt can't be edited. Void it and issue a new receipt." }, { status: 409 });
+      }
+    }
+
+    if (Object.keys(updates).length === 0) return NextResponse.json({ error: "No editable fields supplied" }, { status: 400 });
+
     const { data, error } = await sb.from("receipts").update(updates).eq("id", id).select().single();
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     return NextResponse.json(data);
