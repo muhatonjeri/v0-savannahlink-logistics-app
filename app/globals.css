@@ -273,7 +273,7 @@
    not just invisible — so it takes no space: no blank pages, and the
    preview dialog's width/position can't squeeze or clip the printout.
    ══════════════════════════════════════════════════════════════════ */
-.invoice-print-root { display: none; }
+.invoice-print-root, .receipt-print-root { display: none; }
 
 @media print {
   body.printing-invoice > *:not(.invoice-print-root) {
@@ -281,6 +281,18 @@
   }
   body.printing-invoice > .invoice-print-root {
     display: block !important;
+  }
+  /* Receipts use the same approach (portal + body class) */
+  body.printing-receipt > *:not(.receipt-print-root) {
+    display: none !important;
+  }
+  body.printing-receipt > .receipt-print-root {
+    display: block !important;
+  }
+  .receipt-print-root > div {
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
   }
 }
 

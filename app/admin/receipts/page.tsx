@@ -1,7 +1,7 @@
 "use client";
 import { generateQRDataURL, generateEtimsVerifyUrl } from "@/lib/qr";
 
-import { useState, useMemo, useRef, useEffect } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -88,7 +88,10 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { receiptsApi } from "@/lib/api";
+import { receiptsApi, invoicesApi } from "@/lib/api";
+import { COMPANY } from "@/lib/company";
+import { createPortal } from "react-dom";
+import { format } from "date-fns";
 
 // Receipt interface
 interface ReceiptItem {
@@ -127,6 +130,8 @@ interface ReceiptData {
   // Metadata
   serviceType: string;
   bookingReference?: string;
+  invoiceId?: string;   // invoice this receipt pays (if any)
+  invoiceRef?: string;  // its invoice number, shown on the receipt
   issuedBy: string;
   issuedAt: string;
   status: "draft" | "issued" | "voided";
@@ -134,17 +139,47 @@ interface ReceiptData {
 }
 
 // Company details (would come from settings in production)
+// Company details come from lib/company.ts (shared with invoices, SMS and email)
 const companyDetails = {
-  name: "Moventra Safaris & Logistics Ltd Logistics & Tours",
-  kraPin: "P051234567X",
-  address: "Muthaiga Square, off Thika Rd, Nairobi, Kenya",
-  phone: "+254 727 247 032",
-  email: "info@moventrasafarislogisticsltd.com",
-  website: "www.Moventra Safaris & Logistics Ltd.com",
-  etimsDeviceNumber: "ETIMS-2024-00123",
-  mpesaPaybill: "542542",
-  mpesaAccount: "247032",
+  name: COMPANY.name,
+  kraPin: COMPANY.kraPin,
+  address: `${COMPANY.address}, ${COMPANY.city}`,
+  phone: COMPANY.phone,
+  email: COMPANY.email,
+  website: COMPANY.website,
+  // Empty until KRA eTIMS is connected — receipts then show no eTIMS block
+  etimsDeviceNumber: process.env.NEXT_PUBLIC_ETIMS_DEVICE_NUMBER || "",
+  mpesaPaybill: COMPANY.mpesaPaybill,
+  mpesaAccount: COMPANY.mpesaAccountNo,
 };
+
+// Invoice service slugs → receipt service labels
+const SERVICE_LABEL_FROM_INVOICE: Record<string, string> = {
+  "car-rental": "Car Rental", "safari-tours": "Safari Tours", "airport-transfers": "Hotel/Airport Transfer",
+  "cargo-transport": "Cargo Handling", "tour-bus": "Corporate Rental", "road-recovery": "Road Recovery",
+  "cargo-handling": "Cargo Handling", "shipment-imports": "Shipment & Imports", "equipment-hire": "Construction Equipment",
+  "movers": "Moving Services",
+};
+const round2 = (n: number) => Math.round(n * 100) / 100;
+const isUuid = (id: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+
+// An unpaid / part-paid invoice a receipt can be issued against
+interface InvoiceOption {
+  id: string;
+  invoiceNumber: string;
+  customerName: string;
+  customerPhone: string;
+  customerEmail: string;
+  customerAddress: string;
+  customerKraPin: string;
+  serviceType: string;
+  firstItem: string;
+  vatRate: number;
+  total: number;
+  amountPaid: number;
+  payments: Record<string, unknown>[];
+  status: string;
+}
 
 // Form schema
 const receiptFormSchema = z.object({
@@ -433,6 +468,81 @@ export default function ReceiptsPage() {
   const [clientResults, setClientResults] = useState<{id:string;fullName:string;phone:string;email:string;kraPin:string;source?:string}[]>([]);
   const [showClientDropdown, setShowClientDropdown] = useState(false);
 
+  // ── "Create from invoice" ──
+  const [invoiceOptions, setInvoiceOptions] = useState<InvoiceOption[]>([]);
+  const [invoiceSearch, setInvoiceSearch] = useState("");
+  const [showInvoiceDropdown, setShowInvoiceDropdown] = useState(false);
+  const [linkedInvoice, setLinkedInvoice] = useState<InvoiceOption | null>(null);
+  const [amountReceived, setAmountReceived] = useState(""); // KES, VAT inclusive
+
+  const loadInvoiceOptions = async () => {
+    try {
+      const res = await fetch("/api/invoices");
+      if (!res.ok) return;
+      const rows = await res.json();
+      if (!Array.isArray(rows)) return;
+      setInvoiceOptions(
+        rows
+          .map((inv: Record<string, unknown>): InvoiceOption => ({
+            id: String(inv.id || ""),
+            invoiceNumber: String(inv.invoice_number || ""),
+            customerName: String(inv.customer_name || ""),
+            customerPhone: String(inv.customer_phone || ""),
+            customerEmail: String(inv.customer_email || ""),
+            customerAddress: String(inv.customer_address || ""),
+            customerKraPin: String(inv.customer_kra_pin || ""),
+            serviceType: String(inv.service_type || ""),
+            firstItem: Array.isArray(inv.items) && inv.items[0] ? String((inv.items[0] as Record<string, unknown>).description || "") : "",
+            vatRate: Number(inv.vat_rate ?? 16),
+            total: Number(inv.total) || 0,
+            amountPaid: Number(inv.amount_paid) || 0,
+            payments: Array.isArray(inv.payments) ? (inv.payments as Record<string, unknown>[]) : [],
+            status: String(inv.status || "draft"),
+          }))
+          // only invoices that still have money owing
+          .filter((inv) => inv.status !== "cancelled" && inv.total - inv.amountPaid > 0.005)
+      );
+    } catch (e) { console.error("Load invoices for receipts:", e); }
+  };
+
+  const invoiceBalance = (inv: InvoiceOption) => round2(inv.total - inv.amountPaid);
+
+  // Amount received is VAT-inclusive; the form's unit price is stored net of VAT
+  const applyAmountReceived = (value: string, inv: InvoiceOption | null = linkedInvoice) => {
+    setAmountReceived(value);
+    const gross = parseFloat(value);
+    if (!inv || !(gross > 0)) return;
+    form.setValue("unitPrice", round2(gross / (1 + inv.vatRate / 100)).toFixed(2));
+  };
+
+  const selectInvoice = (inv: InvoiceOption) => {
+    setLinkedInvoice(inv);
+    setInvoiceSearch(inv.invoiceNumber);
+    setShowInvoiceDropdown(false);
+    form.setValue("customerName", inv.customerName);
+    form.setValue("customerPhone", inv.customerPhone);
+    form.setValue("customerEmail", inv.customerEmail);
+    form.setValue("customerAddress", inv.customerAddress);
+    form.setValue("customerKraPin", inv.customerKraPin);
+    form.setValue("serviceType", SERVICE_LABEL_FROM_INVOICE[inv.serviceType] || "Other");
+    form.setValue("description", `Payment for invoice ${inv.invoiceNumber}${inv.firstItem ? ` — ${inv.firstItem}` : ""}`);
+    form.setValue("quantity", "1");
+    form.setValue("taxRate", String(inv.vatRate));
+    applyAmountReceived(invoiceBalance(inv).toFixed(2), inv);
+    setClientSearch(inv.customerName);
+  };
+
+  const clearInvoiceLink = () => {
+    setLinkedInvoice(null);
+    setAmountReceived("");
+    setInvoiceSearch("");
+  };
+
+  const filteredInvoiceOptions = invoiceOptions.filter((inv) => {
+    const q = invoiceSearch.trim().toLowerCase();
+    return !q || inv.invoiceNumber.toLowerCase().includes(q) || inv.customerName.toLowerCase().includes(q);
+  }).slice(0, 8);
+
   const searchClients = async (q: string) => {
     setClientSearch(q);
     if (q.length < 2) { setClientResults([]); setShowClientDropdown(false); return; }
@@ -485,12 +595,14 @@ export default function ReceiptsPage() {
     setClientResults([]);
   };
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  // Fresh list of unpaid invoices each time the Issue Receipt dialog opens
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { if (isDialogOpen) loadInvoiceOptions(); }, [isDialogOpen]);
   const [selectedReceipt, setSelectedReceipt] = useState<ReceiptData | null>(null);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [paymentFilter, setPaymentFilter] = useState<string>("all");
-  const printRef = useRef<HTMLDivElement>(null);
 
   const form = useForm<ReceiptFormData>({
     resolver: zodResolver(receiptFormSchema),
@@ -542,20 +654,36 @@ export default function ReceiptsPage() {
 
   // Handle form submit
   const onSubmit = async (data: ReceiptFormData) => {
+    const invoice = linkedInvoice; // capture before the form is reset
     const quantity = parseFloat(data.quantity);
     const unitPrice = parseFloat(data.unitPrice);
     const taxRate = parseFloat(data.taxRate);
-    const subtotal = quantity * unitPrice;
-    const taxAmount = subtotal * (taxRate / 100);
-    const totalAmount = subtotal + taxAmount;
+    let subtotal = quantity * unitPrice;
+    let taxAmount = subtotal * (taxRate / 100);
+    let totalAmount = subtotal + taxAmount;
+
+    // Paying an invoice: the amount received (VAT inclusive) is the truth —
+    // derive net and VAT from it so the receipt total matches the money exactly.
+    if (invoice) {
+      const gross = round2(parseFloat(amountReceived));
+      const balance = invoiceBalance(invoice);
+      if (!(gross > 0)) { toast.error("Enter the amount received"); return; }
+      if (gross > balance + 0.01) {
+        toast.error(`Amount is more than the invoice balance of KES ${balance.toLocaleString("en-KE", { minimumFractionDigits: 2 })}`);
+        return;
+      }
+      totalAmount = gross;
+      subtotal = round2(gross / (1 + taxRate / 100));
+      taxAmount = round2(gross - subtotal);
+    }
 
     const newReceipt: ReceiptData = {
       id: `RCP-${Date.now()}`,
       receiptNumber: generateReceiptNumber(),
       etimsDeviceNumber: companyDetails.etimsDeviceNumber,
-      etimsReceiptNumber: generateEtimsReceiptNumber(),
-      etimsQrCode: `https://etims.kra.go.ke/verify/${Date.now()}`,
-      etimsVerificationUrl: `https://etims.kra.go.ke/verify/${Date.now()}`,
+      etimsReceiptNumber: "",   // filled only by a real KRA eTIMS response below
+      etimsQrCode: "",
+      etimsVerificationUrl: "",
       customerName: data.customerName,
       customerPhone: data.customerPhone,
       customerEmail: data.customerEmail || undefined,
@@ -579,6 +707,8 @@ export default function ReceiptsPage() {
       currency: "KES",
       serviceType: data.serviceType,
       bookingReference: data.bookingReference || undefined,
+      invoiceId: invoice?.id,
+      invoiceRef: invoice?.invoiceNumber,
       issuedBy: "Admin",
       issuedAt: new Date().toISOString(),
       status: "issued",
@@ -601,16 +731,19 @@ export default function ReceiptsPage() {
         }),
       });
       const etimsData = await etims.json();
-      if (etimsData.etimsReceiptNumber) {
+      if (etimsData.etimsReceiptNumber && !etimsData.mock) {
         newReceipt.etimsReceiptNumber = etimsData.etimsReceiptNumber;
         newReceipt.etimsDeviceNumber = etimsData.etimsDeviceNumber;
         newReceipt.etimsVerificationUrl = etimsData.etimsVerificationUrl;
       }
     } catch(e) { console.error("eTIMS error:", e); }
 
-    // Save to Supabase
+    // Save to Supabase, then record the payment on the linked invoice
     receiptsApi.create({
       receiptNumber: newReceipt.receiptNumber,
+      invoiceId: invoice && isUuid(invoice.id) ? invoice.id : undefined,
+      invoiceRef: invoice?.invoiceNumber,
+      bookingRef: newReceipt.bookingReference,
       customerName: newReceipt.customerName,
       customerPhone: newReceipt.customerPhone,
       customerEmail: newReceipt.customerEmail,
@@ -628,11 +761,36 @@ export default function ReceiptsPage() {
       etimsDeviceNumber: newReceipt.etimsDeviceNumber,
       etimsVerificationUrl: newReceipt.etimsVerificationUrl,
       issuedBy: newReceipt.issuedBy,
-    }).then(() => {
-      toast.success("Receipt issued and saved");
+    }).then(async () => {
+      toast.success(`Receipt ${newReceipt.receiptNumber} issued`);
+      if (invoice && isUuid(invoice.id)) {
+        const newPaid = round2(invoice.amountPaid + newReceipt.totalAmount);
+        try {
+          await invoicesApi.update(invoice.id, {
+            amount_paid: newPaid,
+            payments: [
+              ...invoice.payments,
+              {
+                id: `p-${Date.now()}`,
+                date: format(new Date(), "yyyy-MM-dd"),
+                amount: newReceipt.totalAmount,
+                method: newReceipt.paymentMethod === "card" ? "bank" : newReceipt.paymentMethod,
+                reference: newReceipt.transactionCode,
+                note: `Receipt ${newReceipt.receiptNumber}`,
+              },
+            ],
+            status: newPaid >= invoice.total - 0.01 ? "paid" : "partial",
+          });
+          toast.success(`Invoice ${invoice.invoiceNumber} updated`, {
+            description: newPaid >= invoice.total - 0.01 ? "Marked as paid." : `Balance now KES ${round2(invoice.total - newPaid).toLocaleString("en-KE")}.`,
+          });
+        } catch (err) {
+          toast.error(`Receipt saved, but invoice ${invoice.invoiceNumber} was not updated`, {
+            description: "Record the payment on the invoice manually. " + (err instanceof Error ? err.message : ""),
+          });
+        }
+      }
       loadReceipts();
-      setIsDialogOpen(false);
-      form.reset();
     }).catch(err => {
       console.error("Receipt save error:", err);
       toast.error("Save failed: " + err.message);
@@ -640,11 +798,10 @@ export default function ReceiptsPage() {
 
     setIsDialogOpen(false);
     form.reset();
-
-    // Automatically send receipt to customer via email and SMS
-    setTimeout(() => {
-      sendReceiptBoth(newReceipt);
-    }, 500);
+    clearInvoiceLink();
+    // Open the new receipt so it can be printed or sent straight away
+    setSelectedReceipt(newReceipt);
+    setViewDialogOpen(true);
   };
 
   // Handle void receipt
@@ -657,141 +814,126 @@ export default function ReceiptsPage() {
     });
   };
 
-  // Handle print
-  const handlePrint = () => {
-    if (!printRef.current) { window.print(); return; }
-    const content = printRef.current.innerHTML;
-    const win = window.open("", "_blank", "width=800,height=900");
-    if (!win) { window.print(); return; }
-    win.document.write(`<!DOCTYPE html>
-<html><head>
-<title>Receipt — ${selectedReceipt?.receiptNumber || "Moventra"}</title>
-<style>
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family:'Segoe UI',Arial,sans-serif; background:#fff; color:#1a1a1a; padding:24px; }
-  @media print { body { padding:0; } button { display:none; } }
-</style>
-</head><body>${content}</body></html>`);
-    win.document.close();
-    setTimeout(() => { win.focus(); win.print(); }, 400);
+  // Print / Save as PDF. A copy of the receipt is rendered directly under <body>
+  // (portal at the bottom of this file); while printing, everything else is
+  // display:none — same reliable approach as invoices. No pop-up windows.
+  const handlePrint = (receipt: ReceiptData | null = selectedReceipt) => {
+    const originalTitle = document.title;
+    if (receipt) document.title = `Receipt-${receipt.receiptNumber}`; // saved PDF's file name
+    document.body.classList.add("printing-receipt");
+    window.addEventListener("afterprint", () => {
+      document.title = originalTitle;
+      document.body.classList.remove("printing-receipt");
+    }, { once: true });
+    window.print();
   };
+
+  // createPortal needs `document` (browser only)
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
 
   // State for sending receipts
   const [isSendingEmail, setIsSendingEmail] = useState(false);
   const [isSendingSms, setIsSendingSms] = useState(false);
 
-  // Send receipt via Email
+  // ── Sending ──────────────────────────────────────────────────
+  // The /api/email and /api/sms routes reply { mock: true } when their API keys
+  // aren't configured. Treat that as "not sent" and say so — never fake success.
+  const readDelivery = async (res: Response) => {
+    const body = await res.json().catch(() => ({}));
+    return { ok: res.ok && !body.mock && !body.error, mock: !!body.mock, error: String(body.error || body.message || res.statusText) };
+  };
+
+  const toWhatsAppNumber = (phone?: string) => {
+    const digits = (phone || "").replace(/\D/g, "");
+    if (digits.startsWith("0")) return "254" + digits.slice(1);
+    if (digits.length === 9) return "254" + digits; // 712345678
+    return digits;
+  };
+
+  const kes = (n: number) => `KES ${Number(n || 0).toLocaleString("en-KE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
   const sendReceiptEmail = async (receipt: ReceiptData) => {
     if (!receipt.customerEmail) {
-      toast.error("No email address", {
-        description: "Customer email address is not available for this receipt.",
-      });
+      toast.error("No email address", { description: "Add the customer's email to send the receipt." });
       return;
     }
-
     setIsSendingEmail(true);
     try {
-      // Simulate API call to send email
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      
-      // In production, this would call an API endpoint like:
-      // await fetch('/api/send-receipt-email', {
-      //   method: 'POST',
-      //   body: JSON.stringify({
-      //     to: receipt.customerEmail,
-      //     receiptNumber: receipt.receiptNumber,
-      //     customerName: receipt.customerName,
-      //     amount: receipt.totalAmount,
-      //     transactionCode: receipt.transactionCode,
-      //     etimsReceiptNumber: receipt.etimsReceiptNumber,
-      //   })
-      // });
-
-      toast.success("Email sent successfully", {
-        description: `Receipt ${receipt.receiptNumber} sent to ${receipt.customerEmail}`,
+      const res = await fetch("/api/email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          to: receipt.customerEmail,
+          subject: `Receipt ${receipt.receiptNumber} — ${COMPANY.name}`,
+          type: "receipt",
+          data: {
+            receiptNumber: receipt.receiptNumber,
+            customerName: receipt.customerName,
+            serviceType: receipt.serviceType,
+            totalAmount: receipt.totalAmount,
+            paymentMethod: paymentMethodConfig[receipt.paymentMethod]?.label || receipt.paymentMethod,
+            etimsReceiptNumber: receipt.etimsReceiptNumber,
+          },
+        }),
       });
-    } catch {
-      toast.error("Failed to send email", {
-        description: "Please try again or contact support.",
-      });
+      const r = await readDelivery(res);
+      if (r.mock) toast.warning("Email NOT sent — email service isn't set up yet", { description: "Add RESEND_API_KEY in Vercel to send real emails." });
+      else if (r.ok) toast.success(`Receipt emailed to ${receipt.customerEmail}`);
+      else toast.error("Email failed", { description: r.error });
+    } catch (e) {
+      toast.error("Email failed", { description: String(e) });
     } finally {
       setIsSendingEmail(false);
     }
   };
 
-  // Send receipt via SMS
   const sendReceiptSms = async (receipt: ReceiptData) => {
     if (!receipt.customerPhone) {
-      toast.error("No phone number", {
-        description: "Customer phone number is not available for this receipt.",
-      });
+      toast.error("No phone number", { description: "Add the customer's phone number to send an SMS." });
       return;
     }
-
     setIsSendingSms(true);
     try {
-      // Simulate API call to send SMS
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      
-      // In production, this would call an SMS API like Africa's Talking:
-      // await fetch('/api/send-receipt-sms', {
-      //   method: 'POST',
-      //   body: JSON.stringify({
-      //     to: receipt.customerPhone,
-      //     message: `Moventra Safaris & Logistics Ltd Receipt ${receipt.receiptNumber}. Amount: KES ${receipt.totalAmount.toLocaleString()}. Ref: ${receipt.transactionCode}. Thank you for your business!`
-      //   })
-      // });
-
-      toast.success("SMS sent successfully", {
-        description: `Receipt ${receipt.receiptNumber} sent to ${receipt.customerPhone}`,
+      const message =
+        `${COMPANY.name}: Payment of ${kes(receipt.totalAmount)} received` +
+        (receipt.transactionCode ? ` (ref ${receipt.transactionCode})` : "") +
+        `. Receipt ${receipt.receiptNumber}${receipt.invoiceRef ? ` for invoice ${receipt.invoiceRef}` : ""}. Thank you!`;
+      const res = await fetch("/api/sms", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: receipt.customerPhone, message }),
       });
-    } catch {
-      toast.error("Failed to send SMS", {
-        description: "Please try again or contact support.",
-      });
+      const r = await readDelivery(res);
+      if (r.mock) toast.warning("SMS NOT sent — SMS service isn't set up yet", { description: "Add AT_API_KEY and AT_USERNAME (Africa's Talking) in Vercel." });
+      else if (r.ok) toast.success(`SMS sent to ${receipt.customerPhone}`);
+      else toast.error("SMS failed", { description: r.error });
+    } catch (e) {
+      toast.error("SMS failed", { description: String(e) });
     } finally {
       setIsSendingSms(false);
     }
   };
 
-  // Send receipt via both Email and SMS
-
+  // WhatsApp: opens WhatsApp with a ready message — free, no setup needed
   const sendReceiptWhatsApp = (receipt: ReceiptData) => {
-    const phone = receipt.customerPhone?.replace(/\D/g, "");
-    const intlPhone = phone?.startsWith("0") ? "254" + phone.slice(1) : phone;
-    const verifyUrl = receipt.etimsReceiptNumber
-      ? `https://etims.kra.go.ke/verify/${receipt.etimsReceiptNumber}`
-      : "";
+    const number = toWhatsAppNumber(receipt.customerPhone);
+    if (!number) {
+      toast.error("No phone number", { description: "Add the customer's phone number to use WhatsApp." });
+      return;
+    }
     const msg = encodeURIComponent(
-      `*Moventra Safaris & Logistics Ltd*\n` +
+      `*${COMPANY.name}*\n` +
       `Receipt No: *${receipt.receiptNumber}*\n` +
-      `Service: ${receipt.serviceType?.replace(/-/g," ")}\n` +
-      `Amount: *KES ${Number(receipt.totalAmount).toLocaleString()}*\n` +
-      `Payment: ${receipt.paymentMethod}\n` +
-      (receipt.transactionCode ? `Ref: ${receipt.transactionCode}\n` : "") +
-      (verifyUrl ? `\nVerify receipt: ${verifyUrl}\n` : "") +
-      `\nThank you for choosing Moventra!\n+254 727 247 032`
+      (receipt.invoiceRef ? `Invoice: ${receipt.invoiceRef}\n` : "") +
+      `Service: ${receipt.serviceType}\n` +
+      `Amount received: *${kes(receipt.totalAmount)}*\n` +
+      `Payment: ${paymentMethodConfig[receipt.paymentMethod]?.label || receipt.paymentMethod}` +
+      (receipt.transactionCode ? ` (ref ${receipt.transactionCode})` : "") + `\n` +
+      (receipt.etimsReceiptNumber ? `KRA eTIMS no: ${receipt.etimsReceiptNumber}\n` : "") +
+      `\nThank you for choosing Moventra!\n${COMPANY.phone}`
     );
-    const url = `https://wa.me/${intlPhone}?text=${msg}`;
-    window.open(url, "_blank");
-    toast.success(`WhatsApp message opened for ${receipt.customerName}`);
-  };
-
-  const sendInvoiceWhatsApp = (invoice: { customerPhone?: string; invoiceNumber?: string; serviceType?: string; total?: number; dueDate?: string; customerName?: string }) => {
-    const phone = invoice.customerPhone?.replace(/\D/g, "");
-    const intlPhone = phone?.startsWith("0") ? "254" + phone.slice(1) : phone;
-    const msg = encodeURIComponent(
-      `*Moventra Safaris & Logistics Ltd*\n` +
-      `Invoice No: *${invoice.invoiceNumber}*\n` +
-      `Service: ${invoice.serviceType?.replace(/-/g," ")}\n` +
-      `Amount: *KES ${Number(invoice.total).toLocaleString()}*\n` +
-      `Due Date: ${invoice.dueDate || "Upon receipt"}\n` +
-      `\nPay via M-Pesa Paybill: 174379\nAccount: ${invoice.invoiceNumber}\n` +
-      `\nQueries? Call +254 727 247 032`
-    );
-    const url = `https://wa.me/${intlPhone}?text=${msg}`;
-    window.open(url, "_blank");
-    toast.success(`WhatsApp message opened for ${invoice.customerName}`);
+    window.open(`https://wa.me/${number}?text=${msg}`, "_blank");
   };
 
   const sendReceiptBoth = async (receipt: ReceiptData) => {
@@ -814,6 +956,176 @@ export default function ReceiptsPage() {
     await Promise.all(promises);
   };
 
+  // The receipt document. Rendered in the view dialog and, for printing, in a portal under <body>.
+  const receiptDocument = selectedReceipt ? (
+        <div style={{backgroundColor:"#ffffff",color:"#1a1a2e"}} className="rounded-xl shadow-sm overflow-hidden border border-gray-200">
+
+          {/* Top accent bar */}
+          <div style={{background:"linear-gradient(135deg,#0a1628 0%,#1a3a5c 50%,#0a1628 100%)",padding:"3px"}} />
+
+          <div className="p-7">
+            {/* ── HEADER ── */}
+            <div className="flex items-start justify-between mb-6">
+              {/* Logo + Company */}
+              <div className="flex items-start gap-4">
+                <Image src="/images/logo.png" alt={companyDetails.name} width={90} height={90} loading="eager"
+                  className="h-[80px] w-[80px] object-contain rounded-lg" unoptimized />
+                <div>
+                  <h1 style={{color:"#0a1628"}} className="text-xl font-extrabold leading-tight">{companyDetails.name}</h1>
+                  <p style={{color:"#e67e22"}} className="text-xs font-semibold mt-0.5 tracking-wide">Experience. Move. Deliver. Beyond Borders.</p>
+                  <div className="mt-2 space-y-1 text-xs" style={{color:"#555"}}>
+                    <p>{companyDetails.address}</p>
+                    <p>{companyDetails.phone} &nbsp;|&nbsp; {companyDetails.email}</p>
+                    <p className="font-semibold" style={{color:"#0a1628"}}>KRA PIN: {companyDetails.kraPin}</p>
+                  </div>
+                </div>
+              </div>
+              {/* Receipt badge */}
+              <div className="text-right">
+                <div style={{backgroundColor:"#0a1628",color:"white",borderRadius:"10px",padding:"12px 20px",minWidth:"160px"}}>
+                  <p style={{fontSize:"10px",letterSpacing:"0.1em",opacity:0.8,textTransform:"uppercase"}}>Official Receipt</p>
+                  <p style={{fontSize:"20px",fontWeight:800,fontFamily:"monospace",marginTop:"2px"}}>{selectedReceipt.receiptNumber}</p>
+                  <div style={{height:"1px",backgroundColor:"rgba(230,126,34,0.5)",margin:"8px 0"}} />
+                  <p style={{fontSize:"11px",opacity:0.85}}>{formatDate(selectedReceipt.issuedAt)}</p>
+                  {selectedReceipt.invoiceRef && <p style={{fontSize:"11px",marginTop:"4px",color:"#fdba74"}}>For invoice {selectedReceipt.invoiceRef}</p>}
+                </div>
+                {selectedReceipt.etimsReceiptNumber && (
+                  <div className="mt-2 text-xs text-right" style={{color:"#374151"}}>
+                    <span style={{color:"#e67e22",fontWeight:600}}>eTIMS: </span>
+                    <span style={{fontFamily:"monospace"}}>{selectedReceipt.etimsReceiptNumber}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* ── DIVIDER ── */}
+            <div style={{height:"2px",background:"linear-gradient(to right,#e67e22,#0a1628,#e67e22)",borderRadius:"2px",marginBottom:"20px"}} />
+
+            {/* ── CUSTOMER + PAYMENT ── */}
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              <div style={{backgroundColor:"#f8f9ff",border:"1px solid #e8eaf0",borderRadius:"10px",padding:"14px"}}>
+                <div className="flex items-center gap-2 mb-3">
+                  <User style={{color:"#e67e22",width:14,height:14}} />
+                  <span style={{color:"#0a1628",fontWeight:700,fontSize:"11px",letterSpacing:"0.05em",textTransform:"uppercase"}}>Received From</span>
+                </div>
+                <p style={{color:"#0a1628",fontWeight:700,fontSize:"16px"}}>{selectedReceipt.customerName}</p>
+                {selectedReceipt.customerPhone && <p style={{color:"#555",fontSize:"13px",marginTop:"4px"}}>{selectedReceipt.customerPhone}</p>}
+                {selectedReceipt.customerEmail && <p style={{color:"#555",fontSize:"12px",wordBreak:"break-all"}}>{selectedReceipt.customerEmail}</p>}
+                {selectedReceipt.customerKraPin && <p style={{color:"#0a1628",fontSize:"12px",fontWeight:600,marginTop:"4px"}}>KRA PIN: {selectedReceipt.customerKraPin}</p>}
+              </div>
+              <div style={{backgroundColor:"#f8f9ff",border:"1px solid #e8eaf0",borderRadius:"10px",padding:"14px"}}>
+                <div className="flex items-center gap-2 mb-3">
+                  <CreditCard style={{color:"#e67e22",width:14,height:14}} />
+                  <span style={{color:"#0a1628",fontWeight:700,fontSize:"11px",letterSpacing:"0.05em",textTransform:"uppercase"}}>Payment Info</span>
+                </div>
+                {(() => {
+                  const cfg = paymentMethodConfig[selectedReceipt.paymentMethod];
+                  const Ic = cfg.icon;
+                  return (
+                    <div className="flex items-center gap-2 mb-2">
+                      <Ic style={{color:"#e67e22",width:18,height:18}} />
+                      <span style={{color:"#0a1628",fontWeight:700,fontSize:"14px"}}>{cfg.label}</span>
+                    </div>
+                  );
+                })()}
+                <p style={{fontSize:"12px",color:"#555"}}>Ref: <span style={{fontFamily:"monospace",backgroundColor:"#fff3e0",color:"#0a1628",padding:"1px 6px",borderRadius:"4px",fontWeight:600}}>{selectedReceipt.transactionCode}</span></p>
+                {selectedReceipt.bankName && <p style={{fontSize:"12px",color:"#555",marginTop:"4px"}}>Bank: {selectedReceipt.bankName}</p>}
+                <p style={{fontSize:"12px",color:"#555",marginTop:"4px"}}>Service: {selectedReceipt.serviceType}</p>
+              </div>
+            </div>
+
+            {/* ── ITEMS TABLE ── */}
+            <div className="mb-6">
+              <p style={{color:"#0a1628",fontWeight:700,fontSize:"11px",letterSpacing:"0.08em",textTransform:"uppercase",marginBottom:"8px"}}>Description of Services / Items</p>
+              <div style={{border:"1px solid #dde0e8",borderRadius:"10px",overflow:"hidden"}}>
+                <table style={{width:"100%",borderCollapse:"collapse"}}>
+                  <thead>
+                    <tr style={{backgroundColor:"#0a1628",color:"white"}}>
+                      <th style={{textAlign:"left",padding:"10px 14px",fontSize:"11px",fontWeight:700,letterSpacing:"0.05em",textTransform:"uppercase"}}>Description</th>
+                      <th style={{textAlign:"center",padding:"10px 14px",fontSize:"11px",fontWeight:700,width:"60px",letterSpacing:"0.05em",textTransform:"uppercase"}}>Qty</th>
+                      <th style={{textAlign:"right",padding:"10px 14px",fontSize:"11px",fontWeight:700,width:"120px",letterSpacing:"0.05em",textTransform:"uppercase"}}>Unit Price</th>
+                      <th style={{textAlign:"right",padding:"10px 14px",fontSize:"11px",fontWeight:700,width:"130px",letterSpacing:"0.05em",textTransform:"uppercase",color:"#e67e22"}}>Amount (KES)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {selectedReceipt.items.map((item, i) => (
+                      <tr key={i} style={{backgroundColor: i % 2 === 0 ? "#ffffff" : "#f8f9ff",color:"#1a1a2e",borderBottom:"1px solid #eee"}}>
+                        <td style={{padding:"10px 14px",fontSize:"13px"}}>{item.description}</td>
+                        <td style={{padding:"10px 14px",textAlign:"center",fontSize:"13px"}}>{item.quantity}</td>
+                        <td style={{padding:"10px 14px",textAlign:"right",fontSize:"13px"}}>{formatCurrency(item.unitPrice)}</td>
+                        <td style={{padding:"10px 14px",textAlign:"right",fontWeight:700,fontSize:"13px"}}>{formatCurrency(item.amount)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* ── TOTALS ── */}
+            <div className="flex justify-end mb-6">
+              <div style={{width:"280px",backgroundColor:"#0a1628",borderRadius:"12px",padding:"16px",border:"2px solid #e67e22"}}>
+                <div style={{display:"flex",justifyContent:"space-between",fontSize:"13px",color:"rgba(255,255,255,0.7)",marginBottom:"8px"}}>
+                  <span>Subtotal:</span><span>{formatCurrency(selectedReceipt.subtotal)}</span>
+                </div>
+                <div style={{display:"flex",justifyContent:"space-between",fontSize:"13px",color:"rgba(255,255,255,0.7)",marginBottom:"10px"}}>
+                  <span>VAT (16%):</span><span>{formatCurrency(selectedReceipt.taxAmount)}</span>
+                </div>
+                <div style={{borderTop:"1px solid rgba(230,126,34,0.5)",paddingTop:"10px",display:"flex",justifyContent:"space-between",alignItems:"center",gap:"12px"}}>
+                  <span style={{color:"white",fontWeight:700,fontSize:"14px",whiteSpace:"nowrap"}}>TOTAL PAID:</span>
+                  <span style={{color:"#e67e22",fontWeight:800,fontSize:"20px",whiteSpace:"nowrap"}}>{formatCurrency(selectedReceipt.totalAmount)}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* ── AMOUNT IN WORDS ── */}
+            <div style={{backgroundColor:"#fff8ee",border:"1px solid #e67e22",borderRadius:"8px",padding:"10px 14px",marginBottom:"16px"}}>
+              <p style={{fontSize:"12px",color:"#0a1628"}}>
+                <span style={{fontWeight:700,color:"#e67e22"}}>Amount in Words: </span>
+                <span style={{fontStyle:"italic"}}>Kenya Shillings {numberToWords(selectedReceipt.totalAmount)} Only</span>
+              </p>
+            </div>
+
+            {selectedReceipt.etimsReceiptNumber && (<>
+            {/* ── eTIMS ── */}
+            <div style={{border:"2px solid #e67e22",borderRadius:"10px",padding:"14px",display:"flex",alignItems:"center",gap:"16px",marginBottom:"20px",backgroundColor:"#fffaf5"}}>
+              <div style={{backgroundColor:"white",border:"1px solid #e67e22",borderRadius:"8px",padding:"8px",flexShrink:0}}>
+                <QrCode style={{width:36,height:36,color:"#e67e22"}} />
+              </div>
+              <div style={{flex:1}}>
+                <p style={{color:"#0a1628",fontWeight:700,fontSize:"14px"}}>eTIMS Verified Receipt</p>
+                <p style={{color:"#888",fontSize:"11px",marginTop:"2px"}}>Device: {selectedReceipt.etimsDeviceNumber}</p>
+                <p style={{fontSize:"11px",marginTop:"4px",color:"#555"}}>
+                  Verify at: <span style={{color:"#e67e22",textDecoration:"underline"}}>{selectedReceipt.etimsVerificationUrl}</span>
+                </p>
+              </div>
+            </div>
+            </>)}
+
+            {/* ── SIGNATURES ── */}
+            <div className="grid grid-cols-2 gap-8" style={{marginTop:"24px",paddingTop:"16px",borderTop:"1px solid #dde0e8"}}>
+              <div style={{textAlign:"center"}}>
+                <div style={{height:"56px",borderBottom:"1px solid #0a1628",marginBottom:"8px"}} />
+                <p style={{fontSize:"12px",color:"#0a1628",fontWeight:600}}>Received By (Signature)</p>
+              </div>
+              <div style={{textAlign:"center"}}>
+                <div style={{height:"56px",borderBottom:"1px solid #0a1628",marginBottom:"8px"}} />
+                <p style={{fontSize:"12px",color:"#0a1628",fontWeight:600}}>Issued By: {selectedReceipt.issuedBy}</p>
+              </div>
+            </div>
+
+            {/* ── FOOTER ── */}
+            <div style={{textAlign:"center",marginTop:"20px",paddingTop:"14px",borderTop:"2px solid #e67e22"}}>
+              <p style={{color:"#e67e22",fontWeight:700,fontSize:"14px"}}>Thank You For Your Business!</p>
+              <p style={{color:"#666",fontSize:"11px",marginTop:"4px"}}>This is an official receipt. Please retain for your records.</p>
+              <p style={{color:"#999",fontSize:"10px",marginTop:"4px"}}>{companyDetails.website} &nbsp;|&nbsp; {companyDetails.email}</p>
+            </div>
+          </div>
+
+          {/* Bottom accent bar */}
+          <div style={{background:"linear-gradient(135deg,#e67e22,#0a1628,#e67e22)",padding:"3px"}} />
+        </div>
+  ) : null;
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -825,7 +1137,7 @@ export default function ReceiptsPage() {
           </h1>
           <p className="text-gray-400 mt-1 text-sm">Issue eTIMS compliant receipts with M-Pesa and bank references</p>
         </div>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <Dialog open={isDialogOpen} onOpenChange={(open) => { setIsDialogOpen(open); if (!open) clearInvoiceLink(); }}>
           <DialogTrigger asChild>
             <Button className="gap-2">
               <Plus className="h-4 w-4" />
@@ -836,15 +1148,64 @@ export default function ReceiptsPage() {
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <BadgeCheck className="h-5 w-5 text-emerald-500" />
-                Issue eTIMS Compliant Receipt
+                Issue Receipt
               </DialogTitle>
               <DialogDescription>
-                Create a KRA eTIMS compliant receipt with payment transaction reference
+                Record a payment and issue an official receipt with its M-Pesa or bank reference
               </DialogDescription>
             </DialogHeader>
 
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                {/* ── Create from invoice (optional) ── */}
+                <div className="rounded-lg border border-cyan-500/40 bg-cyan-950/20 p-4">
+                  <h4 className="font-semibold text-cyan-300 mb-1 flex items-center gap-2 text-sm uppercase tracking-wide">
+                    <FileText className="h-4 w-4" />
+                    Pay an Invoice (optional)
+                  </h4>
+                  <p className="text-xs text-gray-400 mb-3">Pick the invoice being paid to fill in the client, service and balance automatically. The payment is also recorded on the invoice.</p>
+                  {linkedInvoice ? (
+                    <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-cyan-500/40 bg-cyan-900/20 px-3 py-2">
+                      <div className="text-sm text-white">
+                        <span className="font-mono font-bold">{linkedInvoice.invoiceNumber}</span>
+                        <span className="text-gray-300"> · {linkedInvoice.customerName}</span>
+                        <span className="text-gray-400"> · Balance KES {invoiceBalance(linkedInvoice).toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span>
+                      </div>
+                      <Button type="button" variant="ghost" size="sm" onClick={clearInvoiceLink} className="text-gray-300 hover:text-white">
+                        <XCircle className="h-4 w-4 mr-1" /> Remove
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                      <input
+                        className="w-full pl-9 pr-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm placeholder:text-gray-500 focus:outline-none focus:border-cyan-500/50"
+                        placeholder={invoiceOptions.length ? "Search unpaid invoices by number or client…" : "No unpaid invoices found"}
+                        value={invoiceSearch}
+                        onChange={(e) => { setInvoiceSearch(e.target.value); setShowInvoiceDropdown(true); }}
+                        onFocus={() => setShowInvoiceDropdown(true)}
+                        onBlur={() => setTimeout(() => setShowInvoiceDropdown(false), 150)}
+                      />
+                      {showInvoiceDropdown && filteredInvoiceOptions.length > 0 && (
+                        <div className="absolute z-50 w-full mt-1 rounded-lg border border-white/10 bg-[#0a1628] shadow-xl max-h-64 overflow-y-auto">
+                          {filteredInvoiceOptions.map((inv) => (
+                            <button key={inv.id} type="button"
+                              className="w-full text-left px-3 py-2 hover:bg-white/5 border-b border-white/5 last:border-0"
+                              onMouseDown={(e) => e.preventDefault()}
+                              onClick={() => selectInvoice(inv)}>
+                              <div className="flex justify-between gap-3 text-sm">
+                                <span className="font-mono font-semibold text-white">{inv.invoiceNumber}</span>
+                                <span className="text-cyan-300">KES {invoiceBalance(inv).toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span>
+                              </div>
+                              <div className="text-xs text-gray-400">{inv.customerName}{inv.amountPaid > 0 ? " · part paid" : ""}</div>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
                 {/* Customer Details */}
                 <div className="rounded-lg border border-blue-500/50 dark:border-blue-800 bg-blue-900/30/50 dark:bg-blue-950/20 p-4">
                   <h4 className="font-semibold text-blue-300 dark:text-blue-400 mb-4 flex items-center gap-2 text-sm uppercase tracking-wide">
@@ -969,7 +1330,7 @@ export default function ReceiptsPage() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Payment Method *</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="Select payment method" />
@@ -1046,7 +1407,7 @@ export default function ReceiptsPage() {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Bank Name</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <Select onValueChange={field.onChange} value={field.value}>
                               <FormControl>
                                 <SelectTrigger>
                                   <SelectValue placeholder="Select bank" />
@@ -1087,7 +1448,7 @@ export default function ReceiptsPage() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Service Type *</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="Select service type" />
@@ -1134,6 +1495,29 @@ export default function ReceiptsPage() {
                         </FormItem>
                       )}
                     />
+                    {linkedInvoice ? (
+                      <div className="sm:col-span-2 grid gap-4 sm:grid-cols-2">
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Amount Received (KES, incl. VAT) *</label>
+                          <Input type="number" min="0" step="0.01" value={amountReceived}
+                            onChange={(e) => applyAmountReceived(e.target.value)} />
+                          <p className="text-xs text-gray-400">
+                            Invoice balance: KES {invoiceBalance(linkedInvoice).toLocaleString("en-KE", { minimumFractionDigits: 2 })}. Enter less for a part payment.
+                          </p>
+                        </div>
+                        <div className="space-y-1 text-sm text-gray-300 rounded-lg border border-white/10 p-3">
+                          {(() => {
+                            const gross = parseFloat(amountReceived) || 0;
+                            const net = round2(gross / (1 + linkedInvoice.vatRate / 100));
+                            return (<>
+                              <div className="flex justify-between"><span>Net</span><span>KES {net.toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span></div>
+                              <div className="flex justify-between"><span>VAT ({linkedInvoice.vatRate}%)</span><span>KES {round2(gross - net).toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span></div>
+                              <div className="flex justify-between font-semibold text-white"><span>Total</span><span>KES {gross.toLocaleString("en-KE", { minimumFractionDigits: 2 })}</span></div>
+                            </>);
+                          })()}
+                        </div>
+                      </div>
+                    ) : (<>
                     <FormField
                       control={form.control}
                       name="quantity"
@@ -1166,7 +1550,7 @@ export default function ReceiptsPage() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>VAT Rate (%)</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue />
@@ -1185,6 +1569,7 @@ export default function ReceiptsPage() {
                         </FormItem>
                       )}
                     />
+                    </>)}
                     <FormField
                       control={form.control}
                       name="notes"
@@ -1210,8 +1595,9 @@ export default function ReceiptsPage() {
                         eTIMS Compliance
                       </h4>
                       <p className="text-xs text-emerald-600 dark:text-emerald-300 mt-1">
-                        This receipt will be automatically registered with KRA&apos;s eTIMS system.
-                        Device Number: {companyDetails.etimsDeviceNumber}
+                        {companyDetails.etimsDeviceNumber
+                          ? <>This receipt will be registered with KRA&apos;s eTIMS system. Device Number: {companyDetails.etimsDeviceNumber}</>
+                          : <>KRA eTIMS is not connected yet, so this receipt will be issued without an eTIMS number. Once eTIMS is connected, new receipts are registered automatically.</>}
                       </p>
                     </div>
                   </div>
@@ -1433,7 +1819,7 @@ export default function ReceiptsPage() {
                             >
                               {isSendingSms ? <Loader2 className="h-4 w-4 animate-spin" /> : <MessageSquare className="h-4 w-4" />}
                             </Button>
-                            <Button variant="ghost" size="icon" onClick={handlePrint}>
+                            <Button variant="ghost" size="icon" title="Print receipt" onClick={() => { setSelectedReceipt(receipt); setTimeout(() => handlePrint(receipt), 300); }}>
                               <Printer className="h-4 w-4" />
                             </Button>
                             {receipt.status === "issued" && (
@@ -1480,7 +1866,7 @@ export default function ReceiptsPage() {
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto" style={{backgroundColor:"#ffffff",color:"#1a1a2e"}}>
           {selectedReceipt && (
         
-            <div ref={printRef} className="print-receipt" style={{backgroundColor:"#ffffff",color:"#1a1a2e"}}>
+            <div style={{backgroundColor:"#ffffff",color:"#1a1a2e"}}>
               {/* Screen-only header */}
               <DialogHeader className="print:hidden mb-4">
                 <DialogTitle className="flex items-center justify-between text-white">
@@ -1497,168 +1883,7 @@ export default function ReceiptsPage() {
                 </DialogTitle>
               </DialogHeader>
 
-              {/* Polished Receipt Template */}
-              <div style={{backgroundColor:"#ffffff",color:"#1a1a2e"}} className="rounded-xl shadow-sm overflow-hidden border border-gray-200">
-
-                {/* Top accent bar */}
-                <div style={{background:"linear-gradient(135deg,#0a1628 0%,#1a3a5c 50%,#0a1628 100%)",padding:"3px"}} />
-
-                <div className="p-7">
-                  {/* ── HEADER ── */}
-                  <div className="flex items-start justify-between mb-6">
-                    {/* Logo + Company */}
-                    <div className="flex items-start gap-4">
-                      <Image src="/images/logo.png" alt={companyDetails.name} width={90} height={90}
-                        className="h-[80px] w-[80px] object-contain rounded-lg" unoptimized />
-                      <div>
-                        <h1 style={{color:"#0a1628"}} className="text-xl font-extrabold leading-tight">{companyDetails.name}</h1>
-                        <p style={{color:"#e67e22"}} className="text-xs font-semibold mt-0.5 tracking-wide">Experience. Move. Deliver. Beyond Borders.</p>
-                        <div className="mt-2 space-y-1 text-xs" style={{color:"#555"}}>
-                          <p>{companyDetails.address}</p>
-                          <p>{companyDetails.phone} &nbsp;|&nbsp; {companyDetails.email}</p>
-                          <p className="font-semibold" style={{color:"#0a1628"}}>KRA PIN: {companyDetails.kraPin}</p>
-                        </div>
-                      </div>
-                    </div>
-                    {/* Receipt badge */}
-                    <div className="text-right">
-                      <div style={{backgroundColor:"#0a1628",color:"white",borderRadius:"10px",padding:"12px 20px",minWidth:"160px"}}>
-                        <p style={{fontSize:"10px",letterSpacing:"0.1em",opacity:0.8,textTransform:"uppercase"}}>Official Receipt</p>
-                        <p style={{fontSize:"20px",fontWeight:800,fontFamily:"monospace",marginTop:"2px"}}>{selectedReceipt.receiptNumber}</p>
-                        <div style={{height:"1px",backgroundColor:"rgba(230,126,34,0.5)",margin:"8px 0"}} />
-                        <p style={{fontSize:"11px",opacity:0.85}}>{formatDate(selectedReceipt.issuedAt)}</p>
-                      </div>
-                      <div className="mt-2 text-xs text-right" style={{color:"#666"}}>
-                        <span style={{color:"#e67e22",fontWeight:600}}>eTIMS: </span>
-                        <span style={{fontFamily:"monospace"}}>{selectedReceipt.etimsReceiptNumber}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* ── DIVIDER ── */}
-                  <div style={{height:"2px",background:"linear-gradient(to right,#e67e22,#0a1628,#e67e22)",borderRadius:"2px",marginBottom:"20px"}} />
-
-                  {/* ── CUSTOMER + PAYMENT ── */}
-                  <div className="grid grid-cols-2 gap-4 mb-6">
-                    <div style={{backgroundColor:"#f8f9ff",border:"1px solid #e8eaf0",borderRadius:"10px",padding:"14px"}}>
-                      <div className="flex items-center gap-2 mb-3">
-                        <User style={{color:"#e67e22",width:14,height:14}} />
-                        <span style={{color:"#0a1628",fontWeight:700,fontSize:"11px",letterSpacing:"0.05em",textTransform:"uppercase"}}>Received From</span>
-                      </div>
-                      <p style={{color:"#0a1628",fontWeight:700,fontSize:"16px"}}>{selectedReceipt.customerName}</p>
-                      {selectedReceipt.customerPhone && <p style={{color:"#555",fontSize:"13px",marginTop:"4px"}}>{selectedReceipt.customerPhone}</p>}
-                      {selectedReceipt.customerEmail && <p style={{color:"#555",fontSize:"12px",wordBreak:"break-all"}}>{selectedReceipt.customerEmail}</p>}
-                      {selectedReceipt.customerKraPin && <p style={{color:"#0a1628",fontSize:"12px",fontWeight:600,marginTop:"4px"}}>KRA PIN: {selectedReceipt.customerKraPin}</p>}
-                    </div>
-                    <div style={{backgroundColor:"#f8f9ff",border:"1px solid #e8eaf0",borderRadius:"10px",padding:"14px"}}>
-                      <div className="flex items-center gap-2 mb-3">
-                        <CreditCard style={{color:"#e67e22",width:14,height:14}} />
-                        <span style={{color:"#0a1628",fontWeight:700,fontSize:"11px",letterSpacing:"0.05em",textTransform:"uppercase"}}>Payment Info</span>
-                      </div>
-                      {(() => {
-                        const cfg = paymentMethodConfig[selectedReceipt.paymentMethod];
-                        const Ic = cfg.icon;
-                        return (
-                          <div className="flex items-center gap-2 mb-2">
-                            <Ic style={{color:"#e67e22",width:18,height:18}} />
-                            <span style={{color:"#0a1628",fontWeight:700,fontSize:"14px"}}>{cfg.label}</span>
-                          </div>
-                        );
-                      })()}
-                      <p style={{fontSize:"12px",color:"#555"}}>Ref: <span style={{fontFamily:"monospace",backgroundColor:"#fff3e0",color:"#0a1628",padding:"1px 6px",borderRadius:"4px",fontWeight:600}}>{selectedReceipt.transactionCode}</span></p>
-                      {selectedReceipt.bankName && <p style={{fontSize:"12px",color:"#555",marginTop:"4px"}}>Bank: {selectedReceipt.bankName}</p>}
-                      <p style={{fontSize:"12px",color:"#555",marginTop:"4px"}}>Service: {selectedReceipt.serviceType}</p>
-                    </div>
-                  </div>
-
-                  {/* ── ITEMS TABLE ── */}
-                  <div className="mb-6">
-                    <p style={{color:"#0a1628",fontWeight:700,fontSize:"11px",letterSpacing:"0.08em",textTransform:"uppercase",marginBottom:"8px"}}>Description of Services / Items</p>
-                    <div style={{border:"1px solid #dde0e8",borderRadius:"10px",overflow:"hidden"}}>
-                      <table style={{width:"100%",borderCollapse:"collapse"}}>
-                        <thead>
-                          <tr style={{backgroundColor:"#0a1628",color:"white"}}>
-                            <th style={{textAlign:"left",padding:"10px 14px",fontSize:"11px",fontWeight:700,letterSpacing:"0.05em",textTransform:"uppercase"}}>Description</th>
-                            <th style={{textAlign:"center",padding:"10px 14px",fontSize:"11px",fontWeight:700,width:"60px",letterSpacing:"0.05em",textTransform:"uppercase"}}>Qty</th>
-                            <th style={{textAlign:"right",padding:"10px 14px",fontSize:"11px",fontWeight:700,width:"120px",letterSpacing:"0.05em",textTransform:"uppercase"}}>Unit Price</th>
-                            <th style={{textAlign:"right",padding:"10px 14px",fontSize:"11px",fontWeight:700,width:"130px",letterSpacing:"0.05em",textTransform:"uppercase",color:"#e67e22"}}>Amount (KES)</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {selectedReceipt.items.map((item, i) => (
-                            <tr key={i} style={{backgroundColor: i % 2 === 0 ? "#ffffff" : "#f8f9ff",color:"#1a1a2e",borderBottom:"1px solid #eee"}}>
-                              <td style={{padding:"10px 14px",fontSize:"13px"}}>{item.description}</td>
-                              <td style={{padding:"10px 14px",textAlign:"center",fontSize:"13px"}}>{item.quantity}</td>
-                              <td style={{padding:"10px 14px",textAlign:"right",fontSize:"13px"}}>{formatCurrency(item.unitPrice)}</td>
-                              <td style={{padding:"10px 14px",textAlign:"right",fontWeight:700,fontSize:"13px"}}>{formatCurrency(item.amount)}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-
-                  {/* ── TOTALS ── */}
-                  <div className="flex justify-end mb-6">
-                    <div style={{width:"280px",backgroundColor:"#0a1628",borderRadius:"12px",padding:"16px",border:"2px solid #e67e22"}}>
-                      <div style={{display:"flex",justifyContent:"space-between",fontSize:"13px",color:"rgba(255,255,255,0.7)",marginBottom:"8px"}}>
-                        <span>Subtotal:</span><span>{formatCurrency(selectedReceipt.subtotal)}</span>
-                      </div>
-                      <div style={{display:"flex",justifyContent:"space-between",fontSize:"13px",color:"rgba(255,255,255,0.7)",marginBottom:"10px"}}>
-                        <span>VAT (16%):</span><span>{formatCurrency(selectedReceipt.taxAmount)}</span>
-                      </div>
-                      <div style={{borderTop:"1px solid rgba(230,126,34,0.5)",paddingTop:"10px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                        <span style={{color:"white",fontWeight:700,fontSize:"15px"}}>TOTAL DUE:</span>
-                        <span style={{color:"#e67e22",fontWeight:800,fontSize:"22px"}}>{formatCurrency(selectedReceipt.totalAmount)}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* ── AMOUNT IN WORDS ── */}
-                  <div style={{backgroundColor:"#fff8ee",border:"1px solid #e67e22",borderRadius:"8px",padding:"10px 14px",marginBottom:"16px"}}>
-                    <p style={{fontSize:"12px",color:"#0a1628"}}>
-                      <span style={{fontWeight:700,color:"#e67e22"}}>Amount in Words: </span>
-                      <span style={{fontStyle:"italic"}}>Kenya Shillings {numberToWords(selectedReceipt.totalAmount)} Only</span>
-                    </p>
-                  </div>
-
-                  {/* ── eTIMS ── */}
-                  <div style={{border:"2px solid #e67e22",borderRadius:"10px",padding:"14px",display:"flex",alignItems:"center",gap:"16px",marginBottom:"20px",backgroundColor:"#fffaf5"}}>
-                    <div style={{backgroundColor:"white",border:"1px solid #e67e22",borderRadius:"8px",padding:"8px",flexShrink:0}}>
-                      <QrCode style={{width:36,height:36,color:"#e67e22"}} />
-                    </div>
-                    <div style={{flex:1}}>
-                      <p style={{color:"#0a1628",fontWeight:700,fontSize:"14px"}}>eTIMS Verified Receipt</p>
-                      <p style={{color:"#888",fontSize:"11px",marginTop:"2px"}}>Device: {selectedReceipt.etimsDeviceNumber}</p>
-                      <p style={{fontSize:"11px",marginTop:"4px",color:"#555"}}>
-                        Verify at: <span style={{color:"#e67e22",textDecoration:"underline"}}>{selectedReceipt.etimsVerificationUrl}</span>
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* ── SIGNATURES ── */}
-                  <div className="grid grid-cols-2 gap-8" style={{marginTop:"24px",paddingTop:"16px",borderTop:"1px solid #dde0e8"}}>
-                    <div style={{textAlign:"center"}}>
-                      <div style={{height:"56px",borderBottom:"1px solid #0a1628",marginBottom:"8px"}} />
-                      <p style={{fontSize:"12px",color:"#0a1628",fontWeight:600}}>Received By (Signature)</p>
-                    </div>
-                    <div style={{textAlign:"center"}}>
-                      <div style={{height:"56px",borderBottom:"1px solid #0a1628",marginBottom:"8px"}} />
-                      <p style={{fontSize:"12px",color:"#0a1628",fontWeight:600}}>Issued By: {selectedReceipt.issuedBy}</p>
-                    </div>
-                  </div>
-
-                  {/* ── FOOTER ── */}
-                  <div style={{textAlign:"center",marginTop:"20px",paddingTop:"14px",borderTop:"2px solid #e67e22"}}>
-                    <p style={{color:"#e67e22",fontWeight:700,fontSize:"14px"}}>Thank You For Your Business!</p>
-                    <p style={{color:"#666",fontSize:"11px",marginTop:"4px"}}>This is an official receipt. Please retain for your records.</p>
-                    <p style={{color:"#999",fontSize:"10px",marginTop:"4px"}}>{companyDetails.website} &nbsp;|&nbsp; {companyDetails.email}</p>
-                  </div>
-                </div>
-
-                {/* Bottom accent bar */}
-                <div style={{background:"linear-gradient(135deg,#e67e22,#0a1628,#e67e22)",padding:"3px"}} />
-              </div>
+              {receiptDocument}
 
               {/* Send Options - Screen Only */}
               <div className="print:hidden bg-blue-900/30 dark:bg-blue-950/30 rounded-lg p-4 mt-4">
@@ -1703,6 +1928,16 @@ export default function ReceiptsPage() {
                     <Send className="h-4 w-4" />
                     Send Both
                   </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-2 border-emerald-500 text-emerald-400 hover:bg-emerald-900/40"
+                    onClick={() => selectedReceipt && sendReceiptWhatsApp(selectedReceipt)}
+                    disabled={!selectedReceipt?.customerPhone}
+                  >
+                    <MessageSquare className="h-4 w-4" />
+                    WhatsApp
+                  </Button>
                 </div>
               </div>
 
@@ -1710,7 +1945,7 @@ export default function ReceiptsPage() {
                 <Button variant="outline" onClick={() => setViewDialogOpen(false)}>
                   Close
                 </Button>
-                <Button onClick={handlePrint} className="gap-2 bg-emerald-600 hover:bg-emerald-700">
+                <Button onClick={() => handlePrint()} className="gap-2 bg-emerald-600 hover:bg-emerald-700">
                   <Printer className="h-4 w-4" />
                   Print Receipt
                 </Button>
@@ -1719,6 +1954,12 @@ export default function ReceiptsPage() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Print-only copy of the receipt, directly under <body> — hidden on screen */}
+      {mounted && receiptDocument && createPortal(
+        <div className="receipt-print-root" data-print-area="true">{receiptDocument}</div>,
+        document.body
+      )}
     </div>
   );
 }

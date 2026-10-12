@@ -4,6 +4,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { verifyInternalRequest, unauthorized } from "@/lib/api-auth";
+import { COMPANY } from "@/lib/company";
 
 
 const AT_KEY      = process.env.AT_API_KEY || "";
@@ -83,7 +84,7 @@ function buildSmsMessage(type: string, data: any): string {
     case "payment_received":
       return `${co}: Payment received. KES ${Number(data?.amount || 0).toLocaleString()} via ${data?.paymentMethod}. Receipt: ${data?.receiptNumber}. Thank you!`;
     case "invoice_due":
-      return `${co}: Invoice ${data?.invoiceNumber} of KES ${Number(data?.amount || 0).toLocaleString()} is due on ${data?.dueDate}. Pay via Paybill 522533 Acc: ${data?.invoiceNumber}`;
+      return `${co}: Invoice ${data?.invoiceNumber} of KES ${Number(data?.amount || 0).toLocaleString()} is due on ${data?.dueDate}. Pay via Paybill ${COMPANY.mpesaPaybill} Acc ${COMPANY.mpesaAccountNo}. Quote ${data?.invoiceNumber}.`;
     case "return_reminder":
       return `${co}: Reminder - Vehicle ${data?.vehicleReg} is due for return on ${data?.endDate}. Contact us: +254727247032`;
     case "balance_reminder":

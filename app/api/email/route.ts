@@ -4,6 +4,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { verifyInternalRequest, unauthorized } from "@/lib/api-auth";
+import { COMPANY } from "@/lib/company";
 
 
 const RESEND_KEY  = process.env.RESEND_API_KEY || "";
@@ -82,7 +83,7 @@ function buildEmailHtml(type: string, data: any, subject: string): string {
         <p style="margin:6px 0 0;font-size:13px;color:#555"><strong>Payment:</strong> ${data?.paymentMethod}</p>
         <p style="margin:6px 0 0;font-size:13px;color:#555"><strong>Date:</strong> ${new Date().toLocaleDateString("en-KE", { day:"numeric", month:"long", year:"numeric" })}</p>
       </div>
-      <p style="color:#555">This receipt is eTIMS compliant as required by KRA.</p>
+      ${data?.etimsReceiptNumber ? `<p style="color:#555">KRA eTIMS receipt no: <strong>${data.etimsReceiptNumber}</strong></p>` : ""}
       <p style="color:#888;font-size:12px">Please retain this for your records.</p>
     ${footer}`;
   }
@@ -99,7 +100,8 @@ function buildEmailHtml(type: string, data: any, subject: string): string {
         <p style="margin:6px 0 0;font-size:13px;color:#555"><strong>Due Date:</strong> ${data?.dueDate}</p>
         <p style="margin:6px 0 0;font-size:13px;color:#555"><strong>Payment Terms:</strong> ${data?.paymentTerms}</p>
       </div>
-      <p style="color:#555"><strong>M-Pesa Paybill:</strong> ${process.env.NEXT_PUBLIC_MPESA_PAYBILL || "522533"} | Account: ${data?.invoiceNumber}</p>
+      <p style="color:#555"><strong>M-Pesa Paybill:</strong> ${COMPANY.mpesaPaybill} | <strong>Account:</strong> ${COMPANY.mpesaAccountNo}</p>
+      <p style="color:#888;font-size:12px">Please quote invoice ${data?.invoiceNumber} when sharing your payment confirmation.</p>
     ${footer}`;
   }
 

@@ -6,6 +6,7 @@ import Image from "next/image";
 import { format, parseISO } from "date-fns";
 import { toast } from "sonner";
 import { invoicesApi } from "@/lib/api";
+import { COMPANY } from "@/lib/company";
 import {
   FileText,
   Plus,
@@ -241,21 +242,7 @@ const initialInvoices: Invoice[] = [
 
 // Company info for invoice header.
 // Optional fields (kraPin, bank*) are hidden on the invoice when left as "".
-const companyInfo = {
-  name: "Moventra Safaris & Logistics Ltd",
-  tagline: "Experience. Move. Deliver. Beyond Borders.",
-  address: "Muthaiga Square, off Thika Rd",
-  city: "Nairobi, Kenya",
-  phone: "+254 727 247 032",
-  email: "info@moventrasafarislogisticsltd.com",
-  website: "www.moventrasafarislogisticsltd.com",
-  kraPin: "P052540073A",
-  bankName: "I&M Bank Kenya Ltd",
-  bankAccount: "0100 9406 6363 50",
-  bankBranch: "Nairobi Main Branch",
-  mpesaPaybill: "542542",
-  mpesaAccountNo: "247032",
-};
+const companyInfo = COMPANY; // lib/company.ts — shared with receipts, SMS and email
 
 // Terms & Conditions printed on every invoice — edit the wording here, not in the layout.
 const getInvoiceTerms = (invoiceNumber: string): string[] => [
@@ -794,7 +781,7 @@ const [invoices, setInvoices] = useState<Invoice[]>(DEMO_INVOICES);
           {/* ── HEADER ── */}
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:"24px"}}>
             <div style={{display:"flex",alignItems:"flex-start",gap:"16px",flex:1,minWidth:0}}>
-              <Image src="/images/logo.png" alt={companyInfo.name} width={72} height={72}
+              <Image src="/images/logo.png" alt={companyInfo.name} width={72} height={72} loading="eager"
                 style={{width:"72px",height:"72px",objectFit:"contain",borderRadius:"8px",flexShrink:0}} unoptimized />
               <div style={{minWidth:0}}>
                 <h1 style={{color:"#0a1628",fontWeight:800,fontSize:"20px",lineHeight:1.25}}>{companyInfo.name}</h1>

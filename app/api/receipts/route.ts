@@ -33,6 +33,7 @@ export async function POST(req: NextRequest) {
       transaction_code: body.transactionCode || body.transaction_code || "",
       payment_reference: body.paymentReference || body.payment_reference || body.transactionCode || "",
       booking_ref: body.bookingRef || body.booking_ref || "",
+      invoice_ref: body.invoiceRef || body.invoice_ref || "",
       bank_name: body.bankName,
       status: body.status || "issued",
       etims_receipt_number: body.etimsReceiptNumber,

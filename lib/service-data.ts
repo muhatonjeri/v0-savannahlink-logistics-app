@@ -1,3 +1,4 @@
+import { COMPANY } from "@/lib/company";
 // ── Moventra Service Catalogue — Kenya Market Rates 2025/2026 ──────
 
 export interface ServicePackage {
@@ -33,15 +34,16 @@ export const PAYMENT_METHODS = [
   { id: "card",     label: "Card (Visa/MC)",     icon: "💳" },
 ];
 
-// Moventra bank details (update with real account)
+// Moventra bank & M-Pesa details — sourced from lib/company.ts (single source of truth)
 export const BANK_DETAILS = {
-  bank:        "NCBA Bank Kenya",
-  accountName: "Moventra Safaris & Logistics Ltd",
-  accountNo:   "01234567890000",
-  branch:      "Thika Road Mall",
-  swiftCode:   "CBAFKENX",
-  pesalink:    "+254 727 247 032",
-  paybill:     process.env.NEXT_PUBLIC_MPESA_PAYBILL || "174379",
+  bank:        COMPANY.bankName,
+  accountName: COMPANY.name,
+  accountNo:   COMPANY.bankAccount,
+  branch:      COMPANY.bankBranch,
+  swiftCode:   "", // TODO: confirm SWIFT code with I&M before showing it anywhere
+  pesalink:    COMPANY.phone,
+  paybill:     COMPANY.mpesaPaybill,
+  paybillAccount: COMPANY.mpesaAccountNo,
 };
 
 export const SERVICES: ServiceInfo[] = [
