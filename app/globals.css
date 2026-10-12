@@ -221,7 +221,7 @@
     width: 100% !important;
     max-width: 100% !important;
     margin: 0 !important;
-    padding: 10mm 12mm !important;
+    padding: 7mm 12mm 6mm !important;
     box-sizing: border-box !important;
     border: none !important;
     border-radius: 0 !important;
@@ -237,7 +237,7 @@
   /* Invoice: compact layout so a typical invoice fits on one A4 page.
      Screen layout keeps its roomier spacing; only the printout tightens. */
   .invoice-doc {
-    padding: 0 !important;
+    padding: 14px 0 0 !important;   /* breathing room under the top accent bar */
     zoom: 0.82;
   }
   .invoice-doc > div {
