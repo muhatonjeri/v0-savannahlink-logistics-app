@@ -898,41 +898,15 @@ const [invoices, setInvoices] = useState<Invoice[]>(DEMO_INVOICES);
             </div>
           </div>
 
-          {/* ── PAYMENT METHODS + TOTALS ── */}
-          <div className="inv-space-before" style={{display:"flex",gap:"16px",alignItems:"flex-start",marginTop:"15px",marginBottom:"24px"}}>
-            {/* Payment methods, beside the totals (uses space that was empty) */}
-            <div style={{flex:1,minWidth:0,display:"flex",flexDirection:"column",gap:"12px"}}>
-            <div style={{backgroundColor:"#fff8ee",border:"1px solid #e67e22",borderRadius:"10px",padding:"16px"}}>
-              <div style={{display:"flex",alignItems:"center",gap:"8px",marginBottom:"12px"}}>
-                <Smartphone style={{width:14,height:14,color:"#e67e22"}} />
-                <span style={{color:"#0a1628",fontWeight:800,fontSize:"14px",letterSpacing:"0.07em",textTransform:"uppercase"}}>M-Pesa Paybill</span>
-              </div>
-              <div style={{fontSize:"13.5px",color:"#1f2937",lineHeight:1.75}}>
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                  <span>Paybill:</span>
-                  <span style={{fontWeight:800,fontFamily:"monospace",fontSize:"24px",color:"#e67e22"}}>{companyInfo.mpesaPaybill}</span>
-                </div>
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                  <span>Account:</span>
-                  <span style={{fontWeight:800,fontFamily:"monospace",fontSize:"24px",color:"#0a1628"}}>{companyInfo.mpesaAccountNo}</span>
-                </div>
-                <p style={{fontSize:"12.5px",color:"#e67e22",fontWeight:600,marginTop:"4px",lineHeight:1.5}}>M-Pesa menu → Lipa na M-Pesa → Pay Bill</p>
-              </div>
-            </div>
-            {companyInfo.bankAccount && (
-            <div style={{backgroundColor:"#f8f9ff",border:"1px solid #dde0e8",borderRadius:"10px",padding:"16px"}}>
-              <div style={{display:"flex",alignItems:"center",gap:"8px",marginBottom:"12px"}}>
-                <Building2 style={{width:14,height:14,color:"#e67e22"}} />
-                <span style={{color:"#0a1628",fontWeight:800,fontSize:"14px",letterSpacing:"0.07em",textTransform:"uppercase"}}>Bank Transfer</span>
-              </div>
-              <div style={{fontSize:"13.5px",color:"#1f2937",lineHeight:1.75}}>
-                <div style={{display:"flex",justifyContent:"space-between"}}><span>Bank:</span><span style={{fontWeight:700,color:"#0a1628"}}>{companyInfo.bankName}</span></div>
-                <div style={{display:"flex",justifyContent:"space-between"}}><span>Account:</span><span style={{fontWeight:700,fontFamily:"monospace",color:"#0a1628"}}>{companyInfo.bankAccount}</span></div>
-                <div style={{display:"flex",justifyContent:"space-between"}}><span>Branch:</span><span style={{fontWeight:700,color:"#0a1628"}}>{companyInfo.bankBranch}</span></div>
-              </div>
+          {/* ── TOTALS ── */}
+          <div className="inv-space-before" style={{display:"flex",justifyContent:"flex-end",gap:"16px",marginTop:"15px",marginBottom:"14px"}}>
+            {/* Notes sit in the space left of the totals, when there are any */}
+            {selectedInvoice.notes && (
+            <div style={{backgroundColor:"#fff8ee",border:"1px solid #e67e22",borderRadius:"8px",padding:"12px 16px",flex:1,minWidth:0,alignSelf:"flex-start"}}>
+              <p style={{color:"#0a1628",fontWeight:800,fontSize:"14px",letterSpacing:"0.07em",textTransform:"uppercase",marginBottom:"6px"}}>Notes</p>
+              <p style={{fontSize:"13.5px",color:"#1f2937"}}>{selectedInvoice.notes}</p>
             </div>
             )}
-            </div>
             <div style={{width:"310px",flexShrink:0,backgroundColor:"#0a1628",borderRadius:"12px",padding:"18px",border:"2px solid #e67e22"}}>
               <div style={{display:"flex",justifyContent:"space-between",fontSize:"13.5px",color:"rgba(255,255,255,0.88)",marginBottom:"8px"}}>
                 <span>Subtotal:</span><span>KES {formatKES(selectedInvoice.subtotal)}</span>
@@ -955,6 +929,40 @@ const [invoices, setInvoices] = useState<Invoice[]>(DEMO_INVOICES);
                 </>
               )}
             </div>
+          </div>
+
+        {/* ── PAYMENT METHODS (side by side, below the totals) ── */}
+          <div style={{display:"flex",gap:"12px",alignItems:"stretch",marginBottom:"24px"}}>
+          <div style={{flex:1,minWidth:0,backgroundColor:"#fff8ee",border:"1px solid #e67e22",borderRadius:"10px",padding:"14px"}}>
+            <div style={{display:"flex",alignItems:"center",gap:"8px",marginBottom:"12px"}}>
+              <Smartphone style={{width:14,height:14,color:"#e67e22"}} />
+              <span style={{color:"#0a1628",fontWeight:800,fontSize:"14px",letterSpacing:"0.07em",textTransform:"uppercase"}}>M-Pesa Paybill</span>
+            </div>
+            <div style={{fontSize:"13.5px",color:"#1f2937",lineHeight:1.75}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                <span>Paybill:</span>
+                <span style={{fontWeight:800,fontFamily:"monospace",fontSize:"24px",color:"#e67e22"}}>{companyInfo.mpesaPaybill}</span>
+              </div>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                <span>Account:</span>
+                <span style={{fontWeight:800,fontFamily:"monospace",fontSize:"24px",color:"#0a1628"}}>{companyInfo.mpesaAccountNo}</span>
+              </div>
+              <p style={{fontSize:"12.5px",color:"#e67e22",fontWeight:600,marginTop:"4px",lineHeight:1.5}}>M-Pesa menu → Lipa na M-Pesa → Pay Bill</p>
+            </div>
+          </div>
+          {companyInfo.bankAccount && (
+          <div style={{flex:1,minWidth:0,backgroundColor:"#f8f9ff",border:"1px solid #dde0e8",borderRadius:"10px",padding:"14px"}}>
+            <div style={{display:"flex",alignItems:"center",gap:"8px",marginBottom:"12px"}}>
+              <Building2 style={{width:14,height:14,color:"#e67e22"}} />
+              <span style={{color:"#0a1628",fontWeight:800,fontSize:"14px",letterSpacing:"0.07em",textTransform:"uppercase"}}>Bank Transfer</span>
+            </div>
+            <div style={{fontSize:"13.5px",color:"#1f2937",lineHeight:1.9}}>
+              <div style={{display:"flex",justifyContent:"space-between",gap:"8px"}}><span>Bank:</span><span style={{fontWeight:700,color:"#0a1628"}}>{companyInfo.bankName}</span></div>
+              <div style={{display:"flex",justifyContent:"space-between",gap:"8px"}}><span>Account:</span><span style={{fontWeight:800,fontFamily:"monospace",fontSize:"15px",color:"#0a1628",whiteSpace:"nowrap"}}>{companyInfo.bankAccount}</span></div>
+              <div style={{display:"flex",justifyContent:"space-between",gap:"8px"}}><span>Branch:</span><span style={{fontWeight:700,color:"#0a1628"}}>{companyInfo.bankBranch}</span></div>
+            </div>
+          </div>
+          )}
           </div>
 
           {/* ── PAYMENT HISTORY ── */}
@@ -987,12 +995,6 @@ const [invoices, setInvoices] = useState<Invoice[]>(DEMO_INVOICES);
           )}
 
           {/* ── NOTES & TERMS ── */}
-          {selectedInvoice.notes && (
-            <div style={{backgroundColor:"#fff8ee",border:"1px solid #e67e22",borderRadius:"8px",padding:"12px 16px",marginBottom:"16px"}}>
-              <p style={{color:"#0a1628",fontWeight:800,fontSize:"14px",letterSpacing:"0.07em",textTransform:"uppercase",marginBottom:"6px"}}>Notes</p>
-              <p style={{fontSize:"13.5px",color:"#1f2937"}}>{selectedInvoice.notes}</p>
-            </div>
-          )}
           <div className="inv-space-before" style={{backgroundColor:"#f8f9ff",border:"1px solid #dde0e8",borderRadius:"8px",padding:"12px 16px",marginTop:"15px",marginBottom:"24px"}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",gap:"12px",marginBottom:"8px"}}>
               <p style={{color:"#0a1628",fontWeight:800,fontSize:"14px",letterSpacing:"0.07em",textTransform:"uppercase",margin:0}}>Terms & Conditions</p>
