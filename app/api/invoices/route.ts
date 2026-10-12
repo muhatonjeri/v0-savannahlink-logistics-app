@@ -44,6 +44,12 @@ export async function POST(req: NextRequest) {
       due_date: body.dueDate,
       payment_terms: body.paymentTerms,
       notes: body.notes,
+      // Corporate fields (migration 009). Empty strings → null so blank dates don't fail the date columns.
+      customer_attention: body.customerAttention || null,
+      lpo_number: body.lpoNumber || null,
+      service_start: body.serviceStart || null,
+      service_end: body.serviceEnd || null,
+      vehicle_route: body.vehicleRoute || null,
     };
     const { data, error } = await sb.from("invoices").insert([record]).select().single();
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });

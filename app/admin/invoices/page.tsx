@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { toast } from "sonner";
 import { invoicesApi } from "@/lib/api";
 import {
@@ -119,6 +119,12 @@ interface Invoice {
   paymentTerms: string;
   notes?: string;
   createdAt: string;
+  // Corporate fields (migration 009) — all optional, shown only when filled in
+  customerAttention?: string; // contact person / department at the client
+  lpoNumber?: string;         // client's LPO / PO number
+  serviceStart?: string;      // yyyy-MM-dd
+  serviceEnd?: string;        // yyyy-MM-dd
+  vehicleRoute?: string;      // e.g. "KDA 123A — Toyota Prado" or "JKIA → Westlands"
 }
 
 // Service types with icons
@@ -260,6 +266,17 @@ const getInvoiceTerms = (invoiceNumber: string): string[] => [
   "Services are provided under Moventra's Hire Agreement and Terms of Service.",
 ];
 
+// Date picker → "yyyy-MM-dd" in LOCAL time. (toISOString() converts to UTC first,
+// which in Nairobi, UTC+3, turns a picked 12 Oct into "2026-10-11".)
+const toDateString = (date: Date | undefined) => (date ? format(date, "yyyy-MM-dd") : "");
+
+// "yyyy-MM-dd" → "12 Oct 2026". parseISO reads it as a local date, not UTC.
+const formatDocDate = (value: string) => format(parseISO(value), "dd MMM yyyy");
+
+const describePaymentTerms = (terms: string) =>
+  ({ "Due on Receipt": "Due on receipt", "Net 7": "Within 7 days", "Net 14": "Within 14 days",
+     "Net 30": "Within 30 days", "Net 60": "Within 60 days" } as Record<string, string>)[terms] ?? terms;
+
 // Money on documents: thousands separators and always 2 decimals (e.g. 12,500.00)
 const formatKES = (amount: number) =>
   amount.toLocaleString("en-KE", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -344,6 +361,8 @@ const DEMO_INVOICES: Invoice[] = [
     amountPaid: 208800, payments: [{ id: "p1", date: "2024-05-01", amount: 208800, method: "bank", reference: "EQB-REF-7741" }],
     status: "paid", issueDate: "2024-05-01", dueDate: "2024-05-15",
     paymentTerms: "Net 14", notes: "Monthly corporate contract — renewed automatically.", createdAt: "2024-05-01",
+    customerAttention: "Procurement Department", lpoNumber: "LPO-EQB-88213",
+    serviceStart: "2024-05-01", serviceEnd: "2024-05-31", vehicleRoute: "Tour bus KCZ 456B — Staff shuttle, Upper Hill",
   },
 ];
 
@@ -380,6 +399,11 @@ const [invoices, setInvoices] = useState<Invoice[]>(DEMO_INVOICES);
         paymentTerms: inv.payment_terms || "Net 14",
         notes: inv.notes || "",
         createdAt: inv.created_at,
+        customerAttention: inv.customer_attention || "",
+        lpoNumber: inv.lpo_number || "",
+        serviceStart: inv.service_start || "",
+        serviceEnd: inv.service_end || "",
+        vehicleRoute: inv.vehicle_route || "",
       })));
     } catch(e) { console.error("loadInvoices:", e); }
   };
@@ -412,10 +436,15 @@ const [invoices, setInvoices] = useState<Invoice[]>(DEMO_INVOICES);
     customerPhone: "",
     customerAddress: "",
     customerKraPin: "",
+    customerAttention: "",
     serviceType: "",
     dueDate: "",
     paymentTerms: "Net 14",
     notes: "",
+    lpoNumber: "",
+    serviceStart: "",
+    serviceEnd: "",
+    vehicleRoute: "",
   });
   const [invoiceItems, setInvoiceItems] = useState<InvoiceItem[]>([
     { id: "1", description: "", quantity: 1, unitPrice: 0, amount: 0 },
@@ -494,9 +523,13 @@ const [invoices, setInvoices] = useState<Invoice[]>(DEMO_INVOICES);
       toast.error("Please fill in all required fields");
       return;
     }
-    const today = new Date().toISOString().split("T")[0];
+    const today = toDateString(new Date());
     if (newInvoice.dueDate && newInvoice.dueDate < today) {
       toast.error("Due date can't be before the issue date");
+      return;
+    }
+    if (newInvoice.serviceStart && newInvoice.serviceEnd && newInvoice.serviceEnd < newInvoice.serviceStart) {
+      toast.error("Service end date can't be before the start date");
       return;
     }
 
@@ -517,9 +550,9 @@ const [invoices, setInvoices] = useState<Invoice[]>(DEMO_INVOICES);
       amountPaid: 0,
       payments: [],
       status: "draft",
-      issueDate: new Date().toISOString().split("T")[0],
-      dueDate: newInvoice.dueDate || new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
-      createdAt: new Date().toISOString().split("T")[0],
+      issueDate: toDateString(new Date()),
+      dueDate: newInvoice.dueDate || toDateString(new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)),
+      createdAt: toDateString(new Date()),
     };
 
     // Save to Supabase first, then update UI
@@ -543,6 +576,11 @@ const [invoices, setInvoices] = useState<Invoice[]>(DEMO_INVOICES);
       dueDate: invoice.dueDate,
       paymentTerms: invoice.paymentTerms,
       notes: invoice.notes,
+      customerAttention: invoice.customerAttention,
+      lpoNumber: invoice.lpoNumber,
+      serviceStart: invoice.serviceStart,
+      serviceEnd: invoice.serviceEnd,
+      vehicleRoute: invoice.vehicleRoute,
     }).then(() => {
       toast.success("Invoice " + invoiceNumber + " created and saved");
       loadInvoices();
@@ -562,10 +600,15 @@ const [invoices, setInvoices] = useState<Invoice[]>(DEMO_INVOICES);
       customerPhone: "",
       customerAddress: "",
       customerKraPin: "",
+      customerAttention: "",
       serviceType: "",
       dueDate: "",
       paymentTerms: "Net 14",
       notes: "",
+      lpoNumber: "",
+      serviceStart: "",
+      serviceEnd: "",
+      vehicleRoute: "",
     });
     setInvoiceItems([{ id: "1", description: "", quantity: 1, unitPrice: 0, amount: 0 }]);
     setVatRate(16);
@@ -694,6 +737,7 @@ const [invoices, setInvoices] = useState<Invoice[]>(DEMO_INVOICES);
                 <span style={{color:"#0a1628",fontWeight:700,fontSize:"11px",letterSpacing:"0.06em",textTransform:"uppercase"}}>Bill To</span>
               </div>
               <p style={{color:"#0a1628",fontWeight:700,fontSize:"17px",marginBottom:"6px"}}>{selectedInvoice.customerName}</p>
+              {selectedInvoice.customerAttention && <p style={{color:"#0a1628",fontSize:"12px",marginBottom:"3px"}}><span style={{fontWeight:600}}>Attn:</span> {selectedInvoice.customerAttention}</p>}
               {selectedInvoice.customerAddress && <p style={{color:"#555",fontSize:"12px",marginBottom:"3px"}}>{selectedInvoice.customerAddress}</p>}
               {selectedInvoice.customerPhone && <p style={{color:"#555",fontSize:"12px",marginBottom:"3px"}}>{selectedInvoice.customerPhone}</p>}
               {selectedInvoice.customerEmail && <p style={{color:"#555",fontSize:"12px",overflowWrap:"anywhere",marginBottom:"3px"}}>{selectedInvoice.customerEmail}</p>}
@@ -703,13 +747,29 @@ const [invoices, setInvoices] = useState<Invoice[]>(DEMO_INVOICES);
               <div style={{marginBottom:"12px"}}>
                 <span style={{color:"#0a1628",fontWeight:700,fontSize:"11px",letterSpacing:"0.06em",textTransform:"uppercase"}}>Invoice Details</span>
               </div>
-              <div style={{fontSize:"12px",color:"#555",lineHeight:2}}>
-                <div style={{display:"flex",alignItems:"center",gap:"8px",marginBottom:"4px"}}>
-                  {(() => { const SI = getServiceIcon(selectedInvoice.serviceType); return <SI style={{width:16,height:16,color:"#e67e22"}} />; })()}
-                  <span style={{fontWeight:600,color:"#0a1628"}}>{getServiceLabel(selectedInvoice.serviceType)}</span>
-                </div>
-                <p><span style={{fontWeight:600,color:"#0a1628"}}>Terms:</span> {selectedInvoice.paymentTerms}</p>
-                <p><span style={{fontWeight:600,color:"#0a1628"}}>Currency:</span> KES (Kenya Shillings)</p>
+              <div style={{display:"flex",alignItems:"center",gap:"8px",marginBottom:"8px"}}>
+                {(() => { const SI = getServiceIcon(selectedInvoice.serviceType); return <SI style={{width:16,height:16,color:"#e67e22"}} />; })()}
+                <span style={{fontWeight:700,color:"#0a1628",fontSize:"13px"}}>{getServiceLabel(selectedInvoice.serviceType)}</span>
+              </div>
+              {/* Label/value rows; each appears only when it has a value */}
+              <div style={{display:"grid",gridTemplateColumns:"auto 1fr",columnGap:"12px",rowGap:"5px",fontSize:"12px",color:"#333"}}>
+                {selectedInvoice.lpoNumber && (<>
+                  <span style={{color:"#777"}}>LPO / PO No.</span>
+                  <span style={{fontWeight:700,color:"#0a1628",fontFamily:"monospace"}}>{selectedInvoice.lpoNumber}</span>
+                </>)}
+                {selectedInvoice.serviceStart && (<>
+                  <span style={{color:"#777"}}>Service period</span>
+                  <span style={{fontWeight:600,color:"#0a1628"}}>
+                    {formatDocDate(selectedInvoice.serviceStart)}
+                    {selectedInvoice.serviceEnd && selectedInvoice.serviceEnd !== selectedInvoice.serviceStart && <> – {formatDocDate(selectedInvoice.serviceEnd)}</>}
+                  </span>
+                </>)}
+                {selectedInvoice.vehicleRoute && (<>
+                  <span style={{color:"#777"}}>Vehicle / Route</span>
+                  <span style={{fontWeight:600,color:"#0a1628"}}>{selectedInvoice.vehicleRoute}</span>
+                </>)}
+                <span style={{color:"#777"}}>Payment terms</span>
+                <span style={{fontWeight:600,color:"#0a1628"}}>{describePaymentTerms(selectedInvoice.paymentTerms)}</span>
               </div>
             </div>
           </div>
@@ -1154,6 +1214,14 @@ const [invoices, setInvoices] = useState<Invoice[]>(DEMO_INVOICES);
                   />
                 </div>
                 <div className="space-y-2">
+                  <Label>Attention (Optional)</Label>
+                  <Input
+                    placeholder="Contact person or department, e.g. Procurement"
+                    value={newInvoice.customerAttention}
+                    onChange={(e) => setNewInvoice({ ...newInvoice, customerAttention: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
                   <Label>KRA PIN (Optional)</Label>
                   <Input
                     placeholder="P0XXXXXXXXX"
@@ -1169,9 +1237,6 @@ const [invoices, setInvoices] = useState<Invoice[]>(DEMO_INVOICES);
                     onChange={(e) => setNewInvoice({ ...newInvoice, customerAddress: e.target.value })}
                   />
                 </div>
-
-                {/* Bottom accent bar */}
-                <div style={{background:"linear-gradient(135deg,#e67e22,#0a1628,#e67e22)",height:"6px"}} />
               </div>
             </TabsContent>
 
@@ -1300,7 +1365,7 @@ const [invoices, setInvoices] = useState<Invoice[]>(DEMO_INVOICES);
                   <Label>Due Date</Label>
                   <DatePicker
                     value={newInvoice.dueDate}
-                    onChange={(date) => setNewInvoice({ ...newInvoice, dueDate: date ? date.toISOString().split("T")[0] : "" })}
+                    onChange={(date) => setNewInvoice({ ...newInvoice, dueDate: toDateString(date) })}
                     placeholder="Select due date"
                   />
                 </div>
@@ -1321,6 +1386,38 @@ const [invoices, setInvoices] = useState<Invoice[]>(DEMO_INVOICES);
                       <SelectItem value="Net 60">Net 60 (60 days)</SelectItem>
                     </SelectContent>
                   </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Client LPO / PO No.</Label>
+                  <Input
+                    placeholder="e.g. LPO-88213 — corporates often require this"
+                    value={newInvoice.lpoNumber}
+                    onChange={(e) => setNewInvoice({ ...newInvoice, lpoNumber: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Vehicle / Route</Label>
+                  <Input
+                    placeholder="e.g. KDA 123A — Toyota Prado, or JKIA → Westlands"
+                    value={newInvoice.vehicleRoute}
+                    onChange={(e) => setNewInvoice({ ...newInvoice, vehicleRoute: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Service Start</Label>
+                  <DatePicker
+                    value={newInvoice.serviceStart}
+                    onChange={(date) => setNewInvoice({ ...newInvoice, serviceStart: toDateString(date) })}
+                    placeholder="First day of service"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Service End</Label>
+                  <DatePicker
+                    value={newInvoice.serviceEnd}
+                    onChange={(date) => setNewInvoice({ ...newInvoice, serviceEnd: toDateString(date) })}
+                    placeholder="Last day of service"
+                  />
                 </div>
                 <div className="space-y-2 sm:col-span-2">
                   <Label>Notes</Label>
