@@ -13,6 +13,8 @@ import {
   Filter,
   Printer,
   Download,
+  Pencil,
+  Lock,
   Eye,
   Send,
   MoreHorizontal,
@@ -277,6 +279,12 @@ const describePaymentTerms = (terms: string) =>
   ({ "Due on Receipt": "Due on receipt", "Net 7": "Within 7 days", "Net 14": "Within 14 days",
      "Net 30": "Within 30 days", "Net 60": "Within 60 days" } as Record<string, string>)[terms] ?? terms;
 
+// Editing rule: an invoice can be corrected until money is received against it.
+// After that (or once cancelled) amounts are locked — the proper fix is a credit note.
+// The API enforces the same rule, so this is not just a hidden button.
+const canEditInvoice = (inv: Invoice) =>
+  inv.amountPaid === 0 && inv.status !== "paid" && inv.status !== "partial" && inv.status !== "cancelled";
+
 // Money on documents: thousands separators and always 2 decimals (e.g. 12,500.00)
 const formatKES = (amount: number) =>
   amount.toLocaleString("en-KE", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -411,6 +419,8 @@ const [invoices, setInvoices] = useState<Invoice[]>(DEMO_INVOICES);
   // Load invoices from Supabase on mount
   useEffect(() => { loadInvoices(); }, []);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  // When set, the Create dialog works as "Edit invoice" for this invoice
+  const [editingInvoice, setEditingInvoice] = useState<Invoice | null>(null);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
@@ -523,8 +533,8 @@ const [invoices, setInvoices] = useState<Invoice[]>(DEMO_INVOICES);
       toast.error("Please fill in all required fields");
       return;
     }
-    const today = toDateString(new Date());
-    if (newInvoice.dueDate && newInvoice.dueDate < today) {
+    const issueDate = editingInvoice?.issueDate ?? toDateString(new Date());
+    if (newInvoice.dueDate && newInvoice.dueDate < issueDate) {
       toast.error("Due date can't be before the issue date");
       return;
     }
@@ -536,6 +546,61 @@ const [invoices, setInvoices] = useState<Invoice[]>(DEMO_INVOICES);
     const subtotal = calculateSubtotal();
     const vatAmount = calculateVat();
     const total = calculateTotal();
+
+    // ── Editing an existing invoice ──
+    if (editingInvoice) {
+      const updated: Invoice = {
+        ...editingInvoice,
+        ...newInvoice,
+        items: invoiceItems,
+        subtotal,
+        vatRate,
+        vatAmount,
+        total,
+        dueDate: newInvoice.dueDate || editingInvoice.dueDate,
+        // invoiceNumber and issueDate deliberately unchanged
+      };
+      setInvoices((prev) => prev.map((inv) => (inv.id === updated.id ? updated : inv)));
+      setSelectedInvoice(updated);
+
+      if (updated.id.startsWith("inv-demo")) {
+        toast.success(`Demo invoice ${updated.invoiceNumber} updated (not saved — demo data)`);
+      } else {
+        invoicesApi.update(updated.id, {
+          customer_name: updated.customerName,
+          customer_email: updated.customerEmail,
+          customer_phone: updated.customerPhone,
+          customer_address: updated.customerAddress,
+          customer_kra_pin: updated.customerKraPin,
+          customer_attention: updated.customerAttention,
+          service_type: updated.serviceType,
+          items: updated.items,
+          subtotal: updated.subtotal,
+          vat_rate: updated.vatRate,
+          vat_amount: updated.vatAmount,
+          total: updated.total,
+          due_date: updated.dueDate,
+          payment_terms: updated.paymentTerms,
+          notes: updated.notes,
+          lpo_number: updated.lpoNumber,
+          service_start: updated.serviceStart,
+          service_end: updated.serviceEnd,
+          vehicle_route: updated.vehicleRoute,
+        }).then(() => {
+          toast.success(`Invoice ${updated.invoiceNumber} updated`, {
+            description: updated.status === "draft" ? undefined : "The client may have the earlier version — send them the updated invoice.",
+          });
+          loadInvoices();
+        }).catch((err) => {
+          console.error("Invoice update error:", err);
+          toast.error("Update failed: " + err.message);
+          loadInvoices(); // put the screen back in line with the database
+        });
+      }
+      setIsCreateDialogOpen(false);
+      resetForm();
+      return;
+    }
     const invoiceNumber = `INV-${new Date().getFullYear()}-${String(invoices.length + 1).padStart(3, "0")}`;
 
     const invoice: Invoice = {
@@ -593,7 +658,39 @@ const [invoices, setInvoices] = useState<Invoice[]>(DEMO_INVOICES);
   };
 
   // Reset form
+  // Load an invoice into the form and open it in edit mode
+  const openEditInvoice = (inv: Invoice) => {
+    if (!canEditInvoice(inv)) {
+      toast.error("This invoice has payments recorded and can't be edited", {
+        description: "Corrections after payment need a credit note.",
+      });
+      return;
+    }
+    setNewInvoice({
+      customerName: inv.customerName || "",
+      customerEmail: inv.customerEmail || "",
+      customerPhone: inv.customerPhone || "",
+      customerAddress: inv.customerAddress || "",
+      customerKraPin: inv.customerKraPin || "",
+      customerAttention: inv.customerAttention || "",
+      serviceType: inv.serviceType || "",
+      dueDate: inv.dueDate || "",
+      paymentTerms: inv.paymentTerms || "Net 14",
+      notes: inv.notes || "",
+      lpoNumber: inv.lpoNumber || "",
+      serviceStart: inv.serviceStart || "",
+      serviceEnd: inv.serviceEnd || "",
+      vehicleRoute: inv.vehicleRoute || "",
+    });
+    setInvoiceItems(inv.items.length ? inv.items.map((item) => ({ ...item })) : [{ id: "1", description: "", quantity: 1, unitPrice: 0, amount: 0 }]);
+    setVatRate(inv.vatRate);
+    setEditingInvoice(inv);
+    setIsViewDialogOpen(false);
+    setIsCreateDialogOpen(true);
+  };
+
   const resetForm = () => {
+    setEditingInvoice(null);
     setNewInvoice({
       customerName: "",
       customerEmail: "",
@@ -1099,6 +1196,17 @@ const [invoices, setInvoices] = useState<Invoice[]>(DEMO_INVOICES);
                             <Eye className="h-4 w-4 mr-2" />
                             View Invoice
                           </DropdownMenuItem>
+                          {canEditInvoice(invoice) ? (
+                            <DropdownMenuItem onClick={() => openEditInvoice(invoice)}>
+                              <Pencil className="h-4 w-4 mr-2" />
+                              Edit Invoice
+                            </DropdownMenuItem>
+                          ) : (
+                            <DropdownMenuItem disabled>
+                              <Lock className="h-4 w-4 mr-2" />
+                              Edit locked (payment recorded)
+                            </DropdownMenuItem>
+                          )}
                           {(invoice.status === "sent" || invoice.status === "partial" || invoice.status === "overdue") && (
                             <DropdownMenuItem
                               onClick={() => {
@@ -1167,15 +1275,17 @@ const [invoices, setInvoices] = useState<Invoice[]>(DEMO_INVOICES);
       </Card>
 
       {/* Create Invoice Dialog */}
-      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+      <Dialog open={isCreateDialogOpen} onOpenChange={(open) => { setIsCreateDialogOpen(open); if (!open) resetForm(); }}>
         <DialogContent className="max-w-4xl sm:max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5 text-cyan-500" />
-              Create New Invoice
+              {editingInvoice ? <Pencil className="h-5 w-5 text-cyan-500" /> : <FileText className="h-5 w-5 text-cyan-500" />}
+              {editingInvoice ? `Edit Invoice ${editingInvoice.invoiceNumber}` : "Create New Invoice"}
             </DialogTitle>
             <DialogDescription>
-              Fill in the details to create a new invoice
+              {editingInvoice
+                ? "Correct any details below. The invoice number and issue date stay the same."
+                : "Fill in the details to create a new invoice"}
             </DialogDescription>
           </DialogHeader>
 
@@ -1436,7 +1546,7 @@ const [invoices, setInvoices] = useState<Invoice[]>(DEMO_INVOICES);
               Cancel
             </Button>
             <Button onClick={handleCreateInvoice} className="bg-cyan-600 hover:bg-cyan-700">
-              Create Invoice
+              {editingInvoice ? "Save Changes" : "Create Invoice"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1459,6 +1569,12 @@ const [invoices, setInvoices] = useState<Invoice[]>(DEMO_INVOICES);
                 >
                   <CheckCircle2 className="h-4 w-4 mr-2" />
                   Record Payment
+                </Button>
+              )}
+              {selectedInvoice && canEditInvoice(selectedInvoice) && (
+                <Button variant="outline" size="sm" onClick={() => openEditInvoice(selectedInvoice)}>
+                  <Pencil className="h-4 w-4 mr-2" />
+                  Edit
                 </Button>
               )}
               <Button variant="outline" size="sm" onClick={() => handlePrint()}>
