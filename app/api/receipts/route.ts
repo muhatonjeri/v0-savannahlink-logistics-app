@@ -34,6 +34,9 @@ export async function POST(req: NextRequest) {
       payment_reference: body.paymentReference || body.payment_reference || body.transactionCode || "",
       booking_ref: body.bookingRef || body.booking_ref || "",
       invoice_ref: body.invoiceRef || body.invoice_ref || "",
+      // Service period (migration 010) — blank → null for the date columns
+      service_start: body.serviceStart || null,
+      service_end: body.serviceEnd || null,
       bank_name: body.bankName,
       status: body.status || "issued",
       etims_receipt_number: body.etimsReceiptNumber,
@@ -53,6 +56,7 @@ export async function POST(req: NextRequest) {
 const EDITABLE = new Set([
   "customer_name", "customer_phone", "customer_email", "customer_kra_pin",
   "service_type", "items", "transaction_code", "payment_reference", "bank_name",
+  "service_start", "service_end",
 ]);
 
 export async function PUT(req: NextRequest) {
@@ -70,7 +74,7 @@ export async function PUT(req: NextRequest) {
 
     const updates: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(body)) {
-      if (EDITABLE.has(key)) updates[key] = value;
+      if (EDITABLE.has(key)) updates[key] = (key === "service_start" || key === "service_end") && value === "" ? null : value;
     }
     // Voiding: the UI says "voided"; the database calls it "cancelled"
     if (body.status === "voided" || body.status === "cancelled") updates.status = "cancelled";

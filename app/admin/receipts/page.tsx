@@ -134,6 +134,8 @@ interface ReceiptData {
   bookingReference?: string;
   invoiceId?: string;   // invoice this receipt pays (if any)
   invoiceRef?: string;  // its invoice number, shown on the receipt
+  serviceStart?: string; // yyyy-MM-dd — period the paid-for service ran
+  serviceEnd?: string;
   issuedBy: string;
   issuedAt: string;
   status: "draft" | "issued" | "voided";
@@ -163,6 +165,19 @@ const SERVICE_LABEL_FROM_INVOICE: Record<string, string> = {
   "movers": "Moving Services",
 };
 const round2 = (n: number) => Math.round(n * 100) / 100;
+
+// "2026-10-12" → "12 Oct 2026" (read as a local date, not UTC)
+const fmtDay = (d: string) => {
+  const [y, m, day] = d.split("-").map(Number);
+  return new Date(y, m - 1, day).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+};
+// Service period text, e.g. "12 Oct 2026 – 15 Oct 2026 (4 days)"
+const formatServicePeriod = (start?: string, end?: string) => {
+  if (!start && !end) return "";
+  if (!start || !end || start === end) return fmtDay((start || end) as string) + " (1 day)";
+  const days = Math.round((new Date(end).getTime() - new Date(start).getTime()) / 86400000) + 1;
+  return `${fmtDay(start)} – ${fmtDay(end)} (${days} days)`;
+};
 const isUuid = (id: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
 
 // An unpaid / part-paid invoice a receipt can be issued against
@@ -176,6 +191,8 @@ interface InvoiceOption {
   customerKraPin: string;
   serviceType: string;
   firstItem: string;
+  serviceStart: string;
+  serviceEnd: string;
   vatRate: number;
   total: number;
   amountPaid: number;
@@ -198,6 +215,8 @@ const receiptFormSchema = z.object({
   // Service details
   serviceType: z.string().min(1, "Service type is required"),
   bookingReference: z.string().optional(),
+  serviceStart: z.string().optional(),   // yyyy-MM-dd
+  serviceEnd: z.string().optional(),
   description: z.string().min(1, "Description is required"),
   quantity: z.string().min(1, "Quantity is required"),
   unitPrice: z.string().min(1, "Unit price is required"),
@@ -451,6 +470,8 @@ export default function ReceiptsPage() {
           invoiceRef: r.invoice_ref ? String(r.invoice_ref) : undefined,
           bookingReference: r.booking_ref ? String(r.booking_ref) : undefined,
           bankName: r.bank_name ? String(r.bank_name) : undefined,
+          serviceStart: r.service_start ? String(r.service_start) : undefined,
+          serviceEnd: r.service_end ? String(r.service_end) : undefined,
           notes: String(r.notes || ""),
           sendEmail: false,
           sendSms: false,
@@ -490,6 +511,8 @@ export default function ReceiptsPage() {
             customerKraPin: String(inv.customer_kra_pin || ""),
             serviceType: String(inv.service_type || ""),
             firstItem: Array.isArray(inv.items) && inv.items[0] ? String((inv.items[0] as Record<string, unknown>).description || "") : "",
+            serviceStart: inv.service_start ? String(inv.service_start) : "",
+            serviceEnd: inv.service_end ? String(inv.service_end) : "",
             vatRate: Number(inv.vat_rate ?? 16),
             total: Number(inv.total) || 0,
             amountPaid: Number(inv.amount_paid) || 0,
@@ -525,6 +548,8 @@ export default function ReceiptsPage() {
     form.setValue("description", `Payment for invoice ${inv.invoiceNumber}${inv.firstItem ? ` — ${inv.firstItem}` : ""}`);
     form.setValue("quantity", "1");
     form.setValue("taxRate", String(inv.vatRate));
+    form.setValue("serviceStart", inv.serviceStart);
+    form.setValue("serviceEnd", inv.serviceEnd);
     applyAmountReceived(invoiceBalance(inv).toFixed(2), inv);
     setClientSearch(inv.customerName);
   };
@@ -614,6 +639,8 @@ export default function ReceiptsPage() {
       bankName: "",
       serviceType: "",
       bookingReference: "",
+      serviceStart: "",
+      serviceEnd: "",
       description: "",
       quantity: "1",
       unitPrice: "",
@@ -652,6 +679,10 @@ export default function ReceiptsPage() {
   // Handle form submit
   const onSubmit = async (data: ReceiptFormData) => {
     const invoice = linkedInvoice; // capture before the form is reset
+    if (data.serviceStart && data.serviceEnd && data.serviceEnd < data.serviceStart) {
+      toast.error("Service end date can't be before the start date");
+      return;
+    }
     const quantity = parseFloat(data.quantity);
     const unitPrice = parseFloat(data.unitPrice);
     const taxRate = parseFloat(data.taxRate);
@@ -706,6 +737,8 @@ export default function ReceiptsPage() {
       bookingReference: data.bookingReference || undefined,
       invoiceId: invoice?.id,
       invoiceRef: invoice?.invoiceNumber,
+      serviceStart: data.serviceStart || undefined,
+      serviceEnd: data.serviceEnd || undefined,
       issuedBy: "Admin",
       issuedAt: new Date().toISOString(),
       status: "issued",
@@ -741,6 +774,8 @@ export default function ReceiptsPage() {
       invoiceId: invoice && isUuid(invoice.id) ? invoice.id : undefined,
       invoiceRef: invoice?.invoiceNumber,
       bookingRef: newReceipt.bookingReference,
+      serviceStart: newReceipt.serviceStart,
+      serviceEnd: newReceipt.serviceEnd,
       customerName: newReceipt.customerName,
       customerPhone: newReceipt.customerPhone,
       customerEmail: newReceipt.customerEmail,
@@ -853,6 +888,7 @@ export default function ReceiptsPage() {
   const [editForm, setEditForm] = useState({
     customerName: "", customerPhone: "", customerEmail: "", customerKraPin: "",
     serviceType: "", description: "", transactionCode: "", bankName: "",
+    serviceStart: "", serviceEnd: "",
   });
   const [isSavingEdit, setIsSavingEdit] = useState(false);
 
@@ -867,6 +903,8 @@ export default function ReceiptsPage() {
       description: receipt.items[0]?.description || "",
       transactionCode: receipt.transactionCode || "",
       bankName: receipt.bankName || "",
+      serviceStart: receipt.serviceStart || "",
+      serviceEnd: receipt.serviceEnd || "",
     });
     setViewDialogOpen(false);
     setEditingReceipt(receipt);
@@ -878,6 +916,9 @@ export default function ReceiptsPage() {
     if (editForm.customerName.trim().length < 2) { toast.error("Customer name is required"); return; }
     if (editForm.customerPhone.replace(/\D/g, "").length < 9) { toast.error("Enter a valid phone number"); return; }
     if (!editForm.transactionCode.trim()) { toast.error("Transaction code is required"); return; }
+    if (editForm.serviceStart && editForm.serviceEnd && editForm.serviceEnd < editForm.serviceStart) {
+      toast.error("Service end date can't be before the start date"); return;
+    }
 
     const items = r.items.map((item, i) => (i === 0 ? { ...item, description: editForm.description.trim() } : item));
     const updated: ReceiptData = {
@@ -889,6 +930,8 @@ export default function ReceiptsPage() {
       serviceType: editForm.serviceType,
       transactionCode: editForm.transactionCode.trim(),
       bankName: editForm.bankName.trim() || undefined,
+      serviceStart: editForm.serviceStart || undefined,
+      serviceEnd: editForm.serviceEnd || undefined,
       items,
     };
     const codeChanged = updated.transactionCode !== r.transactionCode;
@@ -906,6 +949,8 @@ export default function ReceiptsPage() {
           transaction_code: updated.transactionCode,
           payment_reference: updated.transactionCode,
           bank_name: updated.bankName || "",
+          service_start: updated.serviceStart || "",
+          service_end: updated.serviceEnd || "",
         });
       }
       setReceipts((prev) => prev.map((x) => (x.id === r.id ? updated : x)));
@@ -1143,6 +1188,14 @@ export default function ReceiptsPage() {
                 <p style={{fontSize:"12px",color:"#555",marginTop:"4px"}}>Service: {selectedReceipt.serviceType}</p>
               </div>
             </div>
+
+            {/* ── SERVICE PERIOD ── */}
+            {(selectedReceipt.serviceStart || selectedReceipt.serviceEnd) && (
+              <div style={{display:"flex",alignItems:"center",gap:"12px",backgroundColor:"#f8f9ff",border:"1px solid #dde0e8",borderLeft:"4px solid #e67e22",borderRadius:"8px",padding:"10px 14px",marginBottom:"16px"}}>
+                <span style={{color:"#0a1628",fontWeight:800,fontSize:"11px",letterSpacing:"0.07em",textTransform:"uppercase",whiteSpace:"nowrap"}}>Service Period</span>
+                <span style={{color:"#0a1628",fontWeight:600,fontSize:"13px"}}>{formatServicePeriod(selectedReceipt.serviceStart, selectedReceipt.serviceEnd)}</span>
+              </div>
+            )}
 
             {/* ── ITEMS TABLE ── */}
             <div className="mb-6">
@@ -1589,6 +1642,29 @@ export default function ReceiptsPage() {
                         </FormItem>
                       )}
                     />
+                    {/* Service period (copied from the invoice when paying one) */}
+                    <FormField
+                      control={form.control}
+                      name="serviceStart"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Service Start</FormLabel>
+                          <FormControl><Input type="date" {...field} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="serviceEnd"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Service End</FormLabel>
+                          <FormControl><Input type="date" {...field} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                     <FormField
                       control={form.control}
                       name="description"
@@ -1961,7 +2037,7 @@ export default function ReceiptsPage() {
 
       {/* View Receipt Dialog */}
       <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto" style={{backgroundColor:"#ffffff",color:"#1a1a2e"}}>
+        <DialogContent className="max-w-[900px] sm:max-w-[900px] max-h-[94vh] overflow-y-auto" style={{backgroundColor:"#ffffff",color:"#1a1a2e"}}>
           {selectedReceipt && (
         
             <div style={{backgroundColor:"#ffffff",color:"#1a1a2e"}}>
@@ -1981,7 +2057,20 @@ export default function ReceiptsPage() {
                 </DialogTitle>
               </DialogHeader>
 
-              {receiptDocument}
+              {/* A4 preview: same page size and margins as the printout (210 × 297 mm, 7/12/6 mm margins) */}
+              <div className="rounded-lg" style={{backgroundColor:"#cbd5e1",padding:"20px"}}>
+                <div
+                  className="receipt-a4-sheet"
+                  style={{
+                    width:"min(210mm, 100%)", minHeight:"297mm", margin:"0 auto",
+                    backgroundColor:"#ffffff", boxShadow:"0 6px 24px rgba(15,23,42,0.25)",
+                    padding:"7mm 12mm 6mm", boxSizing:"border-box",
+                  }}
+                >
+                  {receiptDocument}
+                </div>
+                <p className="text-center text-xs mt-2" style={{color:"#334155"}}>A4 preview — prints exactly like this</p>
+              </div>
 
               {/* ── Send & print (screen only) — styled for the white receipt window ── */}
               <div className="print:hidden mt-5 rounded-xl border p-4" style={{backgroundColor:"#f8fafc",borderColor:"#e2e8f0"}}>
@@ -2109,6 +2198,8 @@ export default function ReceiptsPage() {
                   ["customerKraPin", "KRA PIN", "text"],
                   ["transactionCode", editingReceipt.paymentMethod === "mpesa" ? "M-Pesa Transaction Code *" : "Transaction / Reference *", "text"],
                   ...(editingReceipt.paymentMethod === "bank" ? [["bankName", "Bank Name", "text"]] : []),
+                  ["serviceStart", "Service Start", "date"],
+                  ["serviceEnd", "Service End", "date"],
                 ] as [keyof typeof editForm, string, string][]).map(([key, label, type]) => (
                   <div key={key} className="space-y-1.5">
                     <label className="text-sm font-medium">{label}</label>
