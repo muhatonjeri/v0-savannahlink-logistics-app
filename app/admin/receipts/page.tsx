@@ -1885,71 +1885,93 @@ export default function ReceiptsPage() {
 
               {receiptDocument}
 
-              {/* Send Options - Screen Only */}
-              <div className="print:hidden bg-blue-900/30 dark:bg-blue-950/30 rounded-lg p-4 mt-4">
-                <h4 className="font-semibold text-blue-300 dark:text-blue-400 mb-3 flex items-center gap-2">
-                  <Send className="h-4 w-4" />
-                  Send Receipt to Customer
-                </h4>
-                <div className="flex flex-wrap gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="gap-2 border-blue-300 text-blue-300 hover:bg-blue-100 dark:border-blue-700 dark:text-blue-400 dark:hover:bg-blue-900"
-                    onClick={() => selectedReceipt && sendReceiptEmail(selectedReceipt)}
-                    disabled={!selectedReceipt?.customerEmail || isSendingEmail}
-                  >
-                    {isSendingEmail ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
-                    Send Email
-                    {selectedReceipt?.customerEmail && (
-                      <span className="text-xs opacity-70 break-all">({selectedReceipt.customerEmail})</span>
-                    )}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="gap-2 border-green-300 text-green-300 hover:bg-green-100 dark:border-green-700 dark:text-green-400 dark:hover:bg-green-900"
-                    onClick={() => selectedReceipt && sendReceiptSms(selectedReceipt)}
-                    disabled={!selectedReceipt?.customerPhone || isSendingSms}
-                  >
-                    {isSendingSms ? <Loader2 className="h-4 w-4 animate-spin" /> : <MessageSquare className="h-4 w-4" />}
-                    Send SMS
-                    {selectedReceipt?.customerPhone && (
-                      <span className="text-xs opacity-70">({selectedReceipt.customerPhone})</span>
-                    )}
-                  </Button>
-                  <Button
-                    variant="default"
-                    size="sm"
-                    className="gap-2 bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700"
-                    onClick={() => selectedReceipt && sendReceiptBoth(selectedReceipt)}
-                    disabled={(!selectedReceipt?.customerEmail && !selectedReceipt?.customerPhone) || isSendingEmail || isSendingSms}
-                  >
-                    <Send className="h-4 w-4" />
-                    Send Both
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="gap-2 border-emerald-500 text-emerald-400 hover:bg-emerald-900/40"
-                    onClick={() => selectedReceipt && sendReceiptWhatsApp(selectedReceipt)}
-                    disabled={!selectedReceipt?.customerPhone}
-                  >
-                    <MessageSquare className="h-4 w-4" />
-                    WhatsApp
-                  </Button>
+              {/* ── Send & print (screen only) — styled for the white receipt window ── */}
+              <div className="print:hidden mt-5 rounded-xl border p-4" style={{backgroundColor:"#f8fafc",borderColor:"#e2e8f0"}}>
+                <div className="flex items-center gap-2 mb-1">
+                  <Send className="h-4 w-4" style={{color:"#e67e22"}} />
+                  <h4 className="font-bold text-sm" style={{color:"#0a1628"}}>Send Receipt to Customer</h4>
                 </div>
+                <p className="text-xs mb-3" style={{color:"#475569"}}>Choose how the customer should receive this receipt.</p>
+
+                <div className="grid gap-2 sm:grid-cols-3">
+                  {([
+                    {
+                      key: "email", label: "Email", icon: Mail,
+                      detail: selectedReceipt?.customerEmail || "No email on file",
+                      enabled: !!selectedReceipt?.customerEmail && !isSendingEmail, busy: isSendingEmail,
+                      onClick: () => selectedReceipt && sendReceiptEmail(selectedReceipt),
+                      accent: "#0a1628",
+                    },
+                    {
+                      key: "sms", label: "SMS", icon: MessageSquare,
+                      detail: selectedReceipt?.customerPhone || "No phone on file",
+                      enabled: !!selectedReceipt?.customerPhone && !isSendingSms, busy: isSendingSms,
+                      onClick: () => selectedReceipt && sendReceiptSms(selectedReceipt),
+                      accent: "#0a1628",
+                    },
+                    {
+                      key: "whatsapp", label: "WhatsApp", icon: MessageSquare,
+                      detail: selectedReceipt?.customerPhone || "No phone on file",
+                      enabled: !!selectedReceipt?.customerPhone, busy: false,
+                      onClick: () => selectedReceipt && sendReceiptWhatsApp(selectedReceipt),
+                      accent: "#128C7E", // WhatsApp green (readable on white)
+                    },
+                  ] as const).map((ch) => {
+                    const Icon = ch.icon;
+                    return (
+                      <button
+                        key={ch.key}
+                        type="button"
+                        onClick={ch.onClick}
+                        disabled={!ch.enabled}
+                        title={`${ch.label}: ${ch.detail}`}
+                        className="flex items-center gap-3 rounded-lg border px-3 py-2.5 text-left transition-colors bg-[#ffffff] hover:bg-[#f1f5f9] disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400"
+                        style={{borderColor:"#cbd5e1"}}
+                      >
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full" style={{backgroundColor: ch.accent}}>
+                          {ch.busy ? <Loader2 className="h-4 w-4 animate-spin" style={{color:"#ffffff"}} /> : <Icon className="h-4 w-4" style={{color:"#ffffff"}} />}
+                        </span>
+                        <span className="min-w-0">
+                          <span className="block text-sm font-semibold" style={{color:"#0a1628"}}>{ch.label}</span>
+                          <span className="block truncate text-xs" style={{color:"#475569"}}>{ch.detail}</span>
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {selectedReceipt?.customerEmail && selectedReceipt?.customerPhone && (
+                  <button
+                    type="button"
+                    onClick={() => selectedReceipt && sendReceiptBoth(selectedReceipt)}
+                    disabled={isSendingEmail || isSendingSms}
+                    className="mt-2 w-full rounded-lg px-3 py-2 text-sm font-semibold transition-opacity hover:opacity-90 disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400"
+                    style={{backgroundColor:"#e67e22",color:"#ffffff"}}
+                  >
+                    <span className="inline-flex items-center gap-2" style={{color:"#ffffff"}}><Send className="h-4 w-4" style={{color:"#ffffff"}} /> Send by Email and SMS</span>
+                  </button>
+                )}
               </div>
 
-              <DialogFooter className="print:hidden gap-2 mt-4">
-                <Button variant="outline" onClick={() => setViewDialogOpen(false)}>
+              <div className="print:hidden mt-4 flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setViewDialogOpen(false)}
+                  className="rounded-lg border bg-[#ffffff] hover:bg-[#f1f5f9] px-4 py-2 text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400"
+                  style={{borderColor:"#cbd5e1",color:"#0a1628"}}
+                >
                   Close
-                </Button>
-                <Button onClick={() => handlePrint()} className="gap-2 bg-emerald-600 hover:bg-emerald-700">
-                  <Printer className="h-4 w-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handlePrint()}
+                  className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-opacity hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400"
+                  style={{backgroundColor:"#0a1628",color:"#ffffff"}}
+                >
+                  <Printer className="h-4 w-4" style={{color:"#ffffff"}} />
                   Print Receipt
-                </Button>
-              </DialogFooter>
+                </button>
+              </div>
             </div>
           )}
         </DialogContent>
