@@ -249,6 +249,17 @@ const companyInfo = {
   mpesaAccountNo: "247032",
 };
 
+// Terms & Conditions printed on every invoice — edit the wording here, not in the layout.
+const getInvoiceTerms = (invoiceNumber: string): string[] => [
+  "Payment is due by the due date shown above.",
+  `Pay only to M-Pesa Paybill ${companyInfo.mpesaPaybill} (Acc. ${companyInfo.mpesaAccountNo})` +
+    (companyInfo.bankAccount ? ` or the ${companyInfo.bankName} account shown` : "") +
+    ". Moventra will never ask you to pay to any other number or account.",
+  `Quote invoice ${invoiceNumber} on bank transfers and send your payment confirmation to ${companyInfo.email} or ${companyInfo.phone}.`,
+  "Any queries about this invoice must be raised within 7 days of the issue date.",
+  "Services are provided under Moventra's Hire Agreement and Terms of Service.",
+];
+
 // Money on documents: thousands separators and always 2 decimals (e.g. 12,500.00)
 const formatKES = (amount: number) =>
   amount.toLocaleString("en-KE", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -825,23 +836,17 @@ const [invoices, setInvoices] = useState<Invoice[]>(DEMO_INVOICES);
           )}
           <div style={{backgroundColor:"#f8f9ff",border:"1px solid #dde0e8",borderRadius:"8px",padding:"12px 16px",marginBottom:"24px"}}>
             <p style={{color:"#0a1628",fontWeight:700,fontSize:"11px",textTransform:"uppercase",marginBottom:"8px"}}>Terms & Conditions</p>
-            <ul style={{fontSize:"11px",color:"#666",paddingLeft:"16px",lineHeight:2}}>
-              <li>Payment is due by the date indicated above</li>
-              <li>Late payments may incur additional charges of 2% per month</li>
-              <li>Please share your payment confirmation and quote invoice {selectedInvoice.invoiceNumber}</li>
-              <li>This invoice is valid for 30 days from issue date</li>
-            </ul>
+            <ol style={{fontSize:"11px",color:"#555",paddingLeft:"18px",lineHeight:1.7,listStyleType:"decimal"}}>
+              {getInvoiceTerms(selectedInvoice.invoiceNumber).map((term) => (
+                <li key={term}>{term}</li>
+              ))}
+            </ol>
           </div>
 
           {/* ── FOOTER ── */}
-          <div style={{textAlign:"center",paddingTop:"16px",borderTop:"2px solid #e67e22"}}>
+          <div style={{textAlign:"center",paddingTop:"12px",borderTop:"2px solid #e67e22"}}>
             <p style={{color:"#e67e22",fontWeight:700,fontSize:"15px"}}>Thank You For Your Business!</p>
-            <p style={{fontSize:"12px",color:"#555",marginTop:"6px"}}>
-              For inquiries: {companyInfo.email} &nbsp;|&nbsp; {companyInfo.phone}
-            </p>
-            <p style={{fontSize:"11px",color:"#777",marginTop:"6px"}}>
-              {companyInfo.website}{companyInfo.kraPin && <> &nbsp;|&nbsp; KRA PIN: {companyInfo.kraPin}</>}
-            </p>
+            {/* Contact details, website and KRA PIN are already in the header — not repeated here */}
           </div>
         </div>
       </div>
