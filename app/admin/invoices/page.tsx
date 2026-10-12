@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
-import { useReactToPrint } from "react-to-print";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { invoicesApi } from "@/lib/api";
@@ -231,22 +231,27 @@ const initialInvoices: Invoice[] = [
   },
 ];
 
-// Company info for invoice header
+// Company info for invoice header.
+// Optional fields (kraPin, bank*) are hidden on the invoice when left as "".
 const companyInfo = {
-  name: "Moventra Safaris & Logistics Ltd Logistics & Tours",
-  tagline: "Journeys That Connect",
+  name: "Moventra Safaris & Logistics Ltd",
+  tagline: "Experience. Move. Deliver. Beyond Borders.",
   address: "Muthaiga Square, off Thika Rd",
   city: "Nairobi, Kenya",
   phone: "+254 727 247 032",
   email: "info@moventrasafarislogisticsltd.com",
-  website: "www.Moventra Safaris & Logistics Ltd.com",
+  website: "www.moventrasafarislogisticsltd.com",
   kraPin: "P052540073A",
-  bankName: "I$M Bank Kenya Ltd",
+  bankName: "I&M Bank Kenya Ltd",
   bankAccount: "0100 9406 6363 50",
   bankBranch: "Nairobi Main Branch",
   mpesaPaybill: "542542",
   mpesaAccountNo: "247032",
 };
+
+// Money on documents: thousands separators and always 2 decimals (e.g. 12,500.00)
+const formatKES = (amount: number) =>
+  amount.toLocaleString("en-KE", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 
 // Demo invoices — visible immediately, replaced when Supabase connects
@@ -377,7 +382,9 @@ const [invoices, setInvoices] = useState<Invoice[]>(DEMO_INVOICES);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [serviceFilter, setServiceFilter] = useState<string>("all");
-  const printRef = useRef<HTMLDivElement>(null);
+  // createPortal needs `document`, which only exists in the browser — not during server render.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
 
   // Payment form state
   const [paymentForm, setPaymentForm] = useState({
@@ -404,10 +411,21 @@ const [invoices, setInvoices] = useState<Invoice[]>(DEMO_INVOICES);
   ]);
   const [vatRate, setVatRate] = useState(16);
 
-  const handlePrint = useReactToPrint({
-    contentRef: printRef,
-    documentTitle: selectedInvoice ? `Invoice-${selectedInvoice.invoiceNumber}` : "Invoice",
-  });
+  // Print / Save as PDF via the browser's own dialog. A second copy of the invoice is
+  // rendered directly under <body> (portal, bottom of this file); while printing, everything
+  // else on the page is display:none, so the dialog's size/position can't affect the printout.
+  // Takes the invoice explicitly: when called right after setSelectedInvoice (table menu),
+  // selectedInvoice in this closure is still the previous value.
+  const handlePrint = (invoice: Invoice | null = selectedInvoice) => {
+    const originalTitle = document.title;
+    if (invoice) document.title = `Invoice-${invoice.invoiceNumber}`; // becomes the saved PDF's file name
+    document.body.classList.add("printing-invoice"); // see "Invoice printing" in globals.css
+    window.addEventListener("afterprint", () => {
+      document.title = originalTitle;
+      document.body.classList.remove("printing-invoice");
+    }, { once: true });
+    window.print();
+  };
 
   // Filter invoices
   const filteredInvoices = invoices.filter((invoice) => {
@@ -463,6 +481,11 @@ const [invoices, setInvoices] = useState<Invoice[]>(DEMO_INVOICES);
   const handleCreateInvoice = () => {
     if (!newInvoice.customerName || !newInvoice.serviceType || invoiceItems.some(item => !item.description)) {
       toast.error("Please fill in all required fields");
+      return;
+    }
+    const today = new Date().toISOString().split("T")[0];
+    if (newInvoice.dueDate && newInvoice.dueDate < today) {
+      toast.error("Due date can't be before the issue date");
       return;
     }
 
@@ -606,6 +629,223 @@ const [invoices, setInvoices] = useState<Invoice[]>(DEMO_INVOICES);
     totalRevenue: invoices.reduce((sum, i) => sum + i.amountPaid, 0),
     pendingRevenue: invoices.filter((i) => i.status !== "paid" && i.status !== "cancelled").reduce((sum, i) => sum + (i.total - i.amountPaid), 0),
   };
+
+  // The invoice document. Rendered twice: inside the preview dialog (on screen)
+  // and in a portal under <body> (used only for printing / Save as PDF).
+  const invoiceDocument = selectedInvoice ? (
+      <div className="invoice-sheet" style={{backgroundColor:"#ffffff",color:"#1a1a2e",borderRadius:"12px",overflow:"hidden",boxShadow:"0 4px 24px rgba(0,0,0,0.08)"}}>
+        {/* Polished Invoice Template */}
+
+        {/* Top accent bar */}
+        <div style={{background:"linear-gradient(135deg,#0a1628 0%,#1a3a5c 50%,#0a1628 100%)",height:"6px"}} />
+
+        <div className="invoice-doc" style={{padding:"32px"}}>
+          {/* ── HEADER ── */}
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:"24px"}}>
+            <div style={{display:"flex",alignItems:"flex-start",gap:"16px",flex:1,minWidth:0}}>
+              <Image src="/images/logo.png" alt={companyInfo.name} width={72} height={72}
+                style={{width:"72px",height:"72px",objectFit:"contain",borderRadius:"8px",flexShrink:0}} unoptimized />
+              <div style={{minWidth:0}}>
+                <h1 style={{color:"#0a1628",fontWeight:800,fontSize:"18px",lineHeight:1.25}}>{companyInfo.name}</h1>
+                <p style={{color:"#e67e22",fontSize:"11px",fontWeight:600,marginTop:"3px",letterSpacing:"0.03em"}}>{companyInfo.tagline}</p>
+                <div style={{marginTop:"8px",fontSize:"11.5px",color:"#555",lineHeight:1.6}}>
+                  <p>{companyInfo.address}, {companyInfo.city}</p>
+                  <p>{companyInfo.phone}</p>
+                  <p>{companyInfo.email}</p>
+                  <p>{companyInfo.website}</p>
+                  {companyInfo.kraPin && <p style={{fontWeight:700,color:"#0a1628",marginTop:"4px"}}>KRA PIN: {companyInfo.kraPin}</p>}
+                </div>
+              </div>
+            </div>
+            <div style={{textAlign:"right",flexShrink:0,marginLeft:"16px"}}>
+              <div style={{backgroundColor:"#0a1628",color:"white",borderRadius:"10px",padding:"14px 22px",minWidth:"180px",display:"inline-block"}}>
+                <p style={{fontSize:"10px",letterSpacing:"0.12em",textTransform:"uppercase",opacity:0.8}}>Tax Invoice</p>
+                <p style={{fontSize:"18px",fontWeight:800,fontFamily:"monospace",marginTop:"4px",whiteSpace:"nowrap"}}>{selectedInvoice.invoiceNumber}</p>
+                <div style={{height:"1px",backgroundColor:"rgba(230,126,34,0.5)",margin:"10px 0"}} />
+                <div style={{fontSize:"11px",opacity:0.9}}>
+                  <p>Issue: {format(new Date(selectedInvoice.issueDate), "dd MMM yyyy")}</p>
+                  <p style={{color:"#fca5a5",marginTop:"2px"}}>Due: {format(new Date(selectedInvoice.dueDate), "dd MMM yyyy")}</p>
+                </div>
+              </div>
+              <div style={{marginTop:"10px"}}>
+                <Badge className={statusConfig[selectedInvoice.status].color}>{statusConfig[selectedInvoice.status].label}</Badge>
+              </div>
+            </div>
+          </div>
+          {/* Divider */}
+          <div style={{height:"2px",background:"linear-gradient(to right,#e67e22,#0a1628,#e67e22)",borderRadius:"2px",marginBottom:"24px"}} />
+
+          {/* ── BILL TO & DETAILS ── */}
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"16px",marginBottom:"24px"}}>
+            <div style={{backgroundColor:"#f8f9ff",border:"1px solid #e8eaf0",borderRadius:"10px",padding:"16px"}}>
+              <div style={{display:"flex",alignItems:"center",gap:"8px",marginBottom:"12px"}}>
+                <User style={{width:14,height:14,color:"#e67e22"}} />
+                <span style={{color:"#0a1628",fontWeight:700,fontSize:"11px",letterSpacing:"0.06em",textTransform:"uppercase"}}>Bill To</span>
+              </div>
+              <p style={{color:"#0a1628",fontWeight:700,fontSize:"17px",marginBottom:"6px"}}>{selectedInvoice.customerName}</p>
+              {selectedInvoice.customerAddress && <p style={{color:"#555",fontSize:"12px",marginBottom:"3px"}}>{selectedInvoice.customerAddress}</p>}
+              {selectedInvoice.customerPhone && <p style={{color:"#555",fontSize:"12px",marginBottom:"3px"}}>{selectedInvoice.customerPhone}</p>}
+              {selectedInvoice.customerEmail && <p style={{color:"#555",fontSize:"12px",overflowWrap:"anywhere",marginBottom:"3px"}}>{selectedInvoice.customerEmail}</p>}
+              {selectedInvoice.customerKraPin && <p style={{color:"#0a1628",fontSize:"12px",fontWeight:600,marginTop:"6px"}}>KRA PIN: {selectedInvoice.customerKraPin}</p>}
+            </div>
+            <div style={{backgroundColor:"#f8f9ff",border:"1px solid #e8eaf0",borderRadius:"10px",padding:"16px"}}>
+              <div style={{marginBottom:"12px"}}>
+                <span style={{color:"#0a1628",fontWeight:700,fontSize:"11px",letterSpacing:"0.06em",textTransform:"uppercase"}}>Invoice Details</span>
+              </div>
+              <div style={{fontSize:"12px",color:"#555",lineHeight:2}}>
+                <div style={{display:"flex",alignItems:"center",gap:"8px",marginBottom:"4px"}}>
+                  {(() => { const SI = getServiceIcon(selectedInvoice.serviceType); return <SI style={{width:16,height:16,color:"#e67e22"}} />; })()}
+                  <span style={{fontWeight:600,color:"#0a1628"}}>{getServiceLabel(selectedInvoice.serviceType)}</span>
+                </div>
+                <p><span style={{fontWeight:600,color:"#0a1628"}}>Terms:</span> {selectedInvoice.paymentTerms}</p>
+                <p><span style={{fontWeight:600,color:"#0a1628"}}>Currency:</span> KES (Kenya Shillings)</p>
+              </div>
+            </div>
+          </div>
+
+          {/* ── ITEMS TABLE ── */}
+          <div style={{marginBottom:"24px"}}>
+            <p style={{color:"#0a1628",fontWeight:700,fontSize:"11px",letterSpacing:"0.08em",textTransform:"uppercase",marginBottom:"10px"}}>Description of Services</p>
+            <div style={{border:"1px solid #dde0e8",borderRadius:"10px",overflow:"hidden"}}>
+              <table style={{width:"100%",borderCollapse:"collapse"}}>
+                <thead>
+                  <tr style={{backgroundColor:"#0a1628",color:"white"}}>
+                    <th style={{textAlign:"left",padding:"12px 16px",fontSize:"11px",fontWeight:700,letterSpacing:"0.05em",textTransform:"uppercase"}}>Description</th>
+                    <th style={{textAlign:"center",padding:"12px 16px",fontSize:"11px",fontWeight:700,width:"60px",letterSpacing:"0.05em",textTransform:"uppercase"}}>Qty</th>
+                    <th style={{textAlign:"right",padding:"12px 16px",fontSize:"11px",fontWeight:700,width:"130px",letterSpacing:"0.05em",textTransform:"uppercase"}}>Unit Price</th>
+                    <th style={{textAlign:"right",padding:"12px 16px",fontSize:"11px",fontWeight:700,width:"130px",letterSpacing:"0.05em",textTransform:"uppercase",color:"#e67e22"}}>Amount (KES)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {selectedInvoice.items.map((item, i) => (
+                    <tr key={item.id} style={{backgroundColor:i%2===0?"#ffffff":"#f8f9ff",color:"#1a1a2e",borderBottom:"1px solid #eee"}}>
+                      <td style={{padding:"12px 16px",fontSize:"13px"}}>{item.description}</td>
+                      <td style={{padding:"12px 16px",textAlign:"center",fontSize:"13px"}}>{item.quantity}</td>
+                      <td style={{padding:"12px 16px",textAlign:"right",fontSize:"13px"}}>{formatKES(item.unitPrice)}</td>
+                      <td style={{padding:"12px 16px",textAlign:"right",fontWeight:700,fontSize:"13px"}}>{formatKES(item.amount)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* ── TOTALS ── */}
+          <div style={{display:"flex",justifyContent:"flex-end",marginBottom:"24px"}}>
+            <div style={{width:"300px",backgroundColor:"#0a1628",borderRadius:"12px",padding:"18px",border:"2px solid #e67e22"}}>
+              <div style={{display:"flex",justifyContent:"space-between",fontSize:"12px",color:"rgba(255,255,255,0.65)",marginBottom:"8px"}}>
+                <span>Subtotal:</span><span>KES {formatKES(selectedInvoice.subtotal)}</span>
+              </div>
+              <div style={{display:"flex",justifyContent:"space-between",fontSize:"12px",color:"rgba(255,255,255,0.65)",marginBottom:"12px"}}>
+                <span>VAT ({selectedInvoice.vatRate}%):</span><span>KES {formatKES(selectedInvoice.vatAmount)}</span>
+              </div>
+              <div style={{borderTop:"1px solid rgba(230,126,34,0.5)",paddingTop:"12px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                <span style={{color:"white",fontWeight:700,fontSize:"14px"}}>TOTAL DUE:</span>
+                <span style={{color:"#e67e22",fontWeight:800,fontSize:"20px",whiteSpace:"nowrap"}}>KES {formatKES(selectedInvoice.total)}</span>
+              </div>
+              {selectedInvoice.amountPaid > 0 && (
+                <>
+                  <div style={{display:"flex",justifyContent:"space-between",fontSize:"12px",color:"#86efac",marginTop:"10px"}}>
+                    <span>Amount Paid:</span><span>KES {formatKES(selectedInvoice.amountPaid)}</span>
+                  </div>
+                  <div style={{display:"flex",justifyContent:"space-between",fontSize:"14px",fontWeight:700,marginTop:"6px",color:(selectedInvoice.total-selectedInvoice.amountPaid)>0?"#fca5a5":"#86efac"}}>
+                    <span>Balance Due:</span><span>KES {formatKES(selectedInvoice.total-selectedInvoice.amountPaid)}</span>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* ── PAYMENT HISTORY ── */}
+          {selectedInvoice.payments.length > 0 && (
+            <div style={{marginBottom:"24px"}}>
+              <p style={{color:"#0a1628",fontWeight:700,fontSize:"11px",letterSpacing:"0.08em",textTransform:"uppercase",marginBottom:"10px"}}>Payment History</p>
+              <div style={{border:"1px solid #dde0e8",borderRadius:"10px",overflow:"hidden"}}>
+                <table style={{width:"100%",borderCollapse:"collapse"}}>
+                  <thead>
+                    <tr style={{backgroundColor:"#f0f2f8",color:"#0a1628"}}>
+                      {["Date","Method","Reference","Note","Amount (KES)"].map((h,i) => (
+                        <th key={h} style={{padding:"10px 14px",fontSize:"11px",fontWeight:700,textAlign:i===4?"right":"left",letterSpacing:"0.04em",textTransform:"uppercase"}}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {selectedInvoice.payments.map((p, i) => (
+                      <tr key={p.id} style={{borderTop:"1px solid #eee",backgroundColor:i%2===0?"white":"#f8f9ff",color:"#1a1a2e"}}>
+                        <td style={{padding:"10px 14px",fontSize:"12px"}}>{format(new Date(p.date), "MMM dd, yyyy")}</td>
+                        <td style={{padding:"10px 14px",fontSize:"12px",textTransform:"capitalize"}}>{p.method === "mpesa" ? "M-Pesa" : p.method}</td>
+                        <td style={{padding:"10px 14px",fontSize:"11px",fontFamily:"monospace"}}>{p.reference}</td>
+                        <td style={{padding:"10px 14px",fontSize:"12px",color:"#888"}}>{p.note || "—"}</td>
+                        <td style={{padding:"10px 14px",textAlign:"right",fontWeight:700,fontSize:"13px",color:"#16a34a"}}>{formatKES(p.amount)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* ── PAYMENT OPTIONS ── */}
+          <div style={{display:"grid",gridTemplateColumns:companyInfo.bankAccount ? "1fr 1fr" : "1fr",gap:"16px",marginBottom:"24px"}}>
+            {companyInfo.bankAccount && (
+            <div style={{backgroundColor:"#f8f9ff",border:"1px solid #dde0e8",borderRadius:"10px",padding:"16px"}}>
+              <div style={{display:"flex",alignItems:"center",gap:"8px",marginBottom:"12px"}}>
+                <Building2 style={{width:14,height:14,color:"#e67e22"}} />
+                <span style={{color:"#0a1628",fontWeight:700,fontSize:"11px",letterSpacing:"0.06em",textTransform:"uppercase"}}>Bank Transfer</span>
+              </div>
+              <div style={{fontSize:"12px",color:"#555",lineHeight:2}}>
+                <div style={{display:"flex",justifyContent:"space-between"}}><span>Bank:</span><span style={{fontWeight:700,color:"#0a1628"}}>{companyInfo.bankName}</span></div>
+                <div style={{display:"flex",justifyContent:"space-between"}}><span>Account:</span><span style={{fontWeight:700,fontFamily:"monospace",color:"#0a1628"}}>{companyInfo.bankAccount}</span></div>
+                <div style={{display:"flex",justifyContent:"space-between"}}><span>Branch:</span><span style={{fontWeight:700,color:"#0a1628"}}>{companyInfo.bankBranch}</span></div>
+              </div>
+            </div>
+            )}
+            <div style={{backgroundColor:"#fff8ee",border:"1px solid #e67e22",borderRadius:"10px",padding:"16px"}}>
+              <div style={{display:"flex",alignItems:"center",gap:"8px",marginBottom:"12px"}}>
+                <Smartphone style={{width:14,height:14,color:"#e67e22"}} />
+                <span style={{color:"#0a1628",fontWeight:700,fontSize:"11px",letterSpacing:"0.06em",textTransform:"uppercase"}}>M-Pesa Paybill</span>
+              </div>
+              <div style={{fontSize:"12px",color:"#555",lineHeight:2}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                  <span>Paybill:</span>
+                  <span style={{fontWeight:800,fontFamily:"monospace",fontSize:"22px",color:"#e67e22"}}>{companyInfo.mpesaPaybill}</span>
+                </div>
+                <div style={{display:"flex",justifyContent:"space-between"}}><span>Account:</span><span style={{fontWeight:700,fontFamily:"monospace",color:"#0a1628"}}>{companyInfo.mpesaAccountNo}</span></div>
+                <p style={{fontSize:"11px",color:"#e67e22",fontWeight:600,marginTop:"4px",lineHeight:1.5}}>Lipa na M-Pesa → Pay Bill → Business no. {companyInfo.mpesaPaybill} → Account no. {companyInfo.mpesaAccountNo}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* ── NOTES & TERMS ── */}
+          {selectedInvoice.notes && (
+            <div style={{backgroundColor:"#fff8ee",border:"1px solid #e67e22",borderRadius:"8px",padding:"12px 16px",marginBottom:"16px"}}>
+              <p style={{color:"#0a1628",fontWeight:700,fontSize:"11px",textTransform:"uppercase",marginBottom:"6px"}}>Notes</p>
+              <p style={{fontSize:"12px",color:"#333"}}>{selectedInvoice.notes}</p>
+            </div>
+          )}
+          <div style={{backgroundColor:"#f8f9ff",border:"1px solid #dde0e8",borderRadius:"8px",padding:"12px 16px",marginBottom:"24px"}}>
+            <p style={{color:"#0a1628",fontWeight:700,fontSize:"11px",textTransform:"uppercase",marginBottom:"8px"}}>Terms & Conditions</p>
+            <ul style={{fontSize:"11px",color:"#666",paddingLeft:"16px",lineHeight:2}}>
+              <li>Payment is due by the date indicated above</li>
+              <li>Late payments may incur additional charges of 2% per month</li>
+              <li>Please share your payment confirmation and quote invoice {selectedInvoice.invoiceNumber}</li>
+              <li>This invoice is valid for 30 days from issue date</li>
+            </ul>
+          </div>
+
+          {/* ── FOOTER ── */}
+          <div style={{textAlign:"center",paddingTop:"16px",borderTop:"2px solid #e67e22"}}>
+            <p style={{color:"#e67e22",fontWeight:700,fontSize:"15px"}}>Thank You For Your Business!</p>
+            <p style={{fontSize:"12px",color:"#555",marginTop:"6px"}}>
+              For inquiries: {companyInfo.email} &nbsp;|&nbsp; {companyInfo.phone}
+            </p>
+            <p style={{fontSize:"11px",color:"#777",marginTop:"6px"}}>
+              {companyInfo.website}{companyInfo.kraPin && <> &nbsp;|&nbsp; KRA PIN: {companyInfo.kraPin}</>}
+            </p>
+          </div>
+        </div>
+      </div>
+  ) : null;
 
   return (
     <div className="space-y-6">
@@ -809,12 +1049,16 @@ const [invoices, setInvoices] = useState<Invoice[]>(DEMO_INVOICES);
                           <DropdownMenuItem onClick={() => {
                             setSelectedInvoice(invoice);
                             setIsViewDialogOpen(true);
-                            setTimeout(() => handlePrint(), 500);
+                            setTimeout(() => handlePrint(invoice), 500);
                           }}>
                             <Printer className="h-4 w-4 mr-2" />
                             Print
                           </DropdownMenuItem>
-                          <DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => {
+                            setSelectedInvoice(invoice);
+                            setIsViewDialogOpen(true);
+                            setTimeout(() => handlePrint(invoice), 500);
+                          }}>
                             <Download className="h-4 w-4 mr-2" />
                             Download PDF
                           </DropdownMenuItem>
@@ -859,7 +1103,7 @@ const [invoices, setInvoices] = useState<Invoice[]>(DEMO_INVOICES);
 
       {/* Create Invoice Dialog */}
       <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl sm:max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <FileText className="h-5 w-5 text-cyan-500" />
@@ -1098,7 +1342,7 @@ const [invoices, setInvoices] = useState<Invoice[]>(DEMO_INVOICES);
 
       {/* View/Print Invoice Dialog */}
       <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[95vh] overflow-y-auto p-0">
+        <DialogContent className="max-w-4xl sm:max-w-4xl max-h-[95vh] overflow-y-auto p-0">
           <div className="sticky top-0 z-10 flex items-center justify-between p-4 bg-background border-b">
             <DialogTitle className="flex items-center gap-2">
               <FileText className="h-5 w-5 text-cyan-500" />
@@ -1115,228 +1359,18 @@ const [invoices, setInvoices] = useState<Invoice[]>(DEMO_INVOICES);
                   Record Payment
                 </Button>
               )}
-              <Button variant="outline" size="sm" onClick={handlePrint}>
+              <Button variant="outline" size="sm" onClick={() => handlePrint()}>
                 <Printer className="h-4 w-4 mr-2" />
                 Print
               </Button>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" onClick={() => handlePrint()}>
                 <Download className="h-4 w-4 mr-2" />
                 Download
               </Button>
             </div>
           </div>
 
-          {selectedInvoice && (
-            <div ref={printRef} className="print-receipt" data-print-area="true" style={{backgroundColor:"#ffffff",color:"#1a1a2e",borderRadius:"12px",overflow:"hidden",boxShadow:"0 4px 24px rgba(0,0,0,0.08)"}}>
-              {/* Polished Invoice Template */}
-
-              {/* Top accent bar */}
-              <div style={{background:"linear-gradient(135deg,#0a1628 0%,#1a3a5c 50%,#0a1628 100%)",height:"6px"}} />
-
-              <div style={{padding:"32px"}}>
-                {/* ── HEADER ── */}
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:"24px"}}>
-                  <div style={{display:"flex",alignItems:"flex-start",gap:"16px"}}>
-                    <Image src="/images/logo.png" alt={companyInfo.name} width={90} height={90}
-                      style={{width:"80px",height:"80px",objectFit:"contain",borderRadius:"8px"}} unoptimized />
-                    <div>
-                      <h1 style={{color:"#0a1628",fontWeight:800,fontSize:"20px",lineHeight:1.2}}>{companyInfo.name}</h1>
-                      <p style={{color:"#e67e22",fontSize:"11px",fontWeight:600,marginTop:"2px",letterSpacing:"0.03em"}}>Experience. Move. Deliver. Beyond Borders.</p>
-                      <div style={{marginTop:"10px",fontSize:"12px",color:"#555",lineHeight:1.8}}>
-                        <p>{companyInfo.address}, {companyInfo.city}</p>
-                        <p>{companyInfo.phone} &nbsp;|&nbsp; <span style={{wordBreak:"break-all"}}>{companyInfo.email}</span></p>
-                        <p>{companyInfo.website}</p>
-                        <p style={{fontWeight:700,color:"#0a1628",marginTop:"4px"}}>KRA PIN: {companyInfo.kraPin}</p>
-                      </div>
-                    </div>
-                  </div>
-                  <div style={{textAlign:"right"}}>
-                    <div style={{backgroundColor:"#0a1628",color:"white",borderRadius:"10px",padding:"14px 22px",minWidth:"180px",display:"inline-block"}}>
-                      <p style={{fontSize:"10px",letterSpacing:"0.12em",textTransform:"uppercase",opacity:0.8}}>Tax Invoice</p>
-                      <p style={{fontSize:"22px",fontWeight:800,fontFamily:"monospace",marginTop:"4px"}}>{selectedInvoice.invoiceNumber}</p>
-                      <div style={{height:"1px",backgroundColor:"rgba(230,126,34,0.5)",margin:"10px 0"}} />
-                      <div style={{fontSize:"11px",opacity:0.9}}>
-                        <p>Issue: {format(new Date(selectedInvoice.issueDate), "dd MMM yyyy")}</p>
-                        <p style={{color:"#fca5a5",marginTop:"2px"}}>Due: {format(new Date(selectedInvoice.dueDate), "dd MMM yyyy")}</p>
-                      </div>
-                    </div>
-                    <div style={{marginTop:"10px"}}>
-                      <Badge className={statusConfig[selectedInvoice.status].color}>{statusConfig[selectedInvoice.status].label}</Badge>
-                    </div>
-                  </div>
-                </div>
-                {/* Divider */}
-                <div style={{height:"2px",background:"linear-gradient(to right,#e67e22,#0a1628,#e67e22)",borderRadius:"2px",marginBottom:"24px"}} />
-
-                {/* ── BILL TO & DETAILS ── */}
-                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"16px",marginBottom:"24px"}}>
-                  <div style={{backgroundColor:"#f8f9ff",border:"1px solid #e8eaf0",borderRadius:"10px",padding:"16px"}}>
-                    <div style={{display:"flex",alignItems:"center",gap:"8px",marginBottom:"12px"}}>
-                      <User style={{width:14,height:14,color:"#e67e22"}} />
-                      <span style={{color:"#0a1628",fontWeight:700,fontSize:"11px",letterSpacing:"0.06em",textTransform:"uppercase"}}>Bill To</span>
-                    </div>
-                    <p style={{color:"#0a1628",fontWeight:700,fontSize:"17px",marginBottom:"6px"}}>{selectedInvoice.customerName}</p>
-                    {selectedInvoice.customerAddress && <p style={{color:"#555",fontSize:"12px",marginBottom:"3px"}}>{selectedInvoice.customerAddress}</p>}
-                    {selectedInvoice.customerPhone && <p style={{color:"#555",fontSize:"12px",marginBottom:"3px"}}>{selectedInvoice.customerPhone}</p>}
-                    {selectedInvoice.customerEmail && <p style={{color:"#555",fontSize:"12px",wordBreak:"break-all",marginBottom:"3px"}}>{selectedInvoice.customerEmail}</p>}
-                    {selectedInvoice.customerKraPin && <p style={{color:"#0a1628",fontSize:"12px",fontWeight:600,marginTop:"6px"}}>KRA PIN: {selectedInvoice.customerKraPin}</p>}
-                  </div>
-                  <div style={{backgroundColor:"#f8f9ff",border:"1px solid #e8eaf0",borderRadius:"10px",padding:"16px"}}>
-                    <div style={{marginBottom:"12px"}}>
-                      <span style={{color:"#0a1628",fontWeight:700,fontSize:"11px",letterSpacing:"0.06em",textTransform:"uppercase"}}>Invoice Details</span>
-                    </div>
-                    <div style={{fontSize:"12px",color:"#555",lineHeight:2}}>
-                      <div style={{display:"flex",alignItems:"center",gap:"8px",marginBottom:"4px"}}>
-                        {(() => { const SI = getServiceIcon(selectedInvoice.serviceType); return <SI style={{width:16,height:16,color:"#e67e22"}} />; })()}
-                        <span style={{fontWeight:600,color:"#0a1628"}}>{getServiceLabel(selectedInvoice.serviceType)}</span>
-                      </div>
-                      <p><span style={{fontWeight:600,color:"#0a1628"}}>Terms:</span> {selectedInvoice.paymentTerms}</p>
-                      <p><span style={{fontWeight:600,color:"#0a1628"}}>Currency:</span> KES (Kenya Shillings)</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* ── ITEMS TABLE ── */}
-                <div style={{marginBottom:"24px"}}>
-                  <p style={{color:"#0a1628",fontWeight:700,fontSize:"11px",letterSpacing:"0.08em",textTransform:"uppercase",marginBottom:"10px"}}>Description of Services</p>
-                  <div style={{border:"1px solid #dde0e8",borderRadius:"10px",overflow:"hidden"}}>
-                    <table style={{width:"100%",borderCollapse:"collapse"}}>
-                      <thead>
-                        <tr style={{backgroundColor:"#0a1628",color:"white"}}>
-                          <th style={{textAlign:"left",padding:"12px 16px",fontSize:"11px",fontWeight:700,letterSpacing:"0.05em",textTransform:"uppercase"}}>Description</th>
-                          <th style={{textAlign:"center",padding:"12px 16px",fontSize:"11px",fontWeight:700,width:"60px",letterSpacing:"0.05em",textTransform:"uppercase"}}>Qty</th>
-                          <th style={{textAlign:"right",padding:"12px 16px",fontSize:"11px",fontWeight:700,width:"130px",letterSpacing:"0.05em",textTransform:"uppercase"}}>Unit Price</th>
-                          <th style={{textAlign:"right",padding:"12px 16px",fontSize:"11px",fontWeight:700,width:"130px",letterSpacing:"0.05em",textTransform:"uppercase",color:"#e67e22"}}>Amount (KES)</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {selectedInvoice.items.map((item, i) => (
-                          <tr key={item.id} style={{backgroundColor:i%2===0?"#ffffff":"#f8f9ff",color:"#1a1a2e",borderBottom:"1px solid #eee"}}>
-                            <td style={{padding:"12px 16px",fontSize:"13px"}}>{item.description}</td>
-                            <td style={{padding:"12px 16px",textAlign:"center",fontSize:"13px"}}>{item.quantity}</td>
-                            <td style={{padding:"12px 16px",textAlign:"right",fontSize:"13px"}}>{item.unitPrice.toLocaleString()}</td>
-                            <td style={{padding:"12px 16px",textAlign:"right",fontWeight:700,fontSize:"13px"}}>{item.amount.toLocaleString()}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-
-                {/* ── TOTALS ── */}
-                <div style={{display:"flex",justifyContent:"flex-end",marginBottom:"24px"}}>
-                  <div style={{width:"300px",backgroundColor:"#0a1628",borderRadius:"12px",padding:"18px",border:"2px solid #e67e22"}}>
-                    <div style={{display:"flex",justifyContent:"space-between",fontSize:"12px",color:"rgba(255,255,255,0.65)",marginBottom:"8px"}}>
-                      <span>Subtotal:</span><span>KES {selectedInvoice.subtotal.toLocaleString()}</span>
-                    </div>
-                    <div style={{display:"flex",justifyContent:"space-between",fontSize:"12px",color:"rgba(255,255,255,0.65)",marginBottom:"12px"}}>
-                      <span>VAT ({selectedInvoice.vatRate}%):</span><span>KES {selectedInvoice.vatAmount.toLocaleString()}</span>
-                    </div>
-                    <div style={{borderTop:"1px solid rgba(230,126,34,0.5)",paddingTop:"12px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                      <span style={{color:"white",fontWeight:700,fontSize:"14px"}}>TOTAL DUE:</span>
-                      <span style={{color:"#e67e22",fontWeight:800,fontSize:"22px"}}>KES {selectedInvoice.total.toLocaleString()}</span>
-                    </div>
-                    {selectedInvoice.amountPaid > 0 && (
-                      <>
-                        <div style={{display:"flex",justifyContent:"space-between",fontSize:"12px",color:"#86efac",marginTop:"10px"}}>
-                          <span>Amount Paid:</span><span>KES {selectedInvoice.amountPaid.toLocaleString()}</span>
-                        </div>
-                        <div style={{display:"flex",justifyContent:"space-between",fontSize:"14px",fontWeight:700,marginTop:"6px",color:(selectedInvoice.total-selectedInvoice.amountPaid)>0?"#fca5a5":"#86efac"}}>
-                          <span>Balance Due:</span><span>KES {(selectedInvoice.total-selectedInvoice.amountPaid).toLocaleString()}</span>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </div>
-
-                {/* ── PAYMENT HISTORY ── */}
-                {selectedInvoice.payments.length > 0 && (
-                  <div style={{marginBottom:"24px"}}>
-                    <p style={{color:"#0a1628",fontWeight:700,fontSize:"11px",letterSpacing:"0.08em",textTransform:"uppercase",marginBottom:"10px"}}>Payment History</p>
-                    <div style={{border:"1px solid #dde0e8",borderRadius:"10px",overflow:"hidden"}}>
-                      <table style={{width:"100%",borderCollapse:"collapse"}}>
-                        <thead>
-                          <tr style={{backgroundColor:"#f0f2f8",color:"#0a1628"}}>
-                            {["Date","Method","Reference","Note","Amount (KES)"].map((h,i) => (
-                              <th key={h} style={{padding:"10px 14px",fontSize:"11px",fontWeight:700,textAlign:i===4?"right":"left",letterSpacing:"0.04em",textTransform:"uppercase"}}>{h}</th>
-                            ))}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {selectedInvoice.payments.map((p, i) => (
-                            <tr key={p.id} style={{borderTop:"1px solid #eee",backgroundColor:i%2===0?"white":"#f8f9ff",color:"#1a1a2e"}}>
-                              <td style={{padding:"10px 14px",fontSize:"12px"}}>{format(new Date(p.date), "MMM dd, yyyy")}</td>
-                              <td style={{padding:"10px 14px",fontSize:"12px",textTransform:"capitalize"}}>{p.method === "mpesa" ? "M-Pesa" : p.method}</td>
-                              <td style={{padding:"10px 14px",fontSize:"11px",fontFamily:"monospace"}}>{p.reference}</td>
-                              <td style={{padding:"10px 14px",fontSize:"12px",color:"#888"}}>{p.note || "—"}</td>
-                              <td style={{padding:"10px 14px",textAlign:"right",fontWeight:700,fontSize:"13px",color:"#16a34a"}}>{p.amount.toLocaleString()}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                )}
-
-                {/* ── PAYMENT OPTIONS ── */}
-                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"16px",marginBottom:"24px"}}>
-                  <div style={{backgroundColor:"#f8f9ff",border:"1px solid #dde0e8",borderRadius:"10px",padding:"16px"}}>
-                    <div style={{display:"flex",alignItems:"center",gap:"8px",marginBottom:"12px"}}>
-                      <Building2 style={{width:14,height:14,color:"#e67e22"}} />
-                      <span style={{color:"#0a1628",fontWeight:700,fontSize:"11px",letterSpacing:"0.06em",textTransform:"uppercase"}}>Bank Transfer</span>
-                    </div>
-                    <div style={{fontSize:"12px",color:"#555",lineHeight:2}}>
-                      <div style={{display:"flex",justifyContent:"space-between"}}><span>Bank:</span><span style={{fontWeight:700,color:"#0a1628"}}>{companyInfo.bankName}</span></div>
-                      <div style={{display:"flex",justifyContent:"space-between"}}><span>Account:</span><span style={{fontWeight:700,fontFamily:"monospace",color:"#0a1628"}}>{companyInfo.bankAccount}</span></div>
-                      <div style={{display:"flex",justifyContent:"space-between"}}><span>Branch:</span><span style={{fontWeight:700,color:"#0a1628"}}>{companyInfo.bankBranch}</span></div>
-                    </div>
-                  </div>
-                  <div style={{backgroundColor:"#fff8ee",border:"1px solid #e67e22",borderRadius:"10px",padding:"16px"}}>
-                    <div style={{display:"flex",alignItems:"center",gap:"8px",marginBottom:"12px"}}>
-                      <Smartphone style={{width:14,height:14,color:"#e67e22"}} />
-                      <span style={{color:"#0a1628",fontWeight:700,fontSize:"11px",letterSpacing:"0.06em",textTransform:"uppercase"}}>M-Pesa Paybill</span>
-                    </div>
-                    <div style={{fontSize:"12px",color:"#555",lineHeight:2}}>
-                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                        <span>Paybill:</span>
-                        <span style={{fontWeight:800,fontFamily:"monospace",fontSize:"22px",color:"#e67e22"}}>{companyInfo.mpesaPaybill}</span>
-                      </div>
-                      <div style={{display:"flex",justifyContent:"space-between"}}><span>Account:</span><span style={{fontWeight:700,fontFamily:"monospace",color:"#0a1628"}}>{companyInfo.mpesaAccountNo}</span></div>
-                      <p style={{fontSize:"11px",color:"#e67e22",fontWeight:600,marginTop:"4px"}}>Use invoice number as account reference</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* ── NOTES & TERMS ── */}
-                {selectedInvoice.notes && (
-                  <div style={{backgroundColor:"#fff8ee",border:"1px solid #e67e22",borderRadius:"8px",padding:"12px 16px",marginBottom:"16px"}}>
-                    <p style={{color:"#0a1628",fontWeight:700,fontSize:"11px",textTransform:"uppercase",marginBottom:"6px"}}>Notes</p>
-                    <p style={{fontSize:"12px",color:"#333"}}>{selectedInvoice.notes}</p>
-                  </div>
-                )}
-                <div style={{backgroundColor:"#f8f9ff",border:"1px solid #dde0e8",borderRadius:"8px",padding:"12px 16px",marginBottom:"24px"}}>
-                  <p style={{color:"#0a1628",fontWeight:700,fontSize:"11px",textTransform:"uppercase",marginBottom:"8px"}}>Terms & Conditions</p>
-                  <ul style={{fontSize:"11px",color:"#666",paddingLeft:"16px",lineHeight:2}}>
-                    <li>Payment is due by the date indicated above</li>
-                    <li>Late payments may incur additional charges of 2% per month</li>
-                    <li>Please include invoice number in all payment references</li>
-                    <li>This invoice is valid for 30 days from issue date</li>
-                  </ul>
-                </div>
-
-                {/* ── FOOTER ── */}
-                <div style={{textAlign:"center",paddingTop:"16px",borderTop:"2px solid #e67e22"}}>
-                  <p style={{color:"#e67e22",fontWeight:700,fontSize:"15px"}}>Thank You For Your Business!</p>
-                  <p style={{fontSize:"12px",color:"#555",marginTop:"6px"}}>
-                    For inquiries: <span style={{wordBreak:"break-all"}}>{companyInfo.email}</span> &nbsp;|&nbsp; {companyInfo.phone}
-                  </p>
-                  <p className="text-xs text-gray-500 mt-2">
-                    {companyInfo.website} | KRA PIN: {companyInfo.kraPin}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
+          {invoiceDocument}
         </DialogContent>
       </Dialog>
       {/* Record Payment Dialog */}
@@ -1457,6 +1491,12 @@ const [invoices, setInvoices] = useState<Invoice[]>(DEMO_INVOICES);
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Print-only copy of the invoice, directly under <body> — hidden on screen */}
+      {mounted && invoiceDocument && createPortal(
+        <div className="invoice-print-root" data-print-area="true">{invoiceDocument}</div>,
+        document.body
+      )}
     </div>
   );
 }
