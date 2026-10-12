@@ -240,7 +240,7 @@ const companyInfo = {
   phone: "+254 727 247 032",
   email: "info@moventrasafarislogisticsltd.com",
   website: "www.Moventra Safaris & Logistics Ltd.com",
-  kraPin: "P012345678Z",
+  kraPin: "P052540073A",
   bankName: "I$M Bank Kenya Ltd",
   bankAccount: "0100 9406 6363 50",
   bankBranch: "Nairobi Main Branch",
