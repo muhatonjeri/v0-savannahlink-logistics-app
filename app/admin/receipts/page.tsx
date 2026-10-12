@@ -331,44 +331,35 @@ const initialReceiptsData: ReceiptData[] = [
 ];
 
 // Convert number to words for receipts
-function numberToWords(num: number): string {
-  const ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 
-                'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 
-                'Eighteen', 'Nineteen'];
-  const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
-  const scales = ['', 'Thousand', 'Million', 'Billion'];
-  
-  if (num === 0) return 'Zero';
-  
-  const wholeNum = Math.floor(num);
-  const cents = Math.round((num - wholeNum) * 100);
-  
-  const numToStr = (n: number): string => {
+// Amount in words, e.g. 49000 → "Forty nine thousand Kenyan shillings",
+// 34800.5 → "Thirty four thousand eight hundred Kenyan shillings and fifty cents"
+function amountInWords(num: number): string {
+  const ones = ["", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten",
+    "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"];
+  const tens = ["", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"];
+  const scales = ["", "thousand", "million", "billion"];
+
+  const below1000 = (n: number): string => {
     if (n < 20) return ones[n];
-    if (n < 100) return tens[Math.floor(n / 10)] + (n % 10 !== 0 ? ' ' + ones[n % 10] : '');
-    if (n < 1000) return ones[Math.floor(n / 100)] + ' Hundred' + (n % 100 !== 0 ? ' and ' + numToStr(n % 100) : '');
-    return '';
+    if (n < 100) return tens[Math.floor(n / 10)] + (n % 10 ? " " + ones[n % 10] : "");
+    return ones[Math.floor(n / 100)] + " hundred" + (n % 100 ? " and " + below1000(n % 100) : "");
   };
-  
-  let result = '';
-  let scaleIdx = 0;
-  let remaining = wholeNum;
-  
-  while (remaining > 0) {
-    const chunk = remaining % 1000;
-    if (chunk !== 0) {
-      const chunkStr = numToStr(chunk);
-      result = chunkStr + (scales[scaleIdx] ? ' ' + scales[scaleIdx] : '') + (result ? ', ' + result : '');
+  const toWords = (n: number): string => {
+    if (n === 0) return "zero";
+    const parts: string[] = [];
+    for (let i = 0; n > 0; i++, n = Math.floor(n / 1000)) {
+      const chunk = n % 1000;
+      if (chunk) parts.unshift(below1000(chunk) + (scales[i] ? " " + scales[i] : ""));
     }
-    remaining = Math.floor(remaining / 1000);
-    scaleIdx++;
-  }
-  
-  if (cents > 0) {
-    result += ` and ${cents}/100`;
-  }
-  
-  return result;
+    return parts.join(" ");
+  };
+
+  const totalCents = Math.round(Math.abs(num) * 100); // avoids 99.995 → "100 cents"
+  const shillings = Math.floor(totalCents / 100);
+  const cents = totalCents % 100;
+  const text = `${toWords(shillings)} Kenyan ${shillings === 1 ? "shilling" : "shillings"}` +
+    (cents ? ` and ${toWords(cents)} ${cents === 1 ? "cent" : "cents"}` : "");
+  return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
 
@@ -1200,7 +1191,7 @@ export default function ReceiptsPage() {
             <div style={{backgroundColor:"#fff8ee",border:"1px solid #e67e22",borderRadius:"8px",padding:"10px 14px",marginBottom:"16px"}}>
               <p style={{fontSize:"12px",color:"#0a1628"}}>
                 <span style={{fontWeight:700,color:"#e67e22"}}>Amount in Words: </span>
-                <span style={{fontStyle:"italic"}}>Kenya Shillings {numberToWords(selectedReceipt.totalAmount)} Only</span>
+                <span style={{fontStyle:"italic"}}>{amountInWords(selectedReceipt.totalAmount)}</span>
               </p>
             </div>
 
