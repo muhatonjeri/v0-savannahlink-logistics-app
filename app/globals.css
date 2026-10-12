@@ -238,10 +238,10 @@
      Screen layout keeps its roomier spacing; only the printout tightens. */
   .invoice-doc {
     padding: 14px 0 0 !important;   /* breathing room under the top accent bar */
-    zoom: 0.82;
+    zoom: 0.84;
   }
   .invoice-doc > div {
-    margin-bottom: 10px !important;
+    margin-bottom: 8px !important;
     break-inside: avoid;   /* never split a section across pages */
   }
   .invoice-doc ul, .invoice-doc ol {
