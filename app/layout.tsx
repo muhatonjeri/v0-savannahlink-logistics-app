@@ -24,6 +24,8 @@ export const metadata: Metadata = {
   authors: [{ name: 'Moventra Safaris & Logistics Ltd' }],
   creator: 'Moventra Safaris & Logistics Ltd',
   icons: {
+    // Browser-tab icons, generated from the Moventra badge (/images/logo.png).
+    // The old icon.svg entry was removed: browsers prefer SVG and would keep showing the old icon.
     icon: [
       {
         url: '/icon-light-32x32.png',
@@ -34,8 +36,9 @@ export const metadata: Metadata = {
         media: '(prefers-color-scheme: dark)',
       },
       {
-        url: '/icon.svg',
-        type: 'image/svg+xml',
+        url: '/icon-192.png',
+        sizes: '192x192',
+        type: 'image/png',
       },
     ],
     apple: '/apple-icon.png',
