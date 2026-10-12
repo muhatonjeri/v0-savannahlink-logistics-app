@@ -799,7 +799,7 @@ const [invoices, setInvoices] = useState<Invoice[]>(DEMO_INVOICES);
               <div style={{minWidth:0}}>
                 <h1 style={{color:"#0a1628",fontWeight:800,fontSize:"18px",lineHeight:1.25}}>{companyInfo.name}</h1>
                 <p style={{color:"#e67e22",fontSize:"11px",fontWeight:600,marginTop:"3px",letterSpacing:"0.03em"}}>{companyInfo.tagline}</p>
-                <div style={{marginTop:"8px",fontSize:"11.5px",color:"#555",lineHeight:1.6}}>
+                <div style={{marginTop:"8px",fontSize:"11.5px",color:"#1f2937",fontWeight:500,lineHeight:1.6}}>
                   <p>{companyInfo.address}, {companyInfo.city}</p>
                   <p>{companyInfo.phone}</p>
                   <p>{companyInfo.email}</p>
@@ -810,10 +810,10 @@ const [invoices, setInvoices] = useState<Invoice[]>(DEMO_INVOICES);
             </div>
             <div style={{textAlign:"right",flexShrink:0,marginLeft:"16px"}}>
               <div style={{backgroundColor:"#0a1628",color:"white",borderRadius:"10px",padding:"14px 22px",minWidth:"180px",display:"inline-block"}}>
-                <p style={{fontSize:"10px",letterSpacing:"0.12em",textTransform:"uppercase",opacity:0.8}}>Tax Invoice</p>
+                <p style={{fontSize:"10px",letterSpacing:"0.12em",textTransform:"uppercase",opacity:12}}>Tax Invoice</p>
                 <p style={{fontSize:"18px",fontWeight:800,fontFamily:"monospace",marginTop:"4px",whiteSpace:"nowrap"}}>{selectedInvoice.invoiceNumber}</p>
                 <div style={{height:"1px",backgroundColor:"rgba(230,126,34,0.5)",margin:"10px 0"}} />
-                <div style={{fontSize:"11px",opacity:0.9}}>
+                <div style={{fontSize:"11px",opacity:1}}>
                   <p>Issue: {format(new Date(selectedInvoice.issueDate), "dd MMM yyyy")}</p>
                   <p style={{color:"#fca5a5",marginTop:"2px"}}>Due: {format(new Date(selectedInvoice.dueDate), "dd MMM yyyy")}</p>
                 </div>
@@ -831,41 +831,41 @@ const [invoices, setInvoices] = useState<Invoice[]>(DEMO_INVOICES);
             <div style={{backgroundColor:"#f8f9ff",border:"1px solid #e8eaf0",borderRadius:"10px",padding:"16px"}}>
               <div style={{display:"flex",alignItems:"center",gap:"8px",marginBottom:"12px"}}>
                 <User style={{width:14,height:14,color:"#e67e22"}} />
-                <span style={{color:"#0a1628",fontWeight:700,fontSize:"11px",letterSpacing:"0.06em",textTransform:"uppercase"}}>Bill To</span>
+                <span style={{color:"#0a1628",fontWeight:800,fontSize:"12.5px",letterSpacing:"0.07em",textTransform:"uppercase"}}>Bill To</span>
               </div>
               <p style={{color:"#0a1628",fontWeight:700,fontSize:"17px",marginBottom:"6px"}}>{selectedInvoice.customerName}</p>
               {selectedInvoice.customerAttention && <p style={{color:"#0a1628",fontSize:"12px",marginBottom:"3px"}}><span style={{fontWeight:600}}>Attn:</span> {selectedInvoice.customerAttention}</p>}
-              {selectedInvoice.customerAddress && <p style={{color:"#555",fontSize:"12px",marginBottom:"3px"}}>{selectedInvoice.customerAddress}</p>}
-              {selectedInvoice.customerPhone && <p style={{color:"#555",fontSize:"12px",marginBottom:"3px"}}>{selectedInvoice.customerPhone}</p>}
-              {selectedInvoice.customerEmail && <p style={{color:"#555",fontSize:"12px",overflowWrap:"anywhere",marginBottom:"3px"}}>{selectedInvoice.customerEmail}</p>}
+              {selectedInvoice.customerAddress && <p style={{color:"#1f2937",fontSize:"12px",fontWeight:500,marginBottom:"3px"}}>{selectedInvoice.customerAddress}</p>}
+              {selectedInvoice.customerPhone && <p style={{color:"#1f2937",fontSize:"12px",fontWeight:500,marginBottom:"3px"}}>{selectedInvoice.customerPhone}</p>}
+              {selectedInvoice.customerEmail && <p style={{color:"#1f2937",fontSize:"12px",fontWeight:500,overflowWrap:"anywhere",marginBottom:"3px"}}>{selectedInvoice.customerEmail}</p>}
               {selectedInvoice.customerKraPin && <p style={{color:"#0a1628",fontSize:"12px",fontWeight:600,marginTop:"6px"}}>KRA PIN: {selectedInvoice.customerKraPin}</p>}
             </div>
             <div style={{backgroundColor:"#f8f9ff",border:"1px solid #e8eaf0",borderRadius:"10px",padding:"16px"}}>
               <div style={{marginBottom:"12px"}}>
-                <span style={{color:"#0a1628",fontWeight:700,fontSize:"11px",letterSpacing:"0.06em",textTransform:"uppercase"}}>Invoice Details</span>
+                <span style={{color:"#0a1628",fontWeight:800,fontSize:"12.5px",letterSpacing:"0.07em",textTransform:"uppercase"}}>Invoice Details</span>
               </div>
               <div style={{display:"flex",alignItems:"center",gap:"8px",marginBottom:"8px"}}>
                 {(() => { const SI = getServiceIcon(selectedInvoice.serviceType); return <SI style={{width:16,height:16,color:"#e67e22"}} />; })()}
                 <span style={{fontWeight:700,color:"#0a1628",fontSize:"13px"}}>{getServiceLabel(selectedInvoice.serviceType)}</span>
               </div>
               {/* Label/value rows; each appears only when it has a value */}
-              <div style={{display:"grid",gridTemplateColumns:"auto 1fr",columnGap:"12px",rowGap:"5px",fontSize:"12px",color:"#333"}}>
+              <div style={{display:"grid",gridTemplateColumns:"auto 1fr",columnGap:"12px",rowGap:"5px",fontSize:"12px",color:"#1f2937"}}>
                 {selectedInvoice.lpoNumber && (<>
-                  <span style={{color:"#777"}}>LPO / PO No.</span>
+                  <span style={{color:"#374151"}}>LPO / PO No.</span>
                   <span style={{fontWeight:700,color:"#0a1628",fontFamily:"monospace"}}>{selectedInvoice.lpoNumber}</span>
                 </>)}
                 {selectedInvoice.serviceStart && (<>
-                  <span style={{color:"#777"}}>Service period</span>
+                  <span style={{color:"#374151"}}>Service period</span>
                   <span style={{fontWeight:600,color:"#0a1628"}}>
                     {formatDocDate(selectedInvoice.serviceStart)}
                     {selectedInvoice.serviceEnd && selectedInvoice.serviceEnd !== selectedInvoice.serviceStart && <> – {formatDocDate(selectedInvoice.serviceEnd)}</>}
                   </span>
                 </>)}
                 {selectedInvoice.vehicleRoute && (<>
-                  <span style={{color:"#777"}}>Vehicle / Route</span>
+                  <span style={{color:"#374151"}}>Vehicle / Route</span>
                   <span style={{fontWeight:600,color:"#0a1628"}}>{selectedInvoice.vehicleRoute}</span>
                 </>)}
-                <span style={{color:"#777"}}>Payment terms</span>
+                <span style={{color:"#374151"}}>Payment terms</span>
                 <span style={{fontWeight:600,color:"#0a1628"}}>{describePaymentTerms(selectedInvoice.paymentTerms)}</span>
               </div>
             </div>
@@ -873,7 +873,7 @@ const [invoices, setInvoices] = useState<Invoice[]>(DEMO_INVOICES);
 
           {/* ── ITEMS TABLE ── */}
           <div style={{marginBottom:"24px"}}>
-            <p style={{color:"#0a1628",fontWeight:700,fontSize:"11px",letterSpacing:"0.08em",textTransform:"uppercase",marginBottom:"10px"}}>Description of Services</p>
+            <p style={{color:"#0a1628",fontWeight:800,fontSize:"12.5px",letterSpacing:"0.07em",textTransform:"uppercase",marginBottom:"10px"}}>Description of Services</p>
             <div style={{border:"1px solid #dde0e8",borderRadius:"10px",overflow:"hidden"}}>
               <table style={{width:"100%",borderCollapse:"collapse"}}>
                 <thead>
@@ -901,10 +901,10 @@ const [invoices, setInvoices] = useState<Invoice[]>(DEMO_INVOICES);
           {/* ── TOTALS ── */}
           <div style={{display:"flex",justifyContent:"flex-end",marginBottom:"24px"}}>
             <div style={{width:"300px",backgroundColor:"#0a1628",borderRadius:"12px",padding:"18px",border:"2px solid #e67e22"}}>
-              <div style={{display:"flex",justifyContent:"space-between",fontSize:"12px",color:"rgba(255,255,255,0.65)",marginBottom:"8px"}}>
+              <div style={{display:"flex",justifyContent:"space-between",fontSize:"12px",color:"rgba(255,255,255,0.88)",marginBottom:"8px"}}>
                 <span>Subtotal:</span><span>KES {formatKES(selectedInvoice.subtotal)}</span>
               </div>
-              <div style={{display:"flex",justifyContent:"space-between",fontSize:"12px",color:"rgba(255,255,255,0.65)",marginBottom:"12px"}}>
+              <div style={{display:"flex",justifyContent:"space-between",fontSize:"12px",color:"rgba(255,255,255,0.88)",marginBottom:"12px"}}>
                 <span>VAT ({selectedInvoice.vatRate}%):</span><span>KES {formatKES(selectedInvoice.vatAmount)}</span>
               </div>
               <div style={{borderTop:"1px solid rgba(230,126,34,0.5)",paddingTop:"12px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
@@ -927,7 +927,7 @@ const [invoices, setInvoices] = useState<Invoice[]>(DEMO_INVOICES);
           {/* ── PAYMENT HISTORY ── */}
           {selectedInvoice.payments.length > 0 && (
             <div style={{marginBottom:"24px"}}>
-              <p style={{color:"#0a1628",fontWeight:700,fontSize:"11px",letterSpacing:"0.08em",textTransform:"uppercase",marginBottom:"10px"}}>Payment History</p>
+              <p style={{color:"#0a1628",fontWeight:800,fontSize:"12.5px",letterSpacing:"0.07em",textTransform:"uppercase",marginBottom:"10px"}}>Payment History</p>
               <div style={{border:"1px solid #dde0e8",borderRadius:"10px",overflow:"hidden"}}>
                 <table style={{width:"100%",borderCollapse:"collapse"}}>
                   <thead>
@@ -943,7 +943,7 @@ const [invoices, setInvoices] = useState<Invoice[]>(DEMO_INVOICES);
                         <td style={{padding:"10px 14px",fontSize:"12px"}}>{format(new Date(p.date), "MMM dd, yyyy")}</td>
                         <td style={{padding:"10px 14px",fontSize:"12px",textTransform:"capitalize"}}>{p.method === "mpesa" ? "M-Pesa" : p.method}</td>
                         <td style={{padding:"10px 14px",fontSize:"11px",fontFamily:"monospace"}}>{p.reference}</td>
-                        <td style={{padding:"10px 14px",fontSize:"12px",color:"#888"}}>{p.note || "—"}</td>
+                        <td style={{padding:"10px 14px",fontSize:"12px",color:"#374151"}}>{p.note || "—"}</td>
                         <td style={{padding:"10px 14px",textAlign:"right",fontWeight:700,fontSize:"13px",color:"#16a34a"}}>{formatKES(p.amount)}</td>
                       </tr>
                     ))}
@@ -959,9 +959,9 @@ const [invoices, setInvoices] = useState<Invoice[]>(DEMO_INVOICES);
             <div style={{backgroundColor:"#f8f9ff",border:"1px solid #dde0e8",borderRadius:"10px",padding:"16px"}}>
               <div style={{display:"flex",alignItems:"center",gap:"8px",marginBottom:"12px"}}>
                 <Building2 style={{width:14,height:14,color:"#e67e22"}} />
-                <span style={{color:"#0a1628",fontWeight:700,fontSize:"11px",letterSpacing:"0.06em",textTransform:"uppercase"}}>Bank Transfer</span>
+                <span style={{color:"#0a1628",fontWeight:800,fontSize:"12.5px",letterSpacing:"0.07em",textTransform:"uppercase"}}>Bank Transfer</span>
               </div>
-              <div style={{fontSize:"12px",color:"#555",lineHeight:2}}>
+              <div style={{fontSize:"12px",color:"#1f2937",lineHeight:2}}>
                 <div style={{display:"flex",justifyContent:"space-between"}}><span>Bank:</span><span style={{fontWeight:700,color:"#0a1628"}}>{companyInfo.bankName}</span></div>
                 <div style={{display:"flex",justifyContent:"space-between"}}><span>Account:</span><span style={{fontWeight:700,fontFamily:"monospace",color:"#0a1628"}}>{companyInfo.bankAccount}</span></div>
                 <div style={{display:"flex",justifyContent:"space-between"}}><span>Branch:</span><span style={{fontWeight:700,color:"#0a1628"}}>{companyInfo.bankBranch}</span></div>
@@ -971,9 +971,9 @@ const [invoices, setInvoices] = useState<Invoice[]>(DEMO_INVOICES);
             <div style={{backgroundColor:"#fff8ee",border:"1px solid #e67e22",borderRadius:"10px",padding:"16px"}}>
               <div style={{display:"flex",alignItems:"center",gap:"8px",marginBottom:"12px"}}>
                 <Smartphone style={{width:14,height:14,color:"#e67e22"}} />
-                <span style={{color:"#0a1628",fontWeight:700,fontSize:"11px",letterSpacing:"0.06em",textTransform:"uppercase"}}>M-Pesa Paybill</span>
+                <span style={{color:"#0a1628",fontWeight:800,fontSize:"12.5px",letterSpacing:"0.07em",textTransform:"uppercase"}}>M-Pesa Paybill</span>
               </div>
-              <div style={{fontSize:"12px",color:"#555",lineHeight:2}}>
+              <div style={{fontSize:"12px",color:"#1f2937",lineHeight:2}}>
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
                   <span>Paybill:</span>
                   <span style={{fontWeight:800,fontFamily:"monospace",fontSize:"22px",color:"#e67e22"}}>{companyInfo.mpesaPaybill}</span>
@@ -987,13 +987,13 @@ const [invoices, setInvoices] = useState<Invoice[]>(DEMO_INVOICES);
           {/* ── NOTES & TERMS ── */}
           {selectedInvoice.notes && (
             <div style={{backgroundColor:"#fff8ee",border:"1px solid #e67e22",borderRadius:"8px",padding:"12px 16px",marginBottom:"16px"}}>
-              <p style={{color:"#0a1628",fontWeight:700,fontSize:"11px",textTransform:"uppercase",marginBottom:"6px"}}>Notes</p>
-              <p style={{fontSize:"12px",color:"#333"}}>{selectedInvoice.notes}</p>
+              <p style={{color:"#0a1628",fontWeight:800,fontSize:"12.5px",letterSpacing:"0.07em",textTransform:"uppercase",marginBottom:"6px"}}>Notes</p>
+              <p style={{fontSize:"12px",color:"#1f2937"}}>{selectedInvoice.notes}</p>
             </div>
           )}
           <div style={{backgroundColor:"#f8f9ff",border:"1px solid #dde0e8",borderRadius:"8px",padding:"12px 16px",marginBottom:"24px"}}>
-            <p style={{color:"#0a1628",fontWeight:700,fontSize:"11px",textTransform:"uppercase",marginBottom:"8px"}}>Terms & Conditions</p>
-            <ol style={{fontSize:"11px",color:"#555",paddingLeft:"18px",lineHeight:1.7,listStyleType:"decimal"}}>
+            <p style={{color:"#0a1628",fontWeight:800,fontSize:"12.5px",letterSpacing:"0.07em",textTransform:"uppercase",marginBottom:"8px"}}>Terms & Conditions</p>
+            <ol style={{fontSize:"11px",color:"#1f2937",fontWeight:500,paddingLeft:"18px",lineHeight:1.7,listStyleType:"decimal"}}>
               {getInvoiceTerms(selectedInvoice.invoiceNumber).map((term) => (
                 <li key={term}>{term}</li>
               ))}
