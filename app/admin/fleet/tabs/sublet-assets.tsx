@@ -787,7 +787,7 @@ export default function SubletAssetsTab() {
         serviceType: v.serviceType, supplierName: v.supplierName,
         supplierPhone: v.supplierPhone, supplierType: v.supplierType,
         make: v.make, model: v.model, registration: v.registration,
-        color: v.color, year: v.year,
+        color: v.color, year: v.year ? parseInt(v.year) || null : null,
         supplierDailyRate: v.supplierDailyRate, ourDailyRate: v.ourDailyRate,
         status: "available",
       }),

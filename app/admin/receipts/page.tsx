@@ -1468,7 +1468,7 @@ export default function ReceiptsPage() {
                       </TableRow>
                     );
                   })
-                )}git
+                )}
               </TableBody>
             </Table>
           </div>

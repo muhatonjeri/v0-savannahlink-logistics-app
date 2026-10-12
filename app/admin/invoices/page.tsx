@@ -241,11 +241,11 @@ const companyInfo = {
   email: "info@moventrasafarislogisticsltd.com",
   website: "www.Moventra Safaris & Logistics Ltd.com",
   kraPin: "P012345678Z",
-  bankName: "Equity Bank Kenya",
-  bankAccount: "0123456789012",
+  bankName: "I$M Bank Kenya Ltd",
+  bankAccount: "0100 9406 6363 50",
   bankBranch: "Nairobi Main Branch",
-  mpesaPaybill: "123456",
-  mpesaAccountNo: "Invoice Number",
+  mpesaPaybill: "542542",
+  mpesaAccountNo: "247032",
 };
 
 
