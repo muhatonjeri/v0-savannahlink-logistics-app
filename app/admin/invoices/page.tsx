@@ -899,7 +899,7 @@ const [invoices, setInvoices] = useState<Invoice[]>(DEMO_INVOICES);
           </div>
 
           {/* ── PAYMENT METHODS + TOTALS ── */}
-          <div style={{display:"flex",gap:"16px",alignItems:"flex-start",marginBottom:"24px"}}>
+          <div className="inv-space-before" style={{display:"flex",gap:"16px",alignItems:"flex-start",marginTop:"15px",marginBottom:"24px"}}>
             {/* Payment methods, beside the totals (uses space that was empty) */}
             <div style={{flex:1,minWidth:0,display:"flex",flexDirection:"column",gap:"12px"}}>
             <div style={{backgroundColor:"#fff8ee",border:"1px solid #e67e22",borderRadius:"10px",padding:"16px"}}>
@@ -993,7 +993,7 @@ const [invoices, setInvoices] = useState<Invoice[]>(DEMO_INVOICES);
               <p style={{fontSize:"13.5px",color:"#1f2937"}}>{selectedInvoice.notes}</p>
             </div>
           )}
-          <div style={{backgroundColor:"#f8f9ff",border:"1px solid #dde0e8",borderRadius:"8px",padding:"12px 16px",marginBottom:"24px"}}>
+          <div className="inv-space-before" style={{backgroundColor:"#f8f9ff",border:"1px solid #dde0e8",borderRadius:"8px",padding:"12px 16px",marginTop:"15px",marginBottom:"24px"}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",gap:"12px",marginBottom:"8px"}}>
               <p style={{color:"#0a1628",fontWeight:800,fontSize:"14px",letterSpacing:"0.07em",textTransform:"uppercase",margin:0}}>Terms & Conditions</p>
               <span style={{color:"#e67e22",fontWeight:700,fontSize:"14px",whiteSpace:"nowrap"}}>Thank you for your business!</span>
